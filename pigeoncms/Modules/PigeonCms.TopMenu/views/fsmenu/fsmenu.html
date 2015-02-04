@@ -1,0 +1,485 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+ <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+ <title>FreeStyle Menus Demonstration</title>
+
+<!--
+
+Welcome to the FreeStyle Menu script!
+
+The menus have 4 components that you need to copy and paste into your page:
+ 1) A <link> tag that includes a CSS file, controlling menu layout and formatting.
+ 2) A core <script> tag that includes the main fsmenu.js to control menu behaviour.
+ 3) The menu data itself, which is either a <ul> list or some <div> tags.
+ 4) A configuration <script> that activates the menu data.
+
+(1) and (2) must be pasted into your document <head>, while (3) must be pasted
+into your document <body>. (4) must be pasted anywhere after (2); you can even
+combine the two into one file if you want.
+
+I suggest using server-side includes for including menu data on all pages of your site.
+Try a language like PHP or ASP if your webhost supports it perhaps.
+
+See below for menu examples; there are 2 main modes of operation for this script, using a
+nested UL/LI list, and using un-nested tags in the page.
+I recommend you use the list mode, but I've included an example of the other as well.
+
+Good luck - Angus.
+
+-->
+
+
+ <!-- FreeStyle Menu v1.0RC by Angus Turnbull http://www.twinhelix.com -->
+ <script type="text/javascript" src="fsmenu.js"></script>
+
+ <!-- Demo CSS layouts for the list menu. Pick your favourite one and customise! -->
+ <!-- Remove all but one and change "alternate stylesheet" to "stylesheet" to enable -->
+ <link rel="alternate stylesheet" type="text/css" id="listmenu-o"
+  href="listmenu_o.css" title="Vertical 'Office'" />
+ <link rel="alternate stylesheet" type="text/css" id="listmenu-v"
+  href="listmenu_v.css" title="Vertical 'Earth'" />
+ <link rel="stylesheet" type="text/css" id="listmenu-h"
+  href="listmenu_h.css" title="Horizontal 'Earth'" />
+
+ <!-- Fallback CSS menu file allows list menu operation when JS is disabled. -->
+ <!-- This is automatically disabled via its ID when the script kicks in. -->
+ <link rel="stylesheet" type="text/css" id="fsmenu-fallback"
+  href="listmenu_fallback.css" />
+
+ <!-- Alternatively, this CSS file is for the second div-based demo menu. -->
+ <link rel="stylesheet" type="text/css" href="divmenu.css" />
+
+</head>
+
+<body style="font: 13px/20px sans-serif; background-color: #FFF">
+
+
+<div style="text-align: center">
+ <h1 style="font: 32px/48px sans-serif">FreeStyle Menus v1.0 RC11</h1>
+ by Angus Turnbull - <a href="http://www.twinhelix.com">http://www.twinhelix.com</a>.
+ Updated: 25 September 2006.
+ <hr />
+</div>
+
+
+
+
+<!--
+
+***** EXAMPLE 1: LIST MENU (v5+ browsers only) *****
+
+You just need a series of <ul> lists, one nested inside another, with <a> tags in each item,
+and <ul> tags after <a> tags to trigger another level of submenus.
+The script will then automatically manage them as a multilevel popup menu.
+Paste your data into here to get started, and be careful to close all your </li> tags!
+
+-->
+
+<ul class="menulist" id="listMenuRoot">
+ <li><a href="#">Home</a></li>
+ <li>
+  <a href="#">Demo Submenu</a>
+  <ul>
+   <li><a href="#">Here's a submenu item.</a></li>
+   <li><a href="#">Items auto-size based on the text they contain.</a></li>
+  </ul>
+ </li>
+ <li>
+  <a href="#">Submenu #2</a>
+  <ul>
+   <li>
+    <a href="#">Nested menu 1</a>
+    <ul>
+     <li><a href="#">As many levels as you need.</a></li>
+     <li><a href="#">All styled via CSS.</a></li>
+    </ul>
+   </li>
+   <li>
+    <a href="#">Nested menu 2</a>
+    <ul>
+     <li><a href="#">Another nested menu.</a></li>
+     <li><a href="#">It's still built with nested lists.</a></li>
+    </ul>
+   </li>
+   <li><a href="#">These menus have true 'switch' timers.</a></li>
+   <li><a href="#">Imprecision doesn't mean collapse!</a></li>
+  </ul>
+ </li>
+ <li><a href="#">Easy to use!</a></li>
+</ul>
+
+
+<script type="text/javascript">
+//<![CDATA[
+
+// For each menu you create, you must create a matching "FSMenu" JavaScript object to represent
+// it and manage its behaviour. You don't have to edit this script at all if you don't want to;
+// these comments are just here for completeness. Also, feel free to paste this script into the
+// external .JS file to make including it in your pages easier!
+
+// Here's a menu object to control the above list of menu data:
+var listMenu = new FSMenu('listMenu', true, 'display', 'block', 'none');
+
+// The parameters of the FSMenu object are:
+//  1) Its own name in quotes.
+//  2) Whether this is a nested list menu or not (in this case, true means yes).
+//  3) The CSS property name to change when menus are shown and hidden.
+//  4) The visible value of that CSS property.
+//  5) The hidden value of that CSS property.
+//
+// Next, here's some optional settings for delays and highlighting:
+//  * showDelay is the time (in milliseconds) to display a new child menu.
+//    Remember that 1000 milliseconds = 1 second.
+//  * switchDelay is the time to switch from one child menu to another child menu.
+//    Set this higher and point at 2 neighbouring items to see what it does.
+//  * hideDelay is the time it takes for a menu to hide after mouseout.
+//    Set this to a negative number to disable hiding entirely.
+//  * cssLitClass is the CSS classname applied to parent items of active menus.
+//  * showOnClick will, suprisingly, set the menus to show on click. Pick one of 3 values:
+//    0 = all mouseover, 1 = first level click, sublevels mouseover, 2 = all click.
+//  * hideOnClick hides all visible menus when one is clicked (defaults to true).
+//  * animInSpeed and animOutSpeed set the animation speed. Set to a number
+//    between 0 and 1 where higher = faster. Setting both to 1 disables animation.
+
+//listMenu.showDelay = 0;
+//listMenu.switchDelay = 125;
+//listMenu.hideDelay = 500;
+//listMenu.cssLitClass = 'highlighted';
+//listMenu.showOnClick = 0;
+//listMenu.hideOnClick = true;
+//listMenu.animInSpeed = 0.2;
+//listMenu.animOutSpeed = 0.2;
+
+
+// Now the fun part... animation! This script supports animation plugins you
+// can add to each menu object you create. I have provided 3 to get you started.
+// To enable animation, add one or more functions to the menuObject.animations
+// array; available animations are:
+//  * FSMenu.animSwipeDown is a "swipe" animation that sweeps the menu down.
+//  * FSMenu.animFade is an alpha fading animation using tranparency.
+//  * FSMenu.animClipDown is a "blind" animation similar to 'Swipe'.
+// They are listed inside the "fsmenu.js" file for you to modify and extend :).
+
+// I'm applying two at once to listMenu. Delete this to disable!
+listMenu.animations[listMenu.animations.length] = FSMenu.animFade;
+listMenu.animations[listMenu.animations.length] = FSMenu.animSwipeDown;
+//listMenu.animations[listMenu.animations.length] = FSMenu.animClipDown;
+
+
+// Finally, on page load you have to activate the menu by calling its 'activateMenu()' method.
+// I've provided an "addEvent" method that lets you easily run page events across browsers.
+// You pass the activateMenu() function two parameters:
+//  (1) The ID of the outermost <ul> list tag containing your menu data.
+//  (2) A node containing your submenu popout arrow indicator.
+// If none of that made sense, just cut and paste this next bit for each menu you create.
+
+var arrow = null;
+if (document.createElement && document.documentElement)
+{
+ arrow = document.createElement('span');
+ arrow.appendChild(document.createTextNode('>'));
+ // Feel free to replace the above two lines with these for a small arrow image...
+ //arrow = document.createElement('img');
+ //arrow.src = 'arrow.gif';
+ //arrow.style.borderWidth = '0';
+ arrow.className = 'subind';
+}
+addEvent(window, 'load', new Function('listMenu.activateMenu("listMenuRoot", arrow)'));
+
+
+// You may wish to leave your menu as a visible list initially, then apply its style
+// dynamically on activation for better accessibility. Screenreaders and older browsers will
+// then see all your menu data, but there will be a 'flicker' of the raw list before the
+// page has completely loaded. If you want to do this, remove the CLASS="..." attribute from
+// the above outermost UL tag, and uncomment this line:
+//addEvent(window, 'load', new Function('getRef("listMenuRoot").className="menulist"'));
+
+
+// To create more menus, duplicate this section and make sure you rename your
+// menu object to something different; also, activate another <ul> list with a
+// different ID, of course :). You can hae as many menus as you want on a page.
+
+//]]>
+</script>
+
+<!-- ***** END OF EXAMPLE 1: LIST MENU ***** -->
+
+
+
+<div style="clear: both; height: 2em"></div>
+
+<p>This script is a highly flexible means of converting HTML content into powerful popup menus,
+using either nested lists or DIV tags for menu data, and following best practice guidelines
+for powerful and accessible menus.</p>
+
+<h4>Features:</h4>
+<ul>
+ <li><strong>Pure CSS formatting</strong> allows infinitely customisable menu appearance
+  using the standards-based technology you know.</li>
+ <li><strong>Accessible HTML elements</strong> used to construct the menus, so your site
+  maintains excellent search engine and screenreader compatibility.</li>
+ <li><strong>Object-orientated JavaScript</strong> for separate menu systems and easy
+  implementation; you don't have to know any JavaScript to use the menus.</li>
+ <li><strong>Fallback to pure CSS menus</strong> where JavaScript is disabled.</li>
+ <li><strong>Hierarchial / Multilevel</strong> menus supported -- as many levels as you want!</li>
+ <li>Menus are <strong>relatively positioned</strong> from their parent menu/item.</li>
+ <li><strong>Plugin animation framework</strong> allows you to easily implement and
+  customise animation effects for your menus.</li>
+ <li><strong>Customisable show/hide timers</strong> applied to menus, so your menus
+  <strong>don't have to overlap</strong>.</li>
+ <li>You can <strong>mouseover neighbouring items without hiding submenus</strong>, using
+  a powerful 'switch timer' option. No more of that 'slippery' menu feeling!</li>
+ <li><strong>ONCLICK support</strong> is optional for menus.</li>
+ <li><strong>Keyboard Navigation</strong> using standard TAB and SHIFT-TAB link focusing
+  with the list-based menus.</li>
+ <li><strong>Tiny, fast script</strong> since data is in the page BODY; it's as little as 8kb in
+  size, so your visitors won't be kept waiting.</li>
+ <li><strong><a href="#extras">More optional 'plugin' features...</a></strong></li>
+</ul>
+
+<p>Here's another example of the script: multiple DIVs used to construct a menu.
+This will work in v4 browsers.</p>
+
+
+
+<!-- ***** EXAMPLE 2: DIV MENU (v4+ browsers) ***** -->
+
+<script type="text/javascript">
+//<![CDATA[
+
+// This menu does 'work' in v4+ browsers, but I recommend the above UL/LI menu system
+// as it simpler, cleaner and more elegant.
+
+// With this divMenu object, 'false' means the menu elements are not nested.
+var divMenu = new FSMenu('divMenu', false, 'visibility', 'visible', 'hidden');
+divMenu.cssLitClass = 'highlighted';
+divMenu.animInSpeed = 1;
+divMenu.animOutSpeed = 1;
+
+// The other optional settings and animation functions will work here too.
+
+//]]>
+</script>
+
+<!--
+
+Instead of activating on page load, this menu style requires event handlers in the page:
+
+<tag onmouseover="menuObjectName.show('menuname-to-show', this, Left, Top)"
+     onmouseout="menuObjectName.hide('menuname-to-hide')">
+
+The menuname and 'this' are compulsory. If you want, you can specify the Left and Top values,
+which instruct the script to popout the new menu that many pixels from 'this', the current
+element, otherwise leave them out to control the positioning yourself (perhaps via CSS).
+
+Then, you have menu elements themselves in the page, with the appropriate IDs:
+
+<tag id="menuname-to-show">Menu Contents Here</tag>
+
+They contain your menu data, and will be shown by the script.
+
+-->
+
+<p class="trigger">
+&nbsp; &nbsp; &nbsp;
+<a href="#" onmouseover="divMenu.show('mFile', this, 50, 10)"
+ onmouseout="divMenu.hide('mFile')">File &gt;</a>
+<br /><br />
+<a href="#" onmouseover="divMenu.show('mEdit', this, 50, 10)"
+ onmouseout="divMenu.hide('mEdit')">Edit &gt;</a>
+</p>
+
+<div id="mFile" class="menudiv" style="width: 120px">
+ <div class="header">File Menu</div>
+ <!--
+ I'm using divs around these anchor tags only for v4 browsers that don't parse "display: block".
+ You can safely remove them, or come up with something completely different :).
+ -->
+ <div><a href="#" onmouseover="divMenu.show('mReopen', this, 90, 10)"
+  onmouseout="divMenu.hide('mReopen')">Reopen &gt;</a></div>
+ <div><a href="#" onmouseover="divMenu.show('mFormat', this, 90, 10)"
+  onmouseout="divMenu.hide('mFormat')">Format &gt;</a></div>
+</div>
+
+<div id="mReopen" class="menudiv" style="width: 210px">
+ <div class="header">Documents:</div>
+ <div><a href="#">Recent 1</a></div>
+ <div><a href="#">Recent 2</a></div>
+ <br />
+ <div class="header">Locations:</div>
+ <div><a href="http://www.twinhelix.com">TwinHelix Designs</a></div>
+</div>
+
+<div id="mFormat" class="menudiv" style="width: 120px">
+ <div class="header">Format Menu</div>
+ <div><a href="#">Option 1</a></div>
+ <div><a href="#">Option 2</a></div>
+</div>
+
+<div id="mEdit" class="menudiv" style="width: 100px">
+ <div class="header">Edit Menu</div>
+ <div><a href="#">Option 1</a></div>
+ <div><a href="#">Option 2</a></div>
+</div>
+
+<!-- ***** END OF EXAMPLE 2: DIV MENU ***** -->
+
+
+
+
+<p>&nbsp;</p>
+
+<div style="border: 2px solid red; background: #FFF0F0; padding: 0pt 10pt 0pt 10pt">
+<h4>Script License Agreement</h4>
+<p>You may use this script only if you agree that:</p>
+<ol>
+ <li>You must EITHER:
+  <ol style="list-style-type: lower-alpha">
+   <li><strong>Donating Users:</strong> This script is "donation-ware". If you can
+    <strong><a href="http://www.twinhelix.com/donate/">make a donation</a></strong> to support
+    this script, it may be used on a website without a crediting link.
+    Please consider making a donation! I have spent a lot of time developing, debugging and
+    documenting scripts, and any support is welcome.
+    <a href="http://www.twinhelix.com/donate/">More info...</a></li>
+   <li><strong>Free Users:</strong> All websites using this script for free must contain somewhere
+    a <strong>visible crediting link</strong> to TwinHelix Designs, e.g.
+    '<a href="http://www.twinhelix.com">DHTML / JavaScript Menu by TwinHelix Designs</a>'.</li>
+  </ol>
+ </li>
+ <li>You must leave the "Script Name/Author/URL" comment in the source of the script file.</li>
+ <li>This script is provided on an "AS-IS" basis, without any warranties, and you use it entirely
+  at your own risk.</li>
+ <li>This script may not be redistributed, sold, rented, leased or sublicensed to third parties
+  without my prior consent.</li>
+</ol>
+<p>If you have another use for the script (for example, within a web application) or wish to
+ arrange alternate licensing terms, please
+ <a href="http://www.twinhelix.com/contact/">contact me</a> for more information.</p>
+</div>
+
+<p>&nbsp;</p>
+
+<h4>Usage Instructions:</h4>
+
+<p>Everything's in the source of this page, all you need to do is open this document inside a
+text editor like Windows Notepad. You don't need to edit the JS file itself, and you
+can leave the demo script unchanged. You will want to open the .CSS file and change the menu
+formatting there though, and of course the menu data in the BODY of the page.</p>
+
+<p>Once you have customised the menu data/appearance, paste the SCRIPT, LINK and UL tags
+into each of your site's pages. You might find it handy to use a templating system or
+server-side includes for this!</p>
+
+<p><strong>Upgrade notes:</strong> From v1.0RC9 and earlier, make sure you
+replace the 'animation' section in your HTML file and the 'fallback' LINK tag in
+the HEAD, and if you are updating the stylesheets replace the "new FSMenu" line
+in the HTML file too.</p>
+
+<p>&nbsp;</p>
+
+<p><em>Good luck - Angus.</em></p>
+
+<p>&nbsp;</p>
+
+<h4>Advantages of this script</h4>
+
+<p>The main advantages of this script over a "pure" CSS menu (that use :hover states on
+elements) are that this script allows customisable show and hide delays for menus (so menus
+don't feel so "slippery", disappearing at the slightest provocation) and fancier effects.
+This means that your menus don't have to overlap; you can place them wherever you want.
+Also, its advanced "switch timer" means that you can mouseover neighbouring items while navigating
+to point at a submenu without hiding the submenu in question -- fixing a common (and accurate)
+usability complaint that many people level against popup menus systems!
+You don't give up compatibility though -- since this script uses pure CSS for
+formatting, it includes a separate stylesheet that allows fallback to a pure CSS
+menu when JavaScript is disabled or unsupported.
+Meanwhile, with clever CSS, you can make the script degrade very well in older
+browsers, perhaps to a plain nested list or a one-level set of header items.</p>
+
+<p>When compared to a pure JavaScript menu system (where the menu data is stored in a custom
+format in a JavaScript file), this script is much more search-engine friendly and accessible to
+screenreaders and older browsers, as its menu data is stored in the page's HTML content.
+To enhance accessibility, test widely, and perhaps specify a MEDIA type on your stylesheet
+to avoid hiding submenus in screenreaders if you feel that would benefit your site!</p>
+
+<p>Some other JavaScript menu systems are now using list data for their menu data store.
+However, they often use processing functions that copy the hidden list data to separate DIVs in
+the page, managed with their own layout system. This means you can't fallback to pure CSS menus
+like this script, and it may limit your formatting options -- with this script, you have the full
+power of CSS to format your menus however you want.</p>
+
+<p>Overall, I've tried to build this script with "Best Practices" in mind, using each web
+technology where it's best suited: HTML for semantic data, CSS for layout and styling, and
+JavaScript for controlling behaviour. I hope you find it useful!</p>
+
+<p>&nbsp;</p>
+
+<h4>Script Help &amp; Hints</h4>
+
+<p>Since this is the first release, there aren't many Frequently Asked Questions yet :).</p>
+
+<p>If you want to make this script run across frames, you can trigger menus by calling the mouseover
+and mouseout events in another frame like onmouseover="parent.content.divMenu.show(....)" where
+'content' is the name of the frame containing this menu script and all the menu data.
+You don't need to include the JS files in the triggering frame, and this will only work with
+the DIV menu version (not the list-version menus).</p>
+
+<p>This script works best paired with an XHTML/CSS document, and a fair knowledge of CSS layout
+and formatting techniques. If you're not familiar with CSS, use this as a learning opportunity,
+as it's a very powerful tool!</p>
+
+<p>To include your menus in each page of your site, it's best to use some form of include with the
+menu data stored in an external file. Check to see what your webhost supports; if you have something
+like PHP or Apache's Server Side Includes on your server, it's very easy, consult the appropriate
+documentation or helpfiles for more info.</p>
+
+<p>Also, the "commented" script file contains some of the code for both div and list menus. If you
+are only using one type, feel free to edit it and remove the extra code; or perhaps just remove the
+NS4 compatibility code at the bottom, to get an additional speedup.</p>
+
+<p>&nbsp;</p>
+
+<h3 style="color: #900"><a name="extras"></a>Extra Effects and Additions</h3>
+
+<p>I've bundled a bunch of extra effects for this script in the <strong>fsmenu_extras.js</strong>
+file included with the download. Feel free to load it up, you will find:</p>
+<ul>
+ <li><strong>&lt;SELECT&gt; Box and IFRAME Fix</strong>, to stop menus being covered in IE.</li>
+ <li><strong>Menu title display</strong>, like on my website.</li>
+ <li><strong>Repositioning menus</strong> that will display outside the browser viewable area.</li>
+ <li><strong>Floating menus</strong> that scroll with the page as the user drags the scrollbar.</li>
+ <li><strong>Link Fading</strong> where your menu links can fade between over/out colours.</li>
+ <li><strong>Current Page Highlight:</strong> Indicates the active page item.</li>
+</ul>
+
+<p>These should also serve as examples if you want to write plugins/extensions to the script
+yourself. I hope you find them useful!</p>
+
+
+
+<!-- This is just a simple stylesheet switcher. Feel free to delete, or re-use! -->
+<div style="position: absolute; top: 5px; right: 5px; padding: 5px; background: #FED">
+ <div><label for="styleswitch" style="font-weight: bold; color: #900">Select Menu Style:</label></div>
+ <select id="styleswitch" onchange="
+  if (!document.getElementById) return;
+  var opts = this.getElementsByTagName('option'), actSheet = null;
+  for (var i = 0; i &lt; opts.length; i++) {
+   var sheet = document.getElementById(opts.item(i).value);
+   if (opts.item(i).selected) { actSheet = sheet; continue }
+   sheet.rel = 'alternate stylesheet';
+   sheet.disabled = true;
+  }
+  if (actSheet) {
+   actSheet.disabled = false;
+   actSheet.rel = 'stylesheet';
+  }
+ ">
+  <option value="listmenu-o" selected="selected">Vertical 'Office'</option>
+  <option value="listmenu-v">Vertical 'Earth'</option>
+  <option value="listmenu-h">Horizontal 'Earth'</option>
+ </select>
+</div>
+
+</body>
+</html>

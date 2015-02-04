@@ -1,0 +1,133 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<install 
+    installerVersion="1.0.0"
+    type="module" 
+    version="2.0.0"
+    core="true"
+    namespace="PigeonCms"
+    name="MembersAdmin"
+    author="p-ice"
+    creationDate="2011-11-21"
+    copyright="Copyright(C) 2009 Nicola Ridolfi. All rights reserved."
+    license=""
+    authorEmail="picce@yahoo.it"
+    authorUrl="www.pigeoncms.com"
+    description="Memberships admin area">
+
+	<params>
+		<param name="MemberEditorMode" type="combo" default="0" label="Member editor mode (only for not admin modules)">
+			<option value="0" label="Not set"></option>
+			<option value="1" label="Insert new user"></option>
+			<option value="2" label="Update user"></option>
+			<option value="3" label="Change password"></option>
+		</param>		
+	</params>
+	
+	<params group="new user">	
+		<param name="LoginAfterCreate" type="combo" default="0" label="Login after user creation"
+			   description="not valid when (need approvation) is enabled">
+			<option value="1" label="Yes"></option>
+			<option value="0" label="No"></option>
+		</param>
+		<param name="NeedApprovation" type="combo" default="0" label="Needs approvation"
+			   description="Needs admin approvation or approvation by link or code to be a valid user">
+			<option value="1" label="Yes"></option>
+			<option value="0" label="No"></option>
+		</param>
+		<param name="NewRoleAsUser" type="combo" default="0" label="Create a role as username" description="Create in automatic a role as new username">
+			<option value="1" label="Yes"></option>
+			<option value="0" label="No"></option>
+		</param>
+		<param name="NewUserSuffix" type="text" default="" label="New user suffix" description="Suffix for new user. Example: @pigeoncms" />
+		<param name="DefaultRoles" type="text" default="" label="New user default roles" description="Example: simpleuser,newsletter" />
+		<param name="DefaultAccessCode" type="text" default="" label="New user default access code" description="" />
+		<param name="DefaultAccessLevel" type="text" default="" label="New user default access level" description="" />
+	</params>
+
+	<params group="notifications">
+		<param name="RedirectUrl" type="text" default="" label="Redirect url" description="Url to redirect after successfull action" />
+
+		<param name="SendEmailNotificationToUser" type="combo" default="0" label="Send email notification to user">
+			<option value="1" label="Yes"></option>
+			<option value="0" label="No"></option>
+		</param>
+
+		<param name="SendEmailNotificationToAdmin" type="combo" default="0" label="Send email notification to admin">
+			<option value="1" label="Yes"></option>
+			<option value="0" label="No"></option>
+		</param>
+
+		<param name="AdminNotificationEmail" type="text" default="admin@yourdomain.com" label="Admin notification email" description="Admin email for notification" />
+
+		<param name="NotificationEmailPageName" type="combo" default="0" label="Notification email page name"
+			   description="Static page with email content. 
+			   Available placeholder NewUsername,NewUserPassword,NewUserEmail.
+			   Example: ..this is your email [[NewUserEmail]]">
+			<option value="" label="No page"></option>
+			<datasource SelectMethod="GetList" TypeName="PigeonCms.StaticPagesManager" />
+		</param>
+	</params>
+
+	<params group="fields to show">
+		<param name="ShowFieldSex" type="combo" default="0" label="Sex">
+			<option value="0" label="No"></option>
+			<option value="1" label="Yes"></option>
+		</param>
+		<param name="ShowFieldCompanyName" type="combo" default="0" label="Company name">
+			<option value="0" label="No"></option>
+			<option value="1" label="Yes"></option>
+		</param>
+		<param name="ShowFieldVat" type="combo" default="0" label="Vat">
+			<option value="0" label="No"></option>
+			<option value="1" label="Yes"></option>
+		</param>
+		<param name="ShowFieldSsn" type="combo" default="0" label="Ssn">
+			<option value="0" label="No"></option>
+			<option value="1" label="Yes"></option>
+		</param>
+		<param name="ShowFieldFirstName" type="combo" default="0" label="First name">
+			<option value="0" label="No"></option>
+			<option value="1" label="Yes"></option>
+		</param>
+		<param name="ShowFieldSecondName" type="combo" default="0" label="Second name">
+			<option value="0" label="No"></option>
+			<option value="1" label="Yes"></option>
+		</param>
+		<param name="ShowFieldAddress1" type="combo" default="0" label="Address 1">
+			<option value="0" label="No"></option>
+			<option value="1" label="Yes"></option>
+		</param>
+		<param name="ShowFieldAddress2" type="combo" default="0" label="Address 2">
+			<option value="0" label="No"></option>
+			<option value="1" label="Yes"></option>
+		</param>
+		<param name="ShowFieldCity" type="combo" default="0" label="City">
+			<option value="0" label="No"></option>
+			<option value="1" label="Yes"></option>
+		</param>
+		<param name="ShowFieldState" type="combo" default="0" label="State">
+			<option value="0" label="No"></option>
+			<option value="1" label="Yes"></option>
+		</param>
+		<param name="ShowFieldZipCode" type="combo" default="0" label="Zip code">
+			<option value="0" label="No"></option>
+			<option value="1" label="Yes"></option>
+		</param>
+		<param name="ShowFieldNation" type="combo" default="0" label="Nation">
+			<option value="0" label="No"></option>
+			<option value="1" label="Yes"></option>
+		</param>
+		<param name="ShowFieldTel1" type="combo" default="0" label="Tel1">
+			<option value="0" label="No"></option>
+			<option value="1" label="Yes"></option>
+		</param>
+		<param name="ShowFieldMobile1" type="combo" default="0" label="Mobile1">
+			<option value="0" label="No"></option>
+			<option value="1" label="Yes"></option>
+		</param>
+		<param name="ShowFieldWebsite1" type="combo" default="0" label="Website1">
+			<option value="0" label="No"></option>
+			<option value="1" label="Yes"></option>
+		</param>
+	</params>
+</install>

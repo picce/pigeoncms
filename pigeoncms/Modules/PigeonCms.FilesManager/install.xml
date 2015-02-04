@@ -1,0 +1,109 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<install
+    installerVersion="1.0.0"
+    type="module"
+    version="1.0.0"
+    core="false"
+    namespace="PigeonCms"
+    name="FilesManager"
+    author="p-ice"
+    creationDate="2011-3-11"
+    copyright="Copyright(C) 2011 Nicola Ridolfi. All rights reserved."
+    license=""
+    authorEmail="picce@yahoo.it"
+    authorUrl="www.pigeoncms.com"
+    description="manage files and files upload">
+	<files>
+	</files>
+
+	<params>
+
+		<params group="permissions">
+			<param name="AllowFilesUpload" type="combo" default="1" label="Allow files upload" description="">
+				<option value="0" label="No"></option>
+				<option value="1" label="Yes"></option>
+			</param>
+			<param name="AllowFilesSelection" type="combo" default="0" label="Allow files selection" description="">
+				<option value="0" label="No"></option>
+				<option value="1" label="Yes"></option>
+			</param>
+			<param name="AllowFilesEdit" type="combo" default="1" label="Allow files edit" description="meta tag informations">
+				<option value="0" label="No"></option>
+				<option value="1" label="Yes"></option>
+			</param>
+			<param name="AllowFilesDel" type="combo" default="1" label="Allow files deletion" description="">
+				<option value="0" label="No"></option>
+				<option value="1" label="Yes"></option>
+			</param>
+			<param name="AllowNewFolder" type="combo" default="0" label="Allow new folder" description="">
+				<option value="0" label="No"></option>
+				<option value="1" label="Yes"></option>
+			</param>
+			<param name="AllowFoldersNavigation" type="combo" default="0" label="Allow folders navigation" description="">
+				<option value="0" label="No"></option>
+				<option value="1" label="Yes"></option>
+			</param>
+			<param name="TypeParamRequired" type="combo" default="1" label="Type param required in query string" description="">
+				<option value="0" label="No"></option>
+				<option value="1" label="Yes"></option>
+			</param>
+			<param name="AllowTemporaryFiles" type="combo" default="0" label="Allow temporary files" description="">
+				<option value="0" label="No"></option>
+				<option value="1" label="Yes"></option>
+			</param>
+		</params>
+
+		<params group="files upload">
+			<param name="FileExtensions" type="text" default="jpg;jpeg;gif" label="$FileExtensionsLabel" description="$FileExtensionsDescription" />
+			<param name="FileSize" type="text" default="300" label="$FileSizeLabel" description="Max file size allowed in KB (0 for server limit)" />
+			<param name="FileNameType" type="combo" default="0" label="$FileNameTypeLabel" description="$FileNameTypeDescription">
+				<option value="0" label="Keep original name"></option>
+				<option value="1" label="Prefix + original name"></option>
+				<option value="2" label="Prefix + counter"></option>
+				<option value="3" label="Force filename"></option>
+			</param>
+			<param name="FilePrefix" type="text" default="file_" label="$FilePrefixLabel" description="$FilePrefixDescription" />
+			<param name="FilePath" type="text" default="~/Public/" label="$FilePathLabel" description="$FilePathDescription" />
+			<param name="ForcedFilename" type="text" default="" label="Forced Filename" description="Only when FileNameType is Force filename" />
+			<param name="UploadFields" type="combo" default="1" label="$UploadFieldsLabel" description="$UploadFieldsDescription">
+				<option value="1" label="1"></option>
+				<option value="2" label="2"></option>
+				<option value="3" label="3"></option>
+				<option value="4" label="4"></option>
+				<option value="5" label="5"></option>
+				<option value="6" label="6"></option>
+				<option value="7" label="7"></option>
+				<option value="8" label="8"></option>
+				<option value="9" label="9"></option>
+				<option value="10" label="10"></option>
+			</param>
+			<param name="NumOfFilesAllowed" type="text" default="0" label="Number of files" description="Max number of files allowed (0 for no limit)" />
+			<param name="ShowWorkingPath" type="combo" default="1" label="Show working path" description="">
+				<option value="0" label="No"></option>
+				<option value="1" label="Yes"></option>
+			</param>
+		</params>
+
+		<params group="image">
+			<param name="CustomWidth" type="text" default="" label="Width in px" description="Resize images to given width during upload" />
+			<param name="CustomHeight" type="text" default="" label="Height in px" description="Resize images to given height during upload" />
+		</params>
+
+		<params group="text">
+      <param name="ContentBeforePage" cssClass="" cssStyle="" type="combo" default="" label="Content before page" description="">
+        <option value="" label="Not set"></option>
+        <datasource SelectMethod="GetList" TypeName="PigeonCms.StaticPagesManager" />
+      </param>
+      <param name="ContentAfterPage" cssClass="" cssStyle="" type="combo" default="" label="Content after page" description="">
+        <option value="" label="Not set"></option>
+        <datasource SelectMethod="GetList" TypeName="PigeonCms.StaticPagesManager" />
+      </param>      
+      
+			<param name="HeaderText" type="text" rows="3" cols="40" default="" label="Header Text" description="" />
+			<param name="FooterText" type="text" rows="3" cols="40" default="" label="Footer Text" description="" />
+			<param name="SuccessText" type="text" default="File uploaded" label="Success text" description="" />
+			<param name="ErrorText" type="text" default="Error uploading file(s)" label="Error text" description="" />
+		</params>
+		
+	</params>
+</install>

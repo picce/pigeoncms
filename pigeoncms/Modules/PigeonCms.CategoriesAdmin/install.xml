@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<install 
+    installerVersion="1.0.0"
+    type="module" 
+    version="1.0.0"
+    core="true"
+    namespace="PigeonCms"
+    name="CategoriesAdmin"
+    author="p-ice"
+    creationDate="2009-11-12"
+    copyright="Copyright(C) 2009 Nicola Ridolfi. All rights reserved."
+    license=""
+    authorEmail="picce@yahoo.it"
+    authorUrl="www.pigeoncms.com"
+    description="Categories admin area">
+    <files>
+    </files>
+	
+	<params group="targets">
+		<param name="TargetImagesUpload" type="combo" default="0" label="Images upload target" description="">
+			<option value="0" label="Not set"></option>
+			<datasource SelectMethod="GetList" SelectParams="PigeonCms.FilesManager" TypeName="PigeonCms.MenuManager" />
+		</param>
+
+		<param name="TargetFilesUpload" type="combo" default="0" label="Files upload target" description="">
+			<option value="0" label="Not set"></option>
+			<datasource SelectMethod="GetList" SelectParams="PigeonCms.FilesManager" TypeName="PigeonCms.MenuManager" />
+		</param>
+	</params>
+
+	<params group="filters">
+		<param name="SectionId" type="combo" default="0" label="Section" description="">
+			<option value="0" label="No section"></option>
+			<datasource SelectMethod="GetList" TypeName="PigeonCms.SectionsManager" />
+		</param>
+		<param name="MandatorySectionFilter" type="combo" default="0" label="Mandatory section filter">
+			<option value="1" label="Yes"></option>
+			<option value="0" label="No"></option>
+		</param>
+	</params>
+
+	<params group="restrictions">
+		<param name="ShowSecurity" type="combo" default="1" label="Show security panel">
+			<option value="1" label="Yes"></option>
+			<option value="0" label="No"></option>
+		</param>
+		<param name="ShowOnlyDefaultCulture" type="combo" default="0" label="Show only default culture">
+			<option value="1" label="Yes"></option>
+			<option value="0" label="No"></option>
+		</param>
+		<param name="ShowEnabledFilter" type="combo" default="1" label="Show enabled filter">
+			<option value="1" label="Yes"></option>
+			<option value="0" label="No"></option>
+		</param>
+		<param name="AllowOrdering" type="combo" default="1" label="Allow ordering">
+			<option value="1" label="Yes"></option>
+			<option value="0" label="No"></option>
+		</param>
+	</params>
+</install>

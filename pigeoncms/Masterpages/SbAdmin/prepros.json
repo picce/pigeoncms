@@ -1,0 +1,368 @@
+{
+  "id": "77ccb8be",
+  "cfgVersion": 1,
+  "name": "SbAdmin",
+  "files": {
+    "fe2cfe0b": {
+      "id": "fe2cfe0b",
+      "pid": "77ccb8be",
+      "name": "bootstrap.js",
+      "input": "js\\bootstrap.js",
+      "customOutput": false,
+      "type": "Js",
+      "config": {
+        "autoCompile": true,
+        "uglify": true,
+        "mangle": true,
+        "sourcemaps": false
+      }
+    },
+    "de5ffe1d": {
+      "id": "de5ffe1d",
+      "pid": "77ccb8be",
+      "name": "jquery.js",
+      "input": "js\\jquery.js",
+      "customOutput": false,
+      "type": "Js",
+      "config": {
+        "autoCompile": true,
+        "uglify": true,
+        "mangle": true,
+        "sourcemaps": false
+      }
+    },
+    "cf143820": {
+      "id": "cf143820",
+      "pid": "77ccb8be",
+      "name": "dataTables.bootstrap.js",
+      "input": "js\\plugins\\dataTables\\dataTables.bootstrap.js",
+      "customOutput": false,
+      "type": "Js",
+      "config": {
+        "autoCompile": true,
+        "uglify": true,
+        "mangle": true,
+        "sourcemaps": false
+      }
+    },
+    "33a4b4e0": {
+      "id": "33a4b4e0",
+      "pid": "77ccb8be",
+      "name": "jquery.dataTables.js",
+      "input": "js\\plugins\\dataTables\\jquery.dataTables.js",
+      "customOutput": false,
+      "type": "Js",
+      "config": {
+        "autoCompile": true,
+        "uglify": true,
+        "mangle": true,
+        "sourcemaps": false
+      }
+    },
+    "c8792ab8": {
+      "id": "c8792ab8",
+      "pid": "77ccb8be",
+      "name": "flot-data.js",
+      "input": "js\\plugins\\flot\\flot-data.js",
+      "customOutput": false,
+      "type": "Js",
+      "config": {
+        "autoCompile": true,
+        "uglify": true,
+        "mangle": true,
+        "sourcemaps": false
+      }
+    },
+    "f6f66956": {
+      "id": "f6f66956",
+      "pid": "77ccb8be",
+      "name": "jquery.flot.js",
+      "input": "js\\plugins\\flot\\jquery.flot.js",
+      "customOutput": false,
+      "type": "Js",
+      "config": {
+        "autoCompile": true,
+        "uglify": true,
+        "mangle": true,
+        "sourcemaps": false
+      }
+    },
+    "7029b938": {
+      "id": "7029b938",
+      "pid": "77ccb8be",
+      "name": "jquery.flot.pie.js",
+      "input": "js\\plugins\\flot\\jquery.flot.pie.js",
+      "customOutput": false,
+      "type": "Js",
+      "config": {
+        "autoCompile": true,
+        "uglify": true,
+        "mangle": true,
+        "sourcemaps": false
+      }
+    },
+    "15e00b55": {
+      "id": "15e00b55",
+      "pid": "77ccb8be",
+      "name": "jquery.flot.resize.js",
+      "input": "js\\plugins\\flot\\jquery.flot.resize.js",
+      "customOutput": false,
+      "type": "Js",
+      "config": {
+        "autoCompile": true,
+        "uglify": true,
+        "mangle": true,
+        "sourcemaps": false
+      }
+    },
+    "9ceae84f": {
+      "id": "9ceae84f",
+      "pid": "77ccb8be",
+      "name": "metisMenu.js",
+      "input": "js\\plugins\\metisMenu\\metisMenu.js",
+      "customOutput": false,
+      "type": "Js",
+      "config": {
+        "autoCompile": true,
+        "uglify": true,
+        "mangle": true,
+        "sourcemaps": false
+      }
+    },
+    "6e290d8f": {
+      "id": "6e290d8f",
+      "pid": "77ccb8be",
+      "name": "morris-data.js",
+      "input": "js\\plugins\\morris\\morris-data.js",
+      "customOutput": false,
+      "type": "Js",
+      "config": {
+        "autoCompile": true,
+        "uglify": true,
+        "mangle": true,
+        "sourcemaps": false
+      }
+    },
+    "86726adf": {
+      "id": "86726adf",
+      "pid": "77ccb8be",
+      "name": "morris.js",
+      "input": "js\\plugins\\morris\\morris.js",
+      "customOutput": false,
+      "type": "Js",
+      "config": {
+        "autoCompile": true,
+        "uglify": true,
+        "mangle": true,
+        "sourcemaps": false
+      }
+    },
+    "4a31d2ac": {
+      "id": "4a31d2ac",
+      "pid": "77ccb8be",
+      "name": "sb-admin-2.js",
+      "input": "js\\sb-admin-2.js",
+      "customOutput": false,
+      "type": "Js",
+      "config": {
+        "autoCompile": true,
+        "uglify": true,
+        "mangle": true,
+        "sourcemaps": false
+      }
+    },
+    "6451fc1b": {
+      "id": "6451fc1b",
+      "pid": "77ccb8be",
+      "name": "sb-admin-2.less",
+      "input": "less\\sb-admin-2.less",
+      "customOutput": false,
+      "type": "Less",
+      "config": {
+        "autoCompile": true,
+        "compress": false,
+        "sourcemaps": false,
+        "cleancss": false,
+        "strictMath": false,
+        "strictUnits": false,
+        "autoprefixer": false
+      }
+    },
+    "ee4e7b64": {
+      "id": "ee4e7b64",
+      "pid": "77ccb8be",
+      "name": "font-awesome.scss",
+      "input": "font-awesome-4.1.0\\scss\\font-awesome.scss",
+      "customOutput": false,
+      "type": "Scss",
+      "config": {
+        "autoCompile": true,
+        "lineNumbers": false,
+        "unixNewlines": false,
+        "sourcemaps": true,
+        "debug": false,
+        "compass": false,
+        "fullCompass": false,
+        "outputStyle": "compressed",
+        "autoprefixer": false
+      }
+    }
+  },
+  "imports": {
+    "30452521": {
+      "id": "30452521",
+      "pid": "77ccb8be",
+      "path": "font-awesome-4.1.0\\scss\\_spinning.scss",
+      "parents": [
+        "ee4e7b64"
+      ]
+    },
+    "7cd07d7a": {
+      "id": "7cd07d7a",
+      "pid": "77ccb8be",
+      "path": "less\\variables.less",
+      "parents": [
+        "6451fc1b"
+      ]
+    },
+    "5c26368f": {
+      "id": "5c26368f",
+      "pid": "77ccb8be",
+      "path": "less\\mixins.less",
+      "parents": [
+        "6451fc1b"
+      ]
+    },
+    "66349ef3": {
+      "id": "66349ef3",
+      "pid": "77ccb8be",
+      "path": "font-awesome-4.1.0\\scss\\_variables.scss",
+      "parents": [
+        "ee4e7b64"
+      ]
+    },
+    "3df74bf5": {
+      "id": "3df74bf5",
+      "pid": "77ccb8be",
+      "path": "font-awesome-4.1.0\\scss\\_mixins.scss",
+      "parents": [
+        "ee4e7b64"
+      ]
+    },
+    "75a1b447": {
+      "id": "75a1b447",
+      "pid": "77ccb8be",
+      "path": "font-awesome-4.1.0\\scss\\_path.scss",
+      "parents": [
+        "ee4e7b64"
+      ]
+    },
+    "7503db61": {
+      "id": "7503db61",
+      "pid": "77ccb8be",
+      "path": "font-awesome-4.1.0\\scss\\_core.scss",
+      "parents": [
+        "ee4e7b64"
+      ]
+    },
+    "22c25558": {
+      "id": "22c25558",
+      "pid": "77ccb8be",
+      "path": "font-awesome-4.1.0\\scss\\_larger.scss",
+      "parents": [
+        "ee4e7b64"
+      ]
+    },
+    "6c6f31f8": {
+      "id": "6c6f31f8",
+      "pid": "77ccb8be",
+      "path": "font-awesome-4.1.0\\scss\\_fixed-width.scss",
+      "parents": [
+        "ee4e7b64"
+      ]
+    },
+    "d7d6e001": {
+      "id": "d7d6e001",
+      "pid": "77ccb8be",
+      "path": "font-awesome-4.1.0\\scss\\_list.scss",
+      "parents": [
+        "ee4e7b64"
+      ]
+    },
+    "cbd94740": {
+      "id": "cbd94740",
+      "pid": "77ccb8be",
+      "path": "font-awesome-4.1.0\\scss\\_bordered-pulled.scss",
+      "parents": [
+        "ee4e7b64"
+      ]
+    },
+    "280d1700": {
+      "id": "280d1700",
+      "pid": "77ccb8be",
+      "path": "font-awesome-4.1.0\\scss\\_rotated-flipped.scss",
+      "parents": [
+        "ee4e7b64"
+      ]
+    },
+    "4245ad54": {
+      "id": "4245ad54",
+      "pid": "77ccb8be",
+      "path": "font-awesome-4.1.0\\scss\\_stacked.scss",
+      "parents": [
+        "ee4e7b64"
+      ]
+    },
+    "9028fddc": {
+      "id": "9028fddc",
+      "pid": "77ccb8be",
+      "path": "font-awesome-4.1.0\\scss\\_icons.scss",
+      "parents": [
+        "ee4e7b64"
+      ]
+    },
+    "e44c35fa": {
+      "id": "e44c35fa",
+      "pid": "77ccb8be",
+      "path": "less\\pigeoncms.less",
+      "parents": [
+        "6451fc1b"
+      ]
+    }
+  },
+  "images": {},
+  "config": {
+    "watch": true,
+    "liveRefresh": true,
+    "liveRefreshDelay": 0,
+    "filterPatterns": "",
+    "useCustomServer": false,
+    "customServerUrl": "",
+    "cssPath": "css/",
+    "jsPath": "js/",
+    "htmlPath": "html/",
+    "minJsPath": "min/",
+    "htmlExtension": ".html",
+    "cssPathType": "REPLACE_TYPE",
+    "htmlPathType": "REPLACE_TYPE",
+    "jsPathType": "REPLACE_TYPE",
+    "minJsPathType": "RELATIVE_FILEDIR",
+    "htmlTypes": "jade, haml, slim, markdown, md",
+    "cssTypes": "less, sass, stylus, scss, styl",
+    "jsTypes": "coffee, coffeescript, coffeescripts, ls, livescript, livescripts",
+    "cssPreprocessorPath": "",
+    "htmlPreprocessorPath": "",
+    "jsPreprocessorPath": "",
+    "minJsPreprocessorPath": "",
+    "autoprefixerBrowsers": "",
+    "ftpHost": "",
+    "ftpPort": "21",
+    "ftpRemotePath": "",
+    "ftpIgnorePreprocessorFiles": true,
+    "ftpType": "FTP",
+    "ftpExcludePatterns": "",
+    "ftpSecure": false,
+    "ftpPassword": "",
+    "ftpUsername": ""
+  }
+}

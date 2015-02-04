@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<install 
+    installerVersion="1.0.0"
+    type="item" 
+    version="1.0.0"
+    core="true"
+    namespace="PigeonCms"
+    name="RedirectItem"
+    author="p-ice"
+    creationDate="2010-06-21"
+    copyright="Copyright(C) 2010 Nicola Ridolfi. All rights reserved."
+    license=""
+    authorEmail="picce@yahoo.it"
+    authorUrl="www.pigeoncms.com"
+    description="allow redirect to a specific mainmenu entry on click to a specific item">
+
+    <fields>
+    </fields>
+
+    <params>
+		<param name="RedirectTo" type="combo" default="0" label="Redirect to" description="">
+			<option value="0" label="Not set"></option>
+			<datasource SelectMethod="GetList" SelectParams="|mainmenu" TypeName="PigeonCms.MenuManager" />
+		</param>
+    </params>
+
+</install>

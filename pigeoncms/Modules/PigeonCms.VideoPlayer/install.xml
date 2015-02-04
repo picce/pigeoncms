@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<install 
+    installerVersion="1.0.0"
+    type="module" 
+    version="1.0.0" 
+    core="true"
+    namespace="PigeonCms"
+    name="VideoPlayer"
+    author="p-ice"
+    creationDate="2009-11-30"
+    copyright="Copyright(C) 2009 Nicola Ridolfi. All rights reserved."
+    license=""
+    authorEmail="picce@yahoo.it"
+    authorUrl="www.pigeoncms.com"
+    description="$ModuleDescription"
+    title="$ModuleTitle"
+    templateBlockName="Content">
+    <files>
+    </files>
+
+    <params>
+        <param name="File" type="text" default="" label="$FileLabel" description="$FileDescription" />
+        <param name="Width" type="text" default="" label="$WidthLabel" description="$WidthDescription" />
+        <param name="Height" type="text" default="" label="$HeightLabel" description="$HeightDescription" />
+    </params>
+</install>

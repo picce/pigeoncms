@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<install 
+    installerVersion="1.0.0"
+    type="module" 
+    version="1.1.0" 
+    core="true"
+    namespace="PigeonCms"
+    name="LoginForm"
+    author="p-ice"
+    creationDate="2009-03-18"
+    copyright="Copyright(C) 2009 Nicola Ridolfi. All rights reserved."
+    license=""
+    authorEmail="picce@yahoo.it"
+    authorUrl="www.pigeoncms.com"
+    description="Form to log user">
+    <files>
+        <filename module="LoginForm" file="LoginForm.ascx" />
+    </files>
+
+    <params>
+        <param name="RedirectUrl" type="text" default="~/default.aspx" label="Redirect url" description="Url to redirect to in case of success" />
+    </params>  
+</install>

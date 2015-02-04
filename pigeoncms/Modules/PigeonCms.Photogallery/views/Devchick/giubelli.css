@@ -1,0 +1,107 @@
+
+.galleria{list-style:none;width:200px}
+.galleria li{display:block;width:80px;height:80px;overflow:hidden;float:left;margin:0 10px 10px 0}
+.galleria li a{display:none}
+.galleria li div{position:absolute;display:none;top:0;left:180px}
+.galleria li div img{cursor:pointer}
+.galleria li.active div img,.galleria li.active div{display:block}
+.galleria li img.thumb{cursor:pointer;top:auto;left:auto;display:block;width:auto;height:auto}
+.galleria li .caption{display:block;padding-top:.5em}
+* html .galleria li div span{width:400px} /* MSIE bug */
+
+
+/* BEGIN layout STYLE */
+/**{margin:0;padding:0}*/
+/*body{padding:20px;background:white;background:white;color:#555;font:80%/140% 'helvetica neue',sans-serif;width:900px;margin: 0 auto;}*/
+/*a{color:#348;text-decoration:none;outline:none;}*/
+/*a:hover{color:#67a;}*/
+/*.demo{position:relative;margin-top:2em;}*/
+
+.caption
+{
+    color:#888;
+}
+
+.gallery_box
+{
+	padding-top: 2px;
+}
+
+.gallery_demo
+{
+    width:auto;
+    margin: 0 auto;
+	padding-left: 0px;
+}
+.gallery_demo li
+{   width:74px;
+    height:50px;    
+    border: solid 2px #bbb;
+    margin: 5px 10px 0px 0px;
+    background:white;
+}
+/*.gallery_demo li.hover
+{
+    border-color:#bbb;
+}*/
+
+.gallery_demo li div
+{
+    left:240px
+}
+.gallery_demo li div .caption
+{
+    font:italic 0.7em/1.4 georgia,serif;
+}
+
+#main_image
+{
+	margin:0px;
+	/*height:400px;*/
+	width:550px;
+	max-width: 550px;
+	overflow-x: hidden;
+	clear: both;
+	text-align: center;
+}
+
+#main_image img
+{
+	padding-top: 10px;
+}
+
+img.replaced
+{
+    /*width:550px;
+    height: 366px;*/
+}
+
+.galleria_container
+{
+    margin:0 auto 0px auto;
+    /*height:438px;*/
+    width:470px;
+}
+.gallery_nav
+{
+    padding-top:15px;
+    clear:both;
+}
+.modPhotogallery_pages
+{
+    clear:both;
+    padding-top: 10px;
+}
+
+.modPhotogallery_pages a
+{
+    border: 1px solid #bbb;
+    padding: 2px 8px;
+    margin-right: 5px;
+}
+
+.modPhotogallery_pages a:hover, .modPhotogallery_pages a.selected
+{
+    background-color: #bbb;
+    text-decoration: none;
+}

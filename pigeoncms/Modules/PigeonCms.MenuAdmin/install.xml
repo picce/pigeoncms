@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<install 
+    installerVersion="1.0.0"
+    type="module" 
+    version="1.0.0"
+    core="true"
+    namespace="PigeonCms"
+    name="MenuAdmin"
+    author="p-ice"
+    creationDate="2009-11-12"
+    copyright="Copyright(C) 2009 Nicola Ridolfi. All rights reserved."
+    license=""
+    authorEmail="picce@yahoo.it"
+    authorUrl="www.pigeoncms.com"
+    title="$ModuleTitle"
+    description="$ModuleDescription">
+    <files>
+    </files>
+
+    <params>
+
+        <param name="AllowEditContentUrl" type="combo" default="1" 
+               label="Allow edit content link"
+               description="Disable with large items list for faster page load">
+            <option value="1" label="Yes"></option>
+            <option value="0" label="No"></option>
+        </param>
+        
+    </params>
+</install>

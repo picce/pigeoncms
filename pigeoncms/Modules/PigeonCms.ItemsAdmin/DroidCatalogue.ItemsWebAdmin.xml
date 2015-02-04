@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<install
+    installerVersion="1.0.0"
+    type="module"
+    version="1.0.0"
+    core="true"
+    namespace="DroidCatalogue"
+    name="ItemsWebAdmin"
+	view="ItemsWebAdmin"
+    author="p-ice"
+    creationDate="2012-08-01"
+    copyright="Copyright(C) 2012 Nicola Ridolfi. All rights reserved."
+    license=""
+    authorEmail="picce@yahoo.it"
+    authorUrl="www.pigeoncms.com"
+    description="Manage droidcatalogue items and categories">
+	<files>
+	</files>
+
+	<params>
+		<param name="TargetImportItems" type="combo" default="0" label="File to import target" description="">
+			<option value="0" label="Not set"></option>
+			<datasource SelectMethod="GetList" SelectParams="DroidCatalogue.ImportDataFile" TypeName="PigeonCms.MenuManager" />
+		</param>
+
+    <param name="AllowCategoryDeleteChilds" type="combo" default="0" label="Consenti cancellazione contenuto categorie">
+      <option value="1" label="Yes"></option>
+      <option value="0" label="No"></option>
+    </param>    
+	</params>
+
+</install>

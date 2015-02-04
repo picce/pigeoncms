@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type='text/xsl' href='Templates/default.xsl'?>
+<offline templateFileName="default" offlineDateTime="01/01/0001 0.00.00" onlineDateTime="01/01/0001 0.00.00">
+  <title><![CDATA[PigeonCms]]></title>
+  <message><![CDATA[Website Temporary Offline for Maintenance
+
+Il sito web è momentaneamente offline per manutenzione
+
+]]></message>
+</offline>

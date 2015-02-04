@@ -1,0 +1,62 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<install 
+    installerVersion="1.0.0"
+    type="module" 
+    version="1.0.0"
+    core="true"
+    namespace="PigeonCms"
+    name="Categories"
+    author="p-ice"
+    creationDate="2009-06-12"
+    copyright="Copyright(C) 2009 Nicola Ridolfi. All rights reserved."
+    license=""
+    authorEmail="picce@yahoo.it"
+    authorUrl="www.pigeoncms.com"
+    description="$ModuleDescription">
+    <files>
+        <filename module="PigeonCms.Categories" file="~/App_Code/Components/PigeonCms.Categories/CategoriesControl.cs" />
+    </files>
+
+    <params>
+        <param name="SectionId" type="combo" default="0" label="$SectionIdLabel" description="$SectionIdDescription">
+            <option value="0" label="No section"></option>
+            <datasource SelectMethod="GetList" TypeName="PigeonCms.SectionsManager" />
+        </param>
+        <param name="ItemsListTarget" type="combo" default="0" label="Items list target" description="">
+            <option value="0" label="Not set"></option>
+            <datasource SelectMethod="GetList" SelectParams="PigeonCms.Items" TypeName="PigeonCms.MenuManager" />
+            <datasource SelectMethod="GetList" SelectParams="LadyVerona.RoomItems" TypeName="PigeonCms.MenuManager" />
+        </param>
+    </params>
+
+	<params group="style">
+		<param name="ShowDescription" type="combo" default="0" label="Show item description">
+			<option value="1" label="Yes"></option>
+			<option value="0" label="No"></option>
+		</param>
+		<param name="ShortDescLen" type="text" default="" label="Short desc length" description="" />
+	</params>
+
+	<params group="files">		
+		<param name="ShowImages" type="combo" default="0" label="Show images">
+			<option value="1" label="Yes"></option>
+			<option value="0" label="No"></option>
+		</param>
+		<param name="PreviewSize" type="combo" default="s" label="Images preview size">
+			<option value="s" label="Small"></option>
+			<option value="m" label="Medium"></option>
+			<option value="l" label="Large"></option>
+			<option value="xl" label="Extra Large"></option>
+			<option value="custom" label="Custom"></option>
+			<option value="o" label="Original"></option>
+			<option value="percentage" label="Custom Percentage"></option>
+		</param>
+		<param name="CustomWidth" type="text" default="" label="Image width" description="Resize images to given width (in px or percentage)" />
+		<param name="CustomHeight" type="text" default="" label="Image height" description="Resize images to given height (in px or percentage)" />
+	</params>	
+	
+    <params group="text">
+        <param name="HeaderText" type="text" rows="3" cols="40" default="" label="Header Text" description="" />
+        <param name="FooterText" type="text" rows="3" cols="40" default="" label="Footer Text" description="" />
+    </params>    
+</install>

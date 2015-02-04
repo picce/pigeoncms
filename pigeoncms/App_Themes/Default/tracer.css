@@ -1,0 +1,10 @@
+﻿#tracer{width:900px;margin:0 auto;padding:10px;}  
+#tracer .item {clear:both;}  
+#tracer .header{font-weight:bold;}  
+#tracer .item div{float:left;text-align:center;}  
+#tracer .Info{color:#888;}  
+#tracer .Debug{color:#2B2;}  
+#tracer .Error{color:#B22;}  
+#tracer .item div.index{width:20px;}  
+#tracer .item div.delta{width:90px;}  
+#tracer .item div.elapsed{width:90px;}  

@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<install 
+    installerVersion="1.0.0"
+    type="module" 
+    version="1.0.0"
+    core="true"
+    namespace="PigeonCms"
+    name="AttributesAdmin"
+    author="p-ice"
+    creationDate="2012-11-12"
+    copyright="Copyright(C) 2012 Nicola Ridolfi. All rights reserved."
+    license=""
+    authorEmail="picce@yahoo.it"
+    authorUrl="www.pigeoncms.com"
+    description="Form attributes admin">
+    <files>
+    </files>
+
+	<params>
+	</params>
+
+</install>

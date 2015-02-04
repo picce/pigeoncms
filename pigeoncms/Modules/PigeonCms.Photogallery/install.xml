@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<install 
+    installerVersion="1.0.0"
+    type="module" 
+    version="1.0.0"
+    core="true"
+    namespace="PigeonCms"
+    name="Photogallery"
+    author="p-ice"
+    creationDate="2009-07-09"
+    copyright="Copyright(C) 2009 Nicola Ridolfi. All rights reserved."
+    license=""
+    authorEmail="picce@yahoo.it"
+    authorUrl="www.pigeoncms.com"
+    description="$ModuleDescription">
+
+    <install>
+        <sql>
+            <query><![CDATA[
+            /*create table [#__table]
+            insert into [#__table] values(..)*/
+            select * from #__users
+            ]]></query>
+            <filename file="sql/install.sql" />            
+        </sql>
+    </install>
+
+    <uninstall>
+        <sql>
+            <query><![CDATA[
+            drop table [#__table]
+            ]]></query>
+            <filename file="sql/uninstall.sql" />
+        </sql>
+    </uninstall>
+
+    <params group="source type">
+        <param name="SourceType" type="combo" default="0" label="Source type" description="Source for the images">
+            <option value="0" label="folder source"></option>
+            <option value="1" label="section source"></option>
+            <option value="2" label="category source"></option>
+            <option value="3" label="item source"></option>
+        </param>
+        <param name="ShowChildList" type="combo" default="0" label="Show child list" 
+            description="Show images of its categories (section source), show images of its items (category source)">
+            <option value="0" label="No"></option>
+            <option value="1" label="Yes"></option>
+        </param>
+    </params>
+    
+    <params group="folder source">
+        <param name="BasePath" type="text" default="" label="Path image files" description="Base folder, default '~/Public/Gallery/' " />
+        <param name="FolderName" type="text" default="" label="Folder name" description="Name of folder that contains the images" />
+    </params>
+    
+    <params group="data source">
+        <param name="SectionId" type="combo" default="0" label="Section" description="">
+            <option value="0" label="No section"></option>
+            <datasource SelectMethod="GetList" TypeName="PigeonCms.SectionsManager" />
+        </param>
+        <param name="CategoryId" type="combo" default="0" label="Category" description="">
+            <option value="0" label="No category"></option>
+            <datasource SelectMethod="GetList" TypeName="PigeonCms.CategoriesManager" />
+        </param>
+        <param name="ItemId" type="combo" default="0" label="Item" description="">
+            <option value="0" label="No item"></option>
+            <datasource SelectMethod="GetList" TypeName="PigeonCms.ItemsManager`2[[PigeonCms.Item],[PigeonCms.ItemsFilter]]" />
+        </param>
+    </params>
+
+	<params group="tracking">
+		<param name="StaticFilesTracking" type="combo" default="2" label="Google analytics static files tracking" description="Enable google analytics tracking for static files such pdf, images etc..">
+			<option value="2" label="Use global"></option>
+			<option value="0" label="No"></option>
+			<option value="1" label="Yes"></option>
+		</param>
+	</params>
+	
+	<params group="text">
+        <param name="HeaderText" type="text" rows="3" cols="40" default="" label="Header Text" description="" />
+        <param name="FooterText" type="text" rows="3" cols="40" default="" label="Footer Text" description="" />
+        <param name="ErrorText" type="text" rows="3" cols="40" default="" label="Error Text" description="" />
+    </params>    
+</install>

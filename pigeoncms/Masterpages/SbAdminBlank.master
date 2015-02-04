@@ -1,0 +1,31 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeFile="SbAdminBlank.master.cs" Inherits="Masterpages_SbAdminBlank" %>
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head id="Head1" runat="server">
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title></title>
+
+</head>
+<body id="Body1" runat="server">
+
+    <form id="form1" runat="server">
+    <div class="container">
+        <div class="row">
+
+            <asp:ContentPlaceHolder ID="CphContent" runat="server"></asp:ContentPlaceHolder>
+            <asp:ContentPlaceHolder ID="Cph1" runat="server"></asp:ContentPlaceHolder>
+            <asp:ContentPlaceHolder ID="CphDebug" runat="server"></asp:ContentPlaceHolder>
+
+        </div>
+    </div>
+    </form>
+
+</body>
+</html>

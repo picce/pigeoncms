@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<install 
+    installerVersion="1.0.0"
+    type="module" 
+    version="1.1.0"
+    core="true"
+    namespace="PigeonCms"
+    name="StaticPagesAdmin"
+    author="p-ice"
+    creationDate="2009-11-14"
+    copyright="Copyright(C) 2009 Nicola Ridolfi. All rights reserved."
+    license=""
+    authorEmail="picce@yahoo.it"
+    authorUrl="www.pigeoncms.com"
+    description="Static pages admin area"
+	allowDirectEditMode="true">
+    <files>
+    </files>
+
+    <params>
+		<param name="PageName" cssClass="" cssStyle="" type="combo" default="" label="Static page name" description="">
+			<option value="" label="Not set"></option>
+			<datasource SelectMethod="GetList" TypeName="PigeonCms.StaticPagesManager" />
+		</param>
+
+		<param name="TargetDocsUpload" type="combo" default="0" label="Documents upload target" description="">
+			<option value="0" label="Not set"></option>
+			<datasource SelectMethod="GetList" SelectParams="PigeonCms.FilesManager" TypeName="PigeonCms.MenuManager" />
+		</param>		
+	</params>
+</install>

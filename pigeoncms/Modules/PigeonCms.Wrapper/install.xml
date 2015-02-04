@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<install 
+    installerVersion="1.0.0"
+    type="module" 
+    version="1.0.0"
+    core="true"
+    namespace="PigeonCms"
+    name="Wrapper"
+    author="p-ice"
+    creationDate="2009-08-27"
+    copyright="Copyright(C) 2009 Nicola Ridolfi. All rights reserved."
+    license=""
+    authorEmail="picce@yahoo.it"
+    authorUrl="www.pigeoncms.com"
+    description="$ModuleDescription">
+    
+    <files>
+        <filename module="PigeonCms.Wrapper" file="~/App_Code/Components/PigeonCms.Wrapper/WrapperControl.cs" />
+    </files>
+
+    <params>
+        <param name="Url" type="text" default="http://" label="Url" description="Iframe Src" />
+    </params>
+
+    <params group="style">
+        <param name="Width" type="text" default="100" label="Width" description="Iframe width in px" />
+        <param name="Height" type="text" default="100" label="Height" description="Iframe height in px" />
+        <param name="Scrolling" type="combo" default="no" label="Scrolling" description="">
+            <option value="no" label="No"></option>
+            <option value="yes" label="Yes"></option>
+        </param>
+        <param name="Frameborder" type="text" default="0" label="Frameborder" description="" />
+        <param name="CssStyle" type="text" default="" label="Css style" description="Inline css style" />
+    </params>
+
+    <params group="text">
+        <param name="HeaderText" type="text" rows="3" cols="40" default="" label="Header Text" description="" />
+        <param name="FooterText" type="text" rows="3" cols="40" default="" label="Footer Text" description="" />
+    </params>
+</install>

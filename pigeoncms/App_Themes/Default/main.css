@@ -1,0 +1,690 @@
+BODY
+{
+    margin-top: 1px;
+    margin-bottom: 0px;
+    margin-right: 0px;
+    margin-left: 0px;
+    font-size: 9pt;
+    font-family: Arial, Verdana, 'Monotype Corsiva';
+    background-color: white;
+    background-repeat: repeat;
+    color: black;
+    text-align: justify;
+}
+
+a
+{
+    text-decoration: none;
+    color: #2F5F93;
+}
+
+a:hover
+{
+    text-decoration: underline;
+}
+
+a.editContent
+{
+    float: left;
+}
+
+a.editContent img
+{
+    border: none;
+}
+
+/*IE hack */
+div.hrForm0 {
+    border-top: solid 1px #021365;
+    /*background-color: red;*/
+    height: 1px;
+	margin-bottom: 5px;
+	margin-top: 0px;
+}
+div.hrForm0 hr {    /* for CSS1 browsers */
+    display: none;
+}
+div.hrForm0 * {     /* for CSS2 browsers */
+    display: none;
+}
+
+td.colSeparator {
+    border-right: solid 1px #7CCAA3;
+}
+
+/*HR.form0
+{
+	border-top: solid 1px #021365;
+	margin-bottom: 5px;
+	margin-top: 0px;
+	padding-bottom: 0px;
+	padding-top: 0px;
+}*/
+
+H1, div.modItem_title,  .pageContent .module .title
+{
+    font-size: 180%;
+    font-weight: bold;
+    margin-top: 0px;
+    margin-bottom: 7px;
+    color: #2F5F93;
+    font-family: "Trebuchet MS";
+}
+
+
+div.modItem_path 
+{
+    display:none;
+}
+
+H2
+{
+	font-size: 135%;
+	font-weight: bold;
+	margin-top: 5px;
+	margin-bottom: 5px;
+	color: #2F5F93; /*#6A9BD0;*/
+	font-family: "Trebuchet MS";
+}
+
+H3
+{
+	font-size: 100%;
+	font-weight: bold;
+	margin-top: 5px;
+	margin-bottom: 3px;
+	padding-top: 0px;
+	padding-bottom: 0px;
+	color: #2F5F93;
+	font-family: "Trebuchet MS";
+}
+
+H4
+{
+	font-size: 100%;
+	font-weight: bold;
+	margin-top: 0px;
+	margin-bottom: 5px;
+	color: #2F5F93;
+}
+
+UL
+{
+	padding-left: 20px;
+	margin-left: 0px;
+	margin-top: 7px;
+	margin-bottom: 7px;
+}
+
+P
+{
+	margin-top: 9px;
+	margin-bottom: 9px;
+}
+
+INPUT
+{
+    border-right: thin solid Gray;
+    border-top: thin solid Gray;
+    border-left: thin solid Gray;
+    border-bottom: thin solid Gray;
+    background-color: #E0E0E0;
+    font-size: 9pt;
+    font-family: Verdana, Arial, 'Monotype Corsiva';
+    padding-left: 2px;
+}
+
+TEXTAREA
+{
+	border-right: thin solid Gray;
+	border-top: thin solid Gray;
+	border-left: thin solid Gray;
+	border-bottom: thin solid Gray;
+	background-color: #E0E0E0;
+	font-size: 9pt;
+	font-family: Verdana, Arial, 'Monotype Corsiva';
+	padding-left: 2px;
+}
+
+SELECT
+{
+	border-right: thin solid Gray;
+	border-top: thin solid Gray;
+	border-left: thin solid Gray;
+	border-bottom: thin solid Gray;
+	background-color: #E0E0E0;
+	font-size: 9pt;
+	font-family: Verdana, Arial, 'Monotype Corsiva';
+	padding-left: 2px;
+}
+
+INPUT.button
+{
+	border-right: thin solid White;
+	border-top: thin solid White;
+	border-left: thin solid White;
+	border-bottom: thin solid White;
+	background-color: Silver;
+	font-size: 9pt;
+	font-family: Verdana, Arial, 'Monotype Corsiva';
+	padding-left: 2px;
+}
+
+INPUT.watermarked 
+{
+    background-color:#eef1b8;
+    border:1px solid #BEBEBE;
+    color:gray;
+}
+
+TEXTAREA.watermarked 
+{
+    background-color:#eef1b8;
+    border:1px solid #BEBEBE;
+    color:gray;
+}
+
+DIV.map
+{
+	border: thin solid Gray;
+}
+
+DIV.menuSide
+{
+	font-weight: bold;
+	/*display: none;*/
+}
+DIV.menuSide A
+{
+	text-decoration: none;
+}
+
+DIV.menuSide a:hover
+{
+	text-decoration: underline;
+}
+
+DIV.collapsable {
+	background-color: white;
+	margin-top: 5px;
+	margin-left: 5px;
+	margin-right: 5px;
+	margin-bottom: 5px;
+	border: 1px dotted Gray;
+	padding: 3px;
+}
+
+DIV.userControl 
+{
+	padding: 0px;
+	background-color: #B0C4DE;
+	color: Black;
+	border: 1px solid Black;
+}
+
+DIV.loading
+{
+	position: absolute;
+	top: 0px;
+	right: 0px;
+	color: White;
+	background-color:Red;
+}
+
+DIV.controlBox
+{
+    border: 2px solid #cccccc;
+    background-color: white;
+    padding: 0px;
+}
+
+DIV.controlHeader
+{
+    border-bottom: 2px solid #cccccc;
+    background-color: #ffcc00;
+    padding: 5px;
+}
+
+DIV.controlContent
+{
+	padding: 0px;
+}
+
+DIV.boxInfo
+{
+    display: none;
+    border: thin dotted #006600;
+    background-color: #E1E1E1;
+    padding-right: 10px;
+    padding-left: 10px;
+    padding-bottom: 5px;
+    padding-top: 5px;
+}
+
+SPAN.error
+{
+    COLOR: red;
+}
+
+SPAN.errorSmall
+{
+    color: Red;
+	font-style: italic;
+}
+
+SPAN.success
+{
+	color: Green;
+}
+
+SPAN.pageTitle
+{
+	font-size: 160%;
+	color: Red;
+	font-weight: bold;
+}
+
+.pageSubTitle
+{
+    color: #FF6600;
+}
+
+SPAN.controlTitle
+{
+	color: Red;
+	font-weight: bold;
+}
+
+SPAN.textNote
+{
+	color: #FFF5EE;
+	font-weight: normal;
+	font-style: italic;
+}
+
+SPAN.controlSubTitle
+{
+	font-size: 110%;
+	color: Red;
+	font-weight: bold;
+}
+
+SPAN.breadcrumb
+{
+	font-size: 12px;
+	color: Gray;
+	font-weight: normal;
+	vertical-align: top;
+} 
+
+A.breadcrumb
+{
+	font-size: 12px;
+	color: Gray;
+	font-weight: normal;
+	vertical-align: top;
+} 
+
+IMG.noBorder
+{
+    border-style: none;
+} 
+
+SPAN.subTitle
+{
+	color: Black;
+	font-weight: bold;
+	padding-left:10px;
+	padding-top:3px;
+}
+
+
+HR.pageSeparator
+{
+	background-color: #7CCAA3;
+	border: thick none;
+	height: 1px;
+	margin-top: 4px;
+	margin-bottom: 6px;
+}
+
+
+HR.separator
+{
+
+	background-image:url('../Images/separator.jpg'); 
+	border: none;
+	height: 15px;
+	width: 585px;
+ 	padding: 0 0 0 0;
+ 	margin-top: 1px;
+ 	margin-bottom: 1px;
+}
+
+
+IMG.preview
+{
+	border-right:1px solid black;
+	border-top:1px solid black;
+	border-left:1px solid black;
+	border-bottom:1px solid black;
+}
+
+img.banner
+{
+    border: 1px solid #D2D2D2;
+}
+
+
+LI.dotted
+{
+	list-style-type:none;
+	list-style-image:url(../images/mesopuntoorange.png);
+}
+
+TABLE.contornata
+{
+	border-right: thin dotted #dcdcdc;
+	border-top: thin dotted #dcdcdc;
+	border-left: thin dotted #dcdcdc;
+	border-bottom: thin dotted #dcdcdc;
+}
+
+table.menu
+{
+	width: 100%
+}
+
+TD.listItem
+{
+    background-color: White;
+    border-bottom-color: white;
+    border-bottom-style: solid;
+    border-bottom-width: 10px;
+    text-align:left;
+}
+
+TD.listItemAlternate
+{
+    background-color: black;
+    text-align:left;
+    /*
+    border-bottom-color: white;
+    border-bottom-style: solid;
+    border-bottom-width: 10px;
+    */
+}
+
+/*not used*/
+UL.menu
+{
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+/*not used*/
+UL.menu LI
+{
+	float: left;
+	height: 24px;
+	width: 120px;
+	border: none;
+	margin-right: 3px;
+	line-height: 24px;
+	text-align: center;
+}
+
+ul.bar { 
+   list-style-type: none; 
+   margin-left: 0; 
+}
+ul.bar li { 
+   /*border-bottom: 1px dotted #CDBFAC; */
+   padding-bottom: 5px; 
+}
+ul.bar li.last { 
+    border: none;
+}
+
+div.window{ 
+   /*border: 1px solid #ff6600;*/
+   margin-top: 0px; 
+   /*background-color: #E1D4C0;*/
+}
+div.window div.content{ 
+   padding: 4px; 
+}
+div.window h2{ 
+   /*margin-top: 0px;*/
+   /*border-bottom: 1px dashed black;*/
+}
+
+fieldset { 
+   border: none; 
+   width: 100%; 
+   padding: 0; 
+}
+
+fieldset#contacts label {
+	display: block;
+	float: left;
+	width: 85px;
+	margin: 1px 15px 0 0;
+	text-align: left;
+}
+
+dt { 
+   /*border-bottom: 1px dotted #333; */
+   margin-bottom: 5px; 
+   /*font-weight: bold; */
+}
+dd { 
+   margin-bottom: 10px; 
+}
+
+/*PigeonCms.Item*/
+div.modItem_title
+{
+    display: block;
+}
+
+div.modItem_description
+{}
+
+div.modItem_defaultImage
+{
+    display: none;
+}
+
+div.modItem_images, div.modItem_files, div.modItem_pages
+{
+    clear: both;
+}
+
+div.modItem_images ul, div.modItem_files ul, div.modItem_pages ul
+{
+    list-style: none outside none;
+    margin: 0;
+    padding: 0;
+}
+
+div.modItem_images li, div.modItem_files li, div.modItem_pages li
+{
+    display: block;
+    float: left;
+    margin: 5px;
+}
+
+div.modItem img
+{
+    display: block;
+    margin: 0px;
+}
+
+div.modItem_path 
+{
+    display:none;
+}
+
+div.modItemsSearch
+{
+    text-align: right;
+    padding-bottom: 10px;
+}
+
+input.modItemsSearch_searchText
+{
+     background-color: White;
+     width: 80px;  
+}
+
+/*Pigeoncms.Items*/
+div.news
+{
+    padding-top: 5px;
+}
+ul.news
+{
+    padding-left: 0px;
+}
+
+ul.news li
+{
+    border-bottom: 1px dotted #CCCCCC;
+    list-style: none;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+}
+
+ul.items
+{
+    margin-top: 0px;
+    padding-left: 0px;
+}
+
+ul.items li
+{
+    /*border-bottom: 1px dotted;*/
+    list-style: none;
+    margin-bottom: 20px;
+    padding-top: 10px;
+    clear:both;
+}
+
+img.items
+{
+    border: none;
+}
+
+div.itemImage
+{
+    text-align: left;
+    float: left;
+    display:inline;
+    padding-right: 10px;
+}
+
+div.itemImage img
+{
+    border:none;
+}
+
+div.itemPrint
+{
+    text-align: right;
+    padding: 5px;
+}
+
+div.itemDate
+{
+    line-height: 19px;
+    font-weight: bold;
+}
+
+div.itemTitle
+{
+    display: inline;
+    line-height: 19px;
+    font-weight: bold;
+    text-align: left;
+    float: none; /*left;*/
+}
+
+.colLeft div.itemTitle
+{
+    font-weight: normal;
+}
+
+div.itemShortDesc
+{
+    /*margin-top: 5px;
+    margin-bottom: 7px;*/
+    float: none;
+    width: auto; /*490px;*/
+    padding-left: 0px;
+}
+
+div.itemLongDesc
+{
+    margin-top: 5px;
+    margin-bottom: 10px
+}
+
+div.itemDivMore
+{
+    /*background: transparent url('Images/itemmore.png') no-repeat scroll left center;*/
+    line-height: 14px;
+    padding: 0px 60px 5px 0px;
+    height: 10px;
+}
+
+div#ItemTemplate img
+{
+    border:none;
+}
+
+/*Pigeoncms.Breadcrumbs*/
+ul.breadcrumbs 
+{ 
+    border-bottom:1px solid #ccc; 
+    background-color:#fff; 
+    line-height: 20px; 
+    overflow:auto; 
+    font-size:11px; 
+    font-weight:bold; 
+    padding: 0;
+}
+
+ul.breadcrumbs li 
+{ 
+    float:left; 
+    padding:0 0 0 5px;
+    list-style-type:none; 
+    margin:0;    
+    color: #2F5F93; 
+    text-transform: capitalize;
+}
+
+ul.breadcrumbs li a 
+{ 
+    padding:0 10px 2px 0px; 
+    background-image:url('Images/breadcrumbs.gif');
+    background-color: transparent;
+    background-position: right center;
+    background-repeat: no-repeat;
+    display: block;
+}
+
+ul.breadcrumbs li.first
+{ 
+    padding-left: 0px;
+}
+
+ul.breadcrumbs li.last a
+{ 
+    background: none;
+}
+
+/*ul.breadcrumbs li a:link, ul.breadcrumbs li a:visited 
+{ 
+}*/

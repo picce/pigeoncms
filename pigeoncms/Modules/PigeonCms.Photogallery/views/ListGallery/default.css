@@ -1,0 +1,37 @@
+div.ListGallery
+{
+
+}
+
+ul.ListGallery
+{
+    list-style: none outside none;
+    padding-left: 0px;
+}
+
+li.ListGallery
+{
+    display: block;
+    float: left;
+    margin: 2px;
+}
+
+a.ListGallery
+{
+
+}
+
+img.ListGallery
+{
+    padding: 0;
+}
+
+span.ListGalleryTitle
+{
+    font-weight: bold;
+}
+
+span.ListGalleryDescription
+{
+    font-weight: normal;
+}

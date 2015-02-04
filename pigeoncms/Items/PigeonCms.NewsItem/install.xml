@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<install 
+    installerVersion="1.0.0"
+    type="item" 
+    version="1.0.0"
+    core="true"
+    namespace="PigeonCms"
+    name="NewsItem"
+    author="p-ice"
+    creationDate="2010-02-23"
+    copyright="Copyright(C) 2010 Nicola Ridolfi. All rights reserved."
+    license=""
+    authorEmail="picce@yahoo.it"
+    authorUrl="www.pigeoncms.com"
+    description="generic news item">
+
+    <fields>
+        <!--<field name="Homepage" type="combo" default="0" label="$HomepageLabel">
+            <option value="0" label="No"></option>
+            <option value="1" label="Yes"></option>
+        </field>-->
+    </fields>
+
+    <params>
+    </params>
+
+</install>

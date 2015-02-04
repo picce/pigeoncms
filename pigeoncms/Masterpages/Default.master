@@ -1,0 +1,71 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeFile="Default.master.cs" Inherits="Masterpages_Default" %>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head id="Head1" runat="server">
+    <meta http-equiv="content-language" content="EN" />
+    <meta http-equiv="Content-Type" content="text/html; iso-8859-1" />
+    <title></title>
+</head>
+
+<body>
+<form id="form1" runat="server">
+
+<div id="pageHeader">
+    <div class="content">
+        <asp:ContentPlaceHolder ID="CphHeader" runat="server"></asp:ContentPlaceHolder>
+        <div id="logo">
+            <h1>{ PigeonCms }</h1>
+            <h2>ASP.NET Open Source Content Management System</h2>
+        </div>
+        <div id="menu">
+            <asp:ContentPlaceHolder ID="CphToolbar" runat="server"></asp:ContentPlaceHolder>
+        </div>
+        <div id="address">
+            <asp:ContentPlaceHolder ID="CphTop" runat="server"></asp:ContentPlaceHolder>                    
+        </div>
+    </div>
+</div>
+
+<div id="menu2">
+    <div class="content">
+    <asp:ContentPlaceHolder ID="CphToolbar2" runat="server"></asp:ContentPlaceHolder>
+    </div>
+</div>
+
+<div id="container">
+    <div id="pageBody">
+        <div id="menuLenguages">
+            <a href="?len=en-US"><asp:Image ID="Image2" runat="server" SkinID="ImgFlagEnglish" /></a>
+            <a href="?len=it-IT"><asp:Image ID="Image1" runat="server" SkinID="ImgFlagItaliano" /></a>
+        </div>            
+        <div id="pageContent">
+            <div class="colLeft">
+                <asp:ContentPlaceHolder ID="CphBanner1" runat="server"></asp:ContentPlaceHolder>
+                <asp:ContentPlaceHolder ID="CphLeft" runat="server"></asp:ContentPlaceHolder>
+            </div>
+            <div class="pageContent">
+                <asp:ContentPlaceHolder ID="CphPathway" runat="server"></asp:ContentPlaceHolder>
+                <asp:ContentPlaceHolder ID="CphContent" runat="server"></asp:ContentPlaceHolder>
+                <asp:ContentPlaceHolder ID="CphNewsFlash" runat="server"></asp:ContentPlaceHolder>
+            </div>
+            <div class="colRight">
+                <asp:ContentPlaceHolder ID="CphRight" runat="server"></asp:ContentPlaceHolder>
+            </div>
+            <div class="clear"></div>   
+        </div>
+    </div>
+</div>
+
+<div id="pageFooter">
+    <asp:ContentPlaceHolder ID="CphFooter" runat="server"></asp:ContentPlaceHolder>
+    <asp:ContentPlaceHolder ID="CphDebug" runat="server"></asp:ContentPlaceHolder>
+</div>
+
+<div id="legals">
+    <asp:ContentPlaceHolder ID="CphLegals" runat="server"></asp:ContentPlaceHolder>
+</div>
+
+</form>
+</body>
+</html>

@@ -1,0 +1,18 @@
+div.jqueryCycleSlide
+{
+    width: 720px;
+    height: 375px;
+    overflow: hidden;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    z-index: 0;
+}
+
+img.jqueryCycleSlide
+{
+    width: 720px;
+    height: 375px;
+    overflow: hidden;
+    z-index: 0;
+}

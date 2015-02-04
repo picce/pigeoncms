@@ -1,0 +1,67 @@
+@import "variables.less";
+
+//******************************************
+//
+//adapt sbadmin to PigeonCms admin controls
+//
+//******************************************
+
+//##20141215 - integrate bootstrap rule
+.nav li.active ul.collapse{
+    display: block;
+    visibility: visible;
+}
+
+.title {
+	font-size: 36px;
+	padding-top: 10px;
+	padding-bottom: 10px;
+	// margin: 40px 0 20px;
+	border-bottom: 1px solid #eee;
+
+	&:empty{
+		padding: 0px;
+		margin: 0px;
+		border-bottom: 0px;
+	}
+}
+
+.gridpager td td
+{   
+    padding: 0px 10px 0 0;
+}
+
+.ajax__calendar_container{
+	z-index: 100;
+}
+
+.footer{
+	text-align: center;
+	padding-top: 20px;
+	
+	div{
+		margin: -5px;
+		padding: 0px;
+	}
+
+	.title{
+		display: none;
+	}
+}
+
+ul.menuBottom{
+    list-style: none outside none;
+
+    li{
+	    display: inline;
+	    height: auto;
+	    position: relative;
+	    text-align: center;
+	    width: auto;    	
+	    padding: 0px 6px;
+	    border-right: 1px solid rgb(134, 134, 141);
+	    &:last-child{
+	    	border-right: none;
+	    }
+    }
+}

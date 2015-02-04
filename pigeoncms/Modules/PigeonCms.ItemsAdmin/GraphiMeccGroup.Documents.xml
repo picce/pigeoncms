@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<install
+    installerVersion="1.0.0"
+    type="module"
+    version="1.0.0"
+    core="false"
+    namespace="GraphiMeccGroup"
+    name="Documents"
+	  view="Documents"
+    author="p-ice"
+    creationDate="2012-11-21"
+    copyright="Copyright(C) 2012 Nicola Ridolfi. All rights reserved."
+    license=""
+    authorEmail="picce@yahoo.it"
+    authorUrl="www.pigeoncms.com"
+    description="Modulo documentale GMG">
+	<files>
+	</files>
+
+	<params group="parametri GMG">
+  </params>
+
+</install>

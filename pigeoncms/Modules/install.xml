@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<install 
+    installerVersion="1.0.0"
+    type="module" 
+    version="1.1.0" 
+    core="true"
+    namespace="PigeonCms"
+    name="Common"
+    author="p-ice"
+    creationDate="2009-12-19"
+    copyright="Copyright(C) 2009 Nicola Ridolfi. All rights reserved."
+    license=""
+    authorEmail="picce@yahoo.it"
+    authorUrl="www.pigeoncms.com"
+    description="Modules common settings">
+
+    <params group="style">
+    <!--
+        <param name="CssFile" type="text" default="" label="$CssFileLabel" description="$CssFileDescription" />
+        <param name="CssClass" type="text" default="" label="$CssClassLabel" description="$CssClassDescription" />
+        -->
+    </params>
+
+</install>

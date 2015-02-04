@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<install 
+    installerVersion="1.0.0"
+    type="module" 
+    version="1.0.0"
+    core="true"
+    namespace="PigeonCms"
+    name="UpdatesAdmin"
+    author="p-ice"
+    creationDate="2009-11-14"
+    copyright="Copyright(C) 2009 Nicola Ridolfi. All rights reserved."
+    license=""
+    authorEmail="picce@yahoo.it"
+    authorUrl="www.pigeoncms.com"
+    description="Updates admin area">
+    <files>
+    </files>
+
+    <params>
+		<param name="TargetLabelsPopup" type="combo" default="0" label="Labels popup target" description="">
+			<option value="0" label="Not set"></option>
+			<datasource SelectMethod="GetList" SelectParams="PigeonCms.LabelsAdmin" TypeName="PigeonCms.MenuManager" />
+		</param>
+    </params>
+</install>

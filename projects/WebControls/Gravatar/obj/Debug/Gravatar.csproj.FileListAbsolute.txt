@@ -1,0 +1,4 @@
+C:\inetpub\wwwroot\pigeoncms\code\projects\WebControls\Gravatar\bin\Debug\Gravatar.dll
+C:\inetpub\wwwroot\pigeoncms\code\projects\WebControls\Gravatar\bin\Debug\Gravatar.pdb
+C:\inetpub\wwwroot\pigeoncms\code\projects\WebControls\Gravatar\obj\Debug\Gravatar.dll
+C:\inetpub\wwwroot\pigeoncms\code\projects\WebControls\Gravatar\obj\Debug\Gravatar.pdb

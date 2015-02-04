@@ -1,0 +1,25 @@
+table#pageContent
+{
+    width:100%;
+    margin-top: 0px;
+}
+
+td.pageLeft
+{
+	padding-left: 0px;
+	padding-right: 7px;
+	padding-top: 0px;
+	text-align: left;
+	vertical-align: top;
+	border-right: solid 2px #71BC93;
+	width: 235px;
+}
+
+td.pageRight
+{
+	padding-left: 7px;
+	padding-right: 0px;
+	padding-top: 0px;
+	text-align: left;
+	vertical-align: top;
+}

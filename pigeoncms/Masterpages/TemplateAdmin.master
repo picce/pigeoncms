@@ -1,0 +1,39 @@
+<%@ Master Language="C#" AutoEventWireup="true" CodeFile="TemplateAdmin.master.cs" Inherits="Admin_TemplateAdmin" %>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="it">
+
+<head id="Head1" runat="server">
+    <title>PigeonCms - ASP.NET Open Source Content Management System</title>
+    <meta content="no-cache" http-equiv="Pragma" />
+</head>
+<body>
+<form id="form1" runat="server">
+
+<div id="page">
+    <div id="photo">
+    
+        <asp:ContentPlaceHolder ID="CphHeader" runat="server"></asp:ContentPlaceHolder>
+        <div id="logo"></div>
+        <h1>{ PigeonCms }</h1>
+        <h2>ASP.NET Open Source Content Management System - v.1.2.0</h2>
+        <div id="strapLine">
+            <p><q>Admin area</q></p>
+        </div>
+    </div>
+    <div class="topMenu">
+        <asp:ContentPlaceHolder ID="CphToolbar" runat="server"></asp:ContentPlaceHolder>    
+    </div>
+    <div id="content">
+        <div id="main">
+            <asp:ContentPlaceHolder ID="CphContent" runat="server"></asp:ContentPlaceHolder>
+        </div>
+    </div>
+    <div id="footer">
+        <asp:ContentPlaceHolder ID="CphFooter" runat="server"></asp:ContentPlaceHolder>
+        <asp:ContentPlaceHolder ID="CphDebug" runat="server"></asp:ContentPlaceHolder>
+        <a href="http://www.pigeoncms.com">www.pigeoncms.com</a>
+    </div>
+</div>
+</form>
+</body>
+</html>

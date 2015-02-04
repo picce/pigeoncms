@@ -1,0 +1,118 @@
+/*
+
+Here's a demo stylesheet used to format a menu and its content.
+Feel free to alter the menu layout however you want!
+All you have to do is ensure the script has the correct CSS property name
+(like 'visibility' or 'display') that changes to show/hide menus.
+
+If you want to extend this layout, one good resource for UL/LI formatting is:
+    http://www.alistapart.com/articles/taminglists/
+Alternatively, you can use any other CSS dropdown layout instead. More here:
+    http://www.alvit.de/css-showcase/
+Consult your favourite CSS reference for customising fonts/borders/etc.
+
+Otherwise, you can just change the #RGB border/background colours where
+suitable to customise for your site -- easy :).
+
+*/
+
+
+
+/* OFFICE-STYLE FREESTYLE MENU LAYOUT */
+
+
+/* All <ul> tags in the menu including the first level */
+.menulist, .menulist ul {
+ margin: 0;
+ padding: 1px;
+ width: 170px;
+ list-style: none;
+ background: #F0F0F8 url(listmenu_o.png) left repeat-y;
+ border: 1px solid #654;
+}
+
+/* Submenus (<ul> tags) are hidden and absolutely positioned across from their parent */
+.menulist ul {
+ display: none;
+ position: absolute;
+ top: 0;
+ left: 170px;
+}
+
+/* All menu items (<li> tags) are relatively positioned (to correctly offset submenus). */
+.menulist li {
+ position: relative;
+}
+
+/* Links inside the menu */
+.menulist li a {
+ display: block;
+ padding: 3px 4px 3px 30px;
+ color: #000;
+ text-decoration: none;
+ border: 1px solid transparent;
+ margin: 0;
+
+}
+/* HACKS: MSIE6 doesn't support transparent borders, mimic with margins */
+* html .menulist li a {
+ border-width: 0;
+ margin: 1px;
+}
+
+/*
+ Lit items: hover/focus = the current item. 'highlighted' = parent items to visible menus.
+ Here, active items are given a border, and a padding tweak to 'elevate' the text within.
+ Feel free to use background-image:url(file.gif) instead of background-color:#nnn here...
+*/
+.menulist a:hover, .menulist a.highlighted:hover, .menulist a:focus {
+ color: #FFF;
+ background-color: #46A;
+ padding: 2px 5px 4px 29px;
+ border: 1px solid #ADF;
+ margin: 0;
+}
+.menulist a.highlighted {
+ color: #FFF;
+ background-color: #68C;
+ border: 1px solid #CDE;
+ margin: 0;
+}
+
+/*
+ If you want per-item background images in your menu items, here's how to do it.
+ 1) Assign a unique ID tag to each link in your menu, like so: <a id="xyz" href="#">
+ 2) Copy and paste these next lines for each link you want to have an image:
+    .menulist a#xyz {
+      background-image: url(out.gif);
+    }
+    .menulist a#xyz:hover, .menulist a.highlighted#xyz, .menulist a:focus {
+     background-image: url(over.gif);
+    }
+*/
+
+
+/* 'subind' submenu indicators, which are automatically prepended to 'A' tag contents. */
+.menulist a .subind {
+ float: right;
+}
+
+/*
+ HACKS: IE/Win:
+ A small height on <li> and <a> tags and floating prevents gaps in menu.
+ * html affects <=IE6 and *:first-child+html affects IE7.
+ You may want to move these to browser-specific style sheets.
+*/
+*:first-child+html .menulist li {
+ float: left;
+ width: 100%;
+}
+
+* html .menulist li {
+ float: left;
+ height: 1%;
+}
+* html .menulist a {
+ height: 1%;
+}
+/* End Hacks */

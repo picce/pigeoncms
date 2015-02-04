@@ -1,0 +1,79 @@
+/* RULES FOR THE "MENUDIV" OBJECT */
+
+
+/* An absolutely positioned and hidden DIV (treated as a layer in NS4). */
+.menudiv {
+ position: absolute;
+ visibility: hidden;
+ z-index: 1000;
+ border: 2px outset #FFFFCC;
+ /* Borders:     Top    Right  Bottom    Left   */
+ border-color: #FFFFCC #666633 #666633 #FFFFCC;
+ background-color: #CCCC99;
+ /* layer-background-color is non-standard and NS4 only. */
+ layer-background-color: #CCCC99;
+ padding: 5px;
+ font: 14px/22px Arial, Helvetica, sans-serif;
+ /* Here's a cool effect, try uncommenting this, althought it's non-standard: */
+ /* filter: alpha(opacity=80); -moz-opacity: 0.8; opacity: 0.8 */
+}
+
+
+/* Formatting to apply to the elements inside the "menudiv" class elements. */
+/* Of course, you can put whatever you want within the menu divs, these are just examples. */
+
+.menudiv .header {
+ width: 100%;
+ font-weight: bold;
+ text-align: center;
+ border-bottom: 2px dashed #999966;
+ margin-bottom: 5px;
+}
+
+.menudiv a {
+ display: block;
+ /* I've specified borders for each side individually so NS4 ignores this setting */
+ border-top: 1px solid #CCCC99;
+ border-right: 1px solid #CCCC99;
+ border-bottom: 1px solid #CCCC99;
+ border-left: 1px solid #CCCC99;
+ color: #003333;
+ text-indent: 5px;
+ text-decoration: none;
+}
+
+/* I'm using :hover and :active pseudo-classes for link mouse effects. */
+.menudiv a:hover {
+ border: 1px solid #336699;
+ border-color: #6699CC #003366 #003366 #6699CC;
+ background-color: #336699;
+ color: #FFFFFF;
+}
+.menudiv a:active {
+ border: 1px solid #003366;
+ border-color: #000000 #3366CC #3366CC #000000;
+ background-color: #003366;
+ color: #FFFFFF;
+}
+
+/*
+The script will automatically assign a class of "highlighted" to elements that currently
+have an active submenu, so here's a little CSS to format links within a .menudiv element.
+*/
+.menudiv .highlighted {
+ background-color: #336699;
+ border-color: #336699;
+ color: #FFFFFF;
+}
+
+/* The links in the upper-left that pop out 'divMenu' menus. */
+.trigger a {
+ font: Bold 14px Arial, Helvetica, sans-serif;
+ color: #003366;
+ text-decoration: none;
+}
+
+/* Likewise, style active trigger links */
+.trigger a.highlighted {
+ color: #CC9966;
+}

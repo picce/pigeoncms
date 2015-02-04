@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<install 
+    installerVersion="1.0.0"
+    type="module" 
+    version="1.0.0" 
+    core="true"
+    namespace="PigeonCms"
+    name="Debug"
+    author="p-ice"
+    creationDate="2009-03-03"
+    copyright="Copyright(C) 2009 Nicola Ridolfi. All rights reserved."
+    license=""
+    authorEmail="picce@yahoo.it"
+    authorUrl="www.pigeoncms.com"
+    description="$ModuleDescription"
+    templateBlockName="Debug">
+    <files>
+        <filename module="Debug" file="Debug.ascx" />
+    </files>
+
+    <params>
+        <param name="HideText" type="combo" default="0" label="HideText">
+            <option value="1" label="Yes"></option>
+            <option value="0" label="No"></option>
+        </param>
+    </params>    
+</install>

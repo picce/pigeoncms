@@ -1,0 +1,37 @@
+.menuBottom, .menuBottom ul
+{
+    list-style-image:none;
+    list-style-position:outside;
+    list-style-type:none;
+    margin: 5px 5px 0 0;
+    padding:0;
+}
+
+.menuBottom li 
+{
+    display: inline;
+    height: 29px;
+    position:relative;
+    padding: 0 6px 0 6px;
+    text-align: center;
+    border-right: solid 1px gray;
+    text-transform: capitalize;
+}
+
+.menuBottom li a
+{
+    text-decoration: none;
+}
+
+.menuBottom li a:hover
+{
+}
+
+.menuBottom a.selected
+{
+}
+
+.menuBottom li.last
+{
+    border-right: none;
+}

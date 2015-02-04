@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<install 
+    installerVersion="1.0.0"
+    type="module" 
+    version="1.0.0" 
+    core="true"
+    namespace="PigeonCms"
+    name="HelloWord"
+    author="p-ice"
+    creationDate="2010-10-29"
+    copyright="Copyright(C) 2010 Nicola Ridolfi. All rights reserved."
+    license=""
+    authorEmail="info@pigeoncms.com"
+    authorUrl="www.pigeoncms.com"
+    title="$ModuleTitle"
+    description="$ModuleDescription"
+	templateBlockName="Mainbody">
+    <params>
+		<param name="YourName" type="text" default="Barry White" label="Your name" description="type your name" />
+		<param name="Gender" cssClass="" cssStyle="" type="combo" default="female" label="Gender" description="">
+            <option value="not set" label="Not set"></option>
+			<option value="male" label="Male"></option>
+			<option value="female" label="Female"></option>
+		</param>
+		<param name="Age" type="text" default="Age" label="Your age" description="" />
+    </params>
+</install>

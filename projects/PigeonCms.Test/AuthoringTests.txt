@@ -1,0 +1,143 @@
+﻿==========================================================================
+ Visual Studio Team System: cenni preliminari sulla modifica e l'esecuzione di test 
+==========================================================================
+
+In questi cenni preliminari vengono descritte le funzionalità relative alla 
+modifica e all'esecuzione di test in Visual Studio Team System e Visual Studio 
+Team Edition for Software Testers.
+
+Apertura di test
+-------------
+Per aprire un test, aprire un progetto di test o un file di metadati di test 
+(con estensione .vsmdi) contenente la definizione del test. I progetti di test 
+e i file di metadati di test sono disponibili in Esplora soluzioni.
+
+Visualizzazione di test
+-------------
+Per vedere i test disponibili, aprire la finestra Visualizzazione test. 
+In alternativa, se si utilizza Team Edition for Software Testers, per visualizzare 
+i test è possibile aprire la finestra Editor elenco dei test.
+
+Per aprire la finestra Visualizzazione test, scegliere Finestre dal menu Test, 
+quindi fare clic su Visualizzazione test. Per aprire la finestra Editor elenco 
+dei test, se si utilizza Team Edition for Software Testers, scegliere Finestre 
+dal menu Test, quindi fare clic su Editor elenco dei test.
+
+Esecuzione di test
+-------------
+I test possono essere eseguiti dalle finestre Visualizzazione test ed Editor 
+elenco dei test.
+Per sapere come aprire tali finestre, vedere Visualizzazione di test. 
+Per eseguire uno o più test inclusi nella finestra Visualizzazione test, 
+selezionare innanzitutto i test nella finestra; per selezionare più test, 
+fare clic e tenere premuto il tasto MAIUSC o CTRL. Scegliere quindi Esegui test 
+nella barra degli strumenti della finestra Visualizzazione test.
+
+In Visual Studio Team Edition for Software Testers, i test possono essere 
+eseguiti anche dalla finestra Editor elenco dei test. Per l'esecuzione di test 
+nell'Editor elenco dei test, selezionare la casella di controllo corrispondente 
+al test da eseguire. Scegliere quindi Esegui test nella barra degli strumenti 
+della finestra Editor elenco dei test.
+
+Visualizzazione di risultati dei test
+--------------------
+Quando si eseguono singoli test o serie di test, i risultati dell'esecuzione dei 
+test vengono visualizzati nella finestra Risultati test. Ogni singolo test in 
+esecuzione occupa una riga separata in modo che sia possibile visualizzarne lo 
+stato. Nella metà superiore della finestra è inclusa una barra di stato 
+incorporata che fornisce un riepilogo delle informazioni sull'intera esecuzione 
+dei test.
+
+Per visualizzare i risultati di un determinato test in maggiore dettaglio, 
+fare doppio clic sul test nella finestra Risultati test. Viene visualizzata 
+una finestra che fornisce ulteriori informazioni sui risultati di tale test, 
+ad esempio gli eventuali messaggi di errore specifici restituiti dal test.
+
+Modifica della modalità di esecuzione dei test
+-----------------------------------
+Ogni volta che vengono eseguiti dei test, viene utilizzato un insieme di 
+impostazioni che ne determinano la modalità di esecuzione. Tali impostazioni 
+sono contenute in un file di configurazione di esecuzione dei test.
+
+Di seguito viene riportato un elenco parziale delle modifiche possibili
+con un file di configurazione di esecuzione dei test:
+
+ - Modificare lo schema di denominazione di ciascuna esecuzione dei test.
+ - Modificare il controller di test su cui i test vengono eseguiti per 
+   consentire l'esecuzione remota dei test.
+ - Raccogliere dati di code coverage relativi al codice sottoposto a test, per 
+   visualizzare le righe di codice interessate dai test.
+ - Attivare e disattivare la distribuzione dei test. 
+ - Specificare gli ulteriori file da distribuire prima dell'esecuzione di test.
+ - Selezionare un host ASP.NET per l'esecuzione di unit test ASP.NET.
+ - Selezionare l'host di test di Smart Device, per l'esecuzione di unit test 
+   di Smart Device.
+ - Impostare varie proprietà per gli agenti di test che eseguono i test.
+ - Eseguire script personalizzati all'inizio e alla fine di ciascuna esecuzione 
+   dei test per consentire l'impostazione dell'esatto ambiente di test 
+   necessario ogni volta che i test vengono eseguiti.
+ - Impostare limiti di tempo per i test e le esecuzioni dei test.
+ - Impostare la combinazione di browser e il numero di ripetizioni dei test Web 
+   nell'esecuzione dei test.
+
+Per impostazione predefinita, viene creato un file di configurazione di esecuzione 
+dei test per ogni nuovo progetto di test. Per modificare tale file, fare doppio 
+clic su di esso in Esplora soluzioni e modificarne le impostazioni. I file di 
+configurazione dell'esecuzione dei test hanno estensione .testrunconfig.
+
+Una soluzione può includere più file di configurazione dell'esecuzione dei test. 
+Tra questi, soltanto il file di configurazione dell'esecuzione dei test "attiva" 
+viene utilizzato per determinare le impostazioni in uso per le esecuzioni dei test. 
+Per selezionare la configurazione attiva, scegliere Seleziona configurazione di 
+esecuzione dei test attiva dal menu Test.
+
+-------------------------------------------------------------------------------
+
+Tipi di test
+----------
+L'uso di Visual Studio Team Edition for Software Testers consente di creare 
+alcuni tipi di test differenti:
+
+Unit test, utilizzabili per creare un test a livello di codice in C++, 
+Visual C# o Visual Basic che esegue il codice sorgente source code. Uno 
+unit test chiama i metodi di una classe, passandone i parametri adatti, e 
+verifica che il valore restituito sia quello previsto.
+Esistono tre varianti specifiche di unit test:
+ - Unit test basati sui dati, creati quando si configura uno unit test 
+   in modo che venga chiamato ripetutamente da ciascuna riga di un'origine dati. 
+   I dati di ogni riga vengono utilizzati dallo unit test come dati di input.
+ - Unit test ASP.NET, che utilizzano il codice in un'applicazione Web ASP.NET.
+ - Unit test di Smart Device, distribuiti in uno Smart Device o un emulatore 
+   e successivamente eseguiti dall'host di test di Smart Device.  
+
+Test Web, che consistono in una serie ordinata di richieste HTTP registrate in 
+una sessione del browser mediante Microsoft Internet Explorer. Nel test potranno 
+essere segnalati dettagli specifici sulle pagine o sui siti richiesti, ad esempio 
+se una determinata pagina contiene una stringa specificata.
+
+Test di carico, utilizzati per incapsulare test non manuali, ossia unit test, 
+test Web e test generici, e per eseguirli simultaneamente utilizzando utenti 
+virtuali. I risultati dell'esecuzione di questi test sotto carico, inclusi 
+i contatori delle prestazioni e altri contatori, vengono presentati in tabelle 
+e grafici.
+
+Test generici, costituiti da un programma esistente di cui è stato eseguito 
+il wrapping per consentirne l'utilizzo come test. Di seguito vengono riportati 
+alcuni esempi di test o programmi che possono essere trasformati in test generici:
+ - Un test esistente che utilizza i codici di uscita del processo per comunicare 
+   se il test ha avuto o meno esito positivo. 0 indica che il test è riuscito, 
+   mentre qualunque altro valore indica un esito negativo.
+ - Un programma generale per ottenere una funzionalità specifica durante uno 
+   scenario di test.
+ - Un test o un programma che utilizza uno speciale file XML, detto file di 
+   risultati di riepilogo, per comunicare i risultati dettagliati.
+
+Test manuali, utilizzabili quando le attività del test devono essere completate 
+da un ingegnere anziché da uno script automatico.
+
+Test ordinati, utilizzabili per eseguire un insieme di test in un ordine 
+specificato.
+
+-------------------------------------------------------------------------------
+
+

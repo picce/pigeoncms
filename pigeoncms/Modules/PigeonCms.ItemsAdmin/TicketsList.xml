@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<install
+    installerVersion="1.0.0"
+    type="module"
+    version="1.0.0"
+    core="true"
+    namespace="PigeonCms"
+    name="ItemsAdmin"
+	view="TicketsList"
+    author="p-ice"
+    creationDate="2012-04-24"
+    copyright="Copyright(C) 2012 Nicola Ridolfi. All rights reserved."
+    license=""
+    authorEmail="picce@yahoo.it"
+    authorUrl="www.pigeoncms.com"
+    description="Support tickets management">
+	<files>
+	</files>
+
+	<params group="tickets parameters">
+		<param name="MessageTemplatesSectionId" type="combo" default="0" label="Message Templates" description="Folder with messages templates">
+			<option value="0" label="No templates"></option>
+			<datasource SelectMethod="GetList" TypeName="PigeonCms.SectionsManager" />
+		</param>
+		<param name="ShowCheckSendEmailToUserInserted" type="combo" default="1" label="Show send email to user inserted" 
+			   description="Show the checkbox to allow to send email to user inserted">
+			<option value="0" label="No"></option>
+			<option value="1" label="Yes"></option>
+		</param>
+    <param name="ShowCustomer" type="combo" default="1" label="Show customer"
+			   description="Show customers combo">
+      <option value="0" label="No"></option>
+      <option value="1" label="Yes"></option>
+    </param>
+    <param name="ShowTemplate" type="combo" default="1" label="Show template"
+			   description="Show templates combo">
+      <option value="0" label="No"></option>
+      <option value="1" label="Yes"></option>
+    </param>
+    <param name="StatusFilterDefaultValue" type="combo" default="0" 
+        label="Status filter value" description="Status filter default value">
+      <option value=" " label="Not set"></option>
+      <enum TypeName="PigeonCms.TicketItem+TicketStatusEnum" />
+    </param>
+  </params>
+
+</install>

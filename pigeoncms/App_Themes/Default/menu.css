@@ -1,0 +1,90 @@
+.menulist, .menulist ul
+{
+    list-style-image:none;
+    list-style-position:outside;
+    list-style-type:none;
+    margin: 27px 18px 0 0;
+    padding:0;
+}
+
+.menulist li 
+{
+    display:block;
+    float:left;
+    height: 29px;
+    min-width: 100px;
+    position:relative;
+    padding: 0 0 0 5px;
+    text-align: center;
+    text-transform: capitalize;
+}
+
+.menulist li a
+{
+    background-color: #6A9BD0;
+    color: White;
+    display: block;
+    padding: 3px 7px;
+    text-decoration: none;
+    -moz-border-radius-topleft: 4px;
+    -moz-border-radius-topright: 4px;
+    border-radius: 4px 4px 0px 0px;
+}
+
+.menulist li a:hover
+{
+    background-color: #2F5F93;
+}
+
+.menulist a.selected
+{
+    background-color: #2F5F93;
+}
+
+.menulist li.last
+{
+    border-right: none;
+}
+
+div#menu2 ul
+{
+    list-style-image:none;
+    list-style-position:outside;
+    list-style-type:none;
+    margin: 0;
+    padding:0;
+    float: left;
+}
+
+div#menu2 ul li
+{
+    display:block;
+    float:left;
+    position:relative;
+    /*padding: 0 10px;*/
+}
+
+div#menu2 ul li.selected
+{
+    background-color: #6A9BD0;
+}
+
+div#menu2 a
+{
+    color: White;
+    padding: 0 10px;
+    text-transform: capitalize;
+}
+
+.submenulist, .submenulist ul
+{
+    list-style-type:none;
+    margin: 0;
+    padding-left: 0;
+}
+
+.submenulist li 
+{
+    margin: 0px;
+    text-transform: capitalize;
+}

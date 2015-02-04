@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<install 
+    installerVersion="1.0.0"
+    type="item" 
+    version="1.0.0"
+    core="true"
+    namespace="PigeonCms"
+    name="RoomItem"
+    author="p-ice"
+    creationDate="2009-10-09"
+    copyright="Copyright(C) 2009 Nicola Ridolfi. All rights reserved."
+    license=""
+    authorEmail="picce@yahoo.it"
+    authorUrl="www.pigeoncms.com"
+    description="$ItemDescription">
+    <files>
+        <filename module="PigeonCms.RoomItem" file="~/App_Code/items/PigeonCms.RoomItem/RoomItem.cs" />
+    </files>
+
+    <fields>
+        <field name="ShowImages" type="combo" default="1" label="Visualizza immagini">
+            <option value="1" label="Yes"></option>
+            <option value="0" label="No"></option>
+        </field>
+        <field name="Price" type="text" default="" label="Prezzo per notte" description="" />
+        <field name="AdvanceType" type="combo" default="0" label="Tipo acconto" description="tipologia di acconto da applicare">
+            <option value="0" label="percentuale sul totale" description="impostare una percentuale sull'importo totale"></option>
+            <option value="1" label="valore fisso" description="impostare un valore fisso come anticipo"></option>
+        </field>
+        <field name="AdvanceValue" type="text" default="" label="Valore anticipo" description="in percentuale o valore" />
+        <field name="Beds" type="combo" default="" label="Posti letto" description="">
+            <option value="1" label="1"></option>
+            <option value="2" label="2"></option>
+            <option value="3" label="3"></option>
+            <option value="4" label="4"></option>
+        </field>
+        <field name="RoomType" type="combo" default="0" label="Tipo camera" description="">
+            <option value="0" label="singola"></option>
+            <option value="1" label="doppia"></option>
+            <option value="2" label="tripla"></option>
+            <option value="3" label="quadrupla"></option>
+        </field>
+        <!--<field name="LastReservation" type="text" default="" label="Ultima prenotazione" description="data della ultima prenotazione effettuata" />-->
+    </fields>
+
+    <params>     
+        <!--<param name="Key1"  type="text"  default="" label="Campo custom 1" description="" format="regulare expression here" />
+        <param name="Key2" type="combo" default="0" label="Campo custom 2" description="">
+            <option value="0" label="0"></option>
+            <option value="1" label="1"></option>
+            <option value="2" label="2"></option>
+        </param>-->
+    </params>
+</install>

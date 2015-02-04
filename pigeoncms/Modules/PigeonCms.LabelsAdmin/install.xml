@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<install 
+    installerVersion="1.0.0"
+    type="module" 
+    version="1.0.0"
+    core="true"
+    namespace="PigeonCms"
+    name="LabelsAdmin"
+    author="p-ice"
+    creationDate="2009-12-26"
+    copyright="Copyright(C) 2009 Nicola Ridolfi. All rights reserved."
+    license=""
+    authorEmail="picce@yahoo.it"
+    authorUrl="www.pigeoncms.com"
+    description="Manage modules labels">
+    <files>
+    </files>
+
+    <params>
+        
+        <param name="ModuleFullName" type="combo" default="" label="Module" description="">
+            <option value="" label="Not set"></option>
+            <datasource SelectMethod="GetList" TypeName="PigeonCms.ModuleTypeManager" />
+        </param>
+
+        <param name="ModuleFullNamePart" type="text" default="" label="Resource name part" />
+
+    </params>
+</install>

@@ -1,0 +1,12 @@
+C:\inetpub\wwwroot\pigeoncms\code\projects\PigeonCms.Test\bin\Release\PigeonCms.Test.dll
+C:\inetpub\wwwroot\pigeoncms\code\projects\PigeonCms.Test\bin\Release\PigeonCms.Test.pdb
+C:\inetpub\wwwroot\pigeoncms\code\projects\PigeonCms.Test\bin\Release\FredCK.FCKeditorV2.dll
+C:\inetpub\wwwroot\pigeoncms\code\projects\PigeonCms.Test\bin\Release\PigeonCms.Core.dll
+C:\inetpub\wwwroot\pigeoncms\code\projects\PigeonCms.Test\bin\Release\PigeonCms.Core.Offline.dll
+C:\inetpub\wwwroot\pigeoncms\code\projects\PigeonCms.Test\bin\Release\PigeonCms.Core.Offline.pdb
+C:\inetpub\wwwroot\pigeoncms\code\projects\PigeonCms.Test\bin\Release\PigeonCms.Core.pdb
+C:\inetpub\wwwroot\pigeoncms\code\projects\PigeonCms.Test\bin\Release\PigeonCms.Core_Accessor.dll
+C:\inetpub\wwwroot\pigeoncms\code\projects\PigeonCms.Test\bin\Release\PigeonCms.Core_Accessor.pdb
+C:\inetpub\wwwroot\pigeoncms\code\projects\PigeonCms.Test\obj\Release\ResolveAssemblyReference.cache
+C:\inetpub\wwwroot\pigeoncms\code\projects\PigeonCms.Test\obj\Release\PigeonCms.Test.dll
+C:\inetpub\wwwroot\pigeoncms\code\projects\PigeonCms.Test\obj\Release\PigeonCms.Test.pdb

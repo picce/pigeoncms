@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<install 
+    installerVersion="1.0.0"
+    type="module" 
+    version="1.0.0" 
+    core="true"
+    namespace="PigeonCms"
+    name="TopMenu"
+    author="p-ice"
+    creationDate="2009-05-28"
+    copyright="Copyright(C) 2009 Nicola Ridolfi. All rights reserved."
+    license=""
+    authorEmail="picce@yahoo.it"
+    authorUrl="www.pigeoncms.com"
+    description="$ModuleDescription"
+    templateBlockName="Toolbar">
+    <files>
+        <filename module="TopMenu" file="TopMenu.ascx" />
+    </files>
+
+    <params>
+        <param name="MenuType" type="combo" default="" label="$MenuTypeLabel" description="$MenuTypeDescription">
+            <option value="" label="All menu"></option>
+            <datasource SelectMethod="GetList" TypeName="PigeonCms.MenutypesManager" />
+        </param>
+    </params>
+    
+    <params group="advanced">
+        <param name="MenuId" type="text" default="listMenuRoot" label="$MenuIdLabel" description="$MenuIdDescription" />
+        <!--<param name="LayoutCssFile" type="text" default="" label="Name of css file" description="Inside the folder of current view" />-->
+        <!--<param name="ListClass" type="text" default="menulist" label="$ListClassLabel" description="$ListClassDescription" />-->
+        <param name="ItemSelectedClass" type="text" default="selected" label="$ItemSelectedClassLabel" description="$ItemSelectedClassDescription" />
+        <param name="ItemLastClass" type="text" default="last" label="$ItemLastClassLabel" description="$ItemLastClassDescription" />
+        <param name="MenuLevel" type="combo" default="0" label="$MenuLevelLabel" description="$MenuLevelDescription">
+            <option value="0" label="root"></option>
+            <option value="1" label="1"></option>
+			<option value="2" label="2"></option>
+			<option value="3" label="3"></option>
+        </param>
+        <param name="ShowChild" type="combo" default="2" label="$ShowChildLabel" description="$ShowChildDescription">
+            <option value="0" label="No"></option>
+            <option value="1" label="Yes"></option>
+            <option value="2" label="Not set"></option>
+        </param>        
+    </params>
+</install>

@@ -1,0 +1,52 @@
+﻿#tracer{width:900px;margin:0 auto;padding:10px;}  
+#tracer .item {clear:both;}  
+#tracer .header{font-weight:bold;}  
+#tracer .item div{float:left;text-align:center;}  
+#tracer .Info{color:#888;}  
+#tracer .Debug{color:#2B2;}  
+#tracer .Error{color:#B22;}  
+#tracer .item div.index{width:20px;}  
+#tracer .item div.delta{width:90px;}  
+#tracer .item div.elapsed{width:90px;}  
+
+
+/*direct content edit*/
+a.editContent
+{
+    position: absolute;
+    float: left;
+    opacity: .60; 
+    filter: alpha(opacity=60); 
+    -moz-opactiy: .60;
+}
+
+a.editContent img
+{
+    border: none;
+}
+
+.mod-preview-info 
+{ 
+    padding: 2px 4px 2px 4px; 
+    border: 1px solid black; 
+    position: absolute; 
+    background-color: white; 
+    color: red;
+    opacity: .90; 
+    filter: alpha(opacity=90); 
+    -moz-opactiy: .90; 
+}
+
+.mod-preview-wrapper 
+{ 
+    background-color:#eee;  
+    border: 1px dotted black; 
+    color:#700; 
+    opacity: .30; 
+    filter: alpha(opacity=30); 
+    -moz-opactiy: .30;
+}
+
+/*wysiwyg html editor*/
+hr.system-readmore { border: 1px dashed red; }
+hr.system-pagebreak { border: 1px dashed gray; }

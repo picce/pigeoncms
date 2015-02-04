@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<install 
+    installerVersion="1.0.0"
+    type="module" 
+    version="1.0.0"
+    core="true"
+    namespace="PigeonCms"
+    name="Messages"
+    author="p-ice"
+    creationDate="2012-02-16"
+    copyright="Copyright(C) 2012 Nicola Ridolfi. All rights reserved."
+    license=""
+    authorEmail="picce@yahoo.it"
+    authorUrl="www.pigeoncms.com"
+    description="Internal messages management">
+
+	<params group="notifications">
+
+    <param name="SendEmailToRecipient" type="combo" default="2" label="Send email to recipient" description="">
+        <option value="0" label="No"></option>
+        <option value="1" label="Yes"></option>
+        <option value="2" label="User setting"></option>
+    </param>    
+	</params>
+
+	<params group="filters">
+		<param name="DefaultFolder" type="combo" default="inbox" label="Default folder" description="default folder to show">
+      <option value="" label="$all"></option>
+      <option value="inbox" label="$inbox"></option>
+      <option value="outbox" label="$outbox"></option>
+		</param>
+		<param name="FolderFilter" type="combo" default="0" label="Allow only default folder">
+			<option value="1" label="Yes"></option>
+			<option value="0" label="No"></option>
+		</param>
+	</params>
+	
+</install>

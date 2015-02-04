@@ -1,0 +1,5 @@
+<asp:image SkinID="ImgRicette" Runat="server" BackColor="transparent" ImageUrl="Images/ricette.jpg" AlternateText="ricette" />
+<asp:image SkinID="ImgProdotti" Runat="server" BackColor="transparent" ImageUrl="Images/prodotti.jpg" AlternateText="prodotti" />
+<asp:image SkinID="ImgFlagItaliano" Runat="server" BackColor="transparent" ImageUrl="Images/flagItaliano.gif" AlternateText="Italiano" />
+<asp:image SkinID="ImgFlagEnglish" Runat="server" BackColor="transparent" ImageUrl="Images/flagEnglish.gif" AlternateText="English" />
+<asp:image SkinID="ImgCerca" Runat="server" BackColor="transparent" ImageUrl="Images/lentecerca.jpg" AlternateText="cerca" />

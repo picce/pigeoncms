@@ -1,0 +1,8 @@
+C:\inetpub\wwwroot\pigeoncms\code\projects\PigeonCms.Core\bin\Release\PigeonCms.Core.dll
+C:\inetpub\wwwroot\pigeoncms\code\projects\PigeonCms.Core\bin\Release\PigeonCms.Core.pdb
+C:\inetpub\wwwroot\pigeoncms\code\projects\PigeonCms.Core\bin\Release\FredCK.FCKeditorV2.dll
+C:\inetpub\wwwroot\pigeoncms\code\projects\PigeonCms.Core\bin\Release\PigeonCms.Core.Offline.dll
+C:\inetpub\wwwroot\pigeoncms\code\projects\PigeonCms.Core\bin\Release\PigeonCms.Core.Offline.pdb
+C:\inetpub\wwwroot\pigeoncms\code\projects\PigeonCms.Core\obj\Release\ResolveAssemblyReference.cache
+C:\inetpub\wwwroot\pigeoncms\code\projects\PigeonCms.Core\obj\Release\PigeonCms.Core.dll
+C:\inetpub\wwwroot\pigeoncms\code\projects\PigeonCms.Core\obj\Release\PigeonCms.Core.pdb

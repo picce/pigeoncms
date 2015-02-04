@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<install 
+    installerVersion="1.0.0"
+    type="module" 
+    version="1.0.0" 
+    core="true"
+    namespace="PigeonCms"
+    name="Placeholder"
+    author="p-ice"
+    creationDate="2009-05-05"
+    copyright="Copyright(C) 2009 Nicola Ridolfi. All rights reserved."
+    license=""
+    authorEmail="picce@yahoo.it"
+    authorUrl="www.pigeoncms.com"
+    description="$ModuleDescription">
+	<editContent
+		menuType="adminPopups"
+		menuName="PigeonCms-PlaceholdersAdmin-popup"
+		moduleFullName="PigeonCms.PlaceholdersAdmin"
+		editParams="Name" />	
+    <files>
+        <filename module="Placeholder" file="Placeholder.ascx" />
+    </files>
+
+    <params>
+        <param name="Name" type="combo" default="0" label="$NameLabel" description="$NameDescription">
+            <option value="" label="No placeholder"></option>
+            <datasource SelectMethod="GetList" TypeName="PigeonCms.PlaceholdersManager" />
+        </param>
+    </params>  
+</install>

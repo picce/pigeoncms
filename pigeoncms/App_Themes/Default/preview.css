@@ -1,0 +1,30 @@
+﻿a.fancy,a.editContent
+{
+    position: absolute;
+    float: left;
+    opacity: .60; 
+    filter: alpha(opacity=60); 
+    -moz-opactiy: .60;
+}
+
+.mod-preview-info 
+{ 
+    padding: 2px 4px 2px 4px; 
+    border: 1px solid black; 
+    position: absolute; 
+    background-color: white; 
+    color: red;
+    opacity: .90; 
+    filter: alpha(opacity=90); 
+    -moz-opactiy: .90; 
+}
+
+.mod-preview-wrapper 
+{ 
+    background-color:#eee;  
+    border: 1px dotted black; 
+    color:#700; 
+    opacity: .30; 
+    filter: alpha(opacity=30); 
+    -moz-opactiy: .30;
+}

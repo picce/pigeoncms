@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<install 
+    installerVersion="1.0.0"
+    type="item" 
+    version="1.0.0"
+    core="true"
+    namespace="PigeonCms"
+    name="TicketItem"
+    author="p-ice"
+    creationDate="2011-12-21"
+    copyright="Copyright(C) 2011 Nicola Ridolfi. All rights reserved."
+    license=""
+    authorEmail="picce@yahoo.it"
+    authorUrl="www.pigeoncms.com"
+    description="support ticket item">
+
+    <fields>
+      <field name="Status" type="combo" default="0" label="$StatusLabel" description="$StatusDescription">
+          <enum TypeName="PigeonCms.TicketItem+TicketStatusEnum" />
+      </field>
+      <field name="Priority" type="combo" default="0" label="$PriorityLabel" description="$PriorityDescription">
+          <enum TypeName="PigeonCms.TicketItem+TicketPriorityEnum" />
+      </field>
+      <field name="UserAssigned" type="text" default="" label="$UserAssignedLabel" description="$UserAssignedDescription" />
+      <field name="Link" type="text" default="" label="$LinkLabel" description="$LinkDescription" />
+      <field name="Tags" type="text" default="" label="$TagsLabel" description="$TagsDescription" />
+    </fields>
+
+    <params>
+    </params>
+
+</install>

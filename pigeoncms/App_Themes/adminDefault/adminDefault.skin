@@ -1,0 +1,76 @@
+<asp:GridView runat="server" backcolor="#F5EDE3" PageSize="25" 
+    GridLines="none" 
+    CellPadding="3"
+    EmptyDataText="empty list"
+    BorderColor="#E1D4C0" 
+    BorderStyle="Solid" 
+    BorderWidth="1" 
+    RowStyle-VerticalAlign="Top"
+    CssClass="gridview">
+    <RowStyle  /> 
+    <AlternatingRowStyle backcolor="white" />
+    <HeaderStyle BackColor="#E1D4C0" HorizontalAlign="Left" />
+    <FooterStyle HorizontalAlign="Left" />
+    <EmptyDataRowStyle Font-Italic="true" HorizontalAlign="Center" />
+    <PagerStyle HorizontalAlign="Left" CssClass="gridpager" />
+</asp:GridView>
+
+<asp:image SkinID="ImgNewFolder" Runat="server" BackColor="transparent" ImageUrl="Images/NewFolder.gif" ToolTip="Nuova Cartella" AlternateText="Nuova Cartella" />
+<asp:image SkinID="ImgNewRoot" Runat="server" BackColor="transparent" ImageUrl="Images/NewRoot.gif" ToolTip="Nuova Radice" AlternateText="Nuova Radice" />
+<asp:image SkinID="ImgCancel" Runat="server" BackColor="transparent" ImageUrl="Images/Cancel.gif" ToolTip="Annulla" AlternateText="Annulla" />
+<asp:image SkinID="ImgSortDesc" Runat="server" BackColor="transparent" ImageUrl="Images/sortdescending.gif" AlternateText="" />
+<asp:image SkinID="ImgSortAsc" Runat="server" BackColor="transparent" ImageUrl="Images/sortascending.gif" AlternateText="" />
+<asp:Image SkinID="ImgEditFolder" Runat="server" BackColor="transparent" ImageUrl="Images/EditFolder.gif" ToolTip="Rinomina Cartella" AlternateText="Rinomina Cartella" />
+<asp:Image SkinID="ImgEditFile" Runat="server" BackColor="transparent" ImageUrl="Images/EditFile.gif" ToolTip="Modifica" AlternateText="Modifica" />
+<asp:Image SkinID="ImgSecurity" Runat="server" BackColor="transparent" ImageUrl="Images/Security.gif" />
+<asp:image SkinID="ImgOk" Runat="server" BackColor="transparent" ImageUrl="Images/Ok.gif" AlternateText="" />
+<asp:image SkinID="ImgUpload" Runat="server" BackColor="transparent" ImageUrl="Images/UploadFile.gif" AlternateText="" />
+<asp:image SkinID="ImgDownload" Runat="server" BackColor="transparent" ImageUrl="Images/DownloadFile.gif" AlternateText="" />
+<asp:image SkinID="ImgLente" Runat="server" BackColor="transparent" ImageUrl="Images/Lente.gif" AlternateText="" />
+<asp:image SkinID="ImgPreviewStyle" Runat="server" BackColor="transparent" AlternateText="" BorderColor="black"  BorderStyle="none" BorderWidth="1" />
+<asp:image SkinID="ImgInfo" Runat="server" BackColor="transparent" ImageUrl="Images/Info.jpg" AlternateText="Info" />
+<asp:image SkinID="ImgServizi" Runat="server" BackColor="transparent" ImageUrl="Images/Clover2.gif" AlternateText="" />
+<asp:image SkinID="ImgIe" Runat="server" BackColor="transparent" ImageUrl="Images/ie.gif" AlternateText="" />
+<asp:image SkinID="ImgEmail" Runat="server" BackColor="transparent" ImageUrl="Images/email.png" AlternateText="e-mail" />
+<asp:image SkinID="ImgWeb" Runat="server" BackColor="transparent" ImageUrl="Images/web.gif" AlternateText="www" />
+<asp:image SkinID="ImgMap" Runat="server" BackColor="transparent" ImageUrl="Images/map.gif" AlternateText="map" />
+<asp:image SkinID="ImgAttributes" Runat="server" BackColor="transparent" ImageUrl="Images/attributes.gif" AlternateText="" />
+
+<asp:image SkinID="ImgExplorerFolder" Runat="server" BackColor="transparent" ImageUrl="Images/explorer/folder.gif" AlternateText="" />
+<asp:image SkinID="ImgExplorerFile" Runat="server" BackColor="transparent" ImageUrl="Images/explorer/file.png" AlternateText="" />
+<asp:image SkinID="ImgExplorerFile-doc" Runat="server" BackColor="transparent" ImageUrl="Images/explorer/file-doc.png" AlternateText="" />
+<asp:image SkinID="ImgExplorerFile-fla" Runat="server" BackColor="transparent" ImageUrl="Images/explorer/file-fla.png" AlternateText="" />
+<asp:image SkinID="ImgExplorerFile-pdf" Runat="server" BackColor="transparent" ImageUrl="Images/explorer/file-pdf.png" AlternateText="" />
+<asp:image SkinID="ImgExplorerFile-ppt" Runat="server" BackColor="transparent" ImageUrl="Images/explorer/file-ppt.png" AlternateText="" />
+<asp:image SkinID="ImgExplorerFile-xls" Runat="server" BackColor="transparent" ImageUrl="Images/explorer/file-xls.png" AlternateText="" />
+
+
+<asp:ImageButton SkinID="ImgSortDesc" Runat="server" BackColor="transparent" ImageUrl="Images/sortdescending.gif" AlternateText="" />
+<asp:ImageButton SkinID="ImgSortAsc" Runat="server" BackColor="transparent" ImageUrl="Images/sortascending.gif" AlternateText="" />
+<asp:ImageButton SkinID="ImgFolder" Runat="server" BackColor="transparent" ImageUrl="Images/folder.gif" AlternateText="" />
+<asp:ImageButton SkinID="ImgNewFolder" Runat="server" BackColor="transparent" ImageUrl="Images/NewFolder.gif" ToolTip="Nuova Cartella" AlternateText="Nuova Cartella" />
+<asp:ImageButton SkinID="ImgEditFolder" Runat="server" BackColor="transparent" ImageUrl="Images/EditFolder.gif" ToolTip="Rinomina Cartella" AlternateText="Rinomina Cartella" />
+<asp:ImageButton SkinID="ImgDelFolder" Runat="server" BackColor="transparent" ImageUrl="Images/DelFolder.gif" ToolTip="Elimina Cartella" AlternateText="Elimina Cartella" />
+<asp:ImageButton SkinID="ImgNewFile" Runat="server" BackColor="transparent" ImageUrl="Images/NewFile.gif" ToolTip="Nuovo" AlternateText="Nuovo" />
+<asp:ImageButton SkinID="ImgDelFile" Runat="server" BackColor="transparent" ImageUrl="Images/DelFile.gif" ToolTip="Elimina" AlternateText="Elimina" />
+<asp:ImageButton SkinID="ImgEditFile" Runat="server" BackColor="transparent" ImageUrl="Images/EditFile.gif" ToolTip="Modifica" AlternateText="Modifica" />
+<asp:ImageButton SkinID="ImgRefresh" Runat="server" BackColor="transparent" ImageUrl="Images/Refresh.gif" ToolTip="Refresh" AlternateText="Refresh" />
+<asp:ImageButton SkinID="ImgConfirm" Runat="server" BackColor="transparent" ImageUrl="Images/Confirm.gif" ToolTip="Conferma" AlternateText="Conferma" />
+<asp:ImageButton SkinID="ImgCancel" Runat="server" BackColor="transparent" ImageUrl="Images/Cancel.gif" ToolTip="Annulla" AlternateText="Annulla" />
+<asp:ImageButton SkinID="ImgLente" Runat="server" BackColor="transparent" ImageUrl="Images/Lente.gif" ToolTip="Visualizza" AlternateText="Visualizza" />
+<asp:ImageButton SkinID="ImgSecurity" Runat="server" BackColor="transparent" ImageUrl="Images/Security.gif" />
+<asp:ImageButton SkinID="ImgOk" Runat="server" BackColor="transparent" ImageUrl="Images/Ok.gif" />
+<asp:ImageButton SkinID="ImgUnchecked" Runat="server" BackColor="transparent" ImageUrl="Images/Unchecked.gif" />
+<asp:ImageButton SkinID="ImgKey" Runat="server" BackColor="transparent" ImageUrl="Images/key.gif" AlternateText="" />
+<asp:ImageButton SkinID="ImgUsers" Runat="server" BackColor="transparent" ImageUrl="Images/users.gif" AlternateText="" />
+<asp:ImageButton SkinID="ImgAttributes" Runat="server" BackColor="transparent" ImageUrl="Images/attributes.gif" AlternateText="" />
+<asp:ImageButton SkinID="ImgAlert" Runat="server" BackColor="transparent" ImageUrl="Images/alert.gif" ToolTip="Alert" AlternateText="Alert" />
+<asp:ImageButton SkinID="ImgDebug" Runat="server" BackColor="transparent" ImageUrl="Images/debug.gif" ToolTip="Debug" AlternateText="Debug" />
+<asp:ImageButton SkinID="ImgError" Runat="server" BackColor="transparent" ImageUrl="Images/error.gif" ToolTip="Error" AlternateText="Error" />
+<asp:ImageButton SkinID="ImgInfo" Runat="server" BackColor="transparent" ImageUrl="Images/Info.gif" ToolTip="Info" AlternateText="Info" />
+<asp:ImageButton SkinID="ImgLog" Runat="server" BackColor="transparent" ImageUrl="Images/Log.gif" ToolTip="Log" AlternateText="Log" />
+<asp:ImageButton SkinID="ImgWarning" Runat="server" BackColor="transparent" ImageUrl="Images/warning.gif" ToolTip="Warning" AlternateText="Warning" />
+<asp:ImageButton SkinID="ImgCopy" Runat="server" BackColor="transparent" ImageUrl="Images/copy.gif" ToolTip="Copy" AlternateText="Copy" />
+<asp:ImageButton SkinID="ImgStarOn" Runat="server" BackColor="transparent" ImageUrl="Images/starOn.png" />
+<asp:ImageButton SkinID="ImgStarOff" Runat="server" BackColor="transparent" ImageUrl="Images/starOff.png" />
+<asp:ImageButton SkinID="ImgFlag" Runat="server" BackColor="transparent" ImageUrl="Images/flag.gif" />
