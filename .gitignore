@@ -5,7 +5,8 @@
 *.pydevproject
 .project
 .metadata
-###bin/ ##pgn 20150205
+#pgn 20150205
+bin/ 
 tmp/
 *.tmp
 *.bak
