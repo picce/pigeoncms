@@ -1591,6 +1591,7 @@ CREATE TABLE #__shop_orderHeader
 	orderAmount decimal(18, 2) NULL,
 	shipAmount decimal(18, 2) NULL,
 	totalAmount decimal(18, 2) NULL,
+	totalPaid decimal(18, 2) NULL,
 	currency varchar(50) NULL,
 	vatPercentage int NULL,
 	invoiceId int NULL,

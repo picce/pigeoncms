@@ -12,3 +12,7 @@ C:\inetpub\wwwroot\pigeoncms\code\projects\PigeonCms.Core.OfflineProvider\bin\De
 C:\inetpub\wwwroot\pigeoncms\code\projects\PigeonCms.Core.OfflineProvider\bin\Debug\PigeonCms.Core.Offline.pdb
 C:\inetpub\wwwroot\pigeoncms\code\projects\PigeonCms.Core.OfflineProvider\obj\Debug\PigeonCms.Core.Offline.dll
 C:\inetpub\wwwroot\pigeoncms\code\projects\PigeonCms.Core.OfflineProvider\obj\Debug\PigeonCms.Core.Offline.pdb
+C:\Users\Nicola\Documents\Dev\github\pigeoncms\projects\PigeonCms.Core.OfflineProvider\bin\Debug\PigeonCms.Core.Offline.dll
+C:\Users\Nicola\Documents\Dev\github\pigeoncms\projects\PigeonCms.Core.OfflineProvider\bin\Debug\PigeonCms.Core.Offline.pdb
+C:\Users\Nicola\Documents\Dev\github\pigeoncms\projects\PigeonCms.Core.OfflineProvider\obj\Debug\PigeonCms.Core.Offline.dll
+C:\Users\Nicola\Documents\Dev\github\pigeoncms\projects\PigeonCms.Core.OfflineProvider\obj\Debug\PigeonCms.Core.Offline.pdb

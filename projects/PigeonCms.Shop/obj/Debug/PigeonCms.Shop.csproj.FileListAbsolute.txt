@@ -10,3 +10,15 @@ C:\inetpub\wwwroot\pigeoncms\code\projects\PigeonCms.Shop\obj\Debug\PigeonCms.Sh
 C:\inetpub\wwwroot\pigeoncms\code\projects\PigeonCms.Shop\obj\Debug\PigeonCms.Shop.pdb
 C:\inetpub\wwwroot\pigeoncms\code\projects\PigeonCms.Shop\bin\Debug\StackExchange.Dapper.dll
 C:\inetpub\wwwroot\pigeoncms\code\projects\PigeonCms.Shop\bin\Debug\StackExchange.Dapper.pdb
+C:\Users\Nicola\Documents\Dev\github\pigeoncms\projects\PigeonCms.Shop\bin\Debug\PigeonCms.Shop.dll
+C:\Users\Nicola\Documents\Dev\github\pigeoncms\projects\PigeonCms.Shop\bin\Debug\PigeonCms.Shop.pdb
+C:\Users\Nicola\Documents\Dev\github\pigeoncms\projects\PigeonCms.Shop\bin\Debug\PigeonCms.Core.dll
+C:\Users\Nicola\Documents\Dev\github\pigeoncms\projects\PigeonCms.Shop\bin\Debug\StackExchange.Dapper.dll
+C:\Users\Nicola\Documents\Dev\github\pigeoncms\projects\PigeonCms.Shop\bin\Debug\FredCK.FCKeditorV2.dll
+C:\Users\Nicola\Documents\Dev\github\pigeoncms\projects\PigeonCms.Shop\bin\Debug\PigeonCms.Core.Offline.dll
+C:\Users\Nicola\Documents\Dev\github\pigeoncms\projects\PigeonCms.Shop\bin\Debug\PigeonCms.Core.pdb
+C:\Users\Nicola\Documents\Dev\github\pigeoncms\projects\PigeonCms.Shop\bin\Debug\StackExchange.Dapper.pdb
+C:\Users\Nicola\Documents\Dev\github\pigeoncms\projects\PigeonCms.Shop\bin\Debug\PigeonCms.Core.Offline.pdb
+C:\Users\Nicola\Documents\Dev\github\pigeoncms\projects\PigeonCms.Shop\obj\Debug\PigeonCms.Shop.csprojResolveAssemblyReference.cache
+C:\Users\Nicola\Documents\Dev\github\pigeoncms\projects\PigeonCms.Shop\obj\Debug\PigeonCms.Shop.dll
+C:\Users\Nicola\Documents\Dev\github\pigeoncms\projects\PigeonCms.Shop\obj\Debug\PigeonCms.Shop.pdb
