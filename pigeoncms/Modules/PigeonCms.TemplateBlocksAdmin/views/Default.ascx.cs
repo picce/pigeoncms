@@ -70,6 +70,19 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
             Utility.AddGlyph(Grid1, e.Row);
     }
 
+    protected void Grid1_RowDataBound(object sender, GridViewRowEventArgs e)
+    {
+        if (e.Row.RowType == DataControlRowType.DataRow)
+        {
+            var item = new TemplateBlock();
+            item = (TemplateBlock)e.Row.DataItem;
+
+            LinkButton LnkName = (LinkButton)e.Row.FindControl("LnkName");
+            LnkName.Text = "<i class='fa fa-pgn_edit fa-fw'></i>";
+            LnkName.Text += item.Name;
+        }
+    }
+
     protected void BtnSave_Click(object sender, EventArgs e)
     {
         LblErr.Text = "";

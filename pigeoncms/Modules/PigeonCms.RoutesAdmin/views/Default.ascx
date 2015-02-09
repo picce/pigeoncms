@@ -33,8 +33,8 @@
                     <div class="panel-body"> 
                         <div class="pull-right">
                             <div class="btn-group adminToolbar">
-                                <asp:Button ID="BtnNew" runat="server" Text="Nuovo" CssClass="btn btn-primary btn-xs" OnClick="BtnNew_Click" />
-                                <asp:Button ID="BtnApplySettings" runat="server" Text="Applica" CssClass="btn btn-default btn-xs" OnClick="BtnApply_Click" />
+                                <asp:Button ID="BtnNew" runat="server" Text="<%$ Resources:PublicLabels, CmdNew %>" CssClass="btn btn-primary btn-xs" OnClick="BtnNew_Click" />
+                                <asp:Button ID="BtnApplySettings" runat="server" Text="<%$ Resources:PublicLabels, CmdApply %>" CssClass="btn btn-default btn-xs" OnClick="BtnApply_Click" />
                             </div>
                         </div> 
                     </div>
@@ -165,7 +165,7 @@
             <div class="panel panel-default">
 
                 <div class="panel-heading">
-                    <%=base.GetLabel("LblDetails", "Details") %>
+                    &nbsp;
                     <div class="pull-right">
                         <div class="btn-group">
                             <asp:Button ID="BtnSave" runat="server" Text="<%$ Resources:PublicLabels, CmdSave %>" CssClass="btn btn-primary btn-xs" OnClick="BtnSave_Click" />

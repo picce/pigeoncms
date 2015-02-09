@@ -95,15 +95,19 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
             PigeonCms.Culture item = new PigeonCms.Culture();
             item = (PigeonCms.Culture)e.Row.DataItem;
 
+            LinkButton LnkSel = (LinkButton)e.Row.FindControl("LnkSel");
+            LnkSel.Text = "<i class='fa fa-pgn_edit fa-fw'></i>";
+            LnkSel.Text += item.CultureCode;
+
             //Published
             if (item.Enabled)
             {
-                Image img1 = (Image)e.Row.FindControl("ImgEnabledOk");
+                var img1 = e.Row.FindControl("ImgEnabledOk");
                 img1.Visible = true;
             }
             else
             {
-                Image img1 = (Image)e.Row.FindControl("ImgEnabledKo");
+                var img1 = e.Row.FindControl("ImgEnabledKo");
                 img1.Visible = true;
             }
         }
@@ -174,6 +178,7 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
     #region private methods
     private void clearForm()
     {
+        TxtCultureCode.Enabled = true;
         TxtCultureCode.Text = "";
         TxtDisplayName.Text = "";
         ChkEnabled.Checked = true;
@@ -188,6 +193,8 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
 
     private void obj2form(Culture obj)
     {
+        TxtCultureCode.Enabled = string.IsNullOrEmpty(obj.CultureCode);
+
         TxtCultureCode.Text = obj.CultureCode;
         TxtDisplayName.Text = obj.DisplayName;
         ChkEnabled.Checked = obj.Enabled;

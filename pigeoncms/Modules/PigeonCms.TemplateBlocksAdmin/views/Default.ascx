@@ -1,74 +1,124 @@
 <%@ Control Language="C#" AutoEventWireup="true" CodeFile="Default.ascx.cs" Inherits="Controls_Default" %>
 
+<script type="text/javascript">
+
+    var deleteQuestion = '<%=PigeonCms.Utility.GetLabel("RECORD_DELETE_QUESTION") %>';
+
+</script>
+
 <asp:ScriptManager ID="ScriptManager1" runat="server"></asp:ScriptManager>
 <asp:UpdateProgress ID="UpdateProgress1" runat="server" DisplayAfter="1" AssociatedUpdatePanelID="Upd1">
     <ProgressTemplate>
-        <div class="loading">caricamento..</div>
+        <div class="loading"><%=PigeonCms.Utility.GetLabel("LblLoading", "loading") %></div>
     </ProgressTemplate>
 </asp:UpdateProgress>
     
 <asp:UpdatePanel ID="Upd1" runat="server">
 <ContentTemplate>
-    <asp:Label ID="LblErr" runat="server" Text="" CssClass="errore"></asp:Label>
-    <asp:Label ID="LblOk" runat="server" Text="" CssClass="success"></asp:Label>
 
+    <div class="row">
+        <div class="col-lg-12">
+            <asp:Label ID="LblErr" runat="server" Text=""></asp:Label>
+            <asp:Label ID="LblOk" runat="server" Text=""></asp:Label>
+        </div>
+    </div>
+
+    <div class="row">
     <asp:MultiView ID="MultiView1" runat="server" ActiveViewIndex="0">
     
         <asp:View ID="ViewSee" runat="server">
-            <fieldset title="Filtri">
-                Abilitato
-                    <asp:DropDownList runat="server" ID="DropEnabledFilter" AutoPostBack="true" CssClass="adminShortText" OnSelectedIndexChanged="DropEnabledFilter_SelectedIndexChanged">
-                        <asp:ListItem Value="">Entrambi</asp:ListItem>
-                        <asp:ListItem Value="1">Si</asp:ListItem>
-                        <asp:ListItem Value="0">No</asp:ListItem>
-                    </asp:DropDownList>&nbsp;&nbsp;&nbsp;
-            </fieldset>
-            <br />
-            <asp:GridView ID="Grid1" Width="100%" runat="server" AllowPaging="True" AllowSorting="true" AutoGenerateColumns="False"
-                DataSourceID="ObjDs1" DataKeyNames="Name" OnRowCommand="Grid1_RowCommand" OnRowCreated="Grid1_RowCreated">
-                <Columns>
-                    <asp:TemplateField ItemStyle-HorizontalAlign="Right" ItemStyle-Width="10">
-                        <ItemTemplate>
-                            <asp:ImageButton ID="ImgMoveUp" CommandName="MoveUp" CommandArgument='<%#Eval("Name") %>'
-                            SkinID="ImgSortAsc" runat="server" />
-                        </ItemTemplate>
-                        <ItemStyle HorizontalAlign="Right" Width="10px" />
-                    </asp:TemplateField>
-                    <asp:TemplateField ItemStyle-HorizontalAlign="Right" ItemStyle-Width="10">
-                        <ItemTemplate>
-                            <asp:ImageButton ID="ImgMoveDown" CommandName="MoveDown" CommandArgument='<%#Eval("Name") %>'
-                            SkinID="ImgSortDesc" runat="server" />
-                        </ItemTemplate>
-                        <ItemStyle HorizontalAlign="Right" Width="10px" />
-                    </asp:TemplateField>
-                    <asp:TemplateField>
-                        <ItemTemplate>
-                        <asp:ImageButton ID="LnkSel" CommandName="Select" CommandArgument='<%#Eval("Name") %>' 
-                        runat="server" SkinID="ImgEditFile" />                
-                        </ItemTemplate>
-                    </asp:TemplateField>
-                    <asp:BoundField DataField="Name" HeaderText="Nome" SortExpression="Name" />
-                    <asp:BoundField DataField="Title" HeaderText="Titolo" SortExpression="Title" />
-                    <asp:BoundField DataField="OrderId" HeaderText="Ordine" SortExpression="OrderId" />
-                    <asp:TemplateField HeaderText="Abilitato" SortExpression="Enabled">
-                        <ItemTemplate>
-                        <asp:CheckBox ID="CheckBox1" Enabled="false" Checked='<%#Eval("Enabled") %>' runat="server" />                
-                        </ItemTemplate>
-                    </asp:TemplateField>
-                    <asp:TemplateField ItemStyle-HorizontalAlign="Right" HeaderStyle-Width="20">
-                        <ItemTemplate>
-                        <asp:ImageButton ID="LnkDel" CommandName="DeleteRow" CommandArgument='<%#Eval("Name") %>' runat="server" SkinID="ImgDelFile" 
-                        OnClientClick="return confirm('Cancellare la riga?');"  />
-                        </ItemTemplate>
-                        <HeaderStyle Width="20px" />
-                        <ItemStyle HorizontalAlign="Right" />
-                    </asp:TemplateField>
-                </Columns>
-                <PagerStyle HorizontalAlign="Left" Wrap="True" />
-            </asp:GridView>
-            <br />
-            <asp:Button ID="BtnNew" runat="server" Text="Nuovo" CssClass="button" OnClick="BtnNew_Click" />
+
+            <div class="col-lg-12">
+                <div class="panel panel-default">
+                    <div class="panel-body"> 
+                        <div class="pull-right">
+                            <div class="btn-group adminToolbar">
+                                <asp:Button ID="BtnNew" runat="server" Text="Nuovo" CssClass="btn btn-primary btn-xs" OnClick="BtnNew_Click" />
+                            </div>
+                        </div> 
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-12">
+                <div class="panel panel-default adminFilters">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+                            <%=PigeonCms.Utility.GetLabel("LblFilters")%>
+                            </a>
+                        </h4>
+
+                    </div>
+                    <div id="collapseOne" class="panel-collapse collapse in">
+                        <div class="panel-body">
+
+                            <div class="form-group col-md-6">
+                                <asp:DropDownList runat="server" ID="DropEnabledFilter" AutoPostBack="true" CssClass="form-control" OnSelectedIndexChanged="DropEnabledFilter_SelectedIndexChanged">
+                                    <asp:ListItem Value="">--Enabled--</asp:ListItem>
+                                    <asp:ListItem Value="1">True</asp:ListItem>
+                                    <asp:ListItem Value="0">False</asp:ListItem>
+                                </asp:DropDownList>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-12">
+
+                <div class="panel panel-default">
+                    <div class="table-responsive">
+
+                        <asp:GridView ID="Grid1" Width="100%" runat="server" AllowPaging="True" AllowSorting="false" AutoGenerateColumns="False"
+                            DataSourceID="ObjDs1" DataKeyNames="Name" OnRowCommand="Grid1_RowCommand" OnRowDataBound="Grid1_RowDataBound" OnRowCreated="Grid1_RowCreated">
+                            <Columns>
+
+                                <asp:TemplateField HeaderText="Name" SortExpression="Name">
+                                    <ItemTemplate>
+                                        <asp:LinkButton ID="LnkName" runat="server" CausesValidation="false"
+                                        CommandName="Select" CommandArgument='<%#Eval("Name") %>'></asp:LinkButton>
+                                    </ItemTemplate>
+                                </asp:TemplateField>
+
+                                <asp:BoundField DataField="Title" HeaderText="Title" SortExpression="Title" />
+
+                                <asp:TemplateField ItemStyle-HorizontalAlign="Left" HeaderText="<%$ Resources:PublicLabels, LblOrder %>" Visible="false" SortExpression="OrderId">
+                                    <ItemTemplate>
+                                        <asp:LinkButton ID="ImgMoveUp" runat="server" CommandName="MoveUp" CommandArgument='<%#Eval("Name") %>'>
+                                            <i class='fa fa-pgn_up fa-fw'></i>                            
+                                        </asp:LinkButton>
+                                        <asp:LinkButton ID="ImgMoveDown" runat="server" CommandName="MoveDown" CommandArgument='<%#Eval("Name") %>'>
+                                            <i class='fa fa-pgn_down fa-fw'></i>                            
+                                        </asp:LinkButton>
+                                    </ItemTemplate>
+                                </asp:TemplateField>
+                                <asp:BoundField DataField="OrderId" HeaderText="" Visible="false" SortExpression="OrderId" />
+
+                                <asp:TemplateField HeaderText="Enabled" SortExpression="Enabled">
+                                    <ItemTemplate>
+                                    <asp:CheckBox ID="CheckBox1" Enabled="false" Checked='<%#Eval("Enabled") %>' runat="server" />                
+                                    </ItemTemplate>
+                                </asp:TemplateField>
+
+                                <asp:TemplateField HeaderText="" ItemStyle-HorizontalAlign="Center" ItemStyle-Width="10">
+                                    <ItemTemplate>
+                                        <asp:LinkButton ID="LnkDel" runat="server" CommandName="DeleteRow" 
+                                            CommandArgument='<%#Eval("Name") %>' OnClientClick="return confirm(deleteQuestion);">
+                                            <i class='fa fa-pgn_delete fa-fw'></i>
+                                        </asp:LinkButton>
+                                    </ItemTemplate>
+                                </asp:TemplateField>
+
+                            </Columns>
+                        </asp:GridView>
+
+                    </div>
+                </div>
             
+            </div>
+
             <asp:ObjectDataSource ID="ObjDs1" runat="server" SortParameterName="sort"
                 SelectMethod="GetByFilter" TypeName="PigeonCms.TemplateBlocksManager" OnSelecting="ObjDs1_Selecting">
                 <SelectParameters>
@@ -83,34 +133,45 @@
    
 
         <asp:View ID="ViewInsert" runat="server">
-            <asp:TextBox ID="TxtId" runat="server" Enabled="false" visible="false"></asp:TextBox>
-            <table cellspacing="0" cellpadding="5">
-            <tr>
-                <td>Nome</td>
-                <td style="width: 100%">
-                    <asp:TextBox ID="TxtName" MaxLength="50" runat="server" Enabled="false" Width="255px"></asp:TextBox></td>
-            </tr> 
-            <tr>
-                <td>Titolo</td>
-                <td>
-                    <asp:TextBox ID="TxtTitle" MaxLength="500" runat="server" Width="100%" Height="50px" TextMode="MultiLine"></asp:TextBox>
-                </td>
-            </tr>
-            <tr>
-                <td class="listItemAlternate">Abilitato</td>
-                <td class="listItemAlternate">
-                    <asp:CheckBox ID="ChkEnabled" runat="server" Enabled="true" />
-                </td>
-            </tr>
-            <tr>
-                <td colspan="2" class="listItemAlternate">
-                    <asp:Button ID="BtnSave" runat="server" Text="Salva" CssClass="button" OnClick="BtnSave_Click" />
-                    <asp:Button ID="BtnCancel" runat="server" Text="Annulla" CssClass="button" OnClick="BtnCancel_Click" />
-                </td>
-            </tr>
-            </table>
+
+            <div class="panel panel-default">
+
+                <div class="panel-heading">
+                    &nbsp;
+                    <div class="pull-right">
+                        <div class="btn-group">
+                            <asp:Button ID="BtnSave" runat="server" Text="<%$ Resources:PublicLabels, CmdSave %>" CssClass="btn btn-primary btn-xs" OnClick="BtnSave_Click" />
+                            <asp:Button ID="BtnCancel" runat="server" Text="<%$ Resources:PublicLabels, CmdCancel %>" CssClass="btn btn-default btn-xs" CausesValidation="false" OnClick="BtnCancel_Click" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-body">
+
+                    <asp:TextBox ID="TxtId" runat="server" Enabled="false" visible="false"></asp:TextBox>
+
+                    <div class="form-group col-sm-12">
+                        <%=base.GetLabel("Name", "Name", TxtName) %>
+                        <asp:TextBox ID="TxtName" MaxLength="50" runat="server" CssClass="form-control" Enabled="false"></asp:TextBox>
+                    </div>
+
+                    <div class="form-group col-sm-12">
+                        <%=base.GetLabel("Title", "Title", TxtTitle) %>
+                        <asp:TextBox ID="TxtTitle" MaxLength="500" runat="server" CssClass="form-control"></asp:TextBox>
+                    </div>
+
+                    <div class="form-group col-sm-12">
+                        <%=base.GetLabel("Enabled", "Enabled", ChkEnabled) %>
+                        <asp:CheckBox ID="ChkEnabled" runat="server" Enabled="true" CssClass="form-control" />
+                    </div>
+
+                </div>
+
+            </div>
+
         </asp:View>
     </asp:MultiView>
+    </div>
 
 </ContentTemplate>
 </asp:UpdatePanel>

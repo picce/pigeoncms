@@ -42,7 +42,7 @@ namespace PigeonCms.Shop
                 sSql = "SELECT t.id, t.orderRef, t.ownerUser, t.customerId, t.orderDate, "
                 + " t.orderDateRequested, t.orderDateShipped, t.dateInserted, t.userInserted, "
                 + " t.dateUpdated, t.userUpdated, t.confirmed, t.paid, t.processed, t.invoiced, t.notes, "
-                + " t.qtyAmount, t.orderAmount, t.shipAmount, t.totalAmount, t.currency, t.vatPercentage, "
+                + " t.qtyAmount, t.orderAmount, t.shipAmount, t.totalAmount, t.TotalPaid, t.currency, t.vatPercentage, "
                 + " t.invoiceId, t.invoiceRef, t.ordName, t.ordAddress, t.ordZipCode, t.ordCity, t.ordState, "
                 + " t.ordNation, t.ordPhone, t.ordEmail, t.codeCoupon, t.paymentCode, t.shipCode "
                 + " FROM [" + this.TableName + "] t "
@@ -52,6 +52,11 @@ namespace PigeonCms.Shop
                 {
                     sSql += " AND t.Id = @Id ";
                     myCmd.Parameters.Add(Database.Parameter(myProv, "Id", filter.Id));
+                }
+                if (!string.IsNullOrEmpty(filter.OrderRef))
+                {
+                    sSql += " AND t.OrderRef = @OrderRef ";
+                    myCmd.Parameters.Add(Database.Parameter(myProv, "OrderRef", filter.OrderRef));
                 }
                 if (!string.IsNullOrEmpty(filter.OwnerUser))
                 {
@@ -115,6 +120,22 @@ namespace PigeonCms.Shop
             return result;
         }
 
+        public Order GetByOrderRef(string orderRef)
+        {
+            var result = new Order();
+            var list = new List<Order>();
+            var filter = new OrdersFilter();
+
+            if (string.IsNullOrEmpty(orderRef))
+                return result;
+
+            filter.OrderRef = orderRef;
+            list = GetByFilter(filter, "");
+            if (list.Count > 0)
+                result = list[0];
+            return result;
+        }
+
         public override int Update(Order theObj)
         {
             DbProviderFactory myProv = Database.ProviderFactory;
@@ -138,7 +159,7 @@ namespace PigeonCms.Shop
                 OrderDateRequested=@OrderDateRequested, OrderDateShipped=@OrderDateShipped, 
                 DateUpdated=@DateUpdated, UserUpdated=@UserUpdated, 
                 Confirmed=@Confirmed, Paid=@Paid, Processed=@Processed, Invoiced=@Invoiced, Notes=@Notes, 
-                QtyAmount=@QtyAmount, OrderAmount=@OrderAmount, ShipAmount=@ShipAmount, TotalAmount=@TotalAmount, Currency=@Currency, VatPercentage=@VatPercentage, 
+                QtyAmount=@QtyAmount, OrderAmount=@OrderAmount, ShipAmount=@ShipAmount, TotalAmount=@TotalAmount, TotalPaid=@TotalPaid, Currency=@Currency, VatPercentage=@VatPercentage, 
                 InvoiceId=@InvoiceId, InvoiceRef=@InvoiceRef, OrdName=@OrdName, OrdAddress=@OrdAddress, OrdZipCode=@OrdZipCode, 
                 OrdCity=@OrdCity, OrdState=@OrdState, OrdNation=@OrdNation, OrdPhone=@OrdPhone, OrdEmail=@OrdEmail, 
                 CodeCoupon=@CodeCoupon, PaymentCode=@PaymentCode, ShipCode=@ShipCode 
@@ -172,6 +193,7 @@ namespace PigeonCms.Shop
                 myCmd.Parameters.Add(Database.Parameter(myProv, "OrderAmount", theObj.OrderAmount));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "ShipAmount", theObj.ShipAmount));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "TotalAmount", theObj.TotalAmount));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "TotalPaid", theObj.TotalPaid));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "Currency", theObj.Currency));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "VatPercentage", theObj.VatPercentage));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "InvoiceId", theObj.InvoiceId));
@@ -231,12 +253,12 @@ namespace PigeonCms.Shop
                 sSql = "INSERT INTO [" + this.TableName + @"] 
                     (orderRef, ownerUser, customerId, orderDate, orderDateRequested, orderDateShipped, 
                     dateInserted, userInserted, dateUpdated, userUpdated, confirmed, paid, processed, invoiced, 
-                    notes, QtyAmount, orderAmount, shipAmount, totalAmount, currency, vatPercentage, 
+                    notes, QtyAmount, orderAmount, shipAmount, totalAmount, TotalPaid, currency, vatPercentage, 
                     invoiceId, invoiceRef, ordName, ordAddress, ordZipCode, ordCity, ordState, 
                     ordNation, ordPhone, ordEmail, codeCoupon, paymentCode, shipCode)
                     VALUES(@orderRef, @ownerUser, @customerId, @orderDate, @orderDateRequested, @orderDateShipped, 
                     @dateInserted, @userInserted, @dateUpdated, @userUpdated, @confirmed, @paid, @processed, @invoiced, 
-                    @notes, @QtyAmount, @orderAmount, @shipAmount, @totalAmount, @currency, @vatPercentage, 
+                    @notes, @QtyAmount, @orderAmount, @shipAmount, @totalAmount, @TotalPaid, @currency, @vatPercentage, 
                     @invoiceId, @invoiceRef, @ordName, @ordAddress, @ordZipCode, @ordCity, @ordState, 
                     @ordNation, @ordPhone, @ordEmail, @codeCoupon, @paymentCode, @shipCode)
                     SELECT SCOPE_IDENTITY()";
@@ -270,6 +292,7 @@ namespace PigeonCms.Shop
                 myCmd.Parameters.Add(Database.Parameter(myProv, "OrderAmount", theObj.OrderAmount));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "ShipAmount", theObj.ShipAmount));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "TotalAmount", theObj.TotalAmount));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "TotalPaid", theObj.TotalPaid));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "Currency", theObj.Currency));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "VatPercentage", theObj.VatPercentage));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "InvoiceId", theObj.InvoiceId));
@@ -392,6 +415,8 @@ namespace PigeonCms.Shop
                 result.ShipAmount = (decimal)myRd["ShipAmount"];
             if (!Convert.IsDBNull(myRd["TotalAmount"]))
                 result.TotalAmount = (decimal)myRd["TotalAmount"];
+            if (!Convert.IsDBNull(myRd["TotalPaid"]))
+                result.TotalPaid = (decimal)myRd["TotalPaid"];
             if (!Convert.IsDBNull(myRd["Currency"]))
                 result.Currency = (string)myRd["Currency"];
             if (!Convert.IsDBNull(myRd["VatPercentage"]))

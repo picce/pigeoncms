@@ -41,12 +41,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BLL\Payment.cs" />
     <Compile Include="BLL\Customer.cs" />
     <Compile Include="BLL\OrderRow.cs" />
     <Compile Include="BLL\Order.cs" />
+    <Compile Include="DAL\PaymentsManager.cs" />
     <Compile Include="DAL\OrderRowsManager.cs" />
     <Compile Include="DAL\OrdersManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Provider\Payments\PayPal.cs" />
+    <Compile Include="Provider\Payments\PaymentsProvider.cs" />
     <Compile Include="Provider\OrdersProvider.cs" />
   </ItemGroup>
   <ItemGroup>

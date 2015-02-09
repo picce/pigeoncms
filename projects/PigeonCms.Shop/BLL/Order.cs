@@ -217,6 +217,16 @@ namespace PigeonCms.Shop
             set { totalAmount = value; }
         }
 
+        private decimal totalPaid = 0;
+        [DataObjectField(false)]
+        public decimal TotalPaid
+        {
+            [DebuggerStepThrough()]
+            get { return totalPaid; }
+            [DebuggerStepThrough()]
+            set { totalPaid = value; }
+        }
+
         private string currency = "";
         [DataObjectField(false)]
         public string Currency
@@ -413,6 +423,7 @@ namespace PigeonCms.Shop
     public class OrdersFilter
     {
         private int id = 0;
+        private string orderRef = "";
         private string ownerUser = "";
         private int customerId = 0;
         private Utility.TristateBool confirmed = Utility.TristateBool.NotSet;
@@ -420,12 +431,26 @@ namespace PigeonCms.Shop
         private Utility.TristateBool processed = Utility.TristateBool.NotSet;
 
 
+        /// <summary>
+        /// PKey
+        /// </summary>
         public int Id
         {
             [DebuggerStepThrough()]
             get { return id; }
             [DebuggerStepThrough()]
             set { id = value; }
+        }
+
+        /// <summary>
+        /// IX unique key
+        /// </summary>
+        public string OrderRef
+        {
+            [DebuggerStepThrough()]
+            get { return orderRef; }
+            [DebuggerStepThrough()]
+            set { orderRef = value; }
         }
 
         public string OwnerUser

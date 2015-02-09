@@ -34,7 +34,7 @@ public partial class Controls_Default : PigeonCms.MemberEditorControl
         try { loadGrid(); }
         catch (Exception ex)
         {
-            LblErr.Text = ex.Message;
+            LblErr.Text = RenderError(ex.Message);
         }
     }
 
@@ -72,12 +72,13 @@ public partial class Controls_Default : PigeonCms.MemberEditorControl
 
             CheckBox ChkEnabled = (CheckBox)e.Row.FindControl("ChkEnabled");
             CheckBox ChkIsCore = (CheckBox)e.Row.FindControl("ChkIsCore");
-            Literal LitUserName = (Literal)e.Row.FindControl("LitUserName");
+            LinkButton LnkUserName = (LinkButton)e.Row.FindControl("LnkUserName");
             Literal LitEmail = (Literal)e.Row.FindControl("LitEmail");
             Literal LitName = (Literal)e.Row.FindControl("LitName");
             Literal LitRolesForUser = (Literal)e.Row.FindControl("LitRolesForUser");
 
-            LitUserName.Text = Utility.Html.GetTextPreview(currItem.UserName, 30, "");
+            LnkUserName.Text = "<i class='fa fa-pgn_edit fa-fw'></i>";
+            LnkUserName.Text += Utility.Html.GetTextPreview(currItem.UserName, 30, "");
 
             ChkEnabled.Checked = currItem.Enabled;
             ChkIsCore.Checked = currItem.IsCore;
@@ -112,12 +113,12 @@ public partial class Controls_Default : PigeonCms.MemberEditorControl
             //Delete            
             if (currItem.IsCore)
             {
-                var img1 = (ImageButton)e.Row.FindControl("LnkDel");
+                var img1 = e.Row.FindControl("LnkDel");
                 img1.Visible = false;
             }
             else
             {
-                var img1 = (ImageButton)e.Row.FindControl("LnkDel");
+                var img1 = e.Row.FindControl("LnkDel");
                 img1.Visible = true;
             }
         }
@@ -160,10 +161,10 @@ public partial class Controls_Default : PigeonCms.MemberEditorControl
                 MultiView1.ActiveViewIndex = 0;
             }
             else
-                LblErr.Text = MemberEditor1.LastMessage;
+                LblErr.Text = RenderError(MemberEditor1.LastMessage);
         }
         else
-            LblErr.Text = MemberEditor1.LastMessage;
+            LblErr.Text = RenderError(MemberEditor1.LastMessage);
     }
 
     protected void BtnCancel_Click(object sender, EventArgs e)
@@ -256,7 +257,7 @@ public partial class Controls_Default : PigeonCms.MemberEditorControl
         }
         catch (Exception e)
         {
-            LblErr.Text = e.Message;
+            LblErr.Text = RenderError(e.Message);
         }
         loadGrid();
     }

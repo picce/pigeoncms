@@ -48,8 +48,12 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
     {
         if (e.Row.RowType == DataControlRowType.DataRow)
         {
-            //PigeonCms.WebConfigEntry item = new PigeonCms.WebConfigEntry();
-            //item = (PigeonCms.WebConfigEntry)e.Row.DataItem;
+            PigeonCms.WebConfigEntry item = new PigeonCms.WebConfigEntry();
+            item = (PigeonCms.WebConfigEntry)e.Row.DataItem;
+
+            LinkButton LnkSel = (LinkButton)e.Row.FindControl("LnkSel");
+            LnkSel.Text = "<i class='fa fa-pgn_edit fa-fw'></i>";
+            LnkSel.Text += item.Key;
         }
     }
 
@@ -78,12 +82,12 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
                 new WebConfigManager().Update(o1);
             }
             Grid1.DataBind();
-            LblOk.Text = Utility.GetLabel("RECORD_SAVED_MSG");
+            LblOk.Text = RenderSuccess( Utility.GetLabel("RECORD_SAVED_MSG"));
             MultiView1.ActiveViewIndex = 0;
         }
         catch (Exception e1)
         {
-            LblErr.Text = Utility.GetLabel("RECORD_ERR_MSG") + "<br />" + e1.ToString();
+            LblErr.Text = RenderError( Utility.GetLabel("RECORD_ERR_MSG") + "<br />" + e1.ToString());
         }
         finally
         {
@@ -98,6 +102,7 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
     #region private methods
     private void clearForm()
     {
+        TxtKey.Enabled = true;
         TxtKey.Text = "";
         TxtValue.Text = "";
     }
@@ -110,6 +115,8 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
 
     private void obj2form(WebConfigEntry obj)
     {
+        TxtKey.Enabled = string.IsNullOrEmpty(obj.Key);
+
         TxtKey.Text = obj.Key;
         TxtValue.Text = obj.Value;
     }
@@ -141,7 +148,7 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         }
         catch (Exception e)
         {
-            LblErr.Text = e.Message;
+            LblErr.Text = RenderError( e.Message);
         }
         Grid1.DataBind();
     }

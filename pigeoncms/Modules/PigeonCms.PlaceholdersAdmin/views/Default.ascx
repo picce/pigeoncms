@@ -59,7 +59,7 @@
                                     </ItemTemplate>
                                 </asp:TemplateField>
 
-                                <asp:TemplateField HeaderText="Visibile" SortExpression="Visible">
+                                <asp:TemplateField HeaderText="Visible" SortExpression="Visible">
                                     <ItemTemplate>
                                     <asp:CheckBox ID="CheckBox1" Enabled="false" Checked='<%#Eval("Visible") %>' runat="server" />                
                                     </ItemTemplate>
@@ -99,7 +99,7 @@
             <div class="panel panel-default">
 
                 <div class="panel-heading">
-                    <%=base.GetLabel("LblDetails", "Details") %>
+                    &nbsp;
                     <div class="pull-right">
                         <div class="btn-group">
                             <asp:Button ID="BtnSave" runat="server" Text="<%$ Resources:PublicLabels, CmdSave %>" CssClass="btn btn-primary btn-xs" OnClick="BtnSave_Click" />

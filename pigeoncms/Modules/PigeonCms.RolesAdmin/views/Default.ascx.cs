@@ -74,8 +74,12 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         {
             RoleName currItem = (RoleName)e.Row.DataItem;
 
+            LinkButton LnkRole = (LinkButton)e.Row.FindControl("LnkRole");
             Literal LitNumUsersInRole = (Literal)e.Row.FindControl("LitNumUsersInRole");
             Literal LitUsersInRole = (Literal)e.Row.FindControl("LitUsersInRole");
+
+            LnkRole.Text = "<i class='fa fa-pgn_edit fa-fw'></i>";
+            LnkRole.Text += Utility.Html.GetTextPreview(currItem.Role, 30, "");
 
             LitNumUsersInRole.Text = Roles.GetUsersInRole(currItem.Role).Length.ToString();
 
@@ -135,7 +139,7 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
             if (string.IsNullOrEmpty(TxtRolename.Text))
             {
                 res = false;
-                LblErr.Text += "inserire in nome della role";
+                LblErr.Text += RenderError(base.GetLabel("InsRoleName", "Insert role name"));
             }
         }
         else if (MultiView1.ActiveViewIndex == View_Users_Index)    //users in role
@@ -182,13 +186,13 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
             if (res)
             {
                 loadGrid();
-                LblOk.Text = Utility.GetLabel("RECORD_SAVED_MSG");
+                LblOk.Text = RenderSuccess( Utility.GetLabel("RECORD_SAVED_MSG"));
                 MultiView1.ActiveViewIndex = View_Grid_Index;
             }
         }
         catch (Exception e1)
         {
-            LblErr.Text = Utility.GetLabel("RECORD_ERR_MSG") + "<br />" + e1.Message;
+            LblErr.Text = RenderError( Utility.GetLabel("RECORD_ERR_MSG") + "<br />" + e1.Message);
         }
         finally
         {
@@ -243,7 +247,7 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         }
         catch (Exception e)
         {
-            LblErr.Text = e.Message;
+            LblErr.Text = RenderError( e.Message);
         }
         loadGrid();
     }

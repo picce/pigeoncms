@@ -1,5 +1,11 @@
 <%@ Control Language="C#" AutoEventWireup="true" CodeFile="Default.ascx.cs" Inherits="Controls_Default" %>
 
+<script type="text/javascript">
+
+    var deleteQuestion = '<%=PigeonCms.Utility.GetLabel("RECORD_DELETE_QUESTION") %>';
+
+</script>
+
 <asp:ScriptManager ID="ScriptManager1" runat="server"></asp:ScriptManager>
 <asp:UpdateProgress ID="UpdateProgress1" runat="server" DisplayAfter="1" AssociatedUpdatePanelID="Upd1">
     <ProgressTemplate>
@@ -9,38 +15,64 @@
 
 <asp:UpdatePanel ID="Upd1" runat="server">
 <ContentTemplate>
-    <asp:Label ID="LblErr" runat="server" Text="" CssClass="error"></asp:Label>
-    <asp:Label ID="LblOk" runat="server" Text="" CssClass="success"></asp:Label>
 
+    <div class="row">
+        <div class="col-lg-12">
+            <asp:Label ID="LblErr" runat="server" Text=""></asp:Label>
+            <asp:Label ID="LblOk" runat="server" Text=""></asp:Label>
+        </div>
+    </div>
+
+    <div class="row">
     <asp:MultiView ID="MultiView1" runat="server" ActiveViewIndex="0">
 
         <asp:View ID="ViewSee" runat="server">
-            <div class="adminToolbar">
-                <asp:Button ID="BtnNew" runat="server" Text="Nuovo" CssClass="button" OnClick="BtnNew_Click" />
+
+            <div class="col-lg-12">
+                <div class="panel panel-default">
+                    <div class="panel-body"> 
+                        <div class="pull-right">
+                            <div class="btn-group adminToolbar">
+                                <asp:Button ID="BtnNew" runat="server" Text="<%$ Resources:PublicLabels, CmdNew %>" CssClass="btn btn-primary btn-xs" OnClick="BtnNew_Click" />
+                            </div>
+                        </div> 
+                    </div>
+                </div>
             </div>
-            <br />
-            <asp:GridView ID="Grid1" runat="server" AllowPaging="True" Width="100%" AutoGenerateColumns="False"
-                DataSourceID="ObjDs1" DataKeyNames="Key" OnRowCommand="Grid1_RowCommand" OnRowCreated="Grid1_RowCreated" OnRowDataBound="Grid1_RowDataBound">
-                <Columns>                
-                    <asp:TemplateField ItemStyle-Width="10">
-                        <ItemTemplate>
-                        <asp:ImageButton ID="LnkSel" CommandName="Select" CommandArgument='<%#Eval("Key") %>' 
-                        runat="server" SkinID="ImgEditFile" />                
-                        </ItemTemplate>
-                    </asp:TemplateField>
+
+            <div class="col-lg-12">
+
+                <div class="panel panel-default">
+                    <div class="table-responsive">
+
+                        <asp:GridView ID="Grid1" runat="server" AllowPaging="True" Width="100%" AutoGenerateColumns="False"
+                            DataSourceID="ObjDs1" DataKeyNames="Key" OnRowCommand="Grid1_RowCommand" OnRowCreated="Grid1_RowCreated" OnRowDataBound="Grid1_RowDataBound">
+                            <Columns>                
+                                <asp:TemplateField HeaderText="Key">
+                                    <ItemTemplate>
+                                        <asp:LinkButton ID="LnkSel" runat="server" CausesValidation="false" 
+                                        CommandName="Select" CommandArgument='<%#Eval("Key") %>'></asp:LinkButton>
+                                    </ItemTemplate>
+                                </asp:TemplateField>
                     
-                    <asp:BoundField DataField="Key" HeaderText="Key" SortExpression="Key" />
-                    <asp:BoundField DataField="Value" HeaderText="Value" SortExpression="Value" />
+                                <asp:BoundField DataField="Value" HeaderText="Value" SortExpression="Value" />
                     
-                    <asp:TemplateField HeaderText="Remove" ItemStyle-HorizontalAlign="Center" ItemStyle-Width="10">
-                        <ItemTemplate>
-                        <asp:ImageButton ID="LnkDel" CommandName="DeleteRow" CommandArgument='<%#Eval("Key") %>' 
-                        runat="server" SkinID="ImgDelFile" 
-                        OnClientClick="return confirm('Cancellare la riga?');"  />
-                        </ItemTemplate>
-                    </asp:TemplateField>
-                </Columns>
-            </asp:GridView>
+                                <asp:TemplateField HeaderText="" ItemStyle-HorizontalAlign="Center" ItemStyle-Width="10">
+                                    <ItemTemplate>
+                                        <asp:LinkButton ID="LnkDel" runat="server" CommandName="DeleteRow" 
+                                            CommandArgument='<%#Eval("Key") %>' OnClientClick="return confirm(deleteQuestion);">
+                                            <i class='fa fa-pgn_delete fa-fw'></i>
+                                        </asp:LinkButton>
+                                    </ItemTemplate>
+                                </asp:TemplateField>
+
+                            </Columns>
+                        </asp:GridView>
+
+                    </div>
+                </div>
+
+            </div>
             
             <asp:ObjectDataSource ID="ObjDs1" runat="server" TypeName="PigeonCms.WebConfigManager" 
             SelectMethod="GetByFilter" OnSelecting="ObjDs1_Selecting">
@@ -55,32 +87,36 @@
    
 
         <asp:View ID="ViewInsert" runat="server">
-            <div class="adminToolbar">
-                <asp:Button ID="BtnSave" runat="server" Text="<%$ Resources:PublicLabels, CmdSave %>" CssClass="button" OnClientClick="MyObject.UpdateEditorFormValue();" OnClick="BtnSave_Click" />
-                <asp:Button ID="BtnCancel" runat="server" Text="<%$ Resources:PublicLabels, CmdCancel %>" CssClass="button" OnClick="BtnCancel_Click" />
-            </div>
             
-            <div class="col width-100">
-                <fieldset class="adminForm">
-                    <legend></legend>
-                    <table class="adminTable">
-                    <tr>
-                        <td class="key">Key</td>
-                        <td>
-                            <asp:TextBox ID="TxtKey" MaxLength="100" runat="server" Enabled="true" CssClass="adminText"></asp:TextBox>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="key">Value</td>
-                        <td>
-                            <asp:TextBox ID="TxtValue" MaxLength="100" runat="server" Enabled="true" CssClass="adminText"></asp:TextBox>
-                        </td>
-                    </tr>
-                    </table>
-                </fieldset>
+            <div class="panel panel-default">
+
+                <div class="panel-heading">
+                    &nbsp;
+                    <div class="pull-right">
+                        <div class="btn-group">
+                            <asp:Button ID="BtnSave" runat="server" Text="<%$ Resources:PublicLabels, CmdSave %>" CssClass="btn btn-primary btn-xs" OnClick="BtnSave_Click" />
+                            <asp:Button ID="BtnCancel" runat="server" Text="<%$ Resources:PublicLabels, CmdCancel %>" CssClass="btn btn-default btn-xs" CausesValidation="false" OnClick="BtnCancel_Click" />
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="panel-body">
+                    <div class="form-group col-sm-12">
+                        <%=base.GetLabel("Key", "Key", TxtKey) %>
+                        <asp:TextBox ID="TxtKey" MaxLength="100" runat="server" Enabled="true" CssClass="form-control"></asp:TextBox>
+                    </div>
+
+                    <div class="form-group col-sm-12">
+                        <%=base.GetLabel("Value", "Value", TxtValue) %>
+                        <asp:TextBox ID="TxtValue" MaxLength="100" runat="server" Enabled="true" CssClass="form-control"></asp:TextBox>
+                    </div>
+
+                </div>
+
             </div>
         </asp:View>
     </asp:MultiView>
+    </div>
 
 </ContentTemplate>
 </asp:UpdatePanel>

@@ -16,6 +16,11 @@
 .gridpager td td {
   padding: 0px 10px 0 0;
 }
+td.key {
+  font-weight: bold;
+  padding: 0px 10px 10px 0px;
+  line-height: 30px;
+}
 .ajax__calendar_container {
   z-index: 100;
 }
@@ -106,7 +111,7 @@ body {
   margin-left: -123px;
 }
 .navbar-top-links .dropdown-user {
-  /*right: 0; PGN*/
+  right: 0;
   left: auto;
 }
 .sidebar .sidebar-nav.navbar-collapse {

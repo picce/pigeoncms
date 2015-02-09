@@ -515,9 +515,12 @@
 .#{$fa-css-prefix}-pgn_up:before { content: $fa-var-chevron-up; }
 .#{$fa-css-prefix}-pgn_down:before { content: $fa-var-chevron-down; }
 .#{$fa-css-prefix}-pgn_content:before { content: $fa-var-search; }
+.#{$fa-css-prefix}-pgn_key:before { content: $fa-var-key; color: rgb(208, 136, 3); }
 .#{$fa-css-prefix}-pgn_security:before { content: $fa-var-lock; color: rgb(208, 136, 3); }
 .#{$fa-css-prefix}-pgn_image:before { content: $fa-var-camera; }
 .#{$fa-css-prefix}-pgn_attach:before { content: $fa-var-paperclip; }
+.#{$fa-css-prefix}-pgn_roles:before { content: $fa-var-list-alt; }
+
 //log types
 .#{$fa-css-prefix}-pgn_debug:before { content: $fa-var-eye; }
 .#{$fa-css-prefix}-pgn_info:before { content: $fa-var-info-circle; }

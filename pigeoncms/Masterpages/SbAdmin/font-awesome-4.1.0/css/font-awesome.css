@@ -2064,6 +2064,11 @@
   content: "\f002";
 }
 
+.fa-pgn_key:before {
+  content: "\f084";
+  color: #d08803;
+}
+
 .fa-pgn_security:before {
   content: "\f023";
   color: #d08803;
@@ -2075,6 +2080,10 @@
 
 .fa-pgn_attach:before {
   content: "\f0c6";
+}
+
+.fa-pgn_roles:before {
+  content: "\f022";
 }
 
 .fa-pgn_debug:before {
