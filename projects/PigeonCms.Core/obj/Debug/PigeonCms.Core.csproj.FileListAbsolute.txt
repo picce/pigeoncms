@@ -33,3 +33,4 @@ C:\Users\Nicola\Documents\Dev\github\pigeoncms\projects\PigeonCms.Core\bin\Debug
 C:\Users\Nicola\Documents\Dev\github\pigeoncms\projects\PigeonCms.Core\obj\Debug\PigeonCms.Core.csprojResolveAssemblyReference.cache
 C:\Users\Nicola\Documents\Dev\github\pigeoncms\projects\PigeonCms.Core\obj\Debug\PigeonCms.Core.dll
 C:\Users\Nicola\Documents\Dev\github\pigeoncms\projects\PigeonCms.Core\obj\Debug\PigeonCms.Core.pdb
+C:\Users\Nicola\Documents\Dev\github\pigeoncms\projects\PigeonCms.Core\bin\Debug\FredCK.FCKeditorV2.dll

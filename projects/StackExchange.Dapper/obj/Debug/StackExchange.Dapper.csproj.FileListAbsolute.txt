@@ -3,3 +3,8 @@ C:\inetpub\wwwroot\pigeoncms\code\projects\StackExchange.Dapper\bin\Debug\StackE
 C:\inetpub\wwwroot\pigeoncms\code\projects\StackExchange.Dapper\obj\Debug\StackExchange.Dapper.dll
 C:\inetpub\wwwroot\pigeoncms\code\projects\StackExchange.Dapper\obj\Debug\StackExchange.Dapper.pdb
 C:\inetpub\wwwroot\pigeoncms\code\projects\StackExchange.Dapper\obj\Debug\StackExchange.Dapper.csprojResolveAssemblyReference.cache
+C:\Users\Nicola\Documents\Dev\github\pigeoncms\projects\StackExchange.Dapper\bin\Debug\StackExchange.Dapper.dll
+C:\Users\Nicola\Documents\Dev\github\pigeoncms\projects\StackExchange.Dapper\bin\Debug\StackExchange.Dapper.pdb
+C:\Users\Nicola\Documents\Dev\github\pigeoncms\projects\StackExchange.Dapper\obj\Debug\StackExchange.Dapper.csprojResolveAssemblyReference.cache
+C:\Users\Nicola\Documents\Dev\github\pigeoncms\projects\StackExchange.Dapper\obj\Debug\StackExchange.Dapper.dll
+C:\Users\Nicola\Documents\Dev\github\pigeoncms\projects\StackExchange.Dapper\obj\Debug\StackExchange.Dapper.pdb
