@@ -1668,3 +1668,49 @@ ALTER TABLE #__shop_payments ADD CONSTRAINT
 	) WITH( STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 
 GO
+
+--after v2.0 deploy
+--20150213 - SHOP
+CREATE TABLE #__shop_customers
+	(
+	id int NOT NULL,
+	ownerUser varchar(255) NOT NULL,
+	dateInserted datetime NULL,
+	userInserted varchar(50) NULL,
+	dateUpdated datetime NULL,
+	userUpdated varchar(50) NULL,
+	companyName varchar(255) NULL,
+	firstName varchar(255) NULL,
+	secondName varchar(255) NULL,
+	ssn varchar(255) NULL,
+	vat varchar(255) NULL,
+	address varchar(255) NULL,
+	city varchar(255) NULL,
+	state varchar(255) NULL,
+	zipCode varchar(255) NULL,
+	nation varchar(255) NULL,
+	tel1 varchar(255) NULL,
+	mobile1 varchar(255) NULL,
+	website1 varchar(255) NULL,
+	email varchar(255) NULL,
+	enabled bit NULL,
+	notes varchar(5000) NULL
+	)  ON [PRIMARY]
+GO
+ALTER TABLE #__shop_customers ADD CONSTRAINT
+	PK_#__shop_customers PRIMARY KEY CLUSTERED 
+	(
+	id
+	) WITH( STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+
+GO
+CREATE NONCLUSTERED INDEX IXssn_#__shop_customers ON #__shop_customers
+	(
+	ssn
+	) WITH( STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+CREATE NONCLUSTERED INDEX IXvat_#__shop_customers ON #__shop_customers
+	(
+	vat
+	) WITH( STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO

@@ -225,6 +225,7 @@
                                 </div>
 
                                 <div class="panel-body">
+
                                     <div class="form-group col-lg-12">
                                         <%=Utility.GetLabel("", "site title", TxtSiteTitle)%>
                                         <asp:TextBox ID="TxtSiteTitle" Text="" runat="server" CssClass="form-control"></asp:TextBox>
@@ -232,6 +233,16 @@
                                             example: Gino's website
                                         </div>
                                     </div>
+
+                                    <div class="form-group col-lg-12">
+                                        <%=Utility.GetLabel("", "ecryption key", TxtEncryptKey)%>
+                                        <asp:TextBox ID="TxtEncryptKey" Text="" runat="server" CssClass="form-control"></asp:TextBox>
+                                        <div class="well well-sm">
+                                            Auto-generated key. It is used to encrypt/decrypt cookies and other confidential data. 
+                                            At least 8 alphanumeric chars.
+                                        </div>
+                                    </div>
+
                                 </div>
                             </div>
 
@@ -301,6 +312,11 @@
                                     <div class="form-group col-lg-12">
                                         <%=Utility.GetLabel("", "site url")%>
                                         <asp:TextBox ID="LitSiteUrl" Enabled="false" CssClass="form-control" runat="server"></asp:TextBox>
+                                    </div>
+
+                                    <div class="form-group col-lg-12">
+                                        <%=Utility.GetLabel("", "encryption key")%>
+                                        <asp:TextBox ID="LitEncryptKey" Enabled="false" CssClass="form-control" runat="server"></asp:TextBox>
                                     </div>
 
                                     <div class="form-group col-lg-12">

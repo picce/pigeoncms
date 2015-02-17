@@ -98,10 +98,15 @@ namespace PigeonCms.Controls
         protected override void RenderContents(HtmlTextWriter writer)
         {
             string res = this.Text;
-            //TODO - res = GetLabel(this.ResourceSet, this.ID, this.Text)
+            //res = GetLabel(this.ResourceSet, this.ID, this.Text);
+            
 
             writer.Write(res);
         }
+
+        //TODO
+        //private string GetLabel(string resourceSet, string resourceId, string defaultValue) { }
+
 
     }
 

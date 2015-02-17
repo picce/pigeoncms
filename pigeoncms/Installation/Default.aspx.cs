@@ -10,6 +10,7 @@ using System.Web.UI.WebControls.WebParts;
 using System.Web.UI.HtmlControls;
 using System.Collections.Generic;
 using PigeonCms;
+using System.Text;
 using System.IO;
 using System.Data.SqlClient;
 using System.Data.Common;
@@ -17,6 +18,8 @@ using System.Web.Configuration;
 
 public partial class Installation_Default : System.Web.UI.Page
 {
+    static Random random = new Random();
+    
     public static string ServerVariables = "";
     public static string FilesPermissionsList = "";
     public static string StepsList = "";
@@ -166,8 +169,12 @@ public partial class Installation_Default : System.Web.UI.Page
                 However you can manually update web.config file once the installation is completed.</li>";
         }
         FilesPermissionsList += "</ul>";
+
+        TxtEncryptKey.Text = generateEncryptKey();
+
         return res;
     }
+
 
     private bool checkWebConfig()
     {
@@ -278,6 +285,7 @@ public partial class Installation_Default : System.Web.UI.Page
         LitBackupTables.Text = ChkBackupTables.Checked.ToString();
         LitInstallExampleData.Text = ChkExampleData.Checked.ToString();
         LitSiteTitle.Text = TxtSiteTitle.Text;
+        LitEncryptKey.Text = TxtEncryptKey.Text;
         LitSiteUrl.Text = Utility.GetAbsoluteUrl();
         LitAdminPassword.Text = TxtAdminPassword.Text;
         LitEmail.Text = TxtEmail.Text;
@@ -287,6 +295,13 @@ public partial class Installation_Default : System.Web.UI.Page
         {
             res = false;
             LblErr.Text += "admin password must be at least 8 chars long<br />";
+        }
+
+        //check encrypt key
+        if (TxtEncryptKey.Text.Length < 8)
+        {
+            res = false;
+            LblErr.Text += "encrypt key must be at least 8 chars long<br />";
         }
 
         //check connection string
@@ -447,6 +462,7 @@ public partial class Installation_Default : System.Web.UI.Page
                     {
                         appSettingsSection.Settings["ConnectionStringName"].Value = TxtConnectionName.Text;
                         appSettingsSection.Settings["TabPrefix"].Value = TxtTablesPrefix.Text;
+                        appSettingsSection.Settings["EncryptKey"].Value = TxtEncryptKey.Text;
                         //appSettingsSection.Settings["CultureDefault"].Value = TxtCultureDefault.Text;
                     }
                     ConnectionStringsSection connectionStringsSection = (ConnectionStringsSection)configuration.GetSection("connectionStrings");
@@ -506,6 +522,34 @@ public partial class Installation_Default : System.Web.UI.Page
         LblErr.Text = renderError(LblErr.Text);
 
         return res;
+    }
+
+    public string generateEncryptKey()
+    {
+        StringBuilder builder = new StringBuilder();
+        builder.Append(randomNumber(random, 10, 99));
+        builder.Append(randomString(random, 3));
+        builder.Append(randomNumber(random, 10, 99));
+        builder.Append(randomString(random, 3));
+
+        return builder.ToString();
+    }
+
+    private int randomNumber(Random random, int min, int max)
+    {
+        return random.Next(min, max);
+    }
+
+    private string randomString(Random random, int size)
+    {
+        var builder = new StringBuilder();
+        char ch;
+        for (int i = 0; i < size; i++)
+        {
+            ch = Convert.ToChar(Convert.ToInt32(Math.Floor(26 * random.NextDouble() + 65)));
+            builder.Append(ch);
+        }
+        return builder.ToString().ToUpper();
     }
 
     #endregion

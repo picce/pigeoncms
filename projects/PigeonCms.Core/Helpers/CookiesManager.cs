@@ -6,6 +6,7 @@ using System.Web;
 using System.Web.Caching;
 using System.Diagnostics;
 using System.Collections;
+using System.Configuration;
 
 namespace PigeonCms.Core.Helpers
 {
@@ -14,6 +15,15 @@ namespace PigeonCms.Core.Helpers
     /// </summary>
     public class CookiesManager
     {
+        string encryptionKey = "";
+
+        private bool secure = false;
+        public bool Secure
+        {
+            [DebuggerStepThrough()]
+            get { return secure; }
+        }
+
         private string cookieName = "";
         public string CookieName
         {
@@ -21,9 +31,17 @@ namespace PigeonCms.Core.Helpers
             get { return cookieName; }
         }
 
-        public CookiesManager(string cookieName)
+        public CookiesManager(string cookieName) : this(cookieName, false)
+        {
+        }
+
+        public CookiesManager(string cookieName, bool secure)
         {
             this.cookieName = cookieName;
+            this.secure = secure;
+
+            if (ConfigurationManager.AppSettings["EncryptKey"] != null)
+                encryptionKey = ConfigurationManager.AppSettings["EncryptKey"];
         }
 
         public string GetValue(int key)
@@ -63,9 +81,20 @@ namespace PigeonCms.Core.Helpers
             if (value != null)
             {
                 var cook = new HttpCookie(this.CookieName);
-                cook[key] = value;
-                HttpContext.Current.Response.Cookies.Add(cook);
-                Tracer.Log("CookiesManager.SetValue: key=" + this.CookieName + "_" + key + "; Time=" + DateTime.Now, TracerItemType.Info);
+                //cook.Expires = 
+                try
+                {
+                    cook[key] = encrypt(value);
+                    HttpContext.Current.Response.Cookies.Add(cook);
+                    Tracer.Log("CookiesManager.SetValue: key=" + this.CookieName + "_" + key + "; Time=" + DateTime.Now, TracerItemType.Info);
+                }
+                catch (Exception ex)
+                {
+                    Tracer.Log("CookiesManager.SetValue: key=" + this.CookieName + "_" + key + "; "
+                        + "Time=" + DateTime.Now + "; "
+                        +" Err=" + ex.ToString() + "; ", 
+                        TracerItemType.Info);
+                }
             }
         }
 
@@ -96,6 +125,8 @@ namespace PigeonCms.Core.Helpers
         /// <param name="isFullKey"></param>
         private void remove(string key, bool isFullKey)
         {
+            throw new NotImplementedException();
+
             string fullKey = "";
             if (!isFullKey)
                 fullKey = this.CookieName + "_" + key;
@@ -110,11 +141,50 @@ namespace PigeonCms.Core.Helpers
         {
             string res = "";
             var cook = HttpContext.Current.Request.Cookies[this.CookieName];
-            if (cook != null)
-                res = cook[key];
+
+            try
+            {
+                if (cook != null)
+                    res = decrypt(cook[key], this.Secure);
+            }
+            catch (FormatException)
+            {
+                //try to read plain version
+                res = decrypt(cook[key], false);
+            }
+            catch (Exception ex)
+            {
+                Tracer.Log("CookiesManager.GetValue: key=" + this.CookieName + "_" + key + "; err=" + ex.ToString(),
+                        TracerItemType.Error);
+            }
+
             if (writeLog)
                 Tracer.Log("CookiesManager.GetValue: key=" + this.CookieName + "_" + key + "; value=" + res,
                     TracerItemType.Info);
+
+            return res;
+        }
+
+        private string encrypt(string value)
+        {
+            string res = value;
+
+            if (this.Secure)
+            {
+                res = Utility.Encryption.Encrypt(res, encryptionKey);
+            }
+
+            return res;
+        }
+
+        private string decrypt(string value, bool isSecure)
+        {
+            string res = value;
+
+            if (isSecure)
+            {
+                res = Utility.Encryption.Decrypt(res, encryptionKey);
+            }
 
             return res;
         }

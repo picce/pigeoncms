@@ -1,17 +1,6 @@
 <?xml version="1.0"?>
 <configuration>
     <configSections>
-        <sectionGroup name="system.web.extensions" type="System.Web.Configuration.SystemWebExtensionsSectionGroup, System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35">
-            <sectionGroup name="scripting" type="System.Web.Configuration.ScriptingSectionGroup, System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35">
-                <section name="scriptResourceHandler" type="System.Web.Configuration.ScriptingScriptResourceHandlerSection, System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35" requirePermission="false" allowDefinition="MachineToApplication"/>
-                <sectionGroup name="webServices" type="System.Web.Configuration.ScriptingWebServicesSectionGroup, System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35">
-                    <section name="jsonSerialization" type="System.Web.Configuration.ScriptingJsonSerializationSection, System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35" requirePermission="false" allowDefinition="Everywhere"/>
-                    <section name="profileService" type="System.Web.Configuration.ScriptingProfileServiceSection, System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35" requirePermission="false" allowDefinition="MachineToApplication"/>
-                    <section name="authenticationService" type="System.Web.Configuration.ScriptingAuthenticationServiceSection, System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35" requirePermission="false" allowDefinition="MachineToApplication"/>
-                    <section name="roleService" type="System.Web.Configuration.ScriptingRoleServiceSection, System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35" requirePermission="false" allowDefinition="MachineToApplication"/>
-                </sectionGroup>
-            </sectionGroup>
-        </sectionGroup>
         <section name="resizer" type="ImageResizer.ResizerSection"/>
     </configSections>
     <connectionStrings>
@@ -39,7 +28,8 @@
 
 
     <system.web>
-       	<machineKey validationKey="3942F5C7A1F604D2F49DEF7B4085A9B612766BF8222807C58E4ADFB40F3E49CF8B0A1A2A0E0DF38F0A0F868B8C66D8ECA6E53180BC85D249B972C07F6D644564" decryptionKey="38FBA36F63C46CD195B0B452EAA9F7032AEC33E45C1671D9AEE4B953992D2243" validation="SHA1" decryption="AES" />
+        <httpRuntime requestValidationMode="2.0" />
+        <machineKey validationKey="3942F5C7A1F604D2F49DEF7B4085A9B612766BF8222807C58E4ADFB40F3E49CF8B0A1A2A0E0DF38F0A0F868B8C66D8ECA6E53180BC85D249B972C07F6D644564" decryptionKey="38FBA36F63C46CD195B0B452EAA9F7032AEC33E45C1671D9AEE4B953992D2243" validation="SHA1" decryption="AES" />
         <globalization enableClientBasedCulture="true" culture="auto" uiCulture="auto"/>
         <customErrors mode="Off" defaultRedirect="~/pages/error.aspx">
             <!--<error statusCode="403" redirect="NoAccess.aspx" />-->
@@ -51,7 +41,7 @@
         </customErrors>
         <sessionState timeout="30" mode="InProc"/>
         <trace enabled="true"/>
-        <pages maintainScrollPositionOnPostBack="true" theme="SbAdmin">
+        <pages maintainScrollPositionOnPostBack="true" validateRequest="false" theme="SbAdmin">
             <namespaces>
                 <clear/>
                 <add namespace="System"/>
