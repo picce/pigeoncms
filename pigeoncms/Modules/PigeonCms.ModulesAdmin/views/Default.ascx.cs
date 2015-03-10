@@ -181,7 +181,8 @@ public partial class Controls_ModulesAdmin : PigeonCms.BaseModuleControl
             LnkTitle.Text = "<i class='fa fa-pgn_edit fa-fw'></i>" + Utility.Html.GetTextPreview(item.Title, 20, "");
 
             Literal LitModuleNameDesc = (Literal)e.Row.FindControl("LitModuleNameDesc");
-            LitModuleNameDesc.Text = item.ModuleFullName;
+            LitModuleNameDesc.Text = item.ModuleFullName + "<br>" 
+                + "<i>" + item.CurrView + "</i>";
 
             Literal LitMenuEntries = (Literal)e.Row.FindControl("LitMenuEntries");
             if (item.MenuSelection == ModulesMenuSelection.AllPages)

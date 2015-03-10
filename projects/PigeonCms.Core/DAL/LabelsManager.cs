@@ -57,7 +57,7 @@ namespace PigeonCms
                 myConn.Open();
                 myCmd.Connection = myConn;
 
-                sSql = "SELECT ResourceSet, ResourceId, TextMode, IsLocalized "
+                sSql = "SELECT ResourceSet, ResourceId, TextMode, IsLocalized, ResourceParams "
                     + " FROM [" + this.TableName + "] t "
                     + " WHERE t.Id > 0 ";
                 if (!string.IsNullOrEmpty(filter.ResourceSet))
@@ -70,7 +70,7 @@ namespace PigeonCms
                     sSql += " AND t.ResourceId = @ResourceId ";
                     myCmd.Parameters.Add(Database.Parameter(myProv, "ResourceId", filter.ResourceId));
                 }
-                sSql += " GROUP BY t.ResourceSet, t.ResourceId, TextMode, IsLocalized ";
+                sSql += " GROUP BY t.ResourceSet, t.ResourceId, TextMode, IsLocalized, ResourceParams ";
                 if (!string.IsNullOrEmpty(sort))
                 {
                     sSql += " ORDER BY " + sort;
@@ -93,6 +93,8 @@ namespace PigeonCms
                         item.TextMode = (ContentEditorProvider.Configuration.EditorTypeEnum)myRd["TextMode"];
                     if (!Convert.IsDBNull(myRd["IsLocalized"]))
                         item.IsLocalized = (bool)myRd["IsLocalized"];
+                    if (!Convert.IsDBNull(myRd["ResourceParams"]))
+                        item.ResourceParams = (string)myRd["ResourceParams"];
 
                     result.Add(item);
                 }
@@ -164,7 +166,7 @@ namespace PigeonCms
                 myCmd.Connection = myConn;
 
                 sSql = "SELECT Id, CultureName, ResourceSet, ResourceId, Value, Comment, "
-                    + " TextMode, IsLocalized "
+                    + " TextMode, IsLocalized, ResourceParams "
                     + " FROM [" + this.TableName + "] t "
                     + " WHERE t.Id > 0 ";
                 if (filter.Id > 0 || filter.Id == -1)
@@ -244,7 +246,7 @@ namespace PigeonCms
                 sSql = "UPDATE [" + this.TableName + "] "
                 + " SET CultureName=@CultureName, ResourceSet=@ResourceSet, "
                 + " ResourceId=@ResourceId, [Value]=@Value, Comment=@Comment, "
-                + " TextMode=@TextMode, IsLocalized=@IsLocalized "
+                + " TextMode=@TextMode, IsLocalized=@IsLocalized, ResourceParams=@ResourceParams "
                 + " WHERE Id = @Id";
                 myCmd.CommandText = Database.ParseSql(sSql);
                 myCmd.Parameters.Add(Database.Parameter(myProv, "Id", theObj.Id));
@@ -255,6 +257,7 @@ namespace PigeonCms
                 myCmd.Parameters.Add(Database.Parameter(myProv, "Comment", theObj.Comment));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "TextMode", (int)theObj.TextMode));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "IsLocalized", theObj.IsLocalized));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "ResourceParams", theObj.ResourceParams));
 
                 result = myCmd.ExecuteNonQuery();
             }
@@ -284,9 +287,9 @@ namespace PigeonCms
                 //result.Id = base.GetNextId(); IDENTITY
 
                 sSql = "INSERT INTO [" + this.TableName + "](CultureName, ResourceSet, ResourceId, Value, Comment, "
-                + " TextMode, IsLocalized) "
+                + " TextMode, IsLocalized, ResourceParams) "
                 + " VALUES(@CultureName, @ResourceSet, @ResourceId, @Value, @Comment, "
-                + " @TextMode, @IsLocalized) ";
+                + " @TextMode, @IsLocalized, @ResourceParams) ";
                 myCmd.CommandText = Database.ParseSql(sSql);
 
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CultureName", result.CultureName));
@@ -296,6 +299,7 @@ namespace PigeonCms
                 myCmd.Parameters.Add(Database.Parameter(myProv, "Comment", result.Comment));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "TextMode", (int)result.TextMode));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "IsLocalized", result.IsLocalized));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "ResourceParams", result.ResourceParams));
 
                 myCmd.ExecuteNonQuery();
             }
@@ -324,6 +328,8 @@ namespace PigeonCms
                 result.TextMode = (ContentEditorProvider.Configuration.EditorTypeEnum)myRd["TextMode"];
             if (!Convert.IsDBNull(myRd["IsLocalized"]))
                 result.IsLocalized = (bool)myRd["IsLocalized"];
+            if (!Convert.IsDBNull(myRd["ResourceParams"]))
+                result.ResourceParams = (string)myRd["ResourceParams"];
         }
 
         public int DeleteByResourceId(string resourceSet, string resourceId)

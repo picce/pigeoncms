@@ -24,8 +24,8 @@ namespace PigeonCms.Engine
         /// on first invoke load in page cache all labels (labelsList)
         /// </summary>
         /// <param name="resourceSet">eg: MYSITE_PAGENAME</param>
-        /// <param name="resourceId">eg: PageTtiel</param>
-        /// <param name="defaultValue">eg: MY web site --> on first call insert label in db</param>
+        /// <param name="resourceId">eg: PageTitle</param>
+        /// <param name="defaultValue">eg: MY web site --> on first call insert label in db with defaultValue</param>
         /// <returns>label value</returns>
         public string GetLabel(string resourceSet, string resourceId, string defaultValue)
         {
@@ -64,6 +64,9 @@ namespace PigeonCms.Engine
         /// </Summary>
         protected override void InitializeCulture()
         {
+            bool setCultureDone = false;
+            var clist = new Dictionary<string, string>(Config.CultureList, StringComparer.InvariantCultureIgnoreCase);
+
             //try different qrystring param
             string lngParam = "";
             lngParam = Utility._QueryString("len");
@@ -76,22 +79,29 @@ namespace PigeonCms.Engine
             if (!string.IsNullOrEmpty(lngParam))
             {
                 string displayName = "";
-                if (!Config.CultureList.ContainsKey(lngParam))
+                if (!clist.ContainsKey(lngParam))
                     lngParam = Config.CultureDefault;
-                Config.CultureList.TryGetValue(lngParam, out displayName);
+                clist.TryGetValue(lngParam, out displayName);
                 setCulture(lngParam, displayName);
+                setCultureDone = true;
             }
 
             //check if browser requested lang is enabled
+            if (!setCultureDone)
             {
-                string len = Thread.CurrentThread.CurrentCulture.Name;
+                //string len = Thread.CurrentThread.CurrentCulture.Name;
+                string len = "";
+                if (Request.UserLanguages != null && Request.UserLanguages.Length > 0)
+                    len = Request.UserLanguages[0];
                 string displayName = "";
-                if (!Config.CultureList.ContainsKey(len))
+
+                if (!clist.ContainsKey(len))
                 {
                     //if not enabled then set default lang
                     len = Config.CultureDefault;
-                    Config.CultureList.TryGetValue(len, out displayName);
+                    clist.TryGetValue(len, out displayName);
                     setCulture(len, displayName);
+                    setCultureDone = true;
                 }
             }
 

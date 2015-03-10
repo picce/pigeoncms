@@ -14,6 +14,31 @@
             __doPostBack(drop, 'edit__' + resId);
         }
     }
+
+    function pageLoad(sender, args){
+    }
+
+    $(document).ready(function () {
+        $("a.fancyRefresh").fancybox({
+            'width': '80%',
+            'height': '80%',
+            'type': 'iframe',
+            'hideOnContentClick': false,
+            onClosed: function () {
+
+                var upd1 = '<%=Upd1.ClientID%>';
+                if (upd1 != null) {
+                    __doPostBack(drop, 'grid');
+                }
+
+            }
+        });
+    });
+
+    function openFancyUpload(){
+        $(".action-openfancy").trigger("click");
+    }
+
 </script>
 
 
@@ -25,6 +50,7 @@
     </ProgressTemplate>
 </asp:UpdateProgress>
 
+<asp:HyperLink runat="server" ID="LnkUploadImg" CssClass="action-openfancy fancyRefresh" style=""></asp:HyperLink>
 <asp:UpdatePanel ID="Upd1" UpdateMode="Conditional" runat="server">
 
 <Triggers>
@@ -105,7 +131,16 @@
                     
                             <asp:TemplateField HeaderText="Values">
                                 <ItemTemplate>
-                                <asp:Literal ID="LitValue" runat="server"  />                
+                                    <asp:Image ID="ImgPreview" runat="server" SkinID="ImgPreviewStyle" />
+                                    <asp:Literal ID="LitValue" runat="server"  />                
+                                </ItemTemplate>
+                            </asp:TemplateField>
+
+                            <asp:TemplateField HeaderText="" Visible="false">
+                                <ItemTemplate>
+                                    <asp:HyperLink ID="LnkUploadImg" runat="server">
+                                        <i class='fa fa-pgn_image fa-fw'></i>
+                                    </asp:HyperLink>
                                 </ItemTemplate>
                             </asp:TemplateField>
                     
@@ -184,6 +219,11 @@
                     <div class="form-group col-lg-12">
                         <%=base.GetLabel("LblComment", "Comment", null, true) %>
                         <asp:Panel runat="server" ID="PanelComment"></asp:Panel>
+                    </div>
+
+                    <div class="form-group col-lg-12">
+                        <%=base.GetLabel("LblResourceParams", "Resource params", null, true)%>
+                        <asp:TextBox ID="TxtResourceParams" CssClass="form-control" Enabled="false" runat="server"></asp:TextBox>
                     </div>
                 
             </div>

@@ -96,7 +96,9 @@ namespace PigeonCms
         }
 
         /// <summary>
-        /// USE ONLY in static methods. Prefer use if BaseModuleControl.GetLabel
+        /// USE ONLY in static methods.
+        /// This method doesn't use in page caching.
+        /// Prefer use if BaseModuleControl.GetLabel
         /// </summary>
         /// <returns></returns>
         public static string GetLabel(string moduleFullName, string resourceId, string defaultValue)
@@ -163,6 +165,19 @@ namespace PigeonCms
             return result;
         }
 
+
+        /// <summary>
+        /// retrieve label result from cached list (in page or control var)
+        /// try in order to retrieve:
+        /// - current culture value
+        /// - default culture value
+        /// - defaultValue --> (firts request: insert in db) 
+        /// </summary>
+        /// <param name="resourceSet"></param>
+        /// <param name="labelsList"></param>
+        /// <param name="resourceId"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns>the label value</returns>
         public static string GetLocalizedLabelFromList(
             string resourceSet,
             List<ResLabel>labelsList, 

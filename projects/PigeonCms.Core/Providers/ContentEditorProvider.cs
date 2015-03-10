@@ -37,7 +37,8 @@ namespace PigeonCms
             {
                 Html = 0,
                 BasicHtml = 1,
-                Text = 2
+                Text = 2,
+                Image = 3   /* used in labels resources only */
             }
 
             private bool readMoreButton = true;
@@ -139,7 +140,8 @@ namespace PigeonCms
                     break;
             }
 
-            if (config.EditorType == Configuration.EditorTypeEnum.Text)
+            if (config.EditorType == Configuration.EditorTypeEnum.Text
+                || config.EditorType == Configuration.EditorTypeEnum.Image)
             { 
                 initEditorText = "function initEditor() {}"; 
             }
@@ -164,7 +166,8 @@ namespace PigeonCms
                         theme_advanced_toolbar_location: 'top',
                         theme_advanced_toolbar_align: 'left',
                         theme_advanced_statusbar_location: 'bottom',
-                        theme_advanced_resizing: true
+                        theme_advanced_resizing: true,
+                        extended_valid_elements: 'iframe[class|src|frameborder=0|alt|title|width|height|align|name]'
                     });
                 }
                 ";

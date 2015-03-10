@@ -4,6 +4,7 @@
 */
 
 var ImageManager = {
+
     initialize: function () {
         this.fields = new Object();
         this.fields.url = "";

@@ -73,7 +73,7 @@ namespace PigeonCms
                 result = appSetting.KeyValue;
                 if (string.IsNullOrEmpty(result))
                 {
-                    PigeonCms.Tracer.Log("Missed AppSetting '" + keyName + "'", TracerItemType.Error);
+                    PigeonCms.Tracer.Log("Missing AppSetting '" + keyName + "'", TracerItemType.Error);
                 }
             }
             else

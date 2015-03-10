@@ -1647,7 +1647,7 @@ CREATE TABLE #__shop_payments
 	(
 	payCode nvarchar(20) NOT NULL,
 	name nvarchar(50) NULL,
-	assemblyName nvarchar(50) NULL,
+	assemblyName nvarchar(100) NULL,
 	cssClass nvarchar(50) NULL,
 	isDebug bit NULL,
 	[enabled] bit NULL,
@@ -1713,4 +1713,11 @@ CREATE NONCLUSTERED INDEX IXvat_#__shop_customers ON #__shop_customers
 	(
 	vat
 	) WITH( STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+
+--20150304
+--integration with PigeonCms.Controls.Image server control
+--col resourceParams: optional params in resource (ex: Allowed|MaxSize|Width|height|AutoResize)
+ALTER TABLE #__labels ADD
+	resourceParams varchar(MAX) NULL
 GO

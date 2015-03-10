@@ -29,7 +29,7 @@ INSERT INTO #__appSettings (keyName,keyTitle,keyValue,keyInfo)  VALUES( 'PhotoSi
 GO
 INSERT INTO #__appSettings (keyName,keyTitle,keyValue,keyInfo)  VALUES( 'PhotoSize_Xlarge','extra large images width','350','')
 GO
-INSERT INTO #__appSettings (keyName,keyTitle,keyValue,keyInfo)  VALUES( 'SmtpServer','smtp host address','smtp.yourdomain.com','')
+INSERT INTO #__appSettings (keyName,keyTitle,keyValue,keyInfo)  VALUES( 'SmtpServer','smtp host address','127.0.0.1','')
 GO
 INSERT INTO #__appSettings (keyName,keyTitle,keyValue,keyInfo)  VALUES( 'SmtpUser','smtp user','',NULL)
 GO

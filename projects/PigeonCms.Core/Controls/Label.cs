@@ -19,6 +19,7 @@ namespace PigeonCms.Controls
     {
         private string text = "";
         private string resourceSet = "";
+        private string resourceId = "";
         private bool translations = false;
         private ContentEditorProvider.Configuration.EditorTypeEnum textMode = ContentEditorProvider.Configuration.EditorTypeEnum.Text;
 
@@ -68,22 +69,36 @@ namespace PigeonCms.Controls
             }
         }
 
-
         [Category("Behavior")]
         [DefaultValue(false)]
-        public bool Translations
+        public string ResourceId
         {
-            get { return translations; }
-            set { translations = value; }
+            get
+            {
+                return resourceId;
+            }
+
+            set
+            {
+                resourceId = value;
+            }
         }
 
-        [Category("Behavior")]
-        [DefaultValue(ContentEditorProvider.Configuration.EditorTypeEnum.Text)]
-        public ContentEditorProvider.Configuration.EditorTypeEnum TextMode
-        {
-            get { return textMode; }
-            set { textMode = value; }
-        }
+        //[Category("Behavior")]
+        //[DefaultValue(false)]
+        //public bool Translations
+        //{
+        //    get { return translations; }
+        //    set { translations = value; }
+        //}
+
+        //[Category("Behavior")]
+        //[DefaultValue(ContentEditorProvider.Configuration.EditorTypeEnum.Text)]
+        //public ContentEditorProvider.Configuration.EditorTypeEnum TextMode
+        //{
+        //    get { return textMode; }
+        //    set { textMode = value; }
+        //}
 
         public override void RenderBeginTag(HtmlTextWriter writer)
         {
@@ -98,15 +113,41 @@ namespace PigeonCms.Controls
         protected override void RenderContents(HtmlTextWriter writer)
         {
             string res = this.Text;
-            //res = GetLabel(this.ResourceSet, this.ID, this.Text);
-            
+            string resourceSet = this.ResourceSet;
+            string resourceId = this.ResourceId;
+
+            try
+            {
+                if (string.IsNullOrEmpty(resourceId) && this.ID != null)
+                    resourceId = this.ID;
+
+                if (this.Page is PigeonCms.Engine.BasePage)
+                {
+                    //engine page
+                    var page = (PigeonCms.Engine.BasePage)this.Page;
+                    
+                    if (string.IsNullOrEmpty(resourceSet))
+                        resourceSet = page.UniqueID;
+
+                    res = page.GetLabel(resourceSet, resourceId, this.text);
+                }
+                else if (this.NamingContainer is PigeonCms.BaseModuleControl)
+                {
+                    //pigeoncms module
+                    var module = (PigeonCms.BaseModuleControl)this.NamingContainer;
+                    res = module.GetLabel(resourceId, this.Text);
+                }
+            }
+            catch (Exception ex)
+            {
+                Tracer.Log("PigeonCms.Controls.Label.RenderContents()>Label["
+                    + resourceSet + "|" + resourceId + "=" + res + "] " 
+                    + "ERR:" + ex.ToString(),
+                    TracerItemType.Error);
+            }
 
             writer.Write(res);
         }
-
-        //TODO
-        //private string GetLabel(string resourceSet, string resourceId, string defaultValue) { }
-
 
     }
 

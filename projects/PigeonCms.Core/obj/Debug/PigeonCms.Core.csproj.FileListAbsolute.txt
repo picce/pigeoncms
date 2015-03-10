@@ -24,13 +24,3 @@ C:\inetpub\wwwroot\pigeoncms\code\projects\PigeonCms.Core\obj\Debug\PigeonCms.Co
 C:\inetpub\wwwroot\pigeoncms\code\projects\PigeonCms.Core\obj\Debug\PigeonCms.Core.csprojResolveAssemblyReference.cache
 C:\inetpub\wwwroot\pigeoncms\code\projects\PigeonCms.Core\bin\Debug\StackExchange.Dapper.dll
 C:\inetpub\wwwroot\pigeoncms\code\projects\PigeonCms.Core\bin\Debug\StackExchange.Dapper.pdb
-C:\Users\Nicola\Documents\Dev\github\pigeoncms\projects\PigeonCms.Core\bin\Debug\PigeonCms.Core.dll
-C:\Users\Nicola\Documents\Dev\github\pigeoncms\projects\PigeonCms.Core\bin\Debug\PigeonCms.Core.pdb
-C:\Users\Nicola\Documents\Dev\github\pigeoncms\projects\PigeonCms.Core\bin\Debug\FredCK.FCKeditorV2.dll
-C:\Users\Nicola\Documents\Dev\github\pigeoncms\projects\PigeonCms.Core\bin\Debug\PigeonCms.Core.Offline.dll
-C:\Users\Nicola\Documents\Dev\github\pigeoncms\projects\PigeonCms.Core\bin\Debug\StackExchange.Dapper.dll
-C:\Users\Nicola\Documents\Dev\github\pigeoncms\projects\PigeonCms.Core\bin\Debug\PigeonCms.Core.Offline.pdb
-C:\Users\Nicola\Documents\Dev\github\pigeoncms\projects\PigeonCms.Core\bin\Debug\StackExchange.Dapper.pdb
-C:\Users\Nicola\Documents\Dev\github\pigeoncms\projects\PigeonCms.Core\obj\Debug\PigeonCms.Core.csprojResolveAssemblyReference.cache
-C:\Users\Nicola\Documents\Dev\github\pigeoncms\projects\PigeonCms.Core\obj\Debug\PigeonCms.Core.dll
-C:\Users\Nicola\Documents\Dev\github\pigeoncms\projects\PigeonCms.Core\obj\Debug\PigeonCms.Core.pdb

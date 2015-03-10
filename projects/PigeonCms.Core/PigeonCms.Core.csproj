@@ -84,6 +84,7 @@
     <Compile Include="BLL\CustomDataType.cs" />
     <Compile Include="BLL\LogItem.cs" />
     <Compile Include="BLL\Label.cs" />
+    <Compile Include="Controls\Image.cs" />
     <Compile Include="Controls\Label.cs" />
     <Compile Include="DAL\AppSettingsManager.cs" />
     <Compile Include="BaseClasses\BaseMasterPage.cs">

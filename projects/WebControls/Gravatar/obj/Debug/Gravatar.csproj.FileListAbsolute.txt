@@ -2,7 +2,3 @@ C:\inetpub\wwwroot\pigeoncms\code\projects\WebControls\Gravatar\bin\Debug\Gravat
 C:\inetpub\wwwroot\pigeoncms\code\projects\WebControls\Gravatar\bin\Debug\Gravatar.pdb
 C:\inetpub\wwwroot\pigeoncms\code\projects\WebControls\Gravatar\obj\Debug\Gravatar.dll
 C:\inetpub\wwwroot\pigeoncms\code\projects\WebControls\Gravatar\obj\Debug\Gravatar.pdb
-C:\Users\Nicola\Documents\Dev\github\pigeoncms\projects\WebControls\Gravatar\bin\Debug\Gravatar.dll
-C:\Users\Nicola\Documents\Dev\github\pigeoncms\projects\WebControls\Gravatar\bin\Debug\Gravatar.pdb
-C:\Users\Nicola\Documents\Dev\github\pigeoncms\projects\WebControls\Gravatar\obj\Debug\Gravatar.dll
-C:\Users\Nicola\Documents\Dev\github\pigeoncms\projects\WebControls\Gravatar\obj\Debug\Gravatar.pdb

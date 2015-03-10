@@ -22,8 +22,12 @@
             <option value="" label="Not set"></option>
             <datasource SelectMethod="GetList" TypeName="PigeonCms.ModuleTypeManager" />
         </param>
-
         <param name="ModuleFullNamePart" type="text" default="" label="Resource name part" />
-
+        
+        <param name="TargetImagesUpload" type="combo" default="0" label="Images upload target" description="Target for resources with Textmode=Image">
+            <option value="0" label="Not set"></option>
+            <datasource SelectMethod="GetList" SelectParams="PigeonCms.FilesManager" TypeName="PigeonCms.MenuManager" />
+        </param>
+        
     </params>
 </install>

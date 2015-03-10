@@ -25,6 +25,7 @@ namespace PigeonCms
         private string resourceId = "";
         private ContentEditorProvider.Configuration.EditorTypeEnum textMode = ContentEditorProvider.Configuration.EditorTypeEnum.Text;
         private bool isLocalized = true;
+        private string resourceParams = "";
         //private Dictionary<string, string> valueTranslations = new Dictionary<string, string>();
 
 
@@ -58,6 +59,22 @@ namespace PigeonCms
             set { isLocalized = value; }
         }
 
+        public string ResourceParams
+        {
+            [DebuggerStepThrough()]
+            get { return resourceParams; }
+            [DebuggerStepThrough()]
+            set { resourceParams = value; }
+        }
+
+        /// <summary>
+        /// optional params list
+        /// </summary>
+        public Dictionary<string, string> Params
+        {
+            [DebuggerStepThrough()]
+            get { return Utility.GetParamsDictFromString(this.ResourceParams); }
+        }
     }
 
     [Serializable]
@@ -95,6 +112,7 @@ namespace PigeonCms
         private string comment = "";
         private ContentEditorProvider.Configuration.EditorTypeEnum textMode = ContentEditorProvider.Configuration.EditorTypeEnum.Text;
         private bool isLocalized = true;
+        private string resourceParams = "";
 
         /// <summary>
         /// Automatic Id as PKey
@@ -168,6 +186,26 @@ namespace PigeonCms
         {
             get { return isLocalized; }
             set { isLocalized = value; }
+        }
+
+        /// <summary>
+        /// optional inline serialized params in resource (ex: Allowed|MaxSize|Width|height|AutoResize)
+        /// </summary>
+        public string ResourceParams
+        {
+            [DebuggerStepThrough()]
+            get { return resourceParams; }
+            [DebuggerStepThrough()]
+            set { resourceParams = value; }
+        }
+
+        /// <summary>
+        /// optional params list
+        /// </summary>
+        public Dictionary<string, string> Params
+        {
+            [DebuggerStepThrough()]
+            get { return Utility.GetParamsDictFromString(this.ResourceParams); }
         }
 
         public ResLabel() { }

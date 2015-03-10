@@ -357,7 +357,7 @@ namespace PigeonCms
         /// </summary>
         /// <param name="resourceId">the label key</param>
         /// <returns>the localized label value</returns>
-        protected string GetLabel(string resourceId, string defaultValue)
+        public string GetLabel(string resourceId, string defaultValue)
         {
             string res = "";
             if (labelsList == null)
