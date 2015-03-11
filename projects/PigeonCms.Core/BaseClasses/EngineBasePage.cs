@@ -27,7 +27,11 @@ namespace PigeonCms.Engine
         /// <param name="resourceId">eg: PageTitle</param>
         /// <param name="defaultValue">eg: MY web site --> on first call insert label in db with defaultValue</param>
         /// <returns>label value</returns>
-        public string GetLabel(string resourceSet, string resourceId, string defaultValue)
+        public string GetLabel(
+            string resourceSet, 
+            string resourceId,
+            string defaultValue, 
+            ContentEditorProvider.Configuration.EditorTypeEnum textMode = ContentEditorProvider.Configuration.EditorTypeEnum.Text)
         {
             if (string.IsNullOrEmpty(resourceSet))
                 throw new ArgumentException("empty resourceSet");
@@ -44,7 +48,9 @@ namespace PigeonCms.Engine
             res = LabelsProvider.GetLocalizedLabelFromList(
                 resourceSet,
                 labelsList,
-                resourceId, defaultValue);
+                resourceId, 
+                defaultValue, 
+                textMode);
             if (string.IsNullOrEmpty(res))
             {
                 res = defaultValue;

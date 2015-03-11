@@ -355,9 +355,21 @@ namespace PigeonCms
         /// <summary>
         /// retrieve localized label value
         /// </summary>
+        public string GetLabel(string resourceId, string defaultValue)
+        {
+            return GetLabel(resourceId, defaultValue, ContentEditorProvider.Configuration.EditorTypeEnum.Text);
+        }
+
+        /// <summary>
+        /// retrieve localized label value
+        /// </summary>
         /// <param name="resourceId">the label key</param>
         /// <returns>the localized label value</returns>
-        public string GetLabel(string resourceId, string defaultValue)
+        public string GetLabel(
+            string resourceId, 
+            string defaultValue,
+            ContentEditorProvider.Configuration.EditorTypeEnum textMode)
+
         {
             string res = "";
             if (labelsList == null)
@@ -368,7 +380,9 @@ namespace PigeonCms
             res = LabelsProvider.GetLocalizedLabelFromList(
                 BaseModule.ModuleFullName,
                 labelsList, 
-                resourceId, defaultValue);
+                resourceId, 
+                defaultValue, 
+                textMode);
             if (string.IsNullOrEmpty(res))
             {
                 res = defaultValue;

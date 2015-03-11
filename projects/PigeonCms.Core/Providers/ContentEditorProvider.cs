@@ -220,7 +220,10 @@ namespace PigeonCms
             }
             ");
 
-            Utility.Script.RegisterStartupScript(upd1, "initEditor", "initEditor();");
+            Utility.Script.RegisterStartupScript(upd1, "initEditor", @"
+            try{ initEditor(); }
+            catch(err) {}
+            ");
             control.Page.ClientScript.RegisterOnSubmitStatement(control.GetType(), "save", "tinyMCE.triggerSave();");            
         }
     }

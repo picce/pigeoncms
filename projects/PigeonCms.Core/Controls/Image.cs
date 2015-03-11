@@ -163,13 +163,13 @@ namespace PigeonCms.Controls
                     if (string.IsNullOrEmpty(resourceSet))
                         resourceSet = page.UniqueID;
 
-                    newSrc = page.GetLabel(resourceSet, resourceId, defaultSrc);
+                    newSrc = page.GetLabel(resourceSet, resourceId, defaultSrc, ContentEditorProvider.Configuration.EditorTypeEnum.Image);
                 }
                 else if (this.NamingContainer is PigeonCms.BaseModuleControl)
                 {
                     //pigeoncms module
                     var module = (PigeonCms.BaseModuleControl)this.NamingContainer;
-                    newSrc = module.GetLabel(resourceId, defaultSrc);
+                    newSrc = module.GetLabel(resourceId, defaultSrc, ContentEditorProvider.Configuration.EditorTypeEnum.Image);
                 }
 
                 if (!string.IsNullOrEmpty(newSrc))

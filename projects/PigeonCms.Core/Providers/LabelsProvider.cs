@@ -101,6 +101,7 @@ namespace PigeonCms
         /// Prefer use if BaseModuleControl.GetLabel
         /// </summary>
         /// <returns></returns>
+        [Obsolete("USE ONLY in static methods. This method doesn't use in page caching. Prefer use if BaseModuleControl.GetLabel")]
         public static string GetLabel(string moduleFullName, string resourceId, string defaultValue)
         {
             string res = "";
@@ -109,7 +110,10 @@ namespace PigeonCms
             res = LabelsProvider.GetLocalizedLabelFromList(
                 moduleFullName,
                 labelsList,
-                resourceId, defaultValue);
+                resourceId, 
+                defaultValue, 
+                ContentEditorProvider.Configuration.EditorTypeEnum.Text);
+
             if (string.IsNullOrEmpty(res))
             {
                 res = defaultValue;
@@ -177,11 +181,14 @@ namespace PigeonCms
         /// <param name="labelsList"></param>
         /// <param name="resourceId"></param>
         /// <param name="defaultValue"></param>
+        /// <param name="textMode">default=EditorTypeEnum.Text</param>
         /// <returns>the label value</returns>
         public static string GetLocalizedLabelFromList(
             string resourceSet,
             List<ResLabel>labelsList, 
-            string resourceId, string defaultValue)
+            string resourceId, 
+            string defaultValue,
+            ContentEditorProvider.Configuration.EditorTypeEnum textMode)
         {
             string res = "";
 
@@ -228,7 +235,7 @@ namespace PigeonCms
                         && !string.IsNullOrEmpty(defaultValue)
                         && !string.IsNullOrEmpty(resourceSet))
                     {
-                        if (insertDefaultValue(resourceSet, resourceId, defaultValue))
+                        if (insertDefaultValue(resourceSet, resourceId, defaultValue, textMode))
                         {
                             //cause label cache reload
                             ClearCacheByResourceSet(resourceSet);
@@ -239,7 +246,35 @@ namespace PigeonCms
             return res;
         }
 
-        private static bool insertDefaultValue(string resourceSet, string resourceId, string defaultValue)
+        public static string GetLocalizedVarFromList(List<ResLabel> labelsList, string varId)
+        {
+            string res = varId;
+            if (varId.StartsWith("$"))
+            {
+                string resourceId = varId.Substring(1);
+                res = GetLocalizedLabelFromList("", labelsList, resourceId, "", ContentEditorProvider.Configuration.EditorTypeEnum.Text);
+                if (string.IsNullOrEmpty(res))
+                    res = varId;
+            }
+            return res;
+        }
+
+        public static void SetLocalizedControlVisibility(bool showOnlyDefaultCulture, string culture, Control ctrl)
+        {
+            if (showOnlyDefaultCulture)
+            {
+                if (culture.ToLower() != Config.CultureDefault.ToLower())
+                    ctrl.Visible = false;
+            }
+        }
+
+        #endregion
+
+        private static bool insertDefaultValue(
+            string resourceSet,
+            string resourceId,
+            string defaultValue,
+            ContentEditorProvider.Configuration.EditorTypeEnum textMode)
         {
             bool res = false;
             try
@@ -260,17 +295,21 @@ namespace PigeonCms
                     o1.CultureName = Config.CultureDefault;
                     o1.Value = defaultValue;
                     o1.Comment = "SYSTEM";
+                    o1.TextMode = textMode;
 
                     //insert default value for current culture
                     man.Insert(o1);
 
                     Tracer.Log("LabelsProvider.GetLocalizedLabelFromList()>Insert new label["
-                        + resourceSet + "|" + resourceId + "|" + o1.CultureName + "]=" + defaultValue,
+                        + resourceSet + "|"
+                        + resourceId + "|"
+                        + o1.CultureName + "|"
+                        + o1.TextMode.ToString() + "]=" + defaultValue,
                         TracerItemType.Debug);
                     res = true;
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Tracer.Log("LabelsProvider.GetLocalizedLabelFromList()>Insert new label ERR["
                     + resourceSet + "|" + resourceId + "|" + Config.CultureDefault + "]=" + defaultValue
@@ -279,30 +318,5 @@ namespace PigeonCms
             }
             return res;
         }
-
-        public static string GetLocalizedVarFromList(List<ResLabel> labelsList, string varId)
-        {
-            string res = varId;
-            if (varId.StartsWith("$"))
-            {
-                string resourceId = varId.Substring(1);
-                res = GetLocalizedLabelFromList("", labelsList, resourceId, "");
-                if (string.IsNullOrEmpty(res))
-                    res = varId;
-            }
-            return res;
-        }
-
-        public static void SetLocalizedControlVisibility(bool showOnlyDefaultCulture, string culture, Control ctrl)
-        {
-            if (showOnlyDefaultCulture)
-            {
-                if (culture.ToLower() != Config.CultureDefault.ToLower())
-                    ctrl.Visible = false;
-            }
-
-        }
-
-        #endregion
     }
 }
