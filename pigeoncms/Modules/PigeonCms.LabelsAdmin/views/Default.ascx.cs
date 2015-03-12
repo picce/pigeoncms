@@ -68,6 +68,7 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
     protected new void Page_Init(object sender, EventArgs e)
     {
         base.Page_Init(sender, e);
+        //Utility.Script.RegisterStartupScript(Upd1, "rebind", "rebind();");
 
         if (Page.IsPostBack)
         {
@@ -110,7 +111,6 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
 
         if (!Page.IsPostBack)
         {
-            LnkUploadImg.NavigateUrl = this.ImagesUploadUrl;
             loadDropsModuleTypes();
             loadDropTextMode();
         }
@@ -468,6 +468,7 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
 
         try
         {
+            LabelsProvider.ClearCacheByResourceSet(DropModuleTypesFilter.SelectedValue);
             new LabelsManager().DeleteByResourceId(DropModuleTypesFilter.SelectedValue, resourceId);
         }
         catch (Exception e)
@@ -589,13 +590,12 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         panel.Controls.Add(txt);
 
         Literal lit = new Literal();
-        //if (!this.ShowOnlyDefaultCulture)
         lit.Text = "&nbsp;[<i>" + cultureItem.Value + "</i>]";
-        if (editorConfig.EditorType == ContentEditorProvider.Configuration.EditorTypeEnum.Image)
-        {
-            lit.Text += "<a href='javascript:void(0);' onclick='openFancyUpload();'><i class='fa fa-pgn_image fa-fw'></i></a>";
-        }
-        lit.Text += "<br /><br />";
+        //if (editorConfig.EditorType == ContentEditorProvider.Configuration.EditorTypeEnum.Image)
+        //{
+        //    lit.Text += "<a href='javascript:void(0);' onclick='openFancyUpload();'><i class='fa fa-pgn_image fa-fw'></i></a>";
+        //}
+        //lit.Text += "<br /><br />";
         panel.Controls.Add(lit);
 
     }

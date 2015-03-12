@@ -92,13 +92,13 @@ namespace PigeonCms.Controls
         //    set { translations = value; }
         //}
 
-        //[Category("Behavior")]
-        //[DefaultValue(ContentEditorProvider.Configuration.EditorTypeEnum.Text)]
-        //public ContentEditorProvider.Configuration.EditorTypeEnum TextMode
-        //{
-        //    get { return textMode; }
-        //    set { textMode = value; }
-        //}
+        [Category("Behavior")]
+        [DefaultValue(ContentEditorProvider.Configuration.EditorTypeEnum.Text)]
+        public ContentEditorProvider.Configuration.EditorTypeEnum TextMode
+        {
+            get { return textMode; }
+            set { textMode = value; }
+        }
 
         public override void RenderBeginTag(HtmlTextWriter writer)
         {
@@ -129,13 +129,13 @@ namespace PigeonCms.Controls
                     if (string.IsNullOrEmpty(resourceSet))
                         resourceSet = page.UniqueID;
 
-                    res = page.GetLabel(resourceSet, resourceId, this.text);
+                    res = page.GetLabel(resourceSet, resourceId, this.Text, this.TextMode);
                 }
                 else if (this.NamingContainer is PigeonCms.BaseModuleControl)
                 {
                     //pigeoncms module
                     var module = (PigeonCms.BaseModuleControl)this.NamingContainer;
-                    res = module.GetLabel(resourceId, this.Text);
+                    res = module.GetLabel(resourceId, this.Text, this.TextMode);
                 }
             }
             catch (Exception ex)

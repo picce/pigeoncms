@@ -5,6 +5,8 @@
 <script type="text/javascript">
     var deleteQuestion = '<%=PigeonCms.Utility.GetLabel("RECORD_DELETE_QUESTION") %>';
 
+    //Sys.WebForms.PageRequestManager.getInstance().add_beginRequest(startRequest);
+    //Sys.WebForms.PageRequestManager.getInstance().add_endRequest(endRequest);
 
     function editRow(resId) {
         var upd1 = '<%=Upd1.ClientID%>';
@@ -15,29 +17,80 @@
         }
     }
 
-    function pageLoad(sender, args){
-    }
+//    $(document).ready(function () {
 
-    $(document).ready(function () {
-        $("a.fancyRefresh").fancybox({
-            'width': '80%',
-            'height': '80%',
-            'type': 'iframe',
-            'hideOnContentClick': false,
-            onClosed: function () {
+//        $(document).off("click", "a.fancyRefresh");
+//        $(document).on("click", "a.fancyRefresh", function () {
+//            $(this).fancybox({
 
-                var upd1 = '<%=Upd1.ClientID%>';
-                if (upd1 != null) {
-                    __doPostBack(drop, 'grid');
+//                'width': '80%',
+//                'height': '80%',
+//                'type': 'iframe',
+//                'hideOnContentClick': false,
+//                onClosed: function () {
+//                    var upd1 = '<%=Upd1.ClientID%>';
+//                    if (upd1 != null) {
+//                        __doPostBack(upd1, 'grid');
+//                    }
+//                }
+
+//            }).trigger("click");
+//            return false;
+//        });
+
+//    });
+
+
+
+    function pageLoad(sender, args) {
+        //rebind();
+
+        if (args.get_isPartialLoad()) {
+
+            $("a.fancyRefresh").fancybox({
+                'width': '80%',
+                'height': '80%',
+                'type': 'iframe',
+                'hideOnContentClick': false,
+                onClosed: function () {
+
+                    var upd1 = '<%=Upd1.ClientID%>';
+                    if (upd1 != null) {
+                        __doPostBack(upd1, 'grid');
+                    }
+
                 }
+            });
 
-            }
-        });
-    });
-
-    function openFancyUpload(){
-        $(".action-openfancy").trigger("click");
+        }
     }
+
+//    function rebind() {
+//        $(document).ready(function () {
+//            $("a.fancyRefresh").fancybox({
+//                'width': '80%',
+//                'height': '80%',
+//                'type': 'iframe',
+//                'hideOnContentClick': false,
+//                onClosed: function () {
+
+//                    var upd1 = '<%=Upd1.ClientID%>';
+//                    if (upd1 != null) {
+//                        __doPostBack(upd1, 'grid');
+//                    }
+
+//                }
+//            });
+//        });
+//    }
+
+    /*function startRequest(sender, e) {
+
+    }
+
+    function endRequest(sender, e) {
+        rebind();
+    } */
 
 </script>
 
@@ -50,7 +103,6 @@
     </ProgressTemplate>
 </asp:UpdateProgress>
 
-<asp:HyperLink runat="server" ID="LnkUploadImg" CssClass="action-openfancy fancyRefresh" style=""></asp:HyperLink>
 <asp:UpdatePanel ID="Upd1" UpdateMode="Conditional" runat="server">
 
 <Triggers>
@@ -136,7 +188,7 @@
                                 </ItemTemplate>
                             </asp:TemplateField>
 
-                            <asp:TemplateField HeaderText="" Visible="false">
+                            <asp:TemplateField HeaderText="" Visible="true">
                                 <ItemTemplate>
                                     <asp:HyperLink ID="LnkUploadImg" runat="server">
                                         <i class='fa fa-pgn_image fa-fw'></i>
@@ -144,7 +196,7 @@
                                 </ItemTemplate>
                             </asp:TemplateField>
                     
-                            <asp:TemplateField HeaderText="Del" ItemStyle-HorizontalAlign="Center" ItemStyle-Width="10">
+                            <asp:TemplateField HeaderText="" ItemStyle-HorizontalAlign="Center" ItemStyle-Width="10">
                                 <ItemTemplate>
 
                                     <asp:LinkButton ID="LinkButton1" runat="server" CommandName="DeleteRow" 

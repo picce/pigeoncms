@@ -39,6 +39,27 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gravatar", "WebControls\Gra
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StackExchange.Dapper", "StackExchange.Dapper\StackExchange.Dapper.csproj", "{D0FCDB76-2116-49AD-9A31-ECF252A19829}"
 EndProject
+Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "sample-site", "..\sample-site\", "{016FF54E-1D40-49C6-831A-CF84DE5551AD}"
+	ProjectSection(WebsiteProperties) = preProject
+		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.0"
+		Debug.AspNetCompiler.VirtualPath = "/sample-site"
+		Debug.AspNetCompiler.PhysicalPath = "..\sample-site\"
+		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\sample-site\"
+		Debug.AspNetCompiler.Updateable = "true"
+		Debug.AspNetCompiler.ForceOverwrite = "true"
+		Debug.AspNetCompiler.FixedNames = "false"
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.VirtualPath = "/sample-site"
+		Release.AspNetCompiler.PhysicalPath = "..\sample-site\"
+		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\sample-site\"
+		Release.AspNetCompiler.Updateable = "true"
+		Release.AspNetCompiler.ForceOverwrite = "true"
+		Release.AspNetCompiler.FixedNames = "false"
+		Release.AspNetCompiler.Debug = "False"
+		VWDPort = "49856"
+		VWDVirtualPath = "/"
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -119,6 +140,16 @@ Global
 		{D0FCDB76-2116-49AD-9A31-ECF252A19829}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{D0FCDB76-2116-49AD-9A31-ECF252A19829}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{D0FCDB76-2116-49AD-9A31-ECF252A19829}.Release|x86.ActiveCfg = Release|Any CPU
+		{016FF54E-1D40-49C6-831A-CF84DE5551AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{016FF54E-1D40-49C6-831A-CF84DE5551AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{016FF54E-1D40-49C6-831A-CF84DE5551AD}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{016FF54E-1D40-49C6-831A-CF84DE5551AD}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{016FF54E-1D40-49C6-831A-CF84DE5551AD}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{016FF54E-1D40-49C6-831A-CF84DE5551AD}.Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{016FF54E-1D40-49C6-831A-CF84DE5551AD}.Release|Any CPU.Build.0 = Debug|Any CPU
+		{016FF54E-1D40-49C6-831A-CF84DE5551AD}.Release|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{016FF54E-1D40-49C6-831A-CF84DE5551AD}.Release|Mixed Platforms.Build.0 = Debug|Any CPU
+		{016FF54E-1D40-49C6-831A-CF84DE5551AD}.Release|x86.ActiveCfg = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
