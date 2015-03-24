@@ -1,5 +1,0 @@
-C:\inetpub\wwwroot\pigeoncms\code\projects\PigeonCms.Core.OfflineProvider\bin\Release\PigeonCms.Core.Offline.dll
-C:\inetpub\wwwroot\pigeoncms\code\projects\PigeonCms.Core.OfflineProvider\bin\Release\PigeonCms.Core.Offline.pdb
-C:\inetpub\wwwroot\pigeoncms\code\projects\PigeonCms.Core.OfflineProvider\obj\Release\ResolveAssemblyReference.cache
-C:\inetpub\wwwroot\pigeoncms\code\projects\PigeonCms.Core.OfflineProvider\obj\Release\PigeonCms.Core.Offline.dll
-C:\inetpub\wwwroot\pigeoncms\code\projects\PigeonCms.Core.OfflineProvider\obj\Release\PigeonCms.Core.Offline.pdb

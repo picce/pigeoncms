@@ -26,7 +26,7 @@ namespace PigeonCms
         private ContentEditorProvider.Configuration.EditorTypeEnum textMode = ContentEditorProvider.Configuration.EditorTypeEnum.Text;
         private bool isLocalized = true;
         private string resourceParams = "";
-        //private Dictionary<string, string> valueTranslations = new Dictionary<string, string>();
+        private string comment = "";
 
 
         public string ResourceSet
@@ -65,6 +65,14 @@ namespace PigeonCms
             get { return resourceParams; }
             [DebuggerStepThrough()]
             set { resourceParams = value; }
+        }
+
+        public string Comment
+        {
+            [DebuggerStepThrough()]
+            get { return comment; }
+            [DebuggerStepThrough()]
+            set { comment = value; }
         }
 
         /// <summary>

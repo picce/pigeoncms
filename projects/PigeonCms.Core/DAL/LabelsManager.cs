@@ -57,7 +57,7 @@ namespace PigeonCms
                 myConn.Open();
                 myCmd.Connection = myConn;
 
-                sSql = "SELECT ResourceSet, ResourceId, TextMode, IsLocalized, ResourceParams "
+                sSql = "SELECT ResourceSet, ResourceId, TextMode, IsLocalized, ResourceParams, Comment "
                     + " FROM [" + this.TableName + "] t "
                     + " WHERE t.Id > 0 ";
                 if (!string.IsNullOrEmpty(filter.ResourceSet))
@@ -70,7 +70,7 @@ namespace PigeonCms
                     sSql += " AND t.ResourceId = @ResourceId ";
                     myCmd.Parameters.Add(Database.Parameter(myProv, "ResourceId", filter.ResourceId));
                 }
-                sSql += " GROUP BY t.ResourceSet, t.ResourceId, TextMode, IsLocalized, ResourceParams ";
+                sSql += " GROUP BY t.ResourceSet, t.ResourceId, TextMode, IsLocalized, ResourceParams, Comment ";
                 if (!string.IsNullOrEmpty(sort))
                 {
                     sSql += " ORDER BY " + sort;
@@ -93,6 +93,8 @@ namespace PigeonCms
                         item.TextMode = (ContentEditorProvider.Configuration.EditorTypeEnum)myRd["TextMode"];
                     if (!Convert.IsDBNull(myRd["IsLocalized"]))
                         item.IsLocalized = (bool)myRd["IsLocalized"];
+                    if (!Convert.IsDBNull(myRd["Comment"]))
+                        item.Comment = (string)myRd["Comment"];
                     if (!Convert.IsDBNull(myRd["ResourceParams"]))
                         item.ResourceParams = (string)myRd["ResourceParams"];
 

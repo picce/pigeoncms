@@ -17,8 +17,9 @@ namespace PigeonCms.Engine
 {
     public class BasePage : Page
     {
-
-        private List<ResLabel> labelsList = null;
+        //20150324 labelsList as Dictionary to manage multiple resourceSet
+        private Dictionary<string, List<ResLabel>> labelsList = 
+            new Dictionary<string, List<ResLabel>>();
 
         /// <summary>
         /// on first invoke load in page cache all labels (labelsList)
@@ -40,14 +41,15 @@ namespace PigeonCms.Engine
                 throw new ArgumentException("empty resourceId");
 
             string res = "";
-            if (labelsList == null)
+            if (!labelsList.ContainsKey(resourceSet))
             {
                 //preload all labels of current moduletype
-                labelsList = LabelsProvider.GetLabelsByResourceSet(resourceSet);
+                var labels = LabelsProvider.GetLabelsByResourceSet(resourceSet);
+                labelsList.Add(resourceSet, labels);
             }
             res = LabelsProvider.GetLocalizedLabelFromList(
                 resourceSet,
-                labelsList,
+                labelsList[resourceSet],
                 resourceId, 
                 defaultValue, 
                 textMode);

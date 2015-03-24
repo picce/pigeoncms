@@ -1,5 +1,6 @@
 <%@ Control Language="C#" AutoEventWireup="true" CodeFile="Default.ascx.cs" Inherits="Controls_Default" %>
 <%@ Register src="~/Controls/ContentEditorControl.ascx" tagname="ContentEditorControl" tagprefix="uc1" %>
+<%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="cc1" %>
 
 
 <script type="text/javascript">
@@ -65,38 +66,28 @@
         }
     }
 
-//    function rebind() {
-//        $(document).ready(function () {
-//            $("a.fancyRefresh").fancybox({
-//                'width': '80%',
-//                'height': '80%',
-//                'type': 'iframe',
-//                'hideOnContentClick': false,
-//                onClosed: function () {
-
-//                    var upd1 = '<%=Upd1.ClientID%>';
-//                    if (upd1 != null) {
-//                        __doPostBack(upd1, 'grid');
-//                    }
-
-//                }
-//            });
-//        });
-//    }
-
-    /*function startRequest(sender, e) {
-
+    function uploadError(sender, args) {
+        //addToClientTable(args.get_fileName(), "<span style='color:red;'>" + args.get_errorMessage() + "</span>");
     }
 
-    function endRequest(sender, e) {
-        rebind();
-    } */
+    function uploadComplete(sender, args) {
+        var contentType = args.get_contentType();
+        var text = args.get_length() + " bytes";
+        if (contentType.length > 0) {
+            text += ", '" + contentType + "'";
+        }
+        var filename = args.get_fileName();
+        var currentPath = document.getElementById('<%=TxtCurrentPath.ClientID %>').value;
+        console.log("uploadComplete>filename: " + filename);
+        console.log("uploadComplete>currentPath: " +  currentPath);
+    }
 
 </script>
 
 
 
-<asp:ScriptManager ID="ScriptManager1" runat="server"></asp:ScriptManager>
+<cc1:ToolkitScriptManager ID="ScriptManager1" runat="server" EnablePageMethods="true"></cc1:ToolkitScriptManager>
+<%--<asp:ScriptManager ID="ScriptManager1" runat="server"></asp:ScriptManager>--%>
 <asp:UpdateProgress ID="UpdateProgress1" runat="server" DisplayAfter="1" AssociatedUpdatePanelID="Upd1">
     <ProgressTemplate>
         <div class="loading"><%=PigeonCms.Utility.GetLabel("LblLoading", "loading") %></div>
@@ -164,6 +155,7 @@
                         DataSourceID="ObjDs1" DataKeyNames="ResourceId" OnRowCommand="Grid1_RowCommand" OnRowCreated="Grid1_RowCreated" OnRowDataBound="Grid1_RowDataBound">
                         <Columns>
 
+                            <%--0--%>
                             <asp:TemplateField>
                                 <ItemTemplate>
                                     <asp:Literal ID="LitSel" runat="server"></asp:Literal>
@@ -171,16 +163,20 @@
                                 </ItemTemplate>
                             </asp:TemplateField>
                     
+                            <%--1--%>
                             <asp:BoundField DataField="ResourceSet" HeaderText="Resource" SortExpression="" />
 
+                            <%--2--%>
                             <asp:BoundField DataField="ResourceId" HeaderText="Id" SortExpression="" />
 
+                            <%--3--%>
                             <asp:TemplateField HeaderText="Text mode">
                                 <ItemTemplate>
                                 <asp:Literal ID="LitTextMode" runat="server"  />                
                                 </ItemTemplate>
                             </asp:TemplateField>
                     
+                            <%--4--%>
                             <asp:TemplateField HeaderText="Values">
                                 <ItemTemplate>
                                     <asp:Image ID="ImgPreview" runat="server" SkinID="ImgPreviewStyle" />
@@ -188,18 +184,11 @@
                                 </ItemTemplate>
                             </asp:TemplateField>
 
-                            <asp:TemplateField HeaderText="" Visible="true">
-                                <ItemTemplate>
-                                    <asp:HyperLink ID="LnkUploadImg" runat="server">
-                                        <i class='fa fa-pgn_image fa-fw'></i>
-                                    </asp:HyperLink>
-                                </ItemTemplate>
-                            </asp:TemplateField>
-                    
+                            <%--5--%>
                             <asp:TemplateField HeaderText="" ItemStyle-HorizontalAlign="Center" ItemStyle-Width="10">
                                 <ItemTemplate>
 
-                                    <asp:LinkButton ID="LinkButton1" runat="server" CommandName="DeleteRow" 
+                                    <asp:LinkButton ID="BtnDelete" runat="server" CommandName="DeleteRow" 
                                         CommandArgument='<%#Eval("ResourceId") %>' OnClientClick="return confirm(deleteQuestion);">
                                         <i class='fa fa-pgn_delete fa-fw'></i>
                                     </asp:LinkButton>
@@ -264,13 +253,24 @@
                     </div>
 
                     <div class="form-group col-lg-12">
+                        <asp:HiddenField runat="server" ID="TxtCurrentPath" />
+                        <cc1:AsyncFileUpload
+                            CssClass="action-upload"
+                            OnClientUploadError="uploadError" OnClientUploadComplete="uploadComplete" 
+                            runat="server" ID="File1" UploaderStyle="Modern" 
+                            UploadingBackColor="#CCFFFF" 
+                            onuploadedcomplete="File1_UploadedComplete" 
+                             />
+                    </div>
+
+                    <div class="form-group col-lg-12">
                         <%=base.GetLabel("LblValue", "Value", null, true) %>
                         <asp:Panel runat="server" ID="PanelValue"  Visible="true"></asp:Panel>
                     </div>
 
                     <div class="form-group col-lg-12">
-                        <%=base.GetLabel("LblComment", "Comment", null, true) %>
-                        <asp:Panel runat="server" ID="PanelComment"></asp:Panel>
+                        <%=base.GetLabel("LblComment", "Comment", TxtComment, true) %>
+                        <asp:TextBox ID="TxtComment" CssClass="form-control" Enabled="true" runat="server"></asp:TextBox>
                     </div>
 
                     <div class="form-group col-lg-12">

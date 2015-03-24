@@ -2,6 +2,7 @@ using System;
 using System.Data;
 using System.Configuration;
 using System.Collections;
+using System.IO;
 using System.Web;
 using System.Web.Security;
 using System.Web.UI;
@@ -12,8 +13,15 @@ using System.Web.Caching;
 using System.Collections.Generic;
 using PigeonCms;
 
+
 public partial class Controls_Default : PigeonCms.BaseModuleControl
 {
+    const int COL_SELECT = 0;
+    const int COL_RESSET = 1;
+    const int COL_RESID = 2;
+    const int COL_TEXTMODE = 3;
+    const int COL_VALUES = 4;
+    const int COL_DELETE = 5;
 
     protected string ModuleFullName
     {
@@ -33,6 +41,89 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         get { return GetIntParam("TargetImagesUpload", 0); }
     }
 
+    /// <summary>
+    /// Default resource folder
+    /// </summary>
+    protected string DefaultResourceFolder
+    {
+        get { return base.GetStringParam("DefaultResourceFolder", "~/public/res"); }
+    }
+
+    /// <summary>
+    /// Allow new resource. default false
+    /// </summary>
+    public bool AllowNew
+    {
+        get
+        {
+
+            bool res = GetBoolParam("AllowNew", false);
+            if (this.AllowAdminMode && Roles.IsUserInRole("admin"))
+            {
+                res = true;
+            }
+            return res;
+        }
+    }
+
+    /// <summary>
+    /// Allow delete resource. default false
+    /// </summary>
+    public bool AllowDel
+    {
+        get
+        {
+
+            bool res = GetBoolParam("AllowDel", false);
+            if (this.AllowAdminMode && Roles.IsUserInRole("admin"))
+            {
+                res = true;
+            }
+            return res;
+        }
+    }
+
+    /// <summary>
+    /// Allow text mode edit. default false
+    /// </summary>
+    public bool AllowTextModeEdit
+    {
+        get 
+        { 
+            
+            bool res = GetBoolParam("AllowTextModeEdit", false);
+            if (this.AllowAdminMode && Roles.IsUserInRole("admin"))
+            {
+                res = true;
+            }
+            return res;
+        }
+    }
+
+    /// <summary>
+    /// Allow resource params edit. default false
+    /// </summary>
+    public bool AllowParamsEdit
+    {
+        get 
+        { 
+            bool res=  GetBoolParam("AllowParamsEdit", false);
+            if (this.AllowAdminMode && Roles.IsUserInRole("admin"))
+            {
+                res = true;
+            }
+            return res;
+        }
+    }
+
+    /// <summary>
+    /// Users in admin role override other security settings. Default true
+    /// </summary>
+    public bool AllowAdminMode
+    {
+        get { return GetBoolParam("AllowAdminMode", true); }
+    }
+
     string imagesUploadUrl = "";
     protected string ImagesUploadUrl
     {
@@ -48,6 +139,7 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
             return imagesUploadUrl;
         }
     }
+
 
 
     public ContentEditorProvider.Configuration.EditorTypeEnum LastTextMode
@@ -93,6 +185,7 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
                     int textMode = 0;
                     int.TryParse((string)Request.Form[DropTextMode.UniqueID], out textMode);
                     initLangControls((ContentEditorProvider.Configuration.EditorTypeEnum)textMode);
+
                 }
             }
             else
@@ -113,6 +206,12 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         {
             loadDropsModuleTypes();
             loadDropTextMode();
+
+            BtnNew.Visible = this.AllowNew;
+            DropTextMode.Enabled = this.AllowTextModeEdit;
+            TxtComment.Enabled = this.AllowParamsEdit;
+            TxtResourceParams.Enabled = this.AllowParamsEdit;
+            Grid1.Columns[COL_DELETE].Visible = this.AllowDel;
         }
         else
         {
@@ -171,12 +270,6 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
             var item = new ResLabelTrans();
             item = (ResLabelTrans)e.Row.DataItem;
 
-            //LinkButton LnkSel = (LinkButton)e.Row.FindControl("LnkSel");
-            //LnkSel.Text = "<i class='fa fa-pgn_edit fa-fw'></i>";
-            //if (item.TextMode != this.LastTextMode) { }
-            //LnkSel.OnClientClick = "editRow('edit__"+ item.ResourceId +"'); return;";
-            //ScriptManager.GetCurrent(this.Page).RegisterPostBackControl(LnkSel);//cause full postback for init tinymce well
-
             Literal LitSel = (Literal)e.Row.FindControl("LitSel");
             LitSel.Text = "<a href='javascript:void(0)' onclick=\"editRow('edit__" + item.ResourceSet + "|" + item.ResourceId + "');\"><i class='fa fa-pgn_edit fa-fw'></i></a>";
 
@@ -213,11 +306,6 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
                 ImgPreview.ImageUrl = PhotoManager.GetFileIconSrc(file, true);
             }
 
-            //images upload
-            var LnkUploadImg = (HyperLink)e.Row.FindControl("LnkUploadImg");
-            LnkUploadImg.CssClass = "fancyRefresh";
-            LnkUploadImg.Visible = item.TextMode == ContentEditorProvider.Configuration.EditorTypeEnum.Image;
-            LnkUploadImg.NavigateUrl = this.ImagesUploadUrl;
         }
     }
 
@@ -282,19 +370,19 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         }
     }
 
-    
     private void clearForm()
     {
         LitResourceSet.Text = "";
         TxtResourceId.Text = "";
+        TxtComment.Text = "";
         TxtResourceParams.Text = "";
 
-        var panelCommentUI = new LabelsProvider.UI(false, PanelComment);
+        //var panelCommentUI = new LabelsProvider.UI(false, PanelComment);
 
         foreach (KeyValuePair<string, string> item in Config.CultureList)
         {
             setTransArea("TxtValue", PanelValue, null, item);
-            panelCommentUI.SetTransText("TxtComment", null, item);
+            //panelCommentUI.SetTransText("TxtComment", null, item);
         }
         Utility.SetDropByValue(DropTextMode, "2");
     }
@@ -304,6 +392,7 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         obj.ResourceSet = LitResourceSet.Text;
         obj.ResourceId = TxtResourceId.Text;
         obj.ResourceParams = TxtResourceParams.Text;
+        obj.Comment = TxtComment.Text;
 
         int textMode = 0;
         int.TryParse(DropTextMode.SelectedValue, out textMode);
@@ -322,6 +411,7 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         TxtResourceId.Text = obj.ResourceId;
         TxtResourceId.Enabled = true;
         TxtResourceParams.Text = obj.ResourceParams;
+        TxtComment.Text = obj.Comment;
         TxtResourceParams.Enabled = obj.TextMode == ContentEditorProvider.Configuration.EditorTypeEnum.Image;
         Utility.SetDropByValue(DropTextMode, ((int)obj.TextMode).ToString());
 
@@ -335,16 +425,17 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
             {
                 label = new ResLabel();
                 var TxtValue = new Controls_ContentEditorControl();
-                var TxtComment = new TextBox();
                 TxtValue = (Controls_ContentEditorControl)PanelValue.FindControl("TxtValue" + item.Value);
-                TxtComment = (TextBox)PanelComment.FindControl("TxtComment" + item.Value);
+
+                //var TxtComment = new TextBox();
+                //TxtComment = (TextBox)PanelComment.FindControl("TxtComment" + item.Value);
 
                 filter.CultureName = item.Key;
                 labelsList = lman.GetByFilter(filter, "");
                 if (labelsList.Count > 0)
                     label = labelsList[0];
                 TxtValue.Text = label.Value;
-                TxtComment.Text = label.Comment;
+                //TxtComment.Text = label.Comment;
             }
         }
     }
@@ -370,6 +461,11 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
             //initLangControls(obj.TextMode);
             obj2form(obj);
         }
+
+        string filename = this.CurrentKey.Replace("|", "_") + ".jpg";
+        string fileUrl = VirtualPathUtility.Combine(this.DefaultResourceFolder, filename);
+        TxtCurrentPath.Value = VirtualPathUtility.ToAbsolute(fileUrl);
+
 
         MultiView1.ActiveViewIndex = 1;
     }
@@ -418,8 +514,13 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
 
                 var TxtValue = new Controls_ContentEditorControl();
                 TxtValue = (Controls_ContentEditorControl)PanelValue.FindControl("TxtValue" + item.Value);
-                TextBox TxtComment = new TextBox();
-                TxtComment = (TextBox)PanelComment.FindControl("TxtComment" + item.Value);
+
+                //var file1 = new System.Web.UI.WebControls.FileUpload();
+                //file1 = (System.Web.UI.WebControls.FileUpload)PanelValue.FindControl("TxtValue" + item.Value + "File1");
+                //uploadFile(file1);
+                
+                //TextBox TxtComment = new TextBox();
+                //TxtComment = (TextBox)PanelComment.FindControl("TxtComment" + item.Value);
 
                 //man.DeleteByResourceId(o1.ResourceSet, o1.ResourceId, item.Key);
 
@@ -433,6 +534,7 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
                     label.Value = TxtValue.Text;
                     label.Comment = TxtComment.Text;
                     label.TextMode = o1.TextMode;
+                    label.ResourceParams = TxtResourceParams.Text;
                     man.Update(label);
                 }
                 else
@@ -443,6 +545,7 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
                     label.Value = TxtValue.Text;
                     label.Comment = TxtComment.Text;
                     label.TextMode = o1.TextMode;
+                    label.ResourceParams = TxtResourceParams.Text;
                     man.Insert(label);
                 }
             }
@@ -556,7 +659,7 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         KeyValuePair<string, string> cultureItem)
     {
         var t1 = new Controls_ContentEditorControl();
-        t1 = Utility.FindControlRecursive<Controls_ContentEditorControl>(this, panelPrefix + cultureItem.Value);
+        t1 = PigeonCms.Utility.FindControlRecursive<Controls_ContentEditorControl>(this, panelPrefix + cultureItem.Value);
         translations.Add(cultureItem.Key, t1.Text);
     }
 
@@ -589,13 +692,19 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         LabelsProvider.SetLocalizedControlVisibility(false/*this.ShowOnlyDefaultCulture*/, cultureItem.Key, txt);
         panel.Controls.Add(txt);
 
+        if (editorConfig.EditorType == ContentEditorProvider.Configuration.EditorTypeEnum.Image)
+        {
+            //add fileupload fake button
+            var litUpload = new Literal();
+            litUpload.Text = @"<input type='button'  value='Select file' "
+            + " id='BtnUpload_" + panelPrefix + cultureItem.Value + "' class='btn btn-default btn-xs action-uploadalias'"
+            + " onclick='document.getElementById(\""+ File1.ClientID +"_ctl02\").click()'>";
+            panel.Controls.Add(litUpload);
+        }
+
         Literal lit = new Literal();
         lit.Text = "&nbsp;[<i>" + cultureItem.Value + "</i>]";
-        //if (editorConfig.EditorType == ContentEditorProvider.Configuration.EditorTypeEnum.Image)
-        //{
-        //    lit.Text += "<a href='javascript:void(0);' onclick='openFancyUpload();'><i class='fa fa-pgn_image fa-fw'></i></a>";
-        //}
-        //lit.Text += "<br /><br />";
+        lit.Text += "<br /><br />";
         panel.Controls.Add(lit);
 
     }
@@ -613,13 +722,13 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         ContentEditorProvider.InitEditor(this, Upd1, editorConfig);
 
         PanelValue.Controls.Clear();
-        PanelComment.Controls.Clear();
+        //PanelComment.Controls.Clear();
 
-        var panelCommentUI = new LabelsProvider.UI(false, PanelComment);
+        //var panelCommentUI = new LabelsProvider.UI(false, PanelComment);
         foreach (KeyValuePair<string, string> item in Config.CultureList)
         {
             addTransArea("TxtValue", PanelValue, editorConfig, item);
-            panelCommentUI.AddTransText("TxtComment", item, 0, "form-control");
+            //panelCommentUI.AddTransText("TxtComment", item, 0, "form-control");
         }
     }
 
@@ -647,5 +756,42 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         if (string.IsNullOrEmpty(resId))
             resId = "-1";
         return resId;
+    }
+
+    protected void File1_UploadedComplete(object sender, AjaxControlToolkit.AsyncFileUploadEventArgs e)
+    {
+        var uploadField = (AjaxControlToolkit.AsyncFileUpload)sender;
+
+        if (uploadField.HasFile)
+        {
+            string path = FilesHelper.MapPathWhenVirtual(this.DefaultResourceFolder);
+
+            //filename = ResourceSet_ResourceKey.extension
+            string filename = uploadField.FileName.Replace(
+                Path.GetFileNameWithoutExtension(uploadField.FileName),
+                this.CurrentKey.Replace("|", "_")
+            );
+
+            string filePath = Path.Combine(path, filename);
+            string fileUrl = VirtualPathUtility.Combine(this.DefaultResourceFolder, filename);
+
+
+            DirectoryInfo dir = new DirectoryInfo(path);
+            if (!dir.Exists)
+                dir.Create();
+
+            uploadField.SaveAs(filePath);
+
+
+
+            //update input field path
+            //foreach (KeyValuePair<string, string> item in Config.CultureList)
+            //{
+            //    var TxtValue = new Controls_ContentEditorControl();
+            //    TxtValue = (Controls_ContentEditorControl)PanelValue.FindControl("TxtValue" + item.Value);
+            //    TxtValue.Text = fileUrl;
+            //}
+        }
+
     }
 }

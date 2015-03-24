@@ -16,18 +16,43 @@
     <files>
     </files>
 
-    <params>
-        
+    <params group="filters">
         <param name="ModuleFullName" type="combo" default="" label="Module" description="">
             <option value="" label="Not set"></option>
             <datasource SelectMethod="GetList" TypeName="PigeonCms.ModuleTypeManager" />
         </param>
         <param name="ModuleFullNamePart" type="text" default="" label="Resource name part" />
-        
-        <param name="TargetImagesUpload" type="combo" default="0" label="Images upload target" description="Target for resources with Textmode=Image">
+    </params>
+
+    <params group="targets">
+        <param name="TargetImagesUpload" type="combo" default="0" label="Images upload target" description="Filemanager target for resources with Textmode=Image">
             <option value="0" label="Not set"></option>
             <datasource SelectMethod="GetList" SelectParams="PigeonCms.FilesManager" TypeName="PigeonCms.MenuManager" />
         </param>
-        
+        <param name="DefaultResourceFolder" type="text" default="~/public/res" label="Default resource folder" />
     </params>
+
+    <params group="restrictions">
+        <param name="AllowNew" type="combo" default="0" label="Allow new resource">
+            <option value="1" label="Yes"></option>
+            <option value="0" label="No"></option>
+        </param>
+        <param name="AllowDel" type="combo" default="0" label="Allow delete resource">
+            <option value="1" label="Yes"></option>
+            <option value="0" label="No"></option>
+        </param>
+        <param name="AllowTextModeEdit" type="combo" default="0" label="Allow text mode edit">
+            <option value="1" label="Yes"></option>
+            <option value="0" label="No"></option>
+        </param>
+        <param name="AllowParamsEdit" type="combo" default="0" label="Allow resource params edit">
+            <option value="1" label="Yes"></option>
+            <option value="0" label="No"></option>
+        </param>
+        <param name="AllowAdminMode" type="combo" default="1" label="Allow admin mode" description="Admin users override other security settings">
+            <option value="1" label="Yes"></option>
+            <option value="0" label="No"></option>
+        </param>
+    </params>
+    
 </install>
