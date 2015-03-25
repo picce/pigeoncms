@@ -252,7 +252,7 @@
                         </asp:DropDownList>
                     </div>
 
-                    <div class="form-group col-lg-12" style="disaplay:none;">
+                    <div class="form-group col-lg-12" style="display:none;">
                         <asp:HiddenField runat="server" ID="TxtCurrentPath" />
                         <cc1:AsyncFileUpload
                             CssClass="action-upload"
