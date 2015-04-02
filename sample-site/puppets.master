@@ -26,6 +26,12 @@
             <li>
                 <a href="/pages/list.aspx"><%=CurrPage.GetLabel("AQ_menu", "List", "List items") %></a>
             </li>
+            <li>
+                <a href="/private/default.aspx"><%=CurrPage.GetLabel("AQ_menu", "PrivateArea", "Private area") %></a>
+            </li>
+            <li>
+                <%=MenuLogout %>
+            </li>
         </ul>
     </div>
 

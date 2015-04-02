@@ -32,6 +32,12 @@
         <compilation debug="true" targetFramework="4.0"/>
 
         <!--pigeon-->
+        <authentication mode="Forms">
+            <forms name="form1" loginUrl="~/pages/login.aspx" protection="All" timeout="30" slidingExpiration="true"/>
+        </authentication>
+        <authorization>
+            <allow users="*"/>
+        </authorization>
         <membership defaultProvider="PgnUserProvider" userIsOnlineTimeWindow="15">
             <providers>
                 <clear />
@@ -49,26 +55,50 @@
         </roleManager>
 
     </system.web>
+
+    <location path="private">
+        <system.web>
+            <authorization>
+                <allow roles="admin,manager"/>
+                <deny users="*"/>
+            </authorization>
+        </system.web>
+    </location>   
+    
     <system.webServer>
         <rewrite>
             <rules>
+                
                 <rule name="home" stopProcessing="true">
                     <match url="^((it|en|es|de|fr|ru)/)?/?$"/>
                     <action type="Rewrite" url="/default.aspx?lng={R:2}"/>
                 </rule>
+                
                 <rule name="list" stopProcessing="true">
                     <match url="^((it|en|es|de|fr|ru)/)?list/?$"/>
                     <action type="Rewrite" url="/pages/list.aspx?lng={R:2}"/>
+                </rule>
+
+                <rule name="login" stopProcessing="true">
+                    <match url="^((it|en|es|de|fr|ru)/)?login/?$"/>
+                    <action type="Rewrite" url="/pages/login.aspx?lng={R:2}"/>
+                </rule>
+
+                <rule name="private-home" stopProcessing="true">
+                    <match url="^((it|en|es|de|fr|ru)/)?private/?$"/>
+                    <action type="Rewrite" url="/private/default.aspx?lng={R:2}"/>
                 </rule>
 
                 <rule name="generic" enabled="true" stopProcessing="true">
                     <match url="(\.gif|\.png|\.jpg|\.ico|\.pdf|\.zip|\.css|\.axd|\.js|\.aspx|\.cfm|\.txt|\.ttf|\.woff|\.eot|\.svg|\.mp4|\.webm|\.ogv)" ignoreCase="true"/>
                     <action type="None"/>
                 </rule>
+                
                 <rule name="404" stopProcessing="true">
                     <match url="^.+$"/>
                     <action type="Rewrite" url="/404.aspx"/>
                 </rule>
+                
             </rules>
         </rewrite>
     </system.webServer>

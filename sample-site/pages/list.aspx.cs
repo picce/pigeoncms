@@ -29,6 +29,9 @@ public partial class pages_list : BasePage
         if (item.Images.Count > 0)
             LitImg.Text = "<img src='" + item.DefaultImage.FileUrl + "' width='50' />";
 
+        var LitPermissions = (Literal)e.Item.FindControl("LitPermissions");
+        LitPermissions.Text = item.ReadAccessType.ToString();
+
     }
 
     /// <summary>
@@ -36,7 +39,7 @@ public partial class pages_list : BasePage
     /// </summary>
     private void loadList()
     {
-        var man = new PigeonCms.ItemsManager<Item, ItemsFilter>(false, false);
+        var man = new PigeonCms.ItemsManager<Item, ItemsFilter>(true, false);
         var filter = new PigeonCms.ItemsFilter();
         filter.CategoryId = MyCompany.Settings.SampleCatId;
         var list = man.GetByFilter(filter, "");

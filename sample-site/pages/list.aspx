@@ -13,7 +13,8 @@
         <ItemTemplate>
             <li>
                 <asp:Literal runat="server" ID="LitImg"></asp:Literal>
-                <%# Eval("Title") %>
+                <%# Eval("Title") %><br />
+                <asp:Literal runat="server" ID="LitPermissions"></asp:Literal>
             </li>    
         </ItemTemplate>
     </asp:Repeater>

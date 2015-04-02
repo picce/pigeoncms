@@ -1604,7 +1604,8 @@ CREATE TABLE #__shop_orderHeader
 	ordNation varchar(50) NULL,
 	ordPhone varchar(200) NULL,
 	ordEmail varchar(200) NULL,
-	codeCoupon varchar(50) NULL,
+	couponCode varchar(50) NULL,
+	couponValue decimal(18, 2) NULL,
 	paymentCode varchar(10) NULL,
 	shipCode varchar(10) NULL
 	)  ON [PRIMARY]
@@ -1721,3 +1722,8 @@ GO
 ALTER TABLE #__labels ADD
 	resourceParams varchar(MAX) NULL
 GO
+
+--20150330
+--#__shop_orderHeader
+--renamed codeCoupon --> couponCode
+--added couponValue decimal(18,2)
