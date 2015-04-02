@@ -28,7 +28,9 @@ public partial class private_default : BasePage
         Lit1.Text += "<strong>PgnUserCurrent.UserName</strong>: " + PgnUserCurrent.UserName + "<br>";
         Lit1.Text += "<strong>PgnUserCurrent.IsAuthenticated</strong>: " + PgnUserCurrent.IsAuthenticated.ToString() + "<br>";
         Lit1.Text += "<strong>Roles.IsUserInRole(\"admin\")</strong>: " + Roles.IsUserInRole("admin").ToString() + "<br>";
-        Lit1.Text += "<strong>Roles.GetRolesForUser()</strong>: " + roles + "<br>";
+        Lit1.Text += "<strong>Roles.GetRolesForUser()</strong>: " + roles + "<br><br>";
+        Lit1.Text += "You can use user context <strong>(checkUserContext = true)</strong> in classes that implements <strong>ITableManagerWithPermission</strong>";
+
 
     }
 
