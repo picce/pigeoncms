@@ -152,6 +152,12 @@
         </td>
     </tr>
     <tr>
+        <td class="key"><%=LitApproved %></td>
+        <td>
+            <asp:CheckBox ID="ChkUpdApproved" runat="server" Visible="false" />
+        </td>
+    </tr>
+    <tr>
         <td class="key"><%=LitAllowMessages %></td>
         <td>
             <asp:CheckBox ID="ChkUpdAllowMessages" runat="server" Visible="false" />

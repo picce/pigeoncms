@@ -22,6 +22,7 @@ public partial class Controls_MemberEditorControl : PigeonCms.MemberEditorContro
     protected string LitPasswordControl = "";
     protected string LitOldPassword = "";
     protected string LitEnabled = "";
+    protected string LitApproved = "";
     protected string LitCompanyName = "";
     protected string LitComment = "";
     protected string LitAccessCode = "";
@@ -286,6 +287,7 @@ public partial class Controls_MemberEditorControl : PigeonCms.MemberEditorContro
         //upd
         LitUpdUserName.Text = "";
         ChkUpdEnabled.Checked = true;
+        ChkUpdApproved.Checked = false;
         TxtUpdEmail.Text = "";
         TxtUpdComment.Text = "";
         TxtUpdAccessCode.Text = "";
@@ -386,6 +388,7 @@ public partial class Controls_MemberEditorControl : PigeonCms.MemberEditorContro
         //update
         LitUpdUserName.Text = obj.UserName;
         ChkUpdEnabled.Checked = obj.Enabled;
+        ChkUpdApproved.Checked = obj.IsApproved;
         TxtUpdEmail.Text = obj.Email;
         TxtUpdComment.Text = obj.Comment;
         TxtUpdAccessCode.Text = obj.AccessCode;
@@ -515,11 +518,13 @@ public partial class Controls_MemberEditorControl : PigeonCms.MemberEditorContro
         if (this.isUserInAdminRole)
         {
             LitEnabled = base.GetLabel("LblEnabled", "Enabled");
+            LitApproved = base.GetLabel("LblApproved", "Approved");
             LitComment = base.GetLabel("LblComment", "Notes");
             LitAllowMessages = base.GetLabel("LblAllowMessages", "Allow messages");
             LitAllowEmails = base.GetLabel("LblAllowEmails", "Allow emails");
             ChkInsEnabled.Visible = true;
             ChkUpdEnabled.Visible = true;
+            ChkUpdApproved.Visible = true;
             TxtUpdComment.Visible = true;
             ChkInsAllowMessages.Visible = true;
             ChkUpdAllowMessages.Visible = true;
@@ -744,6 +749,7 @@ public partial class Controls_MemberEditorControl : PigeonCms.MemberEditorContro
         obj.Email = TxtUpdEmail.Text;
         obj.Comment = TxtUpdComment.Text;
         obj.Enabled = ChkUpdEnabled.Checked;
+        obj.IsApproved = ChkUpdApproved.Checked;
         obj.AccessCode = TxtUpdAccessCode.Text;
         int acccessLevel = 0;
         int.TryParse(TxtUpdAccessLevel.Text, out acccessLevel);

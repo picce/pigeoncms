@@ -128,6 +128,12 @@
                                 </ItemTemplate>
                             </asp:TemplateField>
 
+                            <asp:TemplateField HeaderText="Approved">
+                                <ItemTemplate>
+                                <asp:CheckBox ID="ChkApproved" Enabled="false" runat="server" />
+                                </ItemTemplate>
+                            </asp:TemplateField>
+
                             <asp:TemplateField HeaderText="Core" SortExpression="IsCore" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center">
                                 <ItemTemplate>
                                 <asp:CheckBox ID="ChkIsCore" Enabled="false" runat="server" />

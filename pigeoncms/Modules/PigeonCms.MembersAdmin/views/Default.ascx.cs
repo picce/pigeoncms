@@ -71,6 +71,7 @@ public partial class Controls_Default : PigeonCms.MemberEditorControl
             var currItem = PgnUserCurrent.GetUser(((MembershipUser)e.Row.DataItem).UserName);
 
             CheckBox ChkEnabled = (CheckBox)e.Row.FindControl("ChkEnabled");
+            CheckBox ChkApproved = (CheckBox)e.Row.FindControl("ChkApproved");
             CheckBox ChkIsCore = (CheckBox)e.Row.FindControl("ChkIsCore");
             LinkButton LnkUserName = (LinkButton)e.Row.FindControl("LnkUserName");
             Literal LitEmail = (Literal)e.Row.FindControl("LitEmail");
@@ -81,6 +82,7 @@ public partial class Controls_Default : PigeonCms.MemberEditorControl
             LnkUserName.Text += Utility.Html.GetTextPreview(currItem.UserName, 30, "");
 
             ChkEnabled.Checked = currItem.Enabled;
+            ChkApproved.Checked = currItem.IsApproved;
             ChkIsCore.Checked = currItem.IsCore;
             LitEmail.Text = "<a href='mailto:" + currItem.Email + "'>" 
                 + Utility.Html.GetTextPreview(currItem.Email, 30, "") 

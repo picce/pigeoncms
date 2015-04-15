@@ -14,6 +14,7 @@ using System.Data.Common;
 using System.Configuration.Provider;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace PigeonCms
 {
@@ -322,7 +323,7 @@ namespace PigeonCms
                  " Enabled, AccessCode, AccessLevel, IsCore, " +
                  " Sex, CompanyName, Vat, Ssn, FirstName, SecondName, " +
                  " Address1, Address2, City, [State], ZipCode, " +
-                 " Nation, Tel1, Mobile1, Website1, AllowMessages, AllowEmails " +
+                 " Nation, Tel1, Mobile1, Website1, AllowMessages, AllowEmails, ValidationCode " +
                  " FROM " + tableName + " ";
             return res;
         }
@@ -386,6 +387,8 @@ namespace PigeonCms
             //20120306
             bool allowMessages = false;
             bool allowEmails = false;
+            //20150403
+            string validationCode = "";
 
 
             if (!Convert.IsDBNull(myRd["Id"]))
@@ -455,6 +458,8 @@ namespace PigeonCms
                 mobile1 = (string)myRd["mobile1"];
             if (!Convert.IsDBNull(myRd["website1"]))
                 website1 = (string)myRd["website1"];
+            if (!Convert.IsDBNull(myRd["validationCode"]))
+                validationCode = (string)myRd["validationCode"];
 
             string name = "PgnUserProvider";
             if (this.Name != null) name = this.Name;
@@ -495,6 +500,7 @@ namespace PigeonCms
             u.Tel1 = tel1;
             u.Mobile1 = mobile1;
             u.Website1 = website1;
+            u.ValidationCode = validationCode;
 
             return u;
         }
@@ -866,7 +872,7 @@ namespace PigeonCms
                     + " Enabled, AccessCode, AccessLevel, "
                     + " Sex, CompanyName, Vat, Ssn, FirstName, SecondName, "
                     + " Address1, Address2, City, [State], ZipCode, "
-                    + " Nation, Tel1, Mobile1, Website1, AllowMessages, AllowEmails) "
+                    + " Nation, Tel1, Mobile1, Website1, AllowMessages, AllowEmails, ValidationCode) "
                     + " Values(@Username, @ApplicationName, @Email, @Comment, "
                     + " @Password, @PasswordQuestion, @PasswordAnswer, @IsApproved, "
                     + " @LastActivityDate, @LastPasswordChangedDate, @CreationDate, "
@@ -876,7 +882,7 @@ namespace PigeonCms
                     + " @Enabled, @AccessCode, @AccessLevel, "
                     + " @Sex, @CompanyName, @Vat, @Ssn, @FirstName, @SecondName, "
                     + " @Address1, @Address2, @City, @State, @ZipCode, "
-                    + " @Nation, @Tel1, @Mobile1, @Website1, @AllowMessages, @AllowEmails) ";
+                    + " @Nation, @Tel1, @Mobile1, @Website1, @AllowMessages, @AllowEmails, @ValidationCode) ";
                     myCmd.CommandText = Database.ParseSql(sSql);
 
                     if (string.IsNullOrEmpty(username)) username = "";
@@ -925,6 +931,7 @@ namespace PigeonCms
 
                     myCmd.Parameters.Add(Database.Parameter(myProv, "AllowMessages", newUser.AllowMessages));
                     myCmd.Parameters.Add(Database.Parameter(myProv, "AllowEmails", newUser.AllowEmails));
+                    myCmd.Parameters.Add(Database.Parameter(myProv, "ValidationCode", newUser.ValidationCode));
 
 
                     int recAdded = myCmd.ExecuteNonQuery();
@@ -1593,7 +1600,7 @@ namespace PigeonCms
                 + " Address1=@Address1, Address2=@Address2, City=@City, "
                 + " [State]=@State, ZipCode=@ZipCode, "
                 + " Nation=@Nation, Tel1=@Tel1, Mobile1=@Mobile1, Website1=@Website1, "
-                + " AllowMessages=@AllowMessages, AllowEmails=@AllowEmails "
+                + " AllowMessages=@AllowMessages, AllowEmails=@AllowEmails, ValidationCode=@ValidationCode "
                 + " WHERE Username = @Username AND ApplicationName = @ApplicationName ";
                 myCmd.CommandText = Database.ParseSql(sSql);
 
@@ -1622,6 +1629,7 @@ namespace PigeonCms
                 myCmd.Parameters.Add(Database.Parameter(myProv, "Website1", u.Website1));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "AllowMessages", u.AllowMessages));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "AllowEmails", u.AllowEmails));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "ValidationCode", u.ValidationCode));
 
                 myCmd.ExecuteNonQuery();
             }

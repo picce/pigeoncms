@@ -1727,3 +1727,11 @@ GO
 --#__shop_orderHeader
 --renamed codeCoupon --> couponCode
 --added couponValue decimal(18,2)
+
+--20150403
+--new user validation code
+ALTER TABLE #__memberUsers ADD
+	validationCode varchar(255) NULL
+GO
+UPDATE #__memberUsers set validationCode='' WHERE validationCode is null
+GO

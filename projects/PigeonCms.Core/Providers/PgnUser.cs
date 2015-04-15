@@ -281,6 +281,15 @@ namespace PigeonCms
         public bool AllowEmails { get; set; }
 
 
+        private string validationCode = "";
+        public string ValidationCode
+        {
+            [DebuggerStepThrough()]
+            get { return validationCode; }
+            [DebuggerStepThrough()]
+            set { validationCode = value; }
+        }
+
         #endregion
 
 
