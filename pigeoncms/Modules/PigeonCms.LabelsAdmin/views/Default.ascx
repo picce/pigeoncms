@@ -68,6 +68,7 @@
 
     function uploadError(sender, args) {
         //addToClientTable(args.get_fileName(), "<span style='color:red;'>" + args.get_errorMessage() + "</span>");
+        console.log(args.get_errorMessage());
     }
 
     function uploadComplete(sender, args) {
@@ -79,8 +80,14 @@
         var filename = args.get_fileName();
         var currentPath = document.getElementById('<%=TxtCurrentPath.ClientID %>').value;
         console.log("uploadComplete>filename: " + filename);
-        console.log("uploadComplete>currentPath: " +  currentPath);
+        console.log("uploadComplete>currentPath: " + currentPath);
+        $('#myPreview').attr('src', currentPath + filename + '?width=300&height=300').css('display', 'block');
+        $('#' + $('#langBox').val()).val(currentPath + filename);
+
     }
+
+    function onSuccess(result) { }
+    function onFailure(result) { }
 
 </script>
 
@@ -257,7 +264,7 @@
                         <cc1:AsyncFileUpload
                             CssClass="action-upload"
                             OnClientUploadError="uploadError" OnClientUploadComplete="uploadComplete" 
-                            runat="server" ID="File1" UploaderStyle="Modern" 
+                            runat="server" ID="File1" UploaderStyle="Modern" ClientIDMode="AutoID"
                             UploadingBackColor="#CCFFFF" 
                             onuploadedcomplete="File1_UploadedComplete" 
                              />
@@ -267,6 +274,11 @@
                         <%=base.GetLabel("LblValue", "Value", null, true) %>
                         <asp:Panel runat="server" ID="PanelValue"  Visible="true"></asp:Panel>
                     </div>
+                    
+                    <asp:PlaceHolder ID="plhOnlyInImg" runat="server" Visible="false">
+                        <img id="myPreview" src="http://placehold.it/300x300/your+img+here!" width="300" height="300" style="display: none" />
+                        <input id="langBox" name="langBox" type="hidden" />
+                    </asp:PlaceHolder>
 
                     <div class="form-group col-lg-12">
                         <%=base.GetLabel("LblComment", "Comment", TxtComment, true) %>

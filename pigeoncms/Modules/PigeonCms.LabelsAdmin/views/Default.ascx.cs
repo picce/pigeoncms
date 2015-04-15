@@ -88,9 +88,9 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
     /// </summary>
     public bool AllowTextModeEdit
     {
-        get 
-        { 
-            
+        get
+        {
+
             bool res = GetBoolParam("AllowTextModeEdit", false);
             if (this.AllowAdminMode && Roles.IsUserInRole("admin"))
             {
@@ -105,9 +105,9 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
     /// </summary>
     public bool AllowParamsEdit
     {
-        get 
-        { 
-            bool res=  GetBoolParam("AllowParamsEdit", false);
+        get
+        {
+            bool res = GetBoolParam("AllowParamsEdit", false);
             if (this.AllowAdminMode && Roles.IsUserInRole("admin"))
             {
                 res = true;
@@ -199,8 +199,8 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
 
     protected void Page_Load(object sender, EventArgs e)
     {
-        LblOk.Text = RenderSuccess( "");
-        LblErr.Text = RenderError( "");
+        LblOk.Text = RenderSuccess("");
+        LblErr.Text = RenderError("");
 
         if (!Page.IsPostBack)
         {
@@ -286,12 +286,12 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
             lfilter.ResourceSet = item.ResourceSet;
             lfilter.ResourceId = item.ResourceId;
             labelList = man.GetByFilter(lfilter, "");
-            foreach(var label in labelList)
+            foreach (var label in labelList)
             {
                 if (string.IsNullOrEmpty(defaultValue))
                     defaultValue = label.Value;
 
-                values += label.Value + ", ";                
+                values += label.Value + ", ";
             }
             if (values.EndsWith(", ")) values = values.Substring(0, values.Length - 2);
             LitValue.Text += Utility.Html.GetTextPreview(values, 100, "");
@@ -322,7 +322,7 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
 
     protected void BtnNew_Click(object sender, EventArgs e)
     {
-        LblErr.Text = RenderError( "");
+        LblErr.Text = RenderError("");
         if (DropModuleTypesFilter.SelectedValue != "xxx")
             editRow(DropModuleTypesFilter.SelectedValue, "");
         else
@@ -333,8 +333,8 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
 
     protected void BtnCancel_Click(object sender, EventArgs e)
     {
-        LblErr.Text = RenderError( "");
-        LblOk.Text = RenderSuccess( "");
+        LblErr.Text = RenderError("");
+        LblOk.Text = RenderSuccess("");
         MultiView1.ActiveViewIndex = 0;
 
         Grid1.DataBind();
@@ -388,7 +388,7 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
     }
 
     private void form2obj(ResLabelTrans obj)
-    {        
+    {
         obj.ResourceSet = LitResourceSet.Text;
         obj.ResourceId = TxtResourceId.Text;
         obj.ResourceParams = TxtResourceParams.Text;
@@ -443,8 +443,8 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
     private void editRow(string resourceSet, string resourceId)
     {
         var obj = new PigeonCms.ResLabelTrans();
-        LblOk.Text = RenderSuccess( "");
-        LblErr.Text = RenderError( "");
+        LblOk.Text = RenderSuccess("");
+        LblErr.Text = RenderError("");
 
         clearForm();
         CurrentKey = resourceSet + "|" + resourceId;
@@ -462,8 +462,9 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
             obj2form(obj);
         }
 
-        string filename = this.CurrentKey.Replace("|", "_") + ".jpg";
-        string fileUrl = VirtualPathUtility.Combine(this.DefaultResourceFolder, filename);
+        string filename = this.CurrentKey.Replace("|", "_") + "_";
+        //string fileUrl = VirtualPathUtility.Combine(this.DefaultResourceFolder, filename);
+        string fileUrl = this.DefaultResourceFolder + "/" + filename;
         TxtCurrentPath.Value = VirtualPathUtility.ToAbsolute(fileUrl);
 
 
@@ -499,14 +500,14 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         bool res = false;
         var man = new LabelsManager();
         var lFilter = new LabelsFilter();
-        LblErr.Text = RenderError( "");
-        LblOk.Text = RenderSuccess( "");
+        LblErr.Text = RenderError("");
+        LblOk.Text = RenderSuccess("");
 
         try
         {
             var o1 = new ResLabelTrans();
             o1 = man.GetLabelTransByKey(getResSet(CurrentKey), getResId(CurrentKey));
-            form2obj(o1);            
+            form2obj(o1);
             foreach (KeyValuePair<string, string> item in Config.CultureList)
             {
                 var label = new ResLabel();
@@ -518,7 +519,7 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
                 //var file1 = new System.Web.UI.WebControls.FileUpload();
                 //file1 = (System.Web.UI.WebControls.FileUpload)PanelValue.FindControl("TxtValue" + item.Value + "File1");
                 //uploadFile(file1);
-                
+
                 //TextBox TxtComment = new TextBox();
                 //TxtComment = (TextBox)PanelComment.FindControl("TxtComment" + item.Value);
 
@@ -551,13 +552,13 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
             }
             LabelsProvider.ClearCacheByResourceSet(o1.ResourceSet);
             Grid1.DataBind();
-            LblOk.Text = RenderSuccess( Utility.GetLabel("RECORD_SAVED_MSG"));
+            LblOk.Text = RenderSuccess(Utility.GetLabel("RECORD_SAVED_MSG"));
             MultiView1.ActiveViewIndex = 0;
             res = true;
         }
         catch (Exception e1)
         {
-            LblErr.Text = RenderError( Utility.GetLabel("RECORD_ERR_MSG") + "<br />" + e1.ToString());
+            LblErr.Text = RenderError(Utility.GetLabel("RECORD_ERR_MSG") + "<br />" + e1.ToString());
         }
         finally
         { }
@@ -566,8 +567,8 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
 
     private void deleteRow(string resourceId)
     {
-        LblOk.Text = RenderSuccess( "");
-        LblErr.Text = RenderError( "");
+        LblOk.Text = RenderSuccess("");
+        LblErr.Text = RenderError("");
 
         try
         {
@@ -576,7 +577,7 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         }
         catch (Exception e)
         {
-            LblErr.Text = RenderError( e.Message);
+            LblErr.Text = RenderError(e.Message);
         }
         Grid1.DataBind();
     }
@@ -596,7 +597,7 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         }
         catch (Exception ex)
         {
-            LblErr.Text = RenderError( ex.ToString());
+            LblErr.Text = RenderError(ex.ToString());
         }
     }
 
@@ -650,7 +651,7 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         }
         catch (Exception ex)
         {
-            LblErr.Text = RenderError( ex.ToString());
+            LblErr.Text = RenderError(ex.ToString());
         }
     }
 
@@ -694,12 +695,17 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
 
         if (editorConfig.EditorType == ContentEditorProvider.Configuration.EditorTypeEnum.Image)
         {
+            plhOnlyInImg.Visible = true;
             //add fileupload fake button
             var litUpload = new Literal();
             litUpload.Text = @"<input type='button'  value='Select file' "
             + " id='BtnUpload_" + panelPrefix + cultureItem.Value + "' class='btn btn-default btn-xs action-uploadalias'"
-            + " onclick='document.getElementById(\""+ File1.ClientID +"_ctl02\").click()'>";
+            + " onclick='document.getElementById(\"" + File1.ClientID + "_ctl02\").click(); var id = $(this).prevAll().eq(1).get(0).id; var box = \"#langBox\"; $(box).val(id); console.log(id)'>";
             panel.Controls.Add(litUpload);
+        }
+        else
+        {
+            plhOnlyInImg.Visible = false;
         }
 
         Literal lit = new Literal();
@@ -767,13 +773,16 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
             string path = FilesHelper.MapPathWhenVirtual(this.DefaultResourceFolder);
 
             //filename = ResourceSet_ResourceKey.extension
-            string filename = uploadField.FileName.Replace(
-                Path.GetFileNameWithoutExtension(uploadField.FileName),
-                this.CurrentKey.Replace("|", "_")
-            );
+            string filename = this.CurrentKey.Replace("|", "_") + "_" + uploadField.FileName;
 
             string filePath = Path.Combine(path, filename);
             string fileUrl = VirtualPathUtility.Combine(this.DefaultResourceFolder, filename);
+
+            PigeonCms.LogProvider.Write(
+                this.BaseModule,
+                "file upload completed --path:" + path + " -- filename:" + filename + " -- filepath:" + filePath + " -- fileurl: " + fileUrl,
+                PigeonCms.TracerItemType.Debug
+            );
 
 
             DirectoryInfo dir = new DirectoryInfo(path);
