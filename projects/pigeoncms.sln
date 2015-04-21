@@ -56,9 +56,11 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "sample-site", "..\sample-si
 		Release.AspNetCompiler.ForceOverwrite = "true"
 		Release.AspNetCompiler.FixedNames = "false"
 		Release.AspNetCompiler.Debug = "False"
-		VWDPort = "49856"
+		VWDPort = "52841"
 		VWDVirtualPath = "/"
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PigeonCms.Shop", "PigeonCms.Shop\PigeonCms.Shop.csproj", "{9B7C9BBB-9618-4E2A-B6EB-E267CDD82F4F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -150,6 +152,16 @@ Global
 		{016FF54E-1D40-49C6-831A-CF84DE5551AD}.Release|Mixed Platforms.ActiveCfg = Debug|Any CPU
 		{016FF54E-1D40-49C6-831A-CF84DE5551AD}.Release|Mixed Platforms.Build.0 = Debug|Any CPU
 		{016FF54E-1D40-49C6-831A-CF84DE5551AD}.Release|x86.ActiveCfg = Debug|Any CPU
+		{9B7C9BBB-9618-4E2A-B6EB-E267CDD82F4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B7C9BBB-9618-4E2A-B6EB-E267CDD82F4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B7C9BBB-9618-4E2A-B6EB-E267CDD82F4F}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{9B7C9BBB-9618-4E2A-B6EB-E267CDD82F4F}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{9B7C9BBB-9618-4E2A-B6EB-E267CDD82F4F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{9B7C9BBB-9618-4E2A-B6EB-E267CDD82F4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B7C9BBB-9618-4E2A-B6EB-E267CDD82F4F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9B7C9BBB-9618-4E2A-B6EB-E267CDD82F4F}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{9B7C9BBB-9618-4E2A-B6EB-E267CDD82F4F}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{9B7C9BBB-9618-4E2A-B6EB-E267CDD82F4F}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
