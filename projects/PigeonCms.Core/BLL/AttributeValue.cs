@@ -9,13 +9,12 @@ using System.Threading;
 
 namespace PigeonCms
 {
-    class AttributeValue : ITableWithOrdering
+    class AttributeValue : ITable
     {
-        const string DefaultItemType = "PigeonCms.AttributeValue";
         private int id = 0;
         private int attributeId = 0;
         private string itemType = "";
-        //private string value = "";
+        private string valueString = "";
 
         private Dictionary<string, string> valueTranslations = new Dictionary<string, string>();
 
@@ -26,24 +25,6 @@ namespace PigeonCms
         /// </summary>
         [DataObjectField(true)]
         public int Id { get; set; }
-
-        /// <summary>
-        /// Item specific type name. Ex. PigeonCms.CustomItem
-        /// </summary>
-        [DataObjectField(false)]
-        public string ItemTypeName
-        {
-            [DebuggerStepThrough()]
-            get
-            {
-                if (!string.IsNullOrEmpty(itemType))
-                    return itemType;
-                else
-                    return DefaultItemType;
-            }
-            [DebuggerStepThrough()]
-            set { itemType = value; }
-        }
 
         /// <summary>
         /// AttributeId which value is related.
@@ -57,6 +38,16 @@ namespace PigeonCms
         }
 
         /// <summary>
+        /// Value in json format
+        /// </summary>
+        [DataObjectField(false)]
+        public string ValueString
+        {
+            get { return valueString; }
+            set { valueString = toJson(ValueTranslations); }
+        }
+
+        /// <summary>
         /// Value in current culture
         /// </summary>
         [DataObjectField(false)]
@@ -65,9 +56,9 @@ namespace PigeonCms
             get
             {
                 string res = "";
-                valueTranslations.TryGetValue(Thread.CurrentThread.CurrentCulture.Name, out res);
+                ValueTranslations.TryGetValue(Thread.CurrentThread.CurrentCulture.Name, out res);
                 if (Utility.IsEmptyFckField(res))
-                    valueTranslations.TryGetValue(Config.CultureDefault, out res);
+                    ValueTranslations.TryGetValue(Config.CultureDefault, out res);
                 return res;
             }
         }
@@ -79,7 +70,7 @@ namespace PigeonCms
         public Dictionary<string, string> ValueTranslations
         {
             [DebuggerStepThrough()]
-            get { return valueTranslations; }
+            get { return toDictionary(ValueString); }
             [DebuggerStepThrough()]
             set { valueTranslations = value; }
         }
@@ -90,11 +81,33 @@ namespace PigeonCms
             {
                 bool res = true;
                 string val = "";
-                valueTranslations.TryGetValue(Thread.CurrentThread.CurrentCulture.Name, out val);
+                ValueTranslations.TryGetValue(Thread.CurrentThread.CurrentCulture.Name, out val);
                 if (Utility.IsEmptyFckField(val))
                     res = false;
                 return res;
             }
+        }
+
+        /// <summary>
+        /// Convert a json string into Dictionary<string, string>
+        /// </summary>
+        /// <param name="json"></param>
+        /// <returns></returns>
+        private Dictionary<string, string> toDictionary(string json)
+        {
+            var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            return serializer.Deserialize<Dictionary<string, string>>(json);
+        }
+
+        /// <summary>
+        /// Convert a Dictionary<string,string> into Json string
+        /// </summary>
+        /// <param name="dictionary"></param>
+        /// <returns></returns>
+        private string toJson(Dictionary<string, string> dictionary)
+        {
+            var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            return serializer.Serialize(dictionary);
         }
 
         #endregion
@@ -105,35 +118,37 @@ namespace PigeonCms
 
         #endregion
 
-        public class ItemComparer : IComparer<Item>
+    }
+
+    /// <summary>
+    /// Filter used in search
+    /// </summary>
+    /// <remarks></remarks>
+    [Serializable]
+    public class AttributeValueFilter
+    {
+        #region fields definition
+
+        private int id = 0;
+        private int attributeId = 0;
+
+        public int Id
         {
-            private string sortExpression = "";
-            private SortDirection sortDirection;
-
-
-            public ItemComparer(string sortExpression, SortDirection sortDirection)
-            {
-                this.sortExpression = sortExpression;
-                this.sortDirection = sortDirection;
-            }
-
-            public int Compare(Item lhs, Item rhs)
-            {
-                if (this.sortDirection == SortDirection.Descending)
-                    return rhs.CompareTo(lhs, sortExpression);
-                else
-                    return lhs.CompareTo(rhs, sortExpression);
-            }
-
-            public bool Equals(Item lhs, Item rhs)
-            {
-                return this.Compare(lhs, rhs) == 0;
-            }
-
-            public int GetHashCode(Item e)
-            {
-                return e.GetHashCode();
-            }
+            [DebuggerStepThrough()]
+            get { return id; }
+            [DebuggerStepThrough()]
+            set { id = value; }
         }
+
+        public int AttributeId
+        {
+            [DebuggerStepThrough()]
+            get { return attributeId; }
+            [DebuggerStepThrough()]
+            set { attributeId = value; }
+        }
+
+        #endregion
+
     }
 }

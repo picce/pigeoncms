@@ -9,15 +9,13 @@ using System.Threading;
 
 namespace PigeonCms
 {
-    class Attribute: ITableWithOrdering
+    class Attribute: ITable
     {
-        const string DefaultItemType = "PigeonCms.Attribute";
         private int id = 0;
         private string itemType = "";
+        private string name = "";
         private int attributeType = 0;
         private bool allowCustomValue;
-
-        private Dictionary<string, string> nameTranslations = new Dictionary<string, string>();
 
         #region fields
 
@@ -31,59 +29,42 @@ namespace PigeonCms
         /// Item specific type name. Ex. PigeonCms.CustomItem
         /// </summary>
         [DataObjectField(false)]
-        public string ItemTypeName
+        public string ItemType
         {
             [DebuggerStepThrough()]
-            get
-            {
-                if (!string.IsNullOrEmpty(itemType))
-                    return itemType;
-                else
-                    return DefaultItemType;
-            }
+            get { return itemType; }
             [DebuggerStepThrough()]
             set { itemType = value; }
         }
 
         /// <summary>
-        /// Name in current culture
+        /// Name of attribute.
         /// </summary>
         [DataObjectField(false)]
         public string Name
         {
-            get
-            {
-                string res = "";
-                nameTranslations.TryGetValue(Thread.CurrentThread.CurrentCulture.Name, out res);
-                if (Utility.IsEmptyFckField(res))
-                    nameTranslations.TryGetValue(Config.CultureDefault, out res);
-                return res;
-            }
+            get { return name; }
+            set { name = value;  }
         }
 
         /// <summary>
-        /// Name in different culture
+        /// Type of Attribute.
         /// </summary>
         [DataObjectField(false)]
-        public Dictionary<string, string> NameTranslations
+        public int AttributeType
         {
-            [DebuggerStepThrough()]
-            get { return nameTranslations; }
-            [DebuggerStepThrough()]
-            set { nameTranslations = value; }
+            get { return attributeType; }
+            set { attributeType = value; }
         }
 
-        public bool IsNameTranslated
+        /// <summary>
+        /// Allow Custom Value, for value non in list.
+        /// </summary>
+        [DataObjectField(false)]
+        public bool AllowCustomValue
         {
-            get
-            {
-                bool res = true;
-                string val = "";
-                nameTranslations.TryGetValue(Thread.CurrentThread.CurrentCulture.Name, out val);
-                if (Utility.IsEmptyFckField(val))
-                    res = false;
-                return res;
-            }
+            get { return allowCustomValue; }
+            set { allowCustomValue = value; }
         }
 
         #endregion
@@ -94,35 +75,29 @@ namespace PigeonCms
 
         #endregion
 
-        public class ItemComparer : IComparer<Item>
-        {
-            private string sortExpression = "";
-            private SortDirection sortDirection;
-
-
-            public ItemComparer(string sortExpression, SortDirection sortDirection)
-            {
-                this.sortExpression = sortExpression;
-                this.sortDirection = sortDirection;
-            }
-
-            public int Compare(Item lhs, Item rhs)
-            {
-                if (this.sortDirection == SortDirection.Descending)
-                    return rhs.CompareTo(lhs, sortExpression);
-                else
-                    return lhs.CompareTo(rhs, sortExpression);
-            }
-
-            public bool Equals(Item lhs, Item rhs)
-            {
-                return this.Compare(lhs, rhs) == 0;
-            }
-
-            public int GetHashCode(Item e)
-            {
-                return e.GetHashCode();
-            }
-        }
     }
+
+    /// <summary>
+    /// Filter used in search
+    /// </summary>
+    /// <remarks></remarks>
+    [Serializable]
+    public class AttributeFilter
+    {
+        #region fields definition
+
+        private int id = 0;
+
+        public int Id
+        {
+            [DebuggerStepThrough()]
+            get { return id; }
+            [DebuggerStepThrough()]
+            set { id = value; }
+        }
+
+        #endregion
+
+    }
+
 }

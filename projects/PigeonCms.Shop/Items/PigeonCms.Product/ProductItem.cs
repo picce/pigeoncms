@@ -14,12 +14,12 @@ namespace PigeonCms.Shop
         }
 
         [ItemFieldMapAttribute(ItemFieldMapAttribute.CustomFields.CustomString1)]
-        public decimal Code
+        public string Code
         {
             [DebuggerStepThrough()]
-            get { return base.CustomDecimal1; }
+            get { return base.CustomString1; }
             [DebuggerStepThrough()]
-            set { base.CustomDecimal1 = value; }
+            set { base.CustomString1 = value; }
         }
 
         [ItemFieldMapAttribute(ItemFieldMapAttribute.CustomFields.CustomDecimal1)]
@@ -75,22 +75,6 @@ namespace PigeonCms.Shop
             [DebuggerStepThrough()]
             set { base.CustomString1 = value; }
         }
-
-        //public decimal Price
-        //{
-        //    [DebuggerStepThrough()]
-        //    get { return base.CustomDecimal1; }
-        //    [DebuggerStepThrough()]
-        //    set { base.CustomDecimal1 = value; }
-        //}
-
-        //public decimal OfferPrice
-        //{
-        //    [DebuggerStepThrough()]
-        //    get { return base.CustomDecimal2; }
-        //    [DebuggerStepThrough()]
-        //    set { base.CustomDecimal2 = value; }
-        //}
 
         public int Availability
         {
