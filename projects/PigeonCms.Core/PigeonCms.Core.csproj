@@ -75,6 +75,8 @@
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="BLL\AppSetting.cs" />
+    <Compile Include="BLL\Attribute.cs" />
+    <Compile Include="BLL\AttributeValue.cs" />
     <Compile Include="BLL\FormField.cs" />
     <Compile Include="BLL\Comment.cs" />
     <Compile Include="BLL\UserTempData.cs" />
