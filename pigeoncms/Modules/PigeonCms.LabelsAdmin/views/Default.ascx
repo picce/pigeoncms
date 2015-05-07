@@ -264,7 +264,7 @@
                         <cc1:AsyncFileUpload
                             CssClass="action-upload"
                             OnClientUploadError="uploadError" OnClientUploadComplete="uploadComplete" 
-                            runat="server" ID="File1" UploaderStyle="Modern" ClientIDMode="AutoID"
+                            runat="server" ID="File1" UploaderStyle="Modern"
                             UploadingBackColor="#CCFFFF" 
                             onuploadedcomplete="File1_UploadedComplete" 
                              />

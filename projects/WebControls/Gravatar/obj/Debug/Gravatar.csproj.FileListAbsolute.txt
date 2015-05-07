@@ -6,3 +6,8 @@ C:\Users\Nicola\Documents\Dev\github\pigeoncms\projects\WebControls\Gravatar\bin
 C:\Users\Nicola\Documents\Dev\github\pigeoncms\projects\WebControls\Gravatar\bin\Debug\Gravatar.pdb
 C:\Users\Nicola\Documents\Dev\github\pigeoncms\projects\WebControls\Gravatar\obj\Debug\Gravatar.dll
 C:\Users\Nicola\Documents\Dev\github\pigeoncms\projects\WebControls\Gravatar\obj\Debug\Gravatar.pdb
+C:\Users\lgirardi\Documents\GitHub\pigeoncms\projects\WebControls\Gravatar\bin\Debug\Gravatar.dll
+C:\Users\lgirardi\Documents\GitHub\pigeoncms\projects\WebControls\Gravatar\bin\Debug\Gravatar.pdb
+C:\Users\lgirardi\Documents\GitHub\pigeoncms\projects\WebControls\Gravatar\obj\Debug\Gravatar.csprojResolveAssemblyReference.cache
+C:\Users\lgirardi\Documents\GitHub\pigeoncms\projects\WebControls\Gravatar\obj\Debug\Gravatar.dll
+C:\Users\lgirardi\Documents\GitHub\pigeoncms\projects\WebControls\Gravatar\obj\Debug\Gravatar.pdb

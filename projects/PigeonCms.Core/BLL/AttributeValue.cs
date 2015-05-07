@@ -9,11 +9,9 @@ using System.Threading;
 
 namespace PigeonCms
 {
-    class AttributeValue : ITable
+    public class AttributeValue : ITable
     {
-        private int id = 0;
         private int attributeId = 0;
-        private string itemType = "";
         private string valueString = "";
 
         private Dictionary<string, string> valueTranslations = new Dictionary<string, string>();

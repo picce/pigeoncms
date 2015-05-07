@@ -7,7 +7,7 @@ using System.Text;
 
 namespace PigeonCms
 {
-    class AttributeValuesManager : TableManager<AttributeValue, AttributeValueFilter, int>, ITableManager
+    public class AttributeValuesManager : TableManager<AttributeValue, AttributeValueFilter, int>, ITableManager
     {
         [DebuggerStepThrough()]
         public AttributeValuesManager()
@@ -31,7 +31,7 @@ namespace PigeonCms
                 myConn.Open();
                 myCmd.Connection = myConn;
 
-                sSql = "SELECT Id, AttributeId, Value, FROM " + this.TableName + " WHERE 1=1 ";
+                sSql = "SELECT Id, AttributeId, ValueString FROM " + this.TableName + " WHERE 1=1 ";
                 if (filter.Id > 0)
                 {
                     sSql += " AND Id = @Id ";
@@ -69,7 +69,7 @@ namespace PigeonCms
             if (!Convert.IsDBNull(myRd["AttributeId"]))
                 result.AttributeId = (int)myRd["AttributeId"];
             if (!Convert.IsDBNull(myRd["Value"]))
-                result.ValueString = (string)myRd["Value"];
+                result.ValueString = (string)myRd["ValueString"];
         }
 
         public PigeonCms.AttributeValue GetById(int id)
@@ -101,11 +101,11 @@ namespace PigeonCms
                 myConn.Open();
                 myCmd.Connection = myConn;
 
-                sSql = "UPDATE " + this.TableName + " SET AttributeId=@AttributeId, Value=@Value "
+                sSql = "UPDATE " + this.TableName + " SET AttributeId=@AttributeId, ValueString=@ValueString "
                 + " WHERE " + this.KeyFieldName + " = @Id";
                 myCmd.CommandText = Database.ParseSql(sSql);
-                myCmd.Parameters.Add(Database.Parameter(myProv, "ItemType", theObj.AttributeId));
-                myCmd.Parameters.Add(Database.Parameter(myProv, "Name", theObj.ValueString));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "AttributeId", theObj.AttributeId));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "ValueString", theObj.ValueString));
                 result = myCmd.ExecuteNonQuery();
             }
             finally

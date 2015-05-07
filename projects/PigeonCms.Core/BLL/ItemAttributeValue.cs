@@ -8,7 +8,7 @@ using System.Threading;
 
 namespace PigeonCms
 {
-    class ItemAttributeValue: ITable
+    public class ItemAttributeValue: ITable
     {
         private int itemId;
 	    private int attributeId;
@@ -42,7 +42,7 @@ namespace PigeonCms
         /// <summary>
         /// Attribute Value Id, define the value of Attribute
         /// </summary>
-        [DataObjectField(true)]
+        [DataObjectField(false)]
         public int AttributeValueId
         {
             get { return attributeValueId; }
@@ -52,7 +52,7 @@ namespace PigeonCms
         /// <summary>
         /// CustomValue in Json format
         /// </summary>
-        [DataObjectField(true)]
+        [DataObjectField(false)]
         public string CustomValueString
         {
             get { return customValueString; }
@@ -118,4 +118,48 @@ namespace PigeonCms
         #endregion
 
     }
+
+
+    /// <summary>
+    /// Filter used in search
+    /// </summary>
+    /// <remarks></remarks>
+    [Serializable]
+    public class ItemAttributeValueFilter
+    {
+        #region fields definition
+
+        private int itemId = 0;
+        private int attributeId = 0;
+        private int attributeValueId = 0;
+
+        public int ItemId
+        {
+            [DebuggerStepThrough()]
+            get { return itemId; }
+            [DebuggerStepThrough()]
+            set { itemId = value; }
+        }
+
+        public int AttributeId
+        {
+            [DebuggerStepThrough()]
+            get { return attributeId; }
+            [DebuggerStepThrough()]
+            set { attributeId = value; }
+        }
+
+        public int AttributeValueId
+        {
+            [DebuggerStepThrough()]
+            get { return attributeValueId; }
+            [DebuggerStepThrough()]
+            set { attributeValueId = value; }
+        }
+
+        #endregion
+
+    }
+
+
 }

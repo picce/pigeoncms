@@ -7,7 +7,7 @@ using System.Text;
 
 namespace PigeonCms
 {
-    class AttributesManager : TableManager<Attribute, AttributeFilter, int>, ITableManager
+    public class AttributesManager : TableManager<Attribute, AttributeFilter, int>, ITableManager
     {
         [DebuggerStepThrough()]
         public AttributesManager()
@@ -31,7 +31,7 @@ namespace PigeonCms
                 myConn.Open();
                 myCmd.Connection = myConn;
 
-                sSql = "SELECT Id, ItemType, Name, AttributeType, AllowCustomValue FROM " + this.TableName + " WHERE 1=1 ";
+                sSql = "SELECT Id, ItemType, Name, AttributeType, AllowCustomValue, MeasureUnit FROM " + this.TableName + " WHERE 1=1 ";
                 if (filter.Id > 0)
                 {
                     sSql += " AND Id = @Id ";
@@ -62,7 +62,7 @@ namespace PigeonCms
             return result;
         }
 
-        public PigeonCms.Attribute GetById(int id)
+        public override PigeonCms.Attribute GetByKey(int id)
         {
             var result = new PigeonCms.Attribute();
             var list = new List<PigeonCms.Attribute>();
@@ -89,6 +89,8 @@ namespace PigeonCms
                 result.AttributeType = (int)myRd["AttributeType"];
             if (!Convert.IsDBNull(myRd["AllowCustomValue"]))
                 result.AllowCustomValue = (bool)myRd["AllowCustomValue"];
+            if (!Convert.IsDBNull(myRd["MeasureUnit"]))
+                result.MeasureUnit = (string)myRd["MeasureUnit"];
         }
 
         public override int Update(Attribute theObj)
@@ -105,13 +107,15 @@ namespace PigeonCms
                 myConn.Open();
                 myCmd.Connection = myConn;
 
-                sSql = "UPDATE " + this.TableName + " SET ItemType=@ItemType, Name=@Name, AttributeType=@AttributeType, AllowCustomValue=@AllowCustomValue "
+                sSql = "UPDATE " + this.TableName + " SET ItemType=@ItemType, Name=@Name, AttributeType=@AttributeType, AllowCustomValue=@AllowCustomValue, MeasureUnit=@MeasureUnit "
                 + " WHERE " + this.KeyFieldName + " = @Id";
                 myCmd.CommandText = Database.ParseSql(sSql);
+                myCmd.Parameters.Add(Database.Parameter(myProv, "Id", theObj.Id));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "ItemType", theObj.ItemType));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "Name", theObj.Name));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "AttributeType", theObj.AttributeType));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "AllowCustomValue", theObj.AllowCustomValue));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "MeasureUnit", theObj.MeasureUnit));
                 result = myCmd.ExecuteNonQuery();
             }
             finally
@@ -140,13 +144,14 @@ namespace PigeonCms
                 result.AttributeType = newObj.AttributeType;
                 result.AllowCustomValue = newObj.AllowCustomValue;
 
-                sSql = "INSERT INTO " + this.TableName + "(ItemType, Name, AttributeType,AllowCustomValue) "
-                + "VALUES(@ItemType, @Name, @AttributeType, @AllowCustomValue) ";
+                sSql = "INSERT INTO " + this.TableName + "(ItemType, Name, AttributeType, AllowCustomValue, MeasureUnit) "
+                + "VALUES(@ItemType, @Name, @AttributeType, @AllowCustomValue, @MeasureUnit) ";
                 myCmd.CommandText = Database.ParseSql(sSql);
                 myCmd.Parameters.Add(Database.Parameter(myProv, "ItemType", result.ItemType));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "Name", result.Name));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "AttributeType", result.AttributeType));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "AllowCustomValue", result.AllowCustomValue));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "MeasureUnit", result.MeasureUnit));
                 myCmd.ExecuteNonQuery();
             }
             finally
