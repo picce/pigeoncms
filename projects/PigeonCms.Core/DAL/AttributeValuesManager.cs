@@ -37,6 +37,11 @@ namespace PigeonCms
                     sSql += " AND Id = @Id ";
                     myCmd.Parameters.Add(Database.Parameter(myProv, "Id", filter.Id));
                 }
+                if (filter.AttributeId > 0)
+                {
+                    sSql += " AND AttributeId = @AttributeId";
+                    myCmd.Parameters.Add(Database.Parameter(myProv, "AttributeId", filter.AttributeId));
+                }
                 if (!string.IsNullOrEmpty(sort))
                 {
                     sSql += " ORDER BY " + sort;
@@ -68,11 +73,15 @@ namespace PigeonCms
                 result.Id = (int)myRd["Id"];
             if (!Convert.IsDBNull(myRd["AttributeId"]))
                 result.AttributeId = (int)myRd["AttributeId"];
-            if (!Convert.IsDBNull(myRd["Value"]))
+            if (!Convert.IsDBNull(myRd["ValueString"]))
+            {
                 result.ValueString = (string)myRd["ValueString"];
-        }
+                result.ValueTranslations = toDictionary((string)myRd["ValueString"]);
+            }
 
-        public PigeonCms.AttributeValue GetById(int id)
+        }
+         
+        public override PigeonCms.AttributeValue GetByKey(int id)
         {
             var result = new PigeonCms.AttributeValue();
             var list = new List<PigeonCms.AttributeValue>();
@@ -104,8 +113,9 @@ namespace PigeonCms
                 sSql = "UPDATE " + this.TableName + " SET AttributeId=@AttributeId, ValueString=@ValueString "
                 + " WHERE " + this.KeyFieldName + " = @Id";
                 myCmd.CommandText = Database.ParseSql(sSql);
+                myCmd.Parameters.Add(Database.Parameter(myProv, "Id", theObj.Id));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "AttributeId", theObj.AttributeId));
-                myCmd.Parameters.Add(Database.Parameter(myProv, "ValueString", theObj.ValueString));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "ValueString", toJson(theObj.ValueTranslations)));
                 result = myCmd.ExecuteNonQuery();
             }
             finally
@@ -130,13 +140,13 @@ namespace PigeonCms
                 myCmd.Connection = myConn;
 
                 result.AttributeId = newObj.AttributeId;
-                result.ValueString = newObj.ValueString;
+                result.ValueTranslations = newObj.ValueTranslations;
 
-                sSql = "INSERT INTO " + this.TableName + "(AttributeId, Value) "
-                + "VALUES(@AttributeId, @Value) ";
+                sSql = "INSERT INTO " + this.TableName + "(AttributeId, ValueString) "
+                + "VALUES(@AttributeId, @ValueString) ";
                 myCmd.CommandText = Database.ParseSql(sSql);
                 myCmd.Parameters.Add(Database.Parameter(myProv, "AttributeId", result.AttributeId));
-                myCmd.Parameters.Add(Database.Parameter(myProv, "Value", result.ValueString));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "ValueString", toJson(result.ValueTranslations)));
                 myCmd.ExecuteNonQuery();
             }
             finally
@@ -177,6 +187,28 @@ namespace PigeonCms
         public override int DeleteById(int id)
         {
             return this.Delete(id);
+        }
+
+        /// <summary>
+        /// Convert a json string into Dictionary<string, string>
+        /// </summary>
+        /// <param name="json"></param>
+        /// <returns></returns>
+        private Dictionary<string, string> toDictionary(string json)
+        {
+            var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            return serializer.Deserialize<Dictionary<string, string>>(json);
+        }
+
+        /// <summary>
+        /// Convert a Dictionary<string,string> into Json string
+        /// </summary>
+        /// <param name="dictionary"></param>
+        /// <returns></returns>
+        private string toJson(Dictionary<string, string> dictionary)
+        {
+            var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            return serializer.Serialize(dictionary);
         }
 
     }

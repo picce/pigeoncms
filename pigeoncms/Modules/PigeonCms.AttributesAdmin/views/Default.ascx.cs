@@ -12,6 +12,8 @@ using System.Web.Caching;
 using System.Collections.Generic;
 using PigeonCms;
 using PigeonCms.Core.Helpers;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 public partial class Controls_AttributesAdmin : PigeonCms.BaseModuleControl
 {
@@ -29,10 +31,12 @@ public partial class Controls_AttributesAdmin : PigeonCms.BaseModuleControl
         Grid1.Columns[3].AccessibleHeaderText = base.GetLabel("LblCustomVlaue", "Valore Custom", null, true);
         Grid1.Columns[4].AccessibleHeaderText = base.GetLabel("LblMeasureUnit", "Unità di misura", null, true);
 
+
         foreach (KeyValuePair<string, string> item in Config.CultureList)
         {
             //title
             Panel pan1 = new Panel();
+            pan1.ID = "PnlTitle" + item.Value;
             pan1.CssClass = "form-group input-group";
             PanelTitle.Controls.Add(pan1);
 
@@ -41,7 +45,8 @@ public partial class Controls_AttributesAdmin : PigeonCms.BaseModuleControl
             txt1.MaxLength = 50;
             txt1.CssClass = "form-control";
             txt1.ToolTip = item.Key;
-            LabelsProvider.SetLocalizedControlVisibility(false, item.Key, txt1);
+            if (!ChkInLang.Checked)
+                LabelsProvider.SetLocalizedControlVisibility(true, item.Key, pan1);              
             pan1.Controls.Add(txt1);
             Literal lit1 = new Literal();
             lit1.Text = "<span class='input-group-addon'>" + item.Value + "</span>";
@@ -51,11 +56,25 @@ public partial class Controls_AttributesAdmin : PigeonCms.BaseModuleControl
 
     }
 
+    protected void ChkInLang_CheckedChanged(object sender, EventArgs e)
+    {
+        foreach (KeyValuePair<string, string> item in Config.CultureList)
+        {
+            Panel pan1 = (Panel)PanelTitle.FindControl("PnlTitle" + item.Value);
+
+            if (!ChkInLang.Checked)
+                LabelsProvider.SetLocalizedControlVisibility(true, item.Key, pan1);
+            else
+            {
+                pan1.Visible = true;
+            }
+        }
+    }
+
     protected void Page_Load(object sender, EventArgs e)
     {
         LblOk.Text = "";
         LblErr.Text = "";
-
     }
 
     protected void DropEnabledFilter_SelectedIndexChanged(object sender, EventArgs e)
@@ -72,29 +91,6 @@ public partial class Controls_AttributesAdmin : PigeonCms.BaseModuleControl
     protected void ObjDs1_Selecting(object sender, ObjectDataSourceSelectingEventArgs e)
     {
         PigeonCms.AttributeFilter filter = new PigeonCms.AttributeFilter();
-
-        //filter.Enabled = Utility.TristateBool.NotSet;
-        //switch (DropEnabledFilter.SelectedValue)
-        //{
-        //    case "1":
-        //        filter.Enabled = Utility.TristateBool.True;
-        //        break;
-        //    case "0":
-        //        filter.Enabled = Utility.TristateBool.False;
-        //        break;
-        //    default:
-        //        filter.Enabled = Utility.TristateBool.NotSet;
-        //        break;
-        //}
-        //if (this.SectionId > 0)
-        //    filter.SectionId = this.SectionId;
-        //else
-        //{
-        //    int secId = -1;
-        //    int.TryParse(DropSectionsFilter.SelectedValue, out secId);
-        //    filter.SectionId = secId;
-        //}
-
         e.InputParameters["filter"] = filter;
     }
 
@@ -110,7 +106,8 @@ public partial class Controls_AttributesAdmin : PigeonCms.BaseModuleControl
         }
         if (e.CommandName == "EditValues")
         {
-            editValues(int.Parse(e.CommandArgument.ToString()));
+            // the 0 will leave blank the value field
+            editValues(int.Parse(e.CommandArgument.ToString()), 0);
         }
 
     }
@@ -148,6 +145,55 @@ public partial class Controls_AttributesAdmin : PigeonCms.BaseModuleControl
             LnkMeasureUnit.Text += item.MeasureUnit;
             if (string.IsNullOrEmpty(LnkMeasureUnit.Text))
                 LnkMeasureUnit.Text += Utility.GetLabel("NO_VALUE", "<no value>");
+
+        }
+    }
+
+    protected void ObjValueSource_ObjectCreating(object sender, ObjectDataSourceEventArgs e)
+    {
+        var typename = new PigeonCms.AttributeValuesManager();
+        e.ObjectInstance = typename;
+    }
+
+    protected void ObjValueSource_Selecting(object sender, ObjectDataSourceSelectingEventArgs e)
+    {
+        PigeonCms.AttributeValueFilter filter = new PigeonCms.AttributeValueFilter();
+        filter.AttributeId = base.CurrentId;
+        e.InputParameters["filter"] = filter;
+    }
+
+    protected void GridValues_RowCommand(object sender, GridViewCommandEventArgs e)
+    {
+        if (e.CommandName == "Select")
+        {
+            // edit values now have Id, we can edit it !
+            editValues(base.CurrentId, int.Parse(e.CommandArgument.ToString()));
+        }
+        if (e.CommandName == "DeleteRow")
+        {
+            deleteValue(int.Parse(e.CommandArgument.ToString()));
+        }
+
+    }
+
+    protected void GridValues_RowCreated(object sender, GridViewRowEventArgs e)
+    {
+        if (e.Row.RowType == DataControlRowType.Header)
+            Utility.AddGlyph(GridValues, e.Row);
+    }
+
+    protected void GridValues_RowDataBound(object sender, GridViewRowEventArgs e)
+    {
+        if (e.Row.RowType == DataControlRowType.DataRow)
+        {
+            PigeonCms.AttributeValue item = new PigeonCms.AttributeValue();
+            item = (PigeonCms.AttributeValue)e.Row.DataItem;
+
+            LinkButton LnkTitle = (LinkButton)e.Row.FindControl("LnkTitle");
+            LnkTitle.Text = "<i class='fa fa-pgn_edit fa-fw'></i>";
+            LnkTitle.Text += Utility.Html.GetTextPreview(item.Value, 50, "");
+            if (string.IsNullOrEmpty(LnkTitle.Text))
+                LnkTitle.Text += Utility.GetLabel("NO_VALUE", "<no value>");
 
         }
     }
@@ -197,20 +243,23 @@ public partial class Controls_AttributesAdmin : PigeonCms.BaseModuleControl
         try
         {
             PigeonCms.AttributeValue o1 = new PigeonCms.AttributeValue();
-            if (base.CurrentId == 0)
+            if (Convert.ToInt32(base.CurrentKey) == 0)
             {
-                //values2obj(o1);
+                values2obj(o1);
                 o1 = new AttributeValuesManager().Insert(o1);
             }
             else
             {
-                //o1 = new AttributeValuesManager().GetByKey(base.CurrentId);  //precarico i campi esistenti e nn gestiti dal form
-                //form2obj(o1);
-                //new AttributesManager().Update(o1);
+                o1 = new AttributeValuesManager().GetByKey(Convert.ToInt32(base.CurrentKey));  //precarico i campi esistenti e nn gestiti dal form
+                o1.ValueTranslations.Clear();
+                values2obj(o1);
+                new AttributeValuesManager().Update(o1);
             }
             Grid1.DataBind();
+            GridValues.DataBind();
             LblOk.Text = RenderSuccess(Utility.GetLabel("RECORD_SAVED_MSG"));
-            MultiView1.ActiveViewIndex = 0;
+            clearForm();
+
         }
         catch (Exception e1)
         {
@@ -234,6 +283,13 @@ public partial class Controls_AttributesAdmin : PigeonCms.BaseModuleControl
         TxtMeasureUnit.Text = "";
         DropItemType.SelectedValue = null;
         ChkCustomValue.Checked = false;
+        ChkInLang.Checked = true;
+        foreach (KeyValuePair<string, string> item in Config.CultureList)
+        {
+            TextBox t1 = new TextBox();
+            t1 = (TextBox)PanelTitle.FindControl("TxtTitle" + item.Value);
+            t1.Text = "";
+        }
     }
 
     private void form2obj(PigeonCms.Attribute obj)
@@ -254,35 +310,32 @@ public partial class Controls_AttributesAdmin : PigeonCms.BaseModuleControl
         TxtMeasureUnit.Text = obj.MeasureUnit;
     }
 
-    private void values2obj(PigeonCms.Attribute obj)
+    private void values2obj(PigeonCms.AttributeValue obj)
     {
-        TxtName.Text = obj.Name;
-        ChkCustomValue.Checked = obj.AllowCustomValue;
-        DropItemType.SelectedValue = obj.ItemType;
-        TxtMeasureUnit.Text = obj.MeasureUnit;
-    }
-    private void values2form(PigeonCms.Attribute obj)
-    {
-        List<PigeonCms.AttributeValue> valueList = new List<PigeonCms.AttributeValue>();
-        AttributeValueFilter filter = new AttributeValueFilter();
-        filter.AttributeId = base.CurrentId;
-        valueList = new PigeonCms.AttributeValuesManager().GetByFilter(filter, "");
 
-        if (valueList.Count > 0 && valueList != null)
+        foreach (KeyValuePair<string, string> item in Config.CultureList)
         {
-            ValuesOk.Visible = true;
-            foreach (PigeonCms.AttributeValue value in valueList)
-            {
-                ListItem item = new ListItem(value.Value, value.Id.ToString());
-                ValueList.Items.Add(item);
-            }
+            TextBox t1 = new TextBox();
+            t1 = (TextBox)PanelTitle.FindControl("TxtTitle" + item.Value);
+            obj.ValueTranslations.Add(item.Key, t1.Text);
         }
-        else
+
+        obj.AttributeId = base.CurrentId;
+    }
+
+    private void values2form(PigeonCms.AttributeValue obj)
+    {
+
+        foreach (KeyValuePair<string, string> item in Config.CultureList)
         {
-            EmptyList.Visible = true;
-            lblEmptyList.Text = "no records";
+            string sTitleTranslation = "";
+            TextBox t1 = new TextBox();
+            t1 = (TextBox)PanelTitle.FindControl("TxtTitle" + item.Value);
+            obj.ValueTranslations.TryGetValue(item.Key, out sTitleTranslation);
+            if (string.IsNullOrEmpty(sTitleTranslation))
+                obj.ValueTranslations.TryGetValue(Config.CultureDefault, out sTitleTranslation);
+            t1.Text = sTitleTranslation;
         }
-        
 
     }
 
@@ -303,20 +356,27 @@ public partial class Controls_AttributesAdmin : PigeonCms.BaseModuleControl
         MultiView1.ActiveViewIndex = 1;
     }
 
-    private void editValues(int recordId)
+    private void editValues(int recordId, int attrValId)
     {
         LblOk.Text = "";
         LblErr.Text = "";
 
         clearForm();
+
+        base.CurrentKey = attrValId.ToString();
         base.CurrentId = recordId;
-        if (base.CurrentId > 0)
+
+        if (recordId > 0)
         {
             PigeonCms.Attribute obj = new PigeonCms.Attribute();
             obj = new PigeonCms.AttributesManager().GetByKey(base.CurrentId);
             editValueName.Text = "Edit: " +  obj.Name;
+        }
+        if (attrValId > 0)
+        {
+            PigeonCms.AttributeValue obj = new PigeonCms.AttributeValue();
+            obj = new PigeonCms.AttributeValuesManager().GetByKey(attrValId);
             values2form(obj);
-            //loadDropsItemTypes();
         }
         MultiView1.ActiveViewIndex = 2;
     }
@@ -337,6 +397,22 @@ public partial class Controls_AttributesAdmin : PigeonCms.BaseModuleControl
         Grid1.DataBind();
     }
 
+    private void deleteValue(int recordId)
+    {
+        LblOk.Text = "";
+        LblErr.Text = "";
+
+        try
+        {
+            new PigeonCms.AttributeValuesManager().DeleteById(recordId);
+        }
+        catch (Exception e)
+        {
+            LblErr.Text = RenderError(e.Message);
+        }
+        GridValues.DataBind();
+    }
+
     private void loadDropsItemTypes()
     {
 
@@ -354,4 +430,5 @@ public partial class Controls_AttributesAdmin : PigeonCms.BaseModuleControl
     }
 
     #endregion
+
 }

@@ -19,7 +19,7 @@ var deleteQuestion = '<%=PigeonCms.Utility.GetLabel("RECORD_DELETE_QUESTION") %>
 // ]]>
 </script>
 
-<asp:ScriptManager ID="ScriptManager1" runat="server"></asp:ScriptManager>
+<asp:ScriptManager ID="ScriptManager1" runat="server" EnablePartialRendering="true" EnableScriptGlobalization="true"></asp:ScriptManager>
 <asp:UpdateProgress ID="UpdateProgress1" runat="server" DisplayAfter="1" AssociatedUpdatePanelID="Upd1">
     <ProgressTemplate>
         <div class="loading"><%=PigeonCms.Utility.GetLabel("LblLoading", "loading") %></div>
@@ -195,25 +195,66 @@ var deleteQuestion = '<%=PigeonCms.Utility.GetLabel("RECORD_DELETE_QUESTION") %>
 
                 <div class="panel-body">
 
-                    <div class="form-group col-sm-6 col-md-3">
+                    <div class="form-group col-lg-12">
                         <%=base.GetLabel("LblInLang", "Valori in lingua", ChkInLang, true)%>
-                        <asp:CheckBox ID="ChkInLang" runat="server" CssClass="form-control" Enabled="true" />
+                        <asp:CheckBox ID="ChkInLang" runat="server" CssClass="form-control" Checked="true" AutoPostBack="true" OnCheckedChanged="ChkInLang_CheckedChanged" />
                     </div>
 
-                    <div class="form-group col-lg-12">
+                    <div class="form-group col-sm-12 col-md-6">
                         <%=base.GetLabel("LblAttributeValue", "Valore Attributo", null, true)%>
                         <asp:Panel runat="server" ID="PanelTitle"></asp:Panel>
                     </div>
+
+                    <div class="col-sm-12 col-md-6">
+
+                        <div class="panel panel-default">
+                            <div class="table-responsive">
+
+                                <asp:GridView ID="GridValues" runat="server" AllowPaging="True" AllowSorting="false" Width="100%" AutoGenerateColumns="False"
+                                    DataSourceID="ObjValueSource" DataKeyNames="Id" OnRowCommand="GridValues_RowCommand" OnRowCreated="GridValues_RowCreated" OnRowDataBound="GridValues_RowDataBound">
+                                    <Columns>
+                                  
+                                        <%--0--%>                      
+                                        <asp:TemplateField HeaderText="<%$ Resources:PublicLabels, LblTitle %>" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
+                                            <ItemTemplate>
+                                                <asp:LinkButton ID="LnkTitle" runat="server" CausesValidation="false" 
+                                                CommandName="Select" CommandArgument='<%#Eval("Id") %>'></asp:LinkButton>
+                                            </ItemTemplate>
+                                        </asp:TemplateField>
                     
-                    <div class="form-group col-lg-12">
-                        <asp:PlaceHolder ID="ValuesOk" runat="server" Visible="false">
-                            <asp:ListBox ID="ValueList" runat="server"></asp:ListBox>
-                        </asp:PlaceHolder>
-                    
-                        <asp:PlaceHolder ID="EmptyList" runat="server" Visible="false">
-                            <asp:Label ID="lblEmptyList" runat="server"></asp:Label>
-                        </asp:PlaceHolder>
+                                        <%--1--%>
+                                        <asp:BoundField DataField="Id" HeaderText="ID" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left" />
+
+                                        <%--2--%>
+                                        <asp:TemplateField HeaderText="" ItemStyle-HorizontalAlign="Right" ItemStyle-Width="10">
+                                            <ItemTemplate>
+                                                <asp:LinkButton ID="LnkDel" runat="server" CommandName="DeleteRow" 
+                                                    CommandArgument='<%#Eval("Id") %>' OnClientClick="return confirm(deleteQuestion);">
+                                                    <i class='fa fa-pgn_delete fa-fw'></i>
+                                                </asp:LinkButton>
+                                            </ItemTemplate>
+                                        </asp:TemplateField>
+
+                                    </Columns>
+                                </asp:GridView>
+
+                            </div>
+                        </div>
+
                     </div>
+            
+                    <asp:ObjectDataSource ID="ObjValueSource" runat="server" SortParameterName="sort"
+                        SelectMethod="GetByFilter" TypeName="PigeonCms.AttributeValuesManager" 
+                        OnObjectCreating="ObjValueSource_ObjectCreating"                
+                        OnSelecting="ObjValueSource_Selecting">
+                        <SelectParameters>
+                            <asp:Parameter Name="filter" Type="Object" />
+                            <asp:Parameter Name="sort" Type="String" DefaultValue="Ordering" />
+                        </SelectParameters>
+                        <DeleteParameters>
+                            <asp:Parameter Name="Id" Type="Int32" />
+                        </DeleteParameters>
+                    </asp:ObjectDataSource>
 
                 </div>
 
