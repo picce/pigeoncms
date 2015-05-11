@@ -4,7 +4,7 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "pigeoncms", "..\pigeoncms\", "{9BBB1122-2347-44A8-A085-7D86DEFB9E7E}"
 	ProjectSection(WebsiteProperties) = preProject
 		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.0"
-		ProjectReferences = ""
+		ProjectReferences = "{B5680C69-ADE4-4233-AF97-ED41E7C10E13}|PigeonCms.Core.dll;{6CE8F051-18B4-44E0-ADE8-D39EBADB9D71}|PigeonCms.Core.Offline.dll;"
 		Debug.AspNetCompiler.VirtualPath = "/pigeoncms"
 		Debug.AspNetCompiler.PhysicalPath = "..\pigeoncms\"
 		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\pigeoncms\"

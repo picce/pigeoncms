@@ -1,5 +1,0 @@
-C:\inetpub\wwwroot\utility aspnet\Gravatar\Freshclickmedia.Web\bin\Debug\FreshClickmedia.Web.dll
-C:\inetpub\wwwroot\utility aspnet\Gravatar\Freshclickmedia.Web\bin\Debug\FreshClickmedia.Web.pdb
-C:\inetpub\wwwroot\utility aspnet\Gravatar\Freshclickmedia.Web\obj\Debug\ResolveAssemblyReference.cache
-C:\inetpub\wwwroot\utility aspnet\Gravatar\Freshclickmedia.Web\obj\Debug\FreshClickmedia.Web.dll
-C:\inetpub\wwwroot\utility aspnet\Gravatar\Freshclickmedia.Web\obj\Debug\FreshClickmedia.Web.pdb
