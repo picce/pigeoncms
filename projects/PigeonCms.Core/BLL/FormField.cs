@@ -20,7 +20,8 @@ namespace PigeonCms
         Hidden,
         Error,
         Html,
-        Numeric
+        Numeric,
+        Address
         /*TextTranslated*/
     }
 

@@ -13,15 +13,15 @@ using PigeonCms.Core.Helpers;
 
 namespace PigeonCms.Shop.OrdersProvider
 {
-    public class CurrentOrder<OH, OR>
-        where OH : OrdersManager, new()
-        where OR : OrderRowsManager<OH>, new()
+    public class CurrentOrder<MH, MR>
+        where MH : OrdersManager, new()
+        where MR : OrderRowsManager<MH>, new()
     {
         private const string COOKIE_NAME = "pgnshop";
         private const string COOKIE_KEY_ORDERID = "oid";
         private CookiesManager ckMan = new CookiesManager(COOKIE_NAME, true);
-        private OH ordMan = new OH();
-        private OR rowMan = new OR(); 
+        private MH ordMan = new MH();
+        private MR rowMan = new MR(); 
 
 
         private int orderId = 0;
@@ -112,9 +112,11 @@ namespace PigeonCms.Shop.OrdersProvider
         {
             if (this.OrderId == 0)
             {
+                var settings = new PigeonCms.Shop.Settings();
+
                 //create new order
                 var ord = new Order();
-                ord.Currency = "EUR";   //TODO
+                ord.Currency = settings.ShopCurrency;
                 ord = ordMan.Insert(ord);
                 this.orderCookie = ord.Id;
             }

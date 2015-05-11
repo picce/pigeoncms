@@ -50,6 +50,8 @@
     <Reference Include="System.Data.DataSetExtensions">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.DirectoryServices" />
+    <Reference Include="System.DirectoryServices.AccountManagement" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Abstractions">
@@ -64,12 +66,14 @@
     <Reference Include="System.Web.Routing">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Web.Services" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CountriesManagerTest.cs" />
     <Compile Include="ItemTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -84,6 +88,10 @@
     <ProjectReference Include="..\PigeonCms.Core\PigeonCms.Core.csproj">
       <Project>{B5680C69-ADE4-4233-AF97-ED41E7C10E13}</Project>
       <Name>PigeonCms.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\StackExchange.Dapper\StackExchange.Dapper.csproj">
+      <Project>{D0FCDB76-2116-49AD-9A31-ECF252A19829}</Project>
+      <Name>StackExchange.Dapper</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

@@ -79,7 +79,9 @@
     <Compile Include="BLL\AttributeValue.cs" />
     <Compile Include="BLL\FormField.cs" />
     <Compile Include="BLL\Comment.cs" />
-    <Compile Include="BLL\ItemAttributeValue.cs" />
+	<Compile Include="BLL\ItemAttributeValue.cs" />
+    <Compile Include="BLL\Geo\Zone.cs" />
+    <Compile Include="BLL\Geo\Country.cs" />
     <Compile Include="BLL\UserTempData.cs" />
     <Compile Include="BLL\Customer.cs" />
     <Compile Include="BLL\Message.cs" />
@@ -109,7 +111,9 @@
     <Compile Include="DAL\FormFieldsManager.cs" />
     <Compile Include="DAL\ControlTypeManager.cs" />
     <Compile Include="DAL\CommentsManager.cs" />
-    <Compile Include="DAL\ItemAttributesValuesManager.cs" />
+	<Compile Include="DAL\ItemAttributesValuesManager.cs" />
+    <Compile Include="DAL\Geo\ZonesManager.cs" />
+    <Compile Include="DAL\Geo\CountriesManager.cs" />
     <Compile Include="DAL\UserTempDataManager.cs" />
     <Compile Include="DAL\CustomersManager.cs" />
     <Compile Include="DAL\MessagesManager.cs" />
@@ -232,6 +236,7 @@
       <Name>StackExchange.Dapper</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
