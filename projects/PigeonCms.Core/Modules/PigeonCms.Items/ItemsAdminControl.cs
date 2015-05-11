@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using PigeonCms.Core.Helpers;
+using System.Web.UI.WebControls;
 
 namespace PigeonCms
 {
@@ -260,6 +261,50 @@ namespace PigeonCms
                 return contentEditorConfig;
             }
 
+        }
+
+
+        public void GetTransText(string panelPrefix, Panel panel,
+            Dictionary<string, string> translations,
+            KeyValuePair<string, string> cultureItem)
+        {
+            TextBox t1 = new TextBox();
+            t1 = (TextBox)panel.FindControl(panelPrefix + cultureItem.Value);
+            translations.Add(cultureItem.Key, t1.Text);
+        }
+
+
+        public void SetTransText(string panelPrefix, Panel panel,
+            Dictionary<string, string> translations,
+            KeyValuePair<string, string> cultureItem)
+        {
+            string res = "";
+            TextBox t1 = new TextBox();
+            t1 = (TextBox)panel.FindControl(panelPrefix + cultureItem.Value);
+            if (translations != null)
+                translations.TryGetValue(cultureItem.Key, out res);
+            t1.Text = res;
+        }
+
+        public void AddTransText(string panelPrefix, Panel panel,
+            ContentEditorProvider.Configuration editorConfig,
+            KeyValuePair<string, string> cultureItem, int maxLen, string cssClass)
+        {
+            var txt = new TextBox();
+            txt.ID = panelPrefix + cultureItem.Value;
+            txt.MaxLength = maxLen;
+            txt.CssClass = cssClass;
+            txt.ToolTip = cultureItem.Key;
+            LabelsProvider.SetLocalizedControlVisibility(this.ShowOnlyDefaultCulture, cultureItem.Key, txt);
+            var group = new Panel();
+            group.CssClass = "form-group input-group";
+            group.Controls.Add(txt);
+
+            Literal lit = new Literal();
+            if (!this.ShowOnlyDefaultCulture)
+                lit.Text = "<span class=\"input-group-addon\">" + cultureItem.Value + "</span>";
+            group.Controls.Add(lit);
+            panel.Controls.Add(group);
         }
 
     }

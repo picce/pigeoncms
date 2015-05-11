@@ -23,7 +23,7 @@ namespace PigeonCms
     /// <summary>
     /// map inerithed class field to base class customizable field
     /// </summary>
-    public class RssAttribute : Attribute
+    public class RssAttribute : System.Attribute
     {
         public enum RssTags
         {

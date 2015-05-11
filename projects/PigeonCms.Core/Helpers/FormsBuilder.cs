@@ -654,7 +654,13 @@ namespace PigeonCms
             }
         }
 
-
+        //private static void addTableRow(Panel tableParams, FormField currParam,
+        //    Control control2Add, List<ResLabel> labelsList)
+        //{
+        //    var controls2Add = new List<Control>();
+        //    controls2Add.Add(control2Add);
+        //    addTableRow(tableParams, currParam, controls2Add, labelsList); 
+        //}
 
         /// <summary>
         /// add a row with the label and the control for the current param

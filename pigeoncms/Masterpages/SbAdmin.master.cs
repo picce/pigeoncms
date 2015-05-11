@@ -109,6 +109,10 @@ public partial class Masterpages_SbAdmin : BaseMasterPage
         Utility.Script.RegisterClientScriptInclude(this, "fancybox", ResolveUrl("~/Js/fancybox/jquery.fancybox.js"));
         //Utility.Script.RegisterClientScriptInclude(this, "jquery", THEME_FOLDER + "/js/jquery-1.8.2.min.js");
 
+        //20150505
+        //Utility.Script.RegisterClientScriptInclude(this, "jquery-ui", ResolveUrl("~/Js/jquery-ui/jquery-ui.min.js"));
+
+
         var css1 = new Literal();
         css1.Text = @"
             <!-- Bootstrap Core CSS -->
@@ -133,7 +137,7 @@ public partial class Masterpages_SbAdmin : BaseMasterPage
                 <script src='https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js'></script>
             <![endif]-->
         ";
-
+		//<link href='/Js/jquery-ui/jquery-ui.css' rel='stylesheet' type='text/css' media='screen' />
         css1.Text = css1.Text.Replace("[[THEME_FOLDER]]", THEME_FOLDER);
         Page.Header.Controls.Add(css1);
 

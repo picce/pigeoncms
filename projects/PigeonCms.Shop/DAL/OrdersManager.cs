@@ -170,6 +170,9 @@ namespace PigeonCms.Shop
             try
             {
 
+                if (theObj.Id <= 0)
+                    return 0;
+
                 myConn.ConnectionString = Database.ConnString;
                 myConn.Open();
                 myCmd.Connection = myConn;

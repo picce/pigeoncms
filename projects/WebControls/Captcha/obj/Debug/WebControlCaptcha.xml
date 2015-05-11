@@ -6,47 +6,7 @@ WebControlCaptcha
 </name>
 </assembly>
 <members>
-<member name="P:WebControlCaptcha.CaptchaControl.IsDesignMode">
-	<summary>
- are we in design mode?
- </summary>
-</member><member name="M:WebControlCaptcha.CaptchaControl.ValidateCaptcha(System.String)">
-	<summary>
- Validate the user's text against the CAPTCHA text
- </summary>
-</member><member name="M:WebControlCaptcha.CaptchaControl.HtmlColor(System.Drawing.Color)">
-	<summary>
- returns HTML-ized color strings
- </summary>
-</member><member name="M:WebControlCaptcha.CaptchaControl.CssStyle">
-	<summary>
- returns css "style=" tag for this control
- based on standard control visual properties
- </summary>
-</member><member name="M:WebControlCaptcha.CaptchaControl.Render(System.Web.UI.HtmlTextWriter)">
-	<summary>
- render raw control HTML to the page
- </summary>
-</member><member name="M:WebControlCaptcha.CaptchaControl.GenerateNewCaptcha">
-	<summary>
- generate a new captcha and store it in the ASP.NET Cache by unique GUID
- </summary>
-</member><member name="M:WebControlCaptcha.CaptchaControl.LoadPostData(System.String,System.Collections.Specialized.NameValueCollection)">
-	<summary>
- Retrieve the user's CAPTCHA input from the posted data
- </summary>
-</member><member name="T:WebControlCaptcha.CaptchaControl">
-	<summary>
- CAPTCHA ASP.NET 2.0 user control
- </summary>
-	<remarks>
- add a reference to this DLL and add the CaptchaControl to your toolbox;
- then just drag and drop the control on a web form and set properties on it.
-
- Jeff Atwood
- http://www.codinghorror.com/
- </remarks>
-</member><member name="T:WebControlCaptcha.CaptchaImage.FontWarpFactor">
+<member name="T:WebControlCaptcha.CaptchaImage.FontWarpFactor">
 	<summary>
  Amount of random font warping to apply to rendered text
  </summary>
@@ -154,6 +114,46 @@ WebControlCaptcha
 	<remarks>
  Adapted from the excellent code at 
  http://www.codeproject.com/aspnet/CaptchaImage.asp
+
+ Jeff Atwood
+ http://www.codinghorror.com/
+ </remarks>
+</member><member name="P:WebControlCaptcha.CaptchaControl.IsDesignMode">
+	<summary>
+ are we in design mode?
+ </summary>
+</member><member name="M:WebControlCaptcha.CaptchaControl.ValidateCaptcha(System.String)">
+	<summary>
+ Validate the user's text against the CAPTCHA text
+ </summary>
+</member><member name="M:WebControlCaptcha.CaptchaControl.HtmlColor(System.Drawing.Color)">
+	<summary>
+ returns HTML-ized color strings
+ </summary>
+</member><member name="M:WebControlCaptcha.CaptchaControl.CssStyle">
+	<summary>
+ returns css "style=" tag for this control
+ based on standard control visual properties
+ </summary>
+</member><member name="M:WebControlCaptcha.CaptchaControl.Render(System.Web.UI.HtmlTextWriter)">
+	<summary>
+ render raw control HTML to the page
+ </summary>
+</member><member name="M:WebControlCaptcha.CaptchaControl.GenerateNewCaptcha">
+	<summary>
+ generate a new captcha and store it in the ASP.NET Cache by unique GUID
+ </summary>
+</member><member name="M:WebControlCaptcha.CaptchaControl.LoadPostData(System.String,System.Collections.Specialized.NameValueCollection)">
+	<summary>
+ Retrieve the user's CAPTCHA input from the posted data
+ </summary>
+</member><member name="T:WebControlCaptcha.CaptchaControl">
+	<summary>
+ CAPTCHA ASP.NET 2.0 user control
+ </summary>
+	<remarks>
+ add a reference to this DLL and add the CaptchaControl to your toolbox;
+ then just drag and drop the control on a web form and set properties on it.
 
  Jeff Atwood
  http://www.codinghorror.com/
