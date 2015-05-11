@@ -17,3 +17,9 @@ C:\Users\Nicola\Documents\Dev\github\pigeoncms\projects\WebControls\Captcha\bin\
 C:\Users\Nicola\Documents\Dev\github\pigeoncms\projects\WebControls\Captcha\obj\Debug\WebControlCaptcha.dll
 C:\Users\Nicola\Documents\Dev\github\pigeoncms\projects\WebControls\Captcha\obj\Debug\WebControlCaptcha.xml
 C:\Users\Nicola\Documents\Dev\github\pigeoncms\projects\WebControls\Captcha\obj\Debug\WebControlCaptcha.pdb
+C:\Users\lgirardi\Documents\GitHub\pigeoncms\projects\WebControls\Captcha\bin\WebControlCaptcha.dll
+C:\Users\lgirardi\Documents\GitHub\pigeoncms\projects\WebControls\Captcha\bin\WebControlCaptcha.pdb
+C:\Users\lgirardi\Documents\GitHub\pigeoncms\projects\WebControls\Captcha\bin\WebControlCaptcha.xml
+C:\Users\lgirardi\Documents\GitHub\pigeoncms\projects\WebControls\Captcha\obj\Debug\WebControlCaptcha.dll
+C:\Users\lgirardi\Documents\GitHub\pigeoncms\projects\WebControls\Captcha\obj\Debug\WebControlCaptcha.xml
+C:\Users\lgirardi\Documents\GitHub\pigeoncms\projects\WebControls\Captcha\obj\Debug\WebControlCaptcha.pdb

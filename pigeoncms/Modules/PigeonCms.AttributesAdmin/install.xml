@@ -5,14 +5,14 @@
     version="1.0.0"
     core="true"
     namespace="PigeonCms"
-    name="AttributesAdmin"
-    author="p-ice"
-    creationDate="2012-11-12"
-    copyright="Copyright(C) 2012 Nicola Ridolfi. All rights reserved."
+    name="AttributeAdmin"
+    author="liqueflies"
+    creationDate="2015-05-07"
+    copyright="Copyright(C) 2015 Lorenzo Girardi. All rights reserved."
     license=""
-    authorEmail="picce@yahoo.it"
+    authorEmail="lorenzo.girardi93@gmail.com"
     authorUrl="www.pigeoncms.com"
-    description="Form attributes admin">
+    description="Attributes for item class">
     <files>
     </files>
 

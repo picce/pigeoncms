@@ -7,23 +7,22 @@ using System.Text;
 
 namespace PigeonCms
 {
-    public class AttributeValuesManager : TableManager<AttributeValue, AttributeValueFilter, int>, ITableManager
+    class ItemAttributesValuesManager : ITableManager
     {
         [DebuggerStepThrough()]
-        public AttributeValuesManager()
+        public ItemAttributesValuesManager()
         {
-            this.TableName = "#__attributesValues";
-            this.KeyFieldName = "id";
+            
         }
 
-        public override List<PigeonCms.AttributeValue> GetByFilter(AttributeValueFilter filter, string sort)
+        public List<PigeonCms.ItemAttributeValue> GetByFilter(ItemAttributeValueFilter filter, string sort)
         {
             DbProviderFactory myProv = Database.ProviderFactory;
             DbConnection myConn = myProv.CreateConnection();
             DbDataReader myRd = null;
             DbCommand myCmd = myConn.CreateCommand();
             string sSql;
-            List<PigeonCms.AttributeValue> result = new List<PigeonCms.AttributeValue>();
+            List<PigeonCms.ItemAttributeValue> result = new List<PigeonCms.ItemAttributeValue>();
 
             try
             {
@@ -31,16 +30,21 @@ namespace PigeonCms
                 myConn.Open();
                 myCmd.Connection = myConn;
 
-                sSql = "SELECT Id, AttributeId, ValueString FROM " + this.TableName + " WHERE 1=1 ";
-                if (filter.Id > 0)
+                sSql = "SELECT ItemId, AttributeId, AttributeValueId, CustomValue FROM #__itemsAttributesValues WHERE 1=1 ";
+                if (filter.ItemId > 0)
                 {
-                    sSql += " AND Id = @Id ";
-                    myCmd.Parameters.Add(Database.Parameter(myProv, "Id", filter.Id));
+                    sSql += " AND ItemId = @ItemId ";
+                    myCmd.Parameters.Add(Database.Parameter(myProv, "ItemId", filter.ItemId));
                 }
                 if (filter.AttributeId > 0)
                 {
-                    sSql += " AND AttributeId = @AttributeId";
+                    sSql += " AND AttributeId = @AttributeId ";
                     myCmd.Parameters.Add(Database.Parameter(myProv, "AttributeId", filter.AttributeId));
+                }
+                if (filter.AttributeValueId > 0)
+                {
+                    sSql += " AND AttributeValueId = @AttributeValueId ";
+                    myCmd.Parameters.Add(Database.Parameter(myProv, "AttributeValueId", filter.AttributeValueId));
                 }
                 if (!string.IsNullOrEmpty(sort))
                 {
@@ -48,13 +52,13 @@ namespace PigeonCms
                 }
                 else
                 {
-                    sSql += " ORDER BY [" + this.KeyFieldName + "] ";
+                    sSql += " ORDER BY [ ItemId ] ";
                 }
                 myCmd.CommandText = Database.ParseSql(sSql);
                 myRd = myCmd.ExecuteReader();
                 while (myRd.Read())
                 {
-                    PigeonCms.AttributeValue item = new PigeonCms.AttributeValue();
+                    PigeonCms.ItemAttributeValue item = new PigeonCms.ItemAttributeValue();
                     FillObject(item, myRd);
                     result.Add(item);
                 }
@@ -67,28 +71,27 @@ namespace PigeonCms
             return result;
         }
 
-        protected override void FillObject(PigeonCms.AttributeValue result, DbDataReader myRd)
+        protected void FillObject(PigeonCms.ItemAttributeValue result, DbDataReader myRd)
         {
-            if (!Convert.IsDBNull(myRd["Id"]))
-                result.Id = (int)myRd["Id"];
+            if (!Convert.IsDBNull(myRd["ItemId"]))
+                result.ItemId = (int)myRd["ItemId"];
             if (!Convert.IsDBNull(myRd["AttributeId"]))
                 result.AttributeId = (int)myRd["AttributeId"];
-            if (!Convert.IsDBNull(myRd["ValueString"]))
-            {
-                result.ValueString = (string)myRd["ValueString"];
-                result.ValueTranslations = toDictionary((string)myRd["ValueString"]);
-            }
-
+            if (!Convert.IsDBNull(myRd["AttributeValueId"]))
+                result.AttributeValueId = (int)myRd["AttributeValueId"];
+            if (!Convert.IsDBNull(myRd["CustomValueString"]))
+                result.CustomValueString = (string)myRd["CustomValueString"];
         }
-         
-        public override PigeonCms.AttributeValue GetByKey(int id)
+
+        public PigeonCms.ItemAttributeValue GetById(int itemId, int attributeId)
         {
-            var result = new PigeonCms.AttributeValue();
-            var list = new List<PigeonCms.AttributeValue>();
-            PigeonCms.AttributeValueFilter filter = new AttributeValueFilter();
-            if (id > 0)
+            var result = new PigeonCms.ItemAttributeValue();
+            var list = new List<PigeonCms.ItemAttributeValue>();
+            PigeonCms.ItemAttributeValueFilter filter = new ItemAttributeValueFilter();
+            if (itemId > 0 && attributeId > 0)
             {
-                filter.Id = id;
+                filter.ItemId = itemId;
+                filter.AttributeId = attributeId;
                 list = this.GetByFilter(filter, "");
                 if (list.Count > 0)
                     result = list[0];
@@ -96,7 +99,7 @@ namespace PigeonCms
             return result;
         }
 
-        public override int Update(AttributeValue theObj)
+        public int Update(ItemAttributeValue theObj)
         {
             DbProviderFactory myProv = Database.ProviderFactory;
             DbConnection myConn = myProv.CreateConnection();
@@ -110,12 +113,12 @@ namespace PigeonCms
                 myConn.Open();
                 myCmd.Connection = myConn;
 
-                sSql = "UPDATE " + this.TableName + " SET AttributeId=@AttributeId, ValueString=@ValueString "
-                + " WHERE " + this.KeyFieldName + " = @Id";
+                sSql = "UPDATE #__itemsAttributesValues SET AttributeId=@AttributeId, AttributeValueId=@AttributeValueId CustomValueString=@CustomValueString"
+                + " WHERE ItemId = @ItemId";
                 myCmd.CommandText = Database.ParseSql(sSql);
-                myCmd.Parameters.Add(Database.Parameter(myProv, "Id", theObj.Id));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "AttributeId", theObj.AttributeId));
-                myCmd.Parameters.Add(Database.Parameter(myProv, "ValueString", toJson(theObj.ValueTranslations)));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "AttributeValueId", theObj.AttributeValueId));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "CustomValueString", theObj.CustomValueString));
                 result = myCmd.ExecuteNonQuery();
             }
             finally
@@ -125,13 +128,13 @@ namespace PigeonCms
             return result;
         }
 
-        public override AttributeValue Insert(AttributeValue newObj)
+        public ItemAttributeValue Insert(ItemAttributeValue newObj)
         {
             DbProviderFactory myProv = Database.ProviderFactory;
             DbConnection myConn = myProv.CreateConnection();
             DbCommand myCmd = myConn.CreateCommand();
             string sSql;
-            AttributeValue result = new AttributeValue();
+            ItemAttributeValue result = new ItemAttributeValue();
 
             try
             {
@@ -139,14 +142,18 @@ namespace PigeonCms
                 myConn.Open();
                 myCmd.Connection = myConn;
 
+                result.ItemId = newObj.ItemId;
                 result.AttributeId = newObj.AttributeId;
-                result.ValueTranslations = newObj.ValueTranslations;
+                result.AttributeValueId = newObj.AttributeValueId;
+                result.CustomValueString = newObj.CustomValueString;
 
-                sSql = "INSERT INTO " + this.TableName + "(AttributeId, ValueString) "
-                + "VALUES(@AttributeId, @ValueString) ";
+                sSql = "INSERT INTO  #__itemsAttributesValues (ItemId, AttributeId, AttributeValueId, CustomValueString) "
+                + "VALUES(@ItemId, @AttributeId, @AttributeValueId, @CustomValueString) ";
                 myCmd.CommandText = Database.ParseSql(sSql);
+                myCmd.Parameters.Add(Database.Parameter(myProv, "ItemId", result.ItemId));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "AttributeId", result.AttributeId));
-                myCmd.Parameters.Add(Database.Parameter(myProv, "ValueString", toJson(result.ValueTranslations)));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "AttributeValueId", result.AttributeValueId));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "CustomValueString", result.CustomValueString));
                 myCmd.ExecuteNonQuery();
             }
             finally
@@ -156,8 +163,7 @@ namespace PigeonCms
             return result;
         }
 
-        // TODO: delete records ItemAttributeValue rows
-        public int Delete(int id, bool deleteRelated = false)
+        public int Delete(int itemId, int attributeId)
         {
             DbProviderFactory myProv = Database.ProviderFactory;
             DbConnection myConn = myProv.CreateConnection();
@@ -172,9 +178,10 @@ namespace PigeonCms
                 myConn.Open();
                 myCmd.Connection = myConn;
 
-                sSql = "DELETE FROM " + this.TableName + " WHERE " + this.KeyFieldName + " = @Id ";
+                sSql = "DELETE FROM #__itemsAttributesValues WHERE ItemId = @ItemId AND AttributeId = @AttributeId";
                 myCmd.CommandText = Database.ParseSql(sSql);
-                myCmd.Parameters.Add(Database.Parameter(myProv, "Id", id));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "ItemId", itemId));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "AttributeId", attributeId));
                 res = myCmd.ExecuteNonQuery();
             }
             finally
@@ -183,33 +190,5 @@ namespace PigeonCms
             }
             return res;
         }
-
-        public override int DeleteById(int id)
-        {
-            return this.Delete(id);
-        }
-
-        /// <summary>
-        /// Convert a json string into Dictionary<string, string>
-        /// </summary>
-        /// <param name="json"></param>
-        /// <returns></returns>
-        private Dictionary<string, string> toDictionary(string json)
-        {
-            var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
-            return serializer.Deserialize<Dictionary<string, string>>(json);
-        }
-
-        /// <summary>
-        /// Convert a Dictionary<string,string> into Json string
-        /// </summary>
-        /// <param name="dictionary"></param>
-        /// <returns></returns>
-        private string toJson(Dictionary<string, string> dictionary)
-        {
-            var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
-            return serializer.Serialize(dictionary);
-        }
-
     }
 }

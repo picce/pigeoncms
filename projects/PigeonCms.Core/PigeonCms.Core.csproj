@@ -79,6 +79,7 @@
     <Compile Include="BLL\AttributeValue.cs" />
     <Compile Include="BLL\FormField.cs" />
     <Compile Include="BLL\Comment.cs" />
+    <Compile Include="BLL\ItemAttributeValue.cs" />
     <Compile Include="BLL\UserTempData.cs" />
     <Compile Include="BLL\Customer.cs" />
     <Compile Include="BLL\Message.cs" />
@@ -101,11 +102,14 @@
     <Compile Include="BaseClasses\BasePage.cs">
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
+    <Compile Include="DAL\AttributesManager.cs" />
+    <Compile Include="DAL\AttributeValuesManager.cs" />
     <Compile Include="DAL\CategoriesManager.cs" />
     <Compile Include="BLL\Category.cs" />
     <Compile Include="DAL\FormFieldsManager.cs" />
     <Compile Include="DAL\ControlTypeManager.cs" />
     <Compile Include="DAL\CommentsManager.cs" />
+    <Compile Include="DAL\ItemAttributesValuesManager.cs" />
     <Compile Include="DAL\UserTempDataManager.cs" />
     <Compile Include="DAL\CustomersManager.cs" />
     <Compile Include="DAL\MessagesManager.cs" />

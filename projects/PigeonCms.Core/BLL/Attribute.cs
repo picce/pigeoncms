@@ -9,11 +9,12 @@ using System.Threading;
 
 namespace PigeonCms
 {
-    class Attribute: ITable
+    public class Attribute: ITable
     {
         private int id = 0;
         private string itemType = "";
         private string name = "";
+        private string measureUnit = "";
         private int attributeType = 0;
         private bool allowCustomValue;
 
@@ -67,6 +68,16 @@ namespace PigeonCms
             set { allowCustomValue = value; }
         }
 
+        /// <summary>
+        /// Unit of measure of Attribute (if any).
+        /// </summary>
+        [DataObjectField(false)]
+        public string MeasureUnit
+        {
+            get { return measureUnit; }
+            set { measureUnit = value; }
+        }
+
         #endregion
 
         #region methods
@@ -87,6 +98,7 @@ namespace PigeonCms
         #region fields definition
 
         private int id = 0;
+        private int attributeType = 0;
 
         public int Id
         {
@@ -94,6 +106,14 @@ namespace PigeonCms
             get { return id; }
             [DebuggerStepThrough()]
             set { id = value; }
+        }
+
+        public int AttributeType
+        {
+            [DebuggerStepThrough()]
+            get { return attributeType; }
+            [DebuggerStepThrough()]
+            set { attributeType = value; }
         }
 
         #endregion

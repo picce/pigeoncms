@@ -9,11 +9,9 @@ using System.Threading;
 
 namespace PigeonCms
 {
-    class AttributeValue : ITable
+    public class AttributeValue : ITable
     {
-        private int id = 0;
         private int attributeId = 0;
-        private string itemType = "";
         private string valueString = "";
 
         private Dictionary<string, string> valueTranslations = new Dictionary<string, string>();
@@ -44,7 +42,7 @@ namespace PigeonCms
         public string ValueString
         {
             get { return valueString; }
-            set { valueString = toJson(ValueTranslations); }
+            set { valueString = value; }
         }
 
         /// <summary>
@@ -70,7 +68,7 @@ namespace PigeonCms
         public Dictionary<string, string> ValueTranslations
         {
             [DebuggerStepThrough()]
-            get { return toDictionary(ValueString); }
+            get { return valueTranslations; }
             [DebuggerStepThrough()]
             set { valueTranslations = value; }
         }
@@ -81,33 +79,11 @@ namespace PigeonCms
             {
                 bool res = true;
                 string val = "";
-                ValueTranslations.TryGetValue(Thread.CurrentThread.CurrentCulture.Name, out val);
+                valueTranslations.TryGetValue(Thread.CurrentThread.CurrentCulture.Name, out val);
                 if (Utility.IsEmptyFckField(val))
                     res = false;
                 return res;
             }
-        }
-
-        /// <summary>
-        /// Convert a json string into Dictionary<string, string>
-        /// </summary>
-        /// <param name="json"></param>
-        /// <returns></returns>
-        private Dictionary<string, string> toDictionary(string json)
-        {
-            var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
-            return serializer.Deserialize<Dictionary<string, string>>(json);
-        }
-
-        /// <summary>
-        /// Convert a Dictionary<string,string> into Json string
-        /// </summary>
-        /// <param name="dictionary"></param>
-        /// <returns></returns>
-        private string toJson(Dictionary<string, string> dictionary)
-        {
-            var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
-            return serializer.Serialize(dictionary);
         }
 
         #endregion
