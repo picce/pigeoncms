@@ -177,6 +177,26 @@ namespace PigeonCms
 
 
         /// <summary>
+        /// use this this method to retrieve localized text in items
+        /// </summary>
+        /// <param name="dict">dictionary that contains translations</param>
+        /// <returns>the right value in current culture</returns>
+        public static string GetLocalizedTextFromDictionary(Dictionary<string, string> dict, string forcedCultureCode = "")
+        {
+            string res = "";
+
+            //20150512
+            if (string.IsNullOrEmpty(forcedCultureCode))
+                forcedCultureCode = Utility.GetCurrCultureName();
+
+            dict.TryGetValue(forcedCultureCode, out res);
+            if (Utility.IsEmptyFckField(res))
+                dict.TryGetValue(Config.CultureDefault, out res);
+
+            return res;
+        }
+
+        /// <summary>
         /// retrieve label result from cached list (in page or control var)
         /// try in order to retrieve:
         /// - current culture value

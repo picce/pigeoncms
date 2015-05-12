@@ -6,7 +6,22 @@ WebControlCaptcha
 </name>
 </assembly>
 <members>
-<member name="T:WebControlCaptcha.CaptchaImage.FontWarpFactor">
+<member name="T:WebControlCaptcha.CaptchaImageHandler">
+	<summary>
+ Captcha image stream HttpModule. Retrieves CAPTCHA objects from cache, renders them to memory, 
+ and streams them to the browser.
+ </summary>
+	<remarks>
+ You *MUST* enable this HttpHandler in your web.config, like so:
+
+	  &lt;httpHandlers&gt;
+		  &lt;add verb="GET" path="CaptchaImage.aspx" type="WebControlCaptcha.CaptchaImageHandler, WebControlCaptcha" /&gt;
+	  &lt;/httpHandlers&gt;
+
+ Jeff Atwood
+ http://www.codinghorror.com/
+</remarks>
+</member><member name="T:WebControlCaptcha.CaptchaImage.FontWarpFactor">
 	<summary>
  Amount of random font warping to apply to rendered text
  </summary>
@@ -158,21 +173,6 @@ WebControlCaptcha
  Jeff Atwood
  http://www.codinghorror.com/
  </remarks>
-</member><member name="T:WebControlCaptcha.CaptchaImageHandler">
-	<summary>
- Captcha image stream HttpModule. Retrieves CAPTCHA objects from cache, renders them to memory, 
- and streams them to the browser.
- </summary>
-	<remarks>
- You *MUST* enable this HttpHandler in your web.config, like so:
-
-	  &lt;httpHandlers&gt;
-		  &lt;add verb="GET" path="CaptchaImage.aspx" type="WebControlCaptcha.CaptchaImageHandler, WebControlCaptcha" /&gt;
-	  &lt;/httpHandlers&gt;
-
- Jeff Atwood
- http://www.codinghorror.com/
-</remarks>
 </member>
 </members>
 </doc>
