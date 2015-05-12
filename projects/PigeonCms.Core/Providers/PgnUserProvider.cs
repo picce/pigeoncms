@@ -666,8 +666,24 @@ namespace PigeonCms
 
         public override bool ChangePassword(string username, string oldPwd, string newPwd)
         {
-            if (!ValidateUser(username, oldPwd))
-                return false;
+            return ChangePassword(username, oldPwd, newPwd, false);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="oldPwd"></param>
+        /// <param name="newPwd"></param>
+        /// <param name="reset">if true, oldPwd is not checked</param>
+        /// <returns></returns>
+        public bool ChangePassword(string username, string oldPwd, string newPwd, bool reset)
+        {
+            if (!reset)
+            {
+                if (!ValidateUser(username, oldPwd))
+                    return false;
+            }
 
             ValidatePasswordEventArgs args = new ValidatePasswordEventArgs(username, newPwd, true);
 

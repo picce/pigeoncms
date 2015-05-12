@@ -32,7 +32,8 @@ namespace PigeonCms.Engine
             string resourceSet, 
             string resourceId,
             string defaultValue, 
-            ContentEditorProvider.Configuration.EditorTypeEnum textMode = ContentEditorProvider.Configuration.EditorTypeEnum.Text)
+            ContentEditorProvider.Configuration.EditorTypeEnum textMode = ContentEditorProvider.Configuration.EditorTypeEnum.Text, 
+            string forcedCultureCode = "")
         {
             if (string.IsNullOrEmpty(resourceSet))
                 throw new ArgumentException("empty resourceSet");
@@ -52,7 +53,8 @@ namespace PigeonCms.Engine
                 labelsList[resourceSet],
                 resourceId, 
                 defaultValue, 
-                textMode);
+                textMode,
+                forcedCultureCode);
             if (string.IsNullOrEmpty(res))
             {
                 res = defaultValue;

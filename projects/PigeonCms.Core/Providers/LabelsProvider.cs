@@ -117,7 +117,8 @@ namespace PigeonCms
                 labelsList,
                 resourceId, 
                 defaultValue, 
-                ContentEditorProvider.Configuration.EditorTypeEnum.Text);
+                ContentEditorProvider.Configuration.EditorTypeEnum.Text,
+                "");
 
             if (string.IsNullOrEmpty(res))
             {
@@ -193,9 +194,14 @@ namespace PigeonCms
             List<ResLabel>labelsList, 
             string resourceId, 
             string defaultValue,
-            ContentEditorProvider.Configuration.EditorTypeEnum textMode)
+            ContentEditorProvider.Configuration.EditorTypeEnum textMode, 
+            string forcedCultureCode)
         {
             string res = "";
+
+            //20150512
+            if (string.IsNullOrEmpty(forcedCultureCode))
+                forcedCultureCode = Utility.GetCurrCultureName();
 
             if (labelsList != null)
             {
@@ -207,7 +213,7 @@ namespace PigeonCms
                         delegate(ResLabel labelToFind)
                         {
                             if (labelToFind.ResourceId.ToLower() == resourceId.ToLower() &&
-                                labelToFind.CultureName.ToLower() == Utility.GetCurrCultureName().ToLower())
+                                labelToFind.CultureName.ToLower() == forcedCultureCode.ToLower())
                                 return true;
                             else
                                 return false;
@@ -216,7 +222,7 @@ namespace PigeonCms
                 catch (NullReferenceException)
                 {
                     //try default culture
-                    if (Config.CultureDefault.ToLower() != Utility.GetCurrCultureName().ToLower())
+                    if (Config.CultureDefault.ToLower() != forcedCultureCode.ToLower())
                     {
                         try
                         {
@@ -257,7 +263,8 @@ namespace PigeonCms
             if (varId.StartsWith("$"))
             {
                 string resourceId = varId.Substring(1);
-                res = GetLocalizedLabelFromList("", labelsList, resourceId, "", ContentEditorProvider.Configuration.EditorTypeEnum.Text);
+                res = GetLocalizedLabelFromList("", labelsList, resourceId, "", 
+                    ContentEditorProvider.Configuration.EditorTypeEnum.Text, "");
                 if (string.IsNullOrEmpty(res))
                     res = varId;
             }

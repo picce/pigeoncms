@@ -382,7 +382,7 @@ namespace PigeonCms
                 labelsList, 
                 resourceId, 
                 defaultValue, 
-                textMode);
+                textMode, "");
             if (string.IsNullOrEmpty(res))
             {
                 res = defaultValue;
