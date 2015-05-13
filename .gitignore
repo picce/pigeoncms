@@ -216,7 +216,9 @@ pip-log.txt
 .mr.developer.cfg
 
 #pigeon ignore
-Bin/
-Installation/install.txt
-web.config
-projects/pigeoncms.sln
+pigeoncms\Bin
+Installation\install.txt
+pigeoncms\web.config
+projects\pigeoncms.sln
+*.csproj
+*.dll
