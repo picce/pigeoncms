@@ -7,7 +7,7 @@ using System.Text;
 
 namespace PigeonCms
 {
-    class ItemAttributesValuesManager : ITableManager
+    public class ItemAttributesValuesManager : ITableManager
     {
         [DebuggerStepThrough()]
         public ItemAttributesValuesManager()
@@ -30,7 +30,7 @@ namespace PigeonCms
                 myConn.Open();
                 myCmd.Connection = myConn;
 
-                sSql = "SELECT ItemId, AttributeId, AttributeValueId, CustomValue FROM #__itemsAttributesValues WHERE 1=1 ";
+                sSql = "SELECT ItemId, AttributeId, AttributeValueId, CustomValueString FROM #__itemsAttributesValues WHERE 1=1 ";
                 if (filter.ItemId > 0)
                 {
                     sSql += " AND ItemId = @ItemId ";
@@ -52,7 +52,7 @@ namespace PigeonCms
                 }
                 else
                 {
-                    sSql += " ORDER BY [ ItemId ] ";
+                    sSql += " ORDER BY ItemId ";
                 }
                 myCmd.CommandText = Database.ParseSql(sSql);
                 myRd = myCmd.ExecuteReader();
@@ -98,6 +98,23 @@ namespace PigeonCms
             }
             return result;
         }
+
+        public List<PigeonCms.ItemAttributeValue> GetByItemId(int itemId)
+        {
+            //var result = new PigeonCms.ItemAttributeValue();
+            var list = new List<PigeonCms.ItemAttributeValue>();
+            PigeonCms.ItemAttributeValueFilter filter = new ItemAttributeValueFilter();
+            if (itemId > 0)
+            {
+                filter.ItemId = itemId;
+                //filter.AttributeId = attributeId;
+                list = this.GetByFilter(filter, "");
+                if (list.Count > 0)
+                    return list;
+            }
+            return null;
+        }
+
 
         public int Update(ItemAttributeValue theObj)
         {
@@ -145,7 +162,7 @@ namespace PigeonCms
                 result.ItemId = newObj.ItemId;
                 result.AttributeId = newObj.AttributeId;
                 result.AttributeValueId = newObj.AttributeValueId;
-                result.CustomValueString = newObj.CustomValueString;
+                result.CustomValueString = string.IsNullOrEmpty(newObj.CustomValueString) ? "" : newObj.CustomValueString;
 
                 sSql = "INSERT INTO  #__itemsAttributesValues (ItemId, AttributeId, AttributeValueId, CustomValueString) "
                 + "VALUES(@ItemId, @AttributeId, @AttributeValueId, @CustomValueString) ";
