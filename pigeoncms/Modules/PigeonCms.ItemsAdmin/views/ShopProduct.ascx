@@ -65,9 +65,13 @@ function onFailure(result) { }
 
     $(document).on('ready', function() {
         $(document).on('show.bs.tab', 'a[data-toggle="tab"]', function (e) {
-            console.log(e.target);
-            console.log($('#drop-attributes'));
-            GetAttributes(getAttributesSuccess, getAttributesFailure);
+            if ( !$('#wrapForm').hasClass('populated') ) {
+                var excludeId = '';
+                $('#wrapForm > .panel').each(function (e) {
+                    excludeId += ',' + $(this).data('attributeid');
+                });
+                GetAttributes(getAttributesSuccess, getAttributesFailure, excludeId.substring(1));
+            }
         });
 
         $(document).on('change', '#drop-attributes', function (e) {
@@ -75,26 +79,26 @@ function onFailure(result) { }
             if (value > 0) {
                 GetAttributeValues(getAttributeValuesSuccess, getAttributeValuesFailure, parseInt(value));
             }
+            $('#drop-attributes option[value="' + value + '"]').remove();
         });
 
         $(document).on('click', '#updateValues', function (e) {
             e.preventDefault();
-            //debugger;
             var jsonArr = [],
                 itemId = $('#wrapForm').data('itemid');
-            console.log(itemId);
             $('#wrapForm input').each(function (e) {
                 var self = $(this),
                     attributeId = self.parents('.checkbox').data('attributeid'),
-                    valueId = self.val();
+                    checkval = self.val(),
+                    itemIdValueId = checkval.split(',');
                     
                 if (self.is(':checked')) {
                     jsonArr.push({
-                        id: valueId,
-                        attrId: attributeId
+                        ItemId: parseInt(itemIdValueId[1]),
+                        AttributeId: parseInt(attributeId),
+                        AttributeValueId: parseInt(itemIdValueId[0])
                     });
                 }
-                //console.log('elemento figlio di ' + self.parents('.checkbox').data('attributeid') + 'con id uguale a ' + self.val() + ' ed ha valore ' + self.is(':checked'));
             });
             SaveAttributeValues(saveValuesSuccess, saveValueValuesFailure, JSON.stringify(jsonArr), parseInt(itemId));
         });
@@ -102,12 +106,12 @@ function onFailure(result) { }
     });
 
     function getAttributesSuccess(result) {
-        console.log($.parseJSON(result));
         var optionDef = '<option value=""> Select Attribute </option>';
         var optionString = optionDef + $.map($.parseJSON(result), function (value, index) {
             return '<option value="' + value.Id + '">' + value.Name + '</option>';
         }).join("\n");
         $('#drop-attributes').append(optionString);
+        $('#wrapForm').addClass('populated');
     }
 
     function getAttributesFailure(result) {
@@ -122,7 +126,7 @@ function onFailure(result) { }
         var panelBodyO = '<div class="panel-body"> <div class="form-group">';
         var panelBodyC = '</div></div>';
         var optionString = panelOpen + panelHead + panelBodyO + $.map($.parseJSON(result), function (value, index) {
-            return '<div class="checkbox" data-attributeid="' + value.AttributeId + '"> <label> <input type="checkbox" value="' + value.Id + '" />' + value.Value + '</label> </div>';
+            return '<div class="checkbox" data-attributeid="' + value.AttributeId + '"> <label> <input type="checkbox" value="' + value.Id + ',0" />' + value.Value + '</label> </div>';
         }).join("\n") + panelBodyC + panelClose;
 
         $('#wrapForm').append(optionString);
@@ -171,10 +175,10 @@ function onFailure(result) { }
                     <div class="panel-body"> 
                         <div class="pull-right">
                             <div class="btn-group adminToolbar">
-                                <asp:DropDownList runat="server" ID="DropNew"  AutoPostBack="true" CssClass="form-control" 
-                                    OnSelectedIndexChanged="DropNew_SelectedIndexChanged"></asp:DropDownList>
+                                <%--<asp:DropDownList runat="server" ID="DropNew"  AutoPostBack="true" CssClass="form-control" 
+                                    OnSelectedIndexChanged="DropNew_SelectedIndexChanged"></asp:DropDownList>--%>
                                 <asp:Button ID="BtnNew" runat="server" Text="<%$ Resources:PublicLabels, CmdNew %>" 
-                                    Visible="false" CssClass="btn btn-primary btn-xs" OnClick="BtnNew_Click" />
+                                    Visible="true" CssClass="btn btn-primary btn-xs" OnClick="BtnNew_Click" />
                             </div>
                         </div> 
                     </div>
@@ -326,7 +330,7 @@ function onFailure(result) { }
             
             <asp:ObjectDataSource ID="ObjDs1" runat="server" 
                 SortParameterName="sort" SelectMethod="GetByFilter" 
-                TypeName="PigeonCms.ItemsManager`2[[PigeonCms.Item],[PigeonCms.ItemsFilter]]" 
+                TypeName="PigeonCms.Shop.ProductItemsManager" 
                 OnObjectCreating="ObjDs1_ObjectCreating"
                 OnSelecting="ObjDs1_Selecting">
                 <SelectParameters>
@@ -358,9 +362,12 @@ function onFailure(result) { }
 
                     <ul class="nav nav-pills">
                         <li class="active"><a href="#tab-main" data-toggle="tab"><%=base.GetLabel("Main", "Main") %></a></li>
-                        <li><a href="#tab-security" data-toggle="tab"><%=base.GetLabel("Security", "Security") %></a></li>
-                        <li><a href="#tab-parameters" data-toggle="tab"><%=base.GetLabel("Parameters", "Parameters") %></a></li>
-                        <li><a href="#tab-attributes" data-toggle="tab"><%=base.GetLabel("Attributes", "Attributes") %></a></li>
+                        <asp:PlaceHolder ID="onlyIfRoot" runat="server">
+                            <li><a href="#tab-security" data-toggle="tab"><%=base.GetLabel("Security", "Security") %></a></li>
+                            <li><a href="#tab-parameters" data-toggle="tab"><%=base.GetLabel("Parameters", "Parameters") %></a></li>
+                            <li><a href="#tab-attributes" data-toggle="tab"><%=base.GetLabel("Attributes", "Attributes") %></a></li>
+                        </asp:PlaceHolder>
+                            <li><a href="#tab-variants" data-toggle="tab"><%=base.GetLabel("Variants", "Variants") %></a></li>
                     </ul>
 
                     <div class="tab-content">
@@ -467,6 +474,59 @@ function onFailure(result) { }
 
                             <button id="updateValues" type="button" class="btn btn-success">Save Values</button>
                                 
+                        </div>
+
+                        <!-- pane for variants -->
+                        <div class="tab-pane fade" id="tab-variants">
+
+                            <div class="form-group col-md-12">
+                                <%=base.GetLabel("LblProductCode", "Product Code", TxtProductCode, true)%>
+                                <asp:TextBox ID="TxtProductCode" runat="server" CssClass="form-control"></asp:TextBox>  
+                            </div>
+
+                            <div class="col-md-6 col-sm-12">
+                                <%=base.GetLabel("LblPrice", "Price", TxtPrice, true)%>
+                                <div class="form-group input-group">
+                                    <span class="input-group-addon"><i class="fa fa-eur"></i></span>
+                                    <asp:TextBox ID="TxtPrice" runat="server" CssClass="form-control"></asp:TextBox>
+                                    <span class="input-group-addon">.00</span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 col-sm-12">
+                                <%=base.GetLabel("LblOfferPrice", "Offer Price", TxtOfferPrice, true)%>
+                                <div class="form-group input-group">
+                                    <span class="input-group-addon"><i class="fa fa-eur"></i></span>
+                                    <asp:TextBox ID="TxtOfferPrice" runat="server" CssClass="form-control"></asp:TextBox>
+                                    <span class="input-group-addon">.00</span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 col-sm-12 form-group">
+                                <%=base.GetLabel("LblWeight", "Weight", TxtWeight, true)%>
+                                <asp:TextBox ID="TxtWeight" runat="server" CssClass="form-control"></asp:TextBox>
+                            </div>
+
+                            <div class="col-md-6 col-sm-12 form-group">
+                                <div class="row col-md-12">
+                                    <%=base.GetLabel("LblDimensions", "Dimensions (L x W x H)", null, true)%>
+                                </div>
+                                <div class="col-md-4 col-sm-12">
+                                    <asp:TextBox ID="TxtDimL" runat="server" CssClass="form-control"></asp:TextBox>
+                                </div>
+                                <div class="col-md-4 col-sm-12">
+                                    <asp:TextBox ID="TxtDimW" runat="server" CssClass="form-control"></asp:TextBox>
+                                </div>
+                                <div class="col-md-4 col-sm-12">
+                                    <asp:TextBox ID="TxtDimH" runat="server" CssClass="form-control"></asp:TextBox>
+                                </div>
+                            </div>
+
+                            <div class="form-group col-md-4 col-sm-12">
+                                <%=base.GetLabel("LblAvailability", "Availability", TxtAvailability, true)%>
+                                <asp:TextBox ID="TxtAvailability" runat="server" CssClass="form-control"></asp:TextBox>
+                            </div>
+
                         </div>
 
                     </div>

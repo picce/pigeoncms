@@ -195,10 +195,14 @@ namespace PigeonCms
                 myConn.Open();
                 myCmd.Connection = myConn;
 
-                sSql = "DELETE FROM #__itemsAttributesValues WHERE ItemId = @ItemId AND AttributeId = @AttributeId";
+                sSql = "DELETE FROM #__itemsAttributesValues WHERE ItemId = @ItemId ";
+                if (attributeId > 0)
+                {
+                    sSql += " AND AttributeId = @AttributeId ";
+                    myCmd.Parameters.Add(Database.Parameter(myProv, "AttributeId", attributeId));
+                }
                 myCmd.CommandText = Database.ParseSql(sSql);
                 myCmd.Parameters.Add(Database.Parameter(myProv, "ItemId", itemId));
-                myCmd.Parameters.Add(Database.Parameter(myProv, "AttributeId", attributeId));
                 res = myCmd.ExecuteNonQuery();
             }
             finally
@@ -206,6 +210,11 @@ namespace PigeonCms
                 myConn.Dispose();
             }
             return res;
+        }
+
+        public int DeleteById(int itemId)
+        {
+            return this.Delete(itemId, 0);
         }
     }
 }
