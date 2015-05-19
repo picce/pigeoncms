@@ -19,7 +19,7 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "pigeoncms", "..\pigeoncms\"
 		Release.AspNetCompiler.ForceOverwrite = "true"
 		Release.AspNetCompiler.FixedNames = "false"
 		Release.AspNetCompiler.Debug = "False"
-		VWDPort = "56718"
+		VWDPort = "51772"
 		VWDVirtualPath = "/"
 	EndProjectSection
 EndProject
@@ -51,7 +51,7 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "sample-site", "..\sample-si
 		Release.AspNetCompiler.ForceOverwrite = "true"
 		Release.AspNetCompiler.FixedNames = "false"
 		Release.AspNetCompiler.Debug = "False"
-		VWDPort = "56720"
+		VWDPort = "51774"
 		VWDVirtualPath = "/"
 	EndProjectSection
 EndProject
