@@ -1132,28 +1132,15 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
     }
 
     [PigeonCms.UserControlScriptMethod]
-    public static List<PigeonCms.Attribute> GetAttributes(string exclude)
+    public static List<PigeonCms.Attribute> GetAttributes(int itemId)
     {
-        var excludeId = new List<int>();
-
-        if (!string.IsNullOrEmpty(exclude))
-        {
-            string[] pieces = exclude.Split(',');
-            foreach (string piece in pieces)
-            {
-                try
-                {
-                    excludeId.Add(Convert.ToInt32(piece));
-                }
-                catch { }
-                
-            }
-        }
+        var items = new ItemAttributesValuesManager().GetByReferredId(itemId);
+        var attributesId = items.GroupBy(x => x.AttributeId).Select(y => new PigeonCms.Attribute() { Id = y.Key }).ToList().Select(x => x.Id).ToList();
 
         var myAttributes = new List<PigeonCms.Attribute>();
+
         myAttributes = new PigeonCms.AttributesManager().GetByFilter(new AttributeFilter(), "");
-        //var res = myAttributes.Select(x => x).Select(x => x.Id).Except(excludeId).ToList();
-        var res = (List<PigeonCms.Attribute>)myAttributes.Where(x => !excludeId.Any(x2 => x2 == x.Id)).ToList();
+        var res = (List<PigeonCms.Attribute>)myAttributes.Where(x => !attributesId.Any(x2 => x2 == x.Id)).ToList();
         return res;
     }
 
@@ -1184,54 +1171,38 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         prodfilter.ShowOnlyRootItems = false;
         var products = man.GetByFilter(prodfilter, "");
 
-        var actualAttributes = new List<PigeonCms.ItemAttributeValue>();
+        var actualAttributes = new ItemAttributesValuesManager().GetByReferredId(itemId);
 
-        foreach (ProductItem product in products)
-        {
-            filter.ItemId = product.Id;
-            var attributesval = new PigeonCms.ItemAttributesValuesManager().GetByFilter(filter, "");
-            if (attributesval != null && attributesval.Count > 0)
-                actualAttributes.Add(attributesval.First());
-        }
+        //foreach (ProductItem product in products)
+        //{
+        //    filter.ItemId = product.Id;
+        //    var attributesval = new PigeonCms.ItemAttributesValuesManager().GetByFilter(filter, "");
+        //    if (attributesval != null && attributesval.Count > 0)
+        //        actualAttributes.Add(attributesval.First());
+        //}
 
         var toDelete = actualAttributes.Except(values).ToList();
-        var toInsert = values.Select(x => x).Where(x => x.ItemId == 0).ToList();
+        var toInsert = values.Except(actualAttributes).ToList();
 
         foreach (ItemAttributeValue insert in toInsert)
         {
             new PigeonCms.ItemAttributesValuesManager().Insert(insert);
-            //insert.Referred = itemId;
-            //var father = new ItemAttributesValuesManager().GetByItemId(itemId);
-            //if (father != null && father.Count > 0)
-            //{
-            //    var prod = man.GetByKey(itemId);
-            //    var newItem = prod;
-            //    newItem.ThreadId = itemId;
-            //    var childProd = man.Insert(prod);
-            //    insert.ItemId = childProd.Id;
-            //    new PigeonCms.ItemAttributesValuesManager().Insert(insert);
-            //}
-            //else
-            //{
-            //    insert.ItemId = itemId;
-            //    new PigeonCms.ItemAttributesValuesManager().Insert(insert);
-            //}
         }
 
         foreach (ItemAttributeValue delete in toDelete)
         {
-            var prod = man.GetByKey(delete.ItemId);
-            if (prod.Id == prod.ThreadId)
-            {
-                var error = new {
-                    success = false,
-                    message = "You are deleting the main Product, assign the variant to a child"
-                };
+            //var prod = man.GetByKey(delete.ItemId);
+            //if (prod.Id == prod.ThreadId)
+            //{
+            //    var error = new {
+            //        success = false,
+            //        message = "You are deleting the main Product, assign the variant to a child"
+            //    };
 
-                return toJson(error);
+            //    return toJson(error);
 
-            }
-            man.DeleteById(prod.Id);
+            //}
+            //man.DeleteById(prod.Id);
             new PigeonCms.ItemAttributesValuesManager().Delete(delete.ItemId, delete.AttributeId, delete.Referred);
         }
 
@@ -1244,6 +1215,8 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         return toJson(success);
 
     }
+
+
 
     [PigeonCms.UserControlScriptMethod]
     public static List<PigeonCms.Attribute> GetAttributesForVariants(int itemId)
@@ -1276,6 +1249,41 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
 
         }
         return myValues;
+    }
+    
+    [PigeonCms.UserControlScriptMethod]
+    public static string CompileAttributes(int itemId)
+    {
+        var items = new ItemAttributesValuesManager().GetByReferredId(itemId);
+        var attributesId = items.GroupBy(x => x.AttributeId).Select(y => new PigeonCms.Attribute() { Id = y.Key } ).ToList().Select(x => x.Id);
+        var attributesValues = new List<PigeonCms.AttributeValue>();
+
+        var success = new List<object>();
+
+        foreach (int attributeId in attributesId)
+        {
+            var filter = new AttributeValueFilter();
+            filter.AttributeId = attributeId;
+            attributesValues = new PigeonCms.AttributeValuesManager().GetByFilter(filter, "");
+            var singleAtt = new List<object>();
+            singleAtt.Add( new AttributesManager().GetByKey(attributeId).Name );
+            foreach (PigeonCms.AttributeValue attrVal in attributesValues)
+            {
+                int index = items.Select(x => x.AttributeValueId).ToList().IndexOf(attrVal.Id);
+                string valueIn = (index > -1) ? "checked='true'" : "";
+                var obj = new
+                {
+                    Id = attrVal.Id,
+                    Value = attrVal.Value,
+                    AttributeId = attrVal.AttributeId,
+                    Checked = valueIn
+                };
+                singleAtt.Add(obj);
+            }
+            success.Add(singleAtt);
+        }
+
+        return toJson(success);
     }
 
     /// <summary>

@@ -51,6 +51,16 @@ namespace PigeonCms
         }
 
         /// <summary>
+        /// Refferred, if variants doens't assigned refer to parent
+        /// </summary>
+        [DataObjectField(false)]
+        public int Referred
+        {
+            get { return referred; }
+            set { referred = value; }
+        }
+
+        /// <summary>
         /// CustomValue in Json format
         /// </summary>
         [DataObjectField(false)]
@@ -69,21 +79,11 @@ namespace PigeonCms
             get
             {
                 string res = "";
-                CustomValueTranslations.TryGetValue(Thread.CurrentThread.CurrentCulture.Name, out res);
+                customValueTranslations.TryGetValue(Thread.CurrentThread.CurrentCulture.Name, out res);
                 if (Utility.IsEmptyFckField(res))
-                    CustomValueTranslations.TryGetValue(Config.CultureDefault, out res);
+                    customValueTranslations.TryGetValue(Config.CultureDefault, out res);
                 return res;
             }
-        }
-
-        /// <summary>
-        /// Refferred, if variants doens't assigned refer to parent
-        /// </summary>
-        [DataObjectField(false)]
-        public int Referred
-        {
-            get { return referred; }
-            set { referred = value; }
         }
 
         /// <summary>
