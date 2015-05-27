@@ -1,0 +1,4 @@
+<select id="selectAttributes" class="form-control form-group">
+	<option selected> SELECT ATTRIBUTE </option>
+	<% _.each(parsedAttributes, function (attr) { %><option value="<%= attr.Id %>"><%= attr.Name %></option><% }); %>
+</select>

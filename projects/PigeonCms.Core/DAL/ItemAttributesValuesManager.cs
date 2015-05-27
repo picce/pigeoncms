@@ -30,7 +30,7 @@ namespace PigeonCms
                 myConn.Open();
                 myCmd.Connection = myConn;
 
-                sSql = "SELECT ItemId, AttributeId, AttributeValueId, CustomValueString FROM #__itemsAttributesValues WHERE 1=1 ";
+                sSql = "SELECT ItemId, AttributeId, AttributeValueId, CustomValueString, Referred FROM #__itemsAttributesValues WHERE 1=1 ";
                 if (filter.ItemId > 0)
                 {
                     sSql += " AND ItemId = @ItemId ";
@@ -45,6 +45,11 @@ namespace PigeonCms
                 {
                     sSql += " AND AttributeValueId = @AttributeValueId ";
                     myCmd.Parameters.Add(Database.Parameter(myProv, "AttributeValueId", filter.AttributeValueId));
+                }
+                if (filter.Referred > 0)
+                {
+                    sSql += " AND Referred = @Referred ";
+                    myCmd.Parameters.Add(Database.Parameter(myProv, "Referred", filter.Referred));
                 }
                 if (!string.IsNullOrEmpty(sort))
                 {
@@ -81,6 +86,8 @@ namespace PigeonCms
                 result.AttributeValueId = (int)myRd["AttributeValueId"];
             if (!Convert.IsDBNull(myRd["CustomValueString"]))
                 result.CustomValueString = (string)myRd["CustomValueString"];
+            if (!Convert.IsDBNull(myRd["Referred"]))
+                result.Referred = (int)myRd["Referred"];
         }
 
         public PigeonCms.ItemAttributeValue GetById(int itemId, int attributeId)
@@ -115,6 +122,22 @@ namespace PigeonCms
             return null;
         }
 
+        public List<PigeonCms.ItemAttributeValue> GetByReferredId(int itemId)
+        {
+            //var result = new PigeonCms.ItemAttributeValue();
+            var list = new List<PigeonCms.ItemAttributeValue>();
+            PigeonCms.ItemAttributeValueFilter filter = new ItemAttributeValueFilter();
+            if (itemId > 0)
+            {
+                filter.Referred = itemId;
+                //filter.AttributeId = attributeId;
+                list = this.GetByFilter(filter, "");
+                if (list.Count > 0)
+                    return list;
+            }
+            return null;
+        }
+
 
         public int Update(ItemAttributeValue theObj)
         {
@@ -130,12 +153,13 @@ namespace PigeonCms
                 myConn.Open();
                 myCmd.Connection = myConn;
 
-                sSql = "UPDATE #__itemsAttributesValues SET AttributeId=@AttributeId, AttributeValueId=@AttributeValueId CustomValueString=@CustomValueString"
+                sSql = "UPDATE #__itemsAttributesValues SET AttributeId=@AttributeId, AttributeValueId=@AttributeValueId CustomValueString=@CustomValueString, Referred=@Referred"
                 + " WHERE ItemId = @ItemId";
                 myCmd.CommandText = Database.ParseSql(sSql);
                 myCmd.Parameters.Add(Database.Parameter(myProv, "AttributeId", theObj.AttributeId));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "AttributeValueId", theObj.AttributeValueId));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CustomValueString", theObj.CustomValueString));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "Referred", theObj.Referred));
                 result = myCmd.ExecuteNonQuery();
             }
             finally
@@ -162,15 +186,17 @@ namespace PigeonCms
                 result.ItemId = newObj.ItemId;
                 result.AttributeId = newObj.AttributeId;
                 result.AttributeValueId = newObj.AttributeValueId;
+                result.Referred = newObj.Referred;
                 result.CustomValueString = string.IsNullOrEmpty(newObj.CustomValueString) ? "" : newObj.CustomValueString;
 
-                sSql = "INSERT INTO  #__itemsAttributesValues (ItemId, AttributeId, AttributeValueId, CustomValueString) "
-                + "VALUES(@ItemId, @AttributeId, @AttributeValueId, @CustomValueString) ";
+                sSql = "INSERT INTO  #__itemsAttributesValues (ItemId, AttributeId, AttributeValueId, CustomValueString, Referred) "
+                + "VALUES(@ItemId, @AttributeId, @AttributeValueId, @CustomValueString, @Referred) ";
                 myCmd.CommandText = Database.ParseSql(sSql);
                 myCmd.Parameters.Add(Database.Parameter(myProv, "ItemId", result.ItemId));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "AttributeId", result.AttributeId));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "AttributeValueId", result.AttributeValueId));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CustomValueString", result.CustomValueString));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "Referred", result.Referred));
                 myCmd.ExecuteNonQuery();
             }
             finally
@@ -180,7 +206,7 @@ namespace PigeonCms
             return result;
         }
 
-        public int Delete(int itemId, int attributeId)
+        public int Delete(int itemId, int attributeId, int referred)
         {
             DbProviderFactory myProv = Database.ProviderFactory;
             DbConnection myConn = myProv.CreateConnection();
@@ -201,6 +227,11 @@ namespace PigeonCms
                     sSql += " AND AttributeId = @AttributeId ";
                     myCmd.Parameters.Add(Database.Parameter(myProv, "AttributeId", attributeId));
                 }
+                if (referred > 0)
+                {
+                    sSql += " AND Referred = @Referred ";
+                    myCmd.Parameters.Add(Database.Parameter(myProv, "Referred", referred));
+                }
                 myCmd.CommandText = Database.ParseSql(sSql);
                 myCmd.Parameters.Add(Database.Parameter(myProv, "ItemId", itemId));
                 res = myCmd.ExecuteNonQuery();
@@ -214,7 +245,13 @@ namespace PigeonCms
 
         public int DeleteById(int itemId)
         {
-            return this.Delete(itemId, 0);
+            return this.Delete(itemId, 0, 0);
         }
+
+        public int DeleteByReferred(int referred)
+        {
+            return this.Delete(0, 0, referred);
+        }
+
     }
 }

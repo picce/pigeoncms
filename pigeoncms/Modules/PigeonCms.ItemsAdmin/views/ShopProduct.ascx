@@ -61,7 +61,7 @@ function onFailure(result) { }
 // ]]>
 </script>
 
-<script type="text/javascript">
+<%--<script type="text/javascript">
 
     $(document).on('ready', function() {
         $(document).on('show.bs.tab', 'a[data-toggle="tab"]', function (e) {
@@ -119,7 +119,7 @@ function onFailure(result) { }
     }
 
     function getAttributeValuesSuccess(result) {
-        console.log($.parseJSON(result));
+        console.log(result);
         var panelOpen = '<div class="panel panel-default">';
         var panelHead = '<div class="panel-heading"> Select your values:  </div>';
         var panelClose = '</div>';
@@ -138,14 +138,27 @@ function onFailure(result) { }
     }
 
     function saveValuesSuccess(result) {
-        console.log(result);
+        var parsedResult = $.parseJSON(result);
+        var res = '';
+        if (!parsedResult.success) {
+            res = '<div class="alert alert-danger alert-dismissable">' +
+                        '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>' +
+                         parsedResult.message + '<br></div>';
+        } else {
+            res = '<div class="alert alert-success alert-dismissable">' +
+                        '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>' + 
+                        parsedResult.message + '</div>';
+        }
+
+        $('#spanResult').css('display', 'block').append(res);
+        
     }
 
     function saveValueValuesFailure(result) {
         console.log(result);
     }
 
-</script>
+</script>--%>
 
 <cc1:ToolkitScriptManager ID="ScriptManager1" runat="server" EnablePageMethods="true"></cc1:ToolkitScriptManager>
 <%--<asp:ScriptManager ID="ScriptManager1" runat="server" EnablePageMethods="true"></asp:ScriptManager>--%>
@@ -162,6 +175,7 @@ function onFailure(result) { }
         <div class="col-lg-12">
             <asp:Label ID="LblErr" runat="server" Text=""></asp:Label>
             <asp:Label ID="LblOk" runat="server" Text=""></asp:Label>
+            <span id="spanResult" style="display: none"></span>
         </div>
     </div>
 
@@ -241,7 +255,14 @@ function onFailure(result) { }
                             </asp:TemplateField>
 
                             <asp:BoundField DataField="Alias" HeaderText="Alias" SortExpression="Alias" />
-                            <asp:BoundField DataField="CssClass" HeaderText="Css" SortExpression="CssClass" />
+
+                            <asp:TemplateField HeaderText="Edit Variants" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
+                                <ItemTemplate>
+                                    <asp:LinkButton ID="LnkVariants" runat="server" CausesValidation="false" CommandName="Variants" CommandArgument='<%#Eval("Id") %>'></asp:LinkButton>
+                                </ItemTemplate>
+                            </asp:TemplateField>
+
+                            <%--<asp:BoundField DataField="CssClass" HeaderText="Css" SortExpression="CssClass" />--%>
 
                             <asp:TemplateField HeaderText="<%$ Resources:PublicLabels, LblSection %>" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
                                 <ItemTemplate>
@@ -465,11 +486,8 @@ function onFailure(result) { }
 
                             <h3> Item Attributes </h3>
 
-                            <select id="drop-attributes" class="form-control form-group">
-                            </select>
-
-                            <div id="wrapForm" class="col-md-12 col-sm-12 col-lg-12 form-group" data-itemid="<%=ItemId %>">
-                                <asp:Literal ID="ltrAttributes" runat="server" ></asp:Literal>
+                            <div id="attributesForm" class="col-md-12 col-sm-12 col-lg-12 form-group" data-itemid="<%=ItemId %>">
+                                <%--<asp:Literal ID="ltrAttributes" runat="server" ></asp:Literal>--%>
                             </div>
 
                             <button id="updateValues" type="button" class="btn btn-success">Save Values</button>
@@ -479,53 +497,13 @@ function onFailure(result) { }
                         <!-- pane for variants -->
                         <div class="tab-pane fade" id="tab-variants">
 
-                            <div class="form-group col-md-12">
-                                <%=base.GetLabel("LblProductCode", "Product Code", TxtProductCode, true)%>
-                                <asp:TextBox ID="TxtProductCode" runat="server" CssClass="form-control"></asp:TextBox>  
+                             <h3> Item Variants </h3>
+
+                            <div id="variantsForm" class="col-md-12 col-sm-12 col-lg-12 form-group" data-itemid="<%=ItemId %>">
+
                             </div>
 
-                            <div class="col-md-6 col-sm-12">
-                                <%=base.GetLabel("LblPrice", "Price", TxtPrice, true)%>
-                                <div class="form-group input-group">
-                                    <span class="input-group-addon"><i class="fa fa-eur"></i></span>
-                                    <asp:TextBox ID="TxtPrice" runat="server" CssClass="form-control"></asp:TextBox>
-                                    <span class="input-group-addon">.00</span>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6 col-sm-12">
-                                <%=base.GetLabel("LblOfferPrice", "Offer Price", TxtOfferPrice, true)%>
-                                <div class="form-group input-group">
-                                    <span class="input-group-addon"><i class="fa fa-eur"></i></span>
-                                    <asp:TextBox ID="TxtOfferPrice" runat="server" CssClass="form-control"></asp:TextBox>
-                                    <span class="input-group-addon">.00</span>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6 col-sm-12 form-group">
-                                <%=base.GetLabel("LblWeight", "Weight", TxtWeight, true)%>
-                                <asp:TextBox ID="TxtWeight" runat="server" CssClass="form-control"></asp:TextBox>
-                            </div>
-
-                            <div class="col-md-6 col-sm-12 form-group">
-                                <div class="row col-md-12">
-                                    <%=base.GetLabel("LblDimensions", "Dimensions (L x W x H)", null, true)%>
-                                </div>
-                                <div class="col-md-4 col-sm-12">
-                                    <asp:TextBox ID="TxtDimL" runat="server" CssClass="form-control"></asp:TextBox>
-                                </div>
-                                <div class="col-md-4 col-sm-12">
-                                    <asp:TextBox ID="TxtDimW" runat="server" CssClass="form-control"></asp:TextBox>
-                                </div>
-                                <div class="col-md-4 col-sm-12">
-                                    <asp:TextBox ID="TxtDimH" runat="server" CssClass="form-control"></asp:TextBox>
-                                </div>
-                            </div>
-
-                            <div class="form-group col-md-4 col-sm-12">
-                                <%=base.GetLabel("LblAvailability", "Availability", TxtAvailability, true)%>
-                                <asp:TextBox ID="TxtAvailability" runat="server" CssClass="form-control"></asp:TextBox>
-                            </div>
+                            <button id="linkAll" type="button" class="btn btn-success">Link All Variants</button>
 
                         </div>
 

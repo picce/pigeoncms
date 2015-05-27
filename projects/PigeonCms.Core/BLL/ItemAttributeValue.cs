@@ -13,6 +13,7 @@ namespace PigeonCms
         private int itemId;
 	    private int attributeId;
 	    private int attributeValueId;
+        private int referred;
         private string customValueString;
 
         private Dictionary<string, string> customValueTranslations = new Dictionary<string, string>();
@@ -76,6 +77,16 @@ namespace PigeonCms
         }
 
         /// <summary>
+        /// Refferred, if variants doens't assigned refer to parent
+        /// </summary>
+        [DataObjectField(false)]
+        public int Referred
+        {
+            get { return referred; }
+            set { referred = value; }
+        }
+
+        /// <summary>
         /// CustomValue in different culture
         /// </summary>
         [DataObjectField(false)]
@@ -117,8 +128,31 @@ namespace PigeonCms
 
         #endregion
 
-    }
+        public override bool Equals(System.Object obj)
+        {
+            // If parameter is null return false.
+            if (obj == null)
+            {
+                return false;
+            }
 
+            // If parameter cannot be cast to Point return false.
+            ItemAttributeValue p = obj as ItemAttributeValue;
+            if ((System.Object)p == null)
+            {
+                return false;
+            }
+
+            // Return true if the fields match:
+            return (this.ItemId.Equals(p.ItemId)) && (this.AttributeId.Equals(p.AttributeId)) && (this.AttributeValueId.Equals(p.AttributeValueId));
+        }
+
+        public override int GetHashCode()
+        {
+            return this.itemId.GetHashCode();
+        }
+
+    }
 
     /// <summary>
     /// Filter used in search
@@ -132,6 +166,7 @@ namespace PigeonCms
         private int itemId = 0;
         private int attributeId = 0;
         private int attributeValueId = 0;
+        private int referred = 0;
 
         public int ItemId
         {
@@ -157,9 +192,17 @@ namespace PigeonCms
             set { attributeValueId = value; }
         }
 
+        public int Referred
+        {
+            [DebuggerStepThrough()]
+            get { return referred; }
+            [DebuggerStepThrough()]
+            set { referred = value; }
+        }
+
+
         #endregion
 
     }
-
 
 }
