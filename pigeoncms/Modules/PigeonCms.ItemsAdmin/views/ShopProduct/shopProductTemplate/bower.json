@@ -1,0 +1,10 @@
+{
+  "name": "Project_name",
+  "version": "1.0.0",
+  "dependencies": {
+    "modernizr": "~2.8.3",
+    "jquery": "~2.1.1",
+    "sass-mq": "sass-mq#~3.1.1",
+    "normalize": "normalize-scss#~3.0.2"
+  }
+}
