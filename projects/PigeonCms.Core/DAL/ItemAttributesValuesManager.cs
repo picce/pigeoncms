@@ -206,7 +206,7 @@ namespace PigeonCms
             return result;
         }
 
-        public int Delete(int itemId, int attributeId, int referred)
+        public int Delete(int itemId, int attributeId, int attributeValueId, int referred)
         {
             DbProviderFactory myProv = Database.ProviderFactory;
             DbConnection myConn = myProv.CreateConnection();
@@ -227,6 +227,11 @@ namespace PigeonCms
                     sSql += " AND AttributeId = @AttributeId ";
                     myCmd.Parameters.Add(Database.Parameter(myProv, "AttributeId", attributeId));
                 }
+                if (attributeValueId > 0)
+                {
+                    sSql += " AND AttributeValueId = @AttributeValueId ";
+                    myCmd.Parameters.Add(Database.Parameter(myProv, "AttributeValueId", attributeValueId));
+                }
                 if (referred > 0)
                 {
                     sSql += " AND Referred = @Referred ";
@@ -245,12 +250,12 @@ namespace PigeonCms
 
         public int DeleteById(int itemId)
         {
-            return this.Delete(itemId, 0, 0);
+            return this.Delete(itemId, 0, 0, 0);
         }
 
         public int DeleteByReferred(int referred)
         {
-            return this.Delete(0, 0, referred);
+            return this.Delete(0, 0, 0, referred);
         }
 
     }

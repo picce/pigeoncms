@@ -501,9 +501,16 @@ function onFailure(result) { }
 
                             <div id="variantsForm" class="col-md-12 col-sm-12 col-lg-12 form-group" data-itemid="<%=ItemId %>">
 
-                            </div>
+                                <div id="variantsBoxes" class="col-lg-12 form-group">
 
-                            <button id="linkAll" type="button" class="btn btn-success">Link All Variants</button>
+                                </div>
+
+                                <div class="col-lg-12 form-group">
+                                    <button id="addVariant" type="button" class="btn btn-primary">Add Variant</button>
+                                    <button id="linkAll" type="button" class="btn btn-success">Link All Variants</button>
+                                </div>
+
+                            </div>
 
                         </div>
 

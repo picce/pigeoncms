@@ -10,82 +10,92 @@ var compileAttributes = function(attachTo) {
 	container = attachTo;
 	var itemId = $(container).data('itemid');
 
-	GetAttributesForVariants(getAttributesForVariantsSuccess, getAttributesForVariantsFailed, parseInt(itemId));
+	GetAttributeValuesForVariants(getAttributeValuesForVariantsSuccess, getAttributeValuesForVariantsFailed, parseInt(itemId));
 
 };
 
-$(document).on('change', '#selectLinkAttribute', function(){
-	
-	var $this = $(this),
-		value = $this.val();
+// $(document).on('change', '#selectLinkValue', function(){
+
+// 	var $this = $(this),
+// 		value = $this.val();
+
+// 	var itemId = $(container).data('itemid'),
+// 		attrVal = $('#selectLinkAttribute').val();
+
+// 	if(value > 0) {
+
+// 		//GetAttributeValuesForVariants(GetAttributeValuesForVariantsSuccess, GetAttributeValuesForVariantsFailed, value, parseInt(itemIdSuccess))
+// 		//emitter.emit('valsChanged');
+// 		GetLinkVariants(getLinkVariantsSuccess, getLinkVariantsFailed, parseInt(itemId), parseInt(attrVal), parseInt(value));
+			
+// 	}
+
+// });
+
+$(document).on('click', '#addVariant', function() {
 
 	var itemId = $(container).data('itemid');
-
-	if(value > 0) {
-		GetAttributeValuesForVariants(GetAttributeValuesForVariantsSuccess, GetAttributeValuesForVariantsFailed, parseInt(value), parseInt(itemId))
-	}
+	GetLinkVariants(getLinkVariantsSuccess, getLinkVariantsFailed, parseInt(itemId), 0, 0);
 
 });
 
-$(document).on('change', '#selectLinkValue', function(){
 
-	var $this = $(this),
-		value = $this.val();
+$(document).on('click', '#linkAll', function() {
 
-	// var itemId = $(container).data('itemid');
-
-	if(value > 0) {
-
-		//GetAttributeValuesForVariants(GetAttributeValuesForVariantsSuccess, GetAttributeValuesForVariantsFailed, value, parseInt(itemIdSuccess))
-		emitter.emit('valsChanged');
-			
-	}
+	var itemId = $(container).data('itemid');
+	GetLinkVariants(getLinkVariantsSuccess, getLinkVariantsFailed, parseInt(itemId), 0, 0);
 
 });
 
-function getAttributesForVariantsSuccess(result) {
-
-	console.log(result);
-
-	//select of attributes, generated in ajax
-	var storedAttributes = result;
-	var parsedAttributes = $.parseJSON(storedAttributes);
-
-	//generate template
-	var selectAttrs = templates.variantsAttributes;
-
-	//render attrs
-	var attrs = selectAttrs({
-		parsedAttributes: parsedAttributes
-	}); 
-
-	var baseValSel = templates.variantsValues;
-
-	//useful logs
-	// console.log('json :' + parseAttributes );
-	// console.log('html : ' + html);
-
-	//append to element
-	$(container).append(attrs + baseValSel);
-}
-
-function getAttributesForVariantsFailed(result) {
-	console.log(result);
-}
-
-function GetAttributeValuesForVariantsSuccess(result) {
+function getAttributeValuesForVariantsSuccess(result) {
 
 	console.log(result);
 	var attributesValues = result;
 	var parsedValues = $.parseJSON(attributesValues);
 
-	emitter.emit('attrsChanged', parsedValues);
+	//debugger;
+
+	for(var key in parsedValues) {
+
+		var info = parsedValues[key].pop();
+
+		var tmpl = templates.variantsValues;
+
+		var selectBox = tmpl({
+			info: info,
+			parsedValues: parsedValues[key]
+		}); 
+
+		$('#variantsBoxes').append(selectBox);
+	}
+
 }
 
-function GetAttributeValuesForVariantsFailed(result) {
+function getAttributeValuesForVariantsFailed(result) {
 	console.log(result);
 }
 
+function getLinkVariantsSuccess(result) {
+
+	var values = result,
+		parsedValues = $.parseJSON(values);
+
+	var ids = parsedValues.Listids,
+		values = parsedValues.ListValues;
+
+	for(var key in ids) {
+		emitter.emit('generateInputs', ids[key], values[key]);
+	}
+
+	// for(var key in parsedValues) {
+	// 	emitter.emit('valsChanged', parsedValues[key]);
+	// }
+	
+}
+
+function getLinkVariantsFailed(result) {
+	console.log(result);
+}
 
 //export compileAttributes
 module.exports.compileAttributes = compileAttributes;

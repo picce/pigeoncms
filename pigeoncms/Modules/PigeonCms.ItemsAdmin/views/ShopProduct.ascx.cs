@@ -1131,46 +1131,76 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         //__doPostBack('__Page', 'MyCustomArgument')
     }
 
+    /// <summary>
+    /// return all attributes that are not assigned to an element with specific itemId
+    /// </summary>
+    /// <param name="itemId"></param>
+    /// <returns></returns>
     [PigeonCms.UserControlScriptMethod]
     public static List<PigeonCms.Attribute> GetAttributes(int itemId)
     {
+        // get all attributes referred to itemId
         var items = new ItemAttributesValuesManager().GetByReferredId(itemId);
+
+        // extract only the attributeId from the ItemAttributesValue List
         var attributesId = items.GroupBy(x => x.AttributeId).Select(y => new PigeonCms.Attribute() { Id = y.Key }).ToList().Select(x => x.Id).ToList();
 
-        var myAttributes = new List<PigeonCms.Attribute>();
-
-        myAttributes = new PigeonCms.AttributesManager().GetByFilter(new AttributeFilter(), "");
-        var res = (List<PigeonCms.Attribute>)myAttributes.Where(x => !attributesId.Any(x2 => x2 == x.Id)).ToList();
+        // get all attributes
+        var allAttributes = new List<PigeonCms.Attribute>();
+        allAttributes = new PigeonCms.AttributesManager().GetByFilter(new AttributeFilter(), "");
+        
+        //remove from list all attribute that have the same Id as the list above
+        var res = (List<PigeonCms.Attribute>)allAttributes.Where(x => !attributesId.Any(x2 => x2 == x.Id)).ToList();
         return res;
     }
 
-
+    /// <summary>
+    /// get attributeValue from given AttributeId
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
     [PigeonCms.UserControlScriptMethod]
     public static List<PigeonCms.AttributeValue> GetAttributeValues(int id)
     {
-        List<PigeonCms.AttributeValue> myValues = new List<PigeonCms.AttributeValue>();
+        // get values
+        var myValues = new List<PigeonCms.AttributeValue>();
         PigeonCms.AttributeValueFilter filter = new PigeonCms.AttributeValueFilter();
         filter.AttributeId = id;
         myValues = new PigeonCms.AttributeValuesManager().GetByFilter(filter, "");
+
         return myValues;
     }
 
+    /// <summary>
+    /// Save checkbox forms of attributes tab.
+    /// It takes a JSON with checked checkboxes, excluding the itemAttributesValues saved 
+    /// it generate 2 list, one to insert, one to exclude.
+    /// You can't remove a variant with assigned itemId, only with referred and itemId = 0.
+    /// </summary>
+    /// <param name="jsonArr"></param>
+    /// <param name="itemId"></param>
+    /// <returns></returns>
     [PigeonCms.UserControlScriptMethod]
     public static string SaveAttributeValues(string jsonArr, int itemId)
     {
-
+        // serialize JSON in ItemAttributeValue List
         var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
         var values = serializer.Deserialize<List<PigeonCms.ItemAttributeValue>>(jsonArr);
 
+        // declare product objects
         var man = new PigeonCms.Shop.ProductItemsManager();
+        var prodfilter = new ProductItemFilter();
+
+        // declare itemAttributeValue objects
         var itemAttr = new PigeonCms.ItemAttributeValue();
         var filter = new PigeonCms.ItemAttributeValueFilter();
 
-        var prodfilter = new ProductItemFilter();
+       // get all products (also child of itemId)
         prodfilter.ThreadId = itemId;
         prodfilter.ShowOnlyRootItems = false;
         var products = man.GetByFilter(prodfilter, "");
 
+        // get all actual attributes
         var actualAttributes = new ItemAttributesValuesManager().GetByReferredId(itemId);
 
         //foreach (ProductItem product in products)
@@ -1181,14 +1211,19 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         //        actualAttributes.Add(attributesval.First());
         //}
 
+        // exclude to actualAttributes the new Values, if values are less than actualAttributes, the exclusion will be deleted
         var toDelete = actualAttributes.Except(values).ToList();
+
+        // exclude to new Values the nactualAttributes, if actualAttributes are less than values, the exclusion will be inserted
         var toInsert = values.Except(actualAttributes).ToList();
 
+        //insert
         foreach (ItemAttributeValue insert in toInsert)
         {
             new PigeonCms.ItemAttributesValuesManager().Insert(insert);
         }
 
+        //delete
         foreach (ItemAttributeValue delete in toDelete)
         {
             //var prod = man.GetByKey(delete.ItemId);
@@ -1203,52 +1238,118 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
 
             //}
             //man.DeleteById(prod.Id);
-            new PigeonCms.ItemAttributesValuesManager().Delete(delete.ItemId, delete.AttributeId, delete.Referred);
+            new PigeonCms.ItemAttributesValuesManager().Delete(delete.ItemId, delete.AttributeId, delete.AttributeValueId, delete.Referred);
         }
 
+        // return success message
         var success = new
         {
             success = true,
-            message = "You have now one variant for each attribute. you can change them in Edit Variants."
+            message = "All savings done well."
         };
 
+        // return in JSON format
         return toJson(success);
 
     }
 
 
 
-    [PigeonCms.UserControlScriptMethod]
-    public static List<PigeonCms.Attribute> GetAttributesForVariants(int itemId)
-    {
-        var referredItemAttrVals = new ItemAttributesValuesManager().GetByReferredId(itemId);
-        var listAttributeId = referredItemAttrVals.GroupBy(x => x.AttributeId).Select(y => new PigeonCms.Attribute() { Id = y.Key } ).ToList().Select(x => x.Id);
+    //[PigeonCms.UserControlScriptMethod]
+    //public static List<PigeonCms.Attribute> GetAttributesForVariants(int itemId)
+    //{
+    //    var referredItemAttrVals = new ItemAttributesValuesManager().GetByReferredId(itemId);
+    //    var listAttributeId = referredItemAttrVals.GroupBy(x => x.AttributeId).Select(y => new PigeonCms.Attribute() { Id = y.Key } ).ToList().Select(x => x.Id);
 
-        var myAttributes = new List<PigeonCms.Attribute>();
-        var attribsFilter = new PigeonCms.AttributeFilter();
-        foreach(int attrid in listAttributeId) {
-            myAttributes.Add(new PigeonCms.AttributesManager().GetByKey(attrid));
-        }
+    //    var myAttributes = new List<PigeonCms.Attribute>();
+    //    var attribsFilter = new PigeonCms.AttributeFilter();
+    //    foreach(int attrid in listAttributeId) {
+    //        myAttributes.Add(new PigeonCms.AttributesManager().GetByKey(attrid));
+    //    }
         
-        return myAttributes;
-    }
+    //    return myAttributes;
+    //}
 
     [PigeonCms.UserControlScriptMethod]
-    public static List<PigeonCms.AttributeValue> GetAttributeValuesForVariants(int id, int itemId)
+    public static string GetAttributeValuesForVariants(int itemId)
     {
+        // filter for ItemAttributeValue
         var filter = new ItemAttributeValueFilter();
-        filter.AttributeId = id;
+        // only referred to itemId
         filter.Referred = itemId;
+        // exclude related variants
+        filter.ItemId = 0;
+
+        // RUN
         var referredItemAttrVals = new ItemAttributesValuesManager().GetByFilter(filter, "");
-        var listAttributeValuesId = referredItemAttrVals.GroupBy(x => x.AttributeValueId).Select(y => new PigeonCms.AttributeValue() { Id = y.Key }).ToList().Select(x => x.Id);
 
-        var myValues = new List<AttributeValue>();
-        foreach (int attrvalid in listAttributeValuesId)
+        // get a list with attributes (to separe select object)
+        var attributes = referredItemAttrVals.GroupBy(x => x.AttributeId).Select(y => new PigeonCms.Attribute() { Id = y.Key }).ToList();
+
+        //prepare result
+        var result = new List<object>();
+
+        foreach (var attribute in attributes)
         {
-            myValues.Add(new AttributeValuesManager().GetByKey(attrvalid));
+            // get all itemId referred itemAttributeValue of attribute 
+            var filterValue = new PigeonCms.AttributeValueFilter();
+            filterValue.AttributeId = attribute.Id;
+            var attributeValues = new PigeonCms.AttributeValuesManager().GetByFilter(filterValue, "");
 
+            // keep only value who has same id as the list with only selected user values
+            attributeValues = (List<PigeonCms.AttributeValue>)attributeValues.Where(x => referredItemAttrVals.Any(x2 => x2.AttributeValueId == x.Id)).ToList();
+
+            var attributeObject = new List<object>();
+
+            foreach (var attributeValue in attributeValues)
+            {
+                //element base
+                var infoValues = new
+                {
+                    //attrId = referreditemVal.AttributeId,
+                    attrValId = attributeValue.Id,
+                    //attribute = attribute.Name,
+                    attributeValue = attributeValue.Value
+                };
+
+                attributeObject.Add(infoValues);
+
+            }
+
+            var infoAttribute = new
+            {
+                attrId = attribute.Id,
+                attribute = new PigeonCms.AttributesManager().GetByKey(attribute.Id).Name,
+            };
+
+            attributeObject.Add(infoAttribute);
+
+            //add element to result
+            result.Add(attributeObject);
+            //result.Add(infoAttribute);
         }
-        return myValues;
+
+        ////get infos
+        //foreach (var referreditemVal in referredItemAttrVals)
+        //{
+        //    var attribute = new PigeonCms.AttributesManager().GetByKey(referreditemVal.AttributeId);
+        //    var attributeValue = new PigeonCms.AttributeValuesManager().GetByKey(referreditemVal.AttributeValueId);
+
+        //    //element base
+        //    var element = new
+        //    {
+        //        attrId = referreditemVal.AttributeId,
+        //        attrValId = referreditemVal.AttributeValueId,
+        //        attribute = attribute.Name,
+        //        attributeValue = attributeValue.Value
+        //    };
+
+        //    //add element to result
+        //    result.Add(element);
+        //}
+
+        //convert in json and return
+        return toJson(result);
     }
     
     [PigeonCms.UserControlScriptMethod]
@@ -1284,6 +1385,121 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         }
 
         return toJson(success);
+    }
+
+    /// <summary>
+    /// Return an object that allows to compile the template with input forms for variants.
+    /// </summary>
+    /// <param name="itemId"></param>
+    /// <param name="attributeId"></param>
+    /// <param name="attributeValueId"></param>
+    /// <returns></returns>
+    [PigeonCms.UserControlScriptMethod]
+    public static string GetLinkVariants(int itemId, int attributeId, int attributeValueId)
+    {
+        var filter = new ItemAttributeValueFilter();
+
+        //can be present for select box
+        if(attributeId > 0) 
+            filter.AttributeId = attributeId;
+
+        //can be present for select box
+        if(attributeValueId > 0)
+            filter.AttributeValueId = attributeValueId;
+
+        //get only attributeValues referred to itemId
+        filter.Referred = itemId;
+
+        //get only if not assigned
+        filter.ItemId = 0;
+
+        // RUN
+        var items = new ItemAttributesValuesManager().GetByFilter(filter, "");
+
+        // group attributes
+        var attributes = items.GroupBy(x => x.AttributeId).Select(y => new PigeonCms.Attribute() { Id = y.Key }).ToList();
+
+        var firstListIds = new List<string>();
+        var firstListValues = new List<string>();
+
+        foreach (var attribute in attributes)
+        {
+            // get all values from attribute
+            var filterValue = new PigeonCms.AttributeValueFilter();
+            filterValue.AttributeId = attribute.Id;
+            var attributeValues = new PigeonCms.AttributeValuesManager().GetByFilter(filterValue, "");
+
+            // keep only selected attributes value
+            attributeValues = (List<PigeonCms.AttributeValue>)attributeValues.Where(x => items.Any(x2 => x2.AttributeValueId == x.Id)).ToList();
+
+            var secondListIds = new List<string>();
+            var secondListValues = new List<string>();
+
+            foreach (var attributeValue in attributeValues)
+            {
+                secondListIds.Add(attributeValue.Id.ToString());
+                secondListValues.Add(attributeValue.Value.ToString());
+            }
+
+            if (firstListIds.Count > 0)
+            {
+                var tempListIds = new List<string>();
+                foreach (string secondIds in secondListIds)
+                {
+                    foreach (string firstIds in firstListIds)
+                    {
+                        tempListIds.Add(firstIds + "," + secondIds);
+                    }
+                }
+                firstListIds = tempListIds;
+            }
+            else
+            {
+                firstListIds = secondListIds;
+            }
+
+            if (firstListValues.Count > 0)
+            {
+                var tempListValue = new List<string>();
+                foreach (string secondValues in secondListValues)
+                {
+                    foreach (string firstValues in firstListValues)
+                    {
+                        tempListValue.Add(firstValues + "," + secondValues);
+                    }
+                }
+                firstListValues = tempListValue;
+            } 
+            else 
+            {
+                firstListValues = secondListValues;
+            }
+
+        }
+
+        var listids = new List<List<string>>();
+        var listvalues = new List<List<string>>();
+
+        foreach (string rowIds in firstListIds)
+        {
+            var row = rowIds.Split(',').ToList();
+            listids.Add(row);
+        }
+
+        foreach (string rowValues in firstListValues)
+        {
+            var row = rowValues.Split(',').ToList();
+            listvalues.Add(row);
+        }
+
+        var result = new
+        {
+            ListIds = listids,
+            ListValues = listvalues
+        };
+
+        return toJson(result);
+
     }
 
     /// <summary>

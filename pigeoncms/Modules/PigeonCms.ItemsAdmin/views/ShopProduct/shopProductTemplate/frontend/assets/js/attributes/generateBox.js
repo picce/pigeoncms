@@ -86,7 +86,8 @@ $(document).on('click', '#updateValues', function (e) {
     });
     //Ajax call on save
     SaveAttributeValues(saveValuesSuccess, saveValueValuesFailure, JSON.stringify(jsonArr), parseInt(itemId));
-    console.log(JSON.stringify(jsonArr));
+    
+    //console.log(JSON.stringify(jsonArr));
 });
 
 
