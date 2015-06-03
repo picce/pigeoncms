@@ -61,105 +61,6 @@ function onFailure(result) { }
 // ]]>
 </script>
 
-<%--<script type="text/javascript">
-
-    $(document).on('ready', function() {
-        $(document).on('show.bs.tab', 'a[data-toggle="tab"]', function (e) {
-            if ( !$('#wrapForm').hasClass('populated') ) {
-                var excludeId = '';
-                $('#wrapForm > .panel').each(function (e) {
-                    excludeId += ',' + $(this).data('attributeid');
-                });
-                GetAttributes(getAttributesSuccess, getAttributesFailure, excludeId.substring(1));
-            }
-        });
-
-        $(document).on('change', '#drop-attributes', function (e) {
-            var value = $(this).val();
-            if (value > 0) {
-                GetAttributeValues(getAttributeValuesSuccess, getAttributeValuesFailure, parseInt(value));
-            }
-            $('#drop-attributes option[value="' + value + '"]').remove();
-        });
-
-        $(document).on('click', '#updateValues', function (e) {
-            e.preventDefault();
-            var jsonArr = [],
-                itemId = $('#wrapForm').data('itemid');
-            $('#wrapForm input').each(function (e) {
-                var self = $(this),
-                    attributeId = self.parents('.checkbox').data('attributeid'),
-                    checkval = self.val(),
-                    itemIdValueId = checkval.split(',');
-                    
-                if (self.is(':checked')) {
-                    jsonArr.push({
-                        ItemId: parseInt(itemIdValueId[1]),
-                        AttributeId: parseInt(attributeId),
-                        AttributeValueId: parseInt(itemIdValueId[0])
-                    });
-                }
-            });
-            SaveAttributeValues(saveValuesSuccess, saveValueValuesFailure, JSON.stringify(jsonArr), parseInt(itemId));
-        });
-
-    });
-
-    function getAttributesSuccess(result) {
-        var optionDef = '<option value=""> Select Attribute </option>';
-        var optionString = optionDef + $.map($.parseJSON(result), function (value, index) {
-            return '<option value="' + value.Id + '">' + value.Name + '</option>';
-        }).join("\n");
-        $('#drop-attributes').append(optionString);
-        $('#wrapForm').addClass('populated');
-    }
-
-    function getAttributesFailure(result) {
-        console.log(result);
-    }
-
-    function getAttributeValuesSuccess(result) {
-        console.log(result);
-        var panelOpen = '<div class="panel panel-default">';
-        var panelHead = '<div class="panel-heading"> Select your values:  </div>';
-        var panelClose = '</div>';
-        var panelBodyO = '<div class="panel-body"> <div class="form-group">';
-        var panelBodyC = '</div></div>';
-        var optionString = panelOpen + panelHead + panelBodyO + $.map($.parseJSON(result), function (value, index) {
-            return '<div class="checkbox" data-attributeid="' + value.AttributeId + '"> <label> <input type="checkbox" value="' + value.Id + ',0" />' + value.Value + '</label> </div>';
-        }).join("\n") + panelBodyC + panelClose;
-
-        $('#wrapForm').append(optionString);
-
-    }
-
-    function getAttributeValuesFailure(result) {
-        console.log(result);
-    }
-
-    function saveValuesSuccess(result) {
-        var parsedResult = $.parseJSON(result);
-        var res = '';
-        if (!parsedResult.success) {
-            res = '<div class="alert alert-danger alert-dismissable">' +
-                        '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>' +
-                         parsedResult.message + '<br></div>';
-        } else {
-            res = '<div class="alert alert-success alert-dismissable">' +
-                        '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>' + 
-                        parsedResult.message + '</div>';
-        }
-
-        $('#spanResult').css('display', 'block').append(res);
-        
-    }
-
-    function saveValueValuesFailure(result) {
-        console.log(result);
-    }
-
-</script>--%>
-
 <cc1:ToolkitScriptManager ID="ScriptManager1" runat="server" EnablePageMethods="true"></cc1:ToolkitScriptManager>
 <%--<asp:ScriptManager ID="ScriptManager1" runat="server" EnablePageMethods="true"></asp:ScriptManager>--%>
 <asp:UpdateProgress ID="UpdateProgress1" runat="server" DisplayAfter="1" AssociatedUpdatePanelID="Upd1">
@@ -255,12 +156,6 @@ function onFailure(result) { }
                             </asp:TemplateField>
 
                             <asp:BoundField DataField="Alias" HeaderText="Alias" SortExpression="Alias" />
-
-                            <asp:TemplateField HeaderText="Edit Variants" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
-                                <ItemTemplate>
-                                    <asp:LinkButton ID="LnkVariants" runat="server" CausesValidation="false" CommandName="Variants" CommandArgument='<%#Eval("Id") %>'></asp:LinkButton>
-                                </ItemTemplate>
-                            </asp:TemplateField>
 
                             <%--<asp:BoundField DataField="CssClass" HeaderText="Css" SortExpression="CssClass" />--%>
 

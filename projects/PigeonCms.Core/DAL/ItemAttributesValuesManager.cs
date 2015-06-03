@@ -31,7 +31,7 @@ namespace PigeonCms
                 myCmd.Connection = myConn;
 
                 sSql = "SELECT ItemId, AttributeId, AttributeValueId, CustomValueString, Referred FROM #__itemsAttributesValues WHERE 1=1 ";
-                if (filter.ItemId > 0)
+                if (filter.ItemId > -1)
                 {
                     sSql += " AND ItemId = @ItemId ";
                     myCmd.Parameters.Add(Database.Parameter(myProv, "ItemId", filter.ItemId));
@@ -153,9 +153,10 @@ namespace PigeonCms
                 myConn.Open();
                 myCmd.Connection = myConn;
 
-                sSql = "UPDATE #__itemsAttributesValues SET AttributeId=@AttributeId, AttributeValueId=@AttributeValueId CustomValueString=@CustomValueString, Referred=@Referred"
-                + " WHERE ItemId = @ItemId";
+                sSql = "UPDATE #__itemsAttributesValues SET ItemId=@ItemId, AttributeId=@AttributeId, AttributeValueId=@AttributeValueId, CustomValueString=@CustomValueString, Referred=@Referred"
+                + " WHERE ItemId = 0 AND AttributeId = @AttributeId AND AttributeValueId = @AttributeValueId";
                 myCmd.CommandText = Database.ParseSql(sSql);
+                myCmd.Parameters.Add(Database.Parameter(myProv, "ItemId", theObj.ItemId));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "AttributeId", theObj.AttributeId));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "AttributeValueId", theObj.AttributeValueId));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CustomValueString", theObj.CustomValueString));

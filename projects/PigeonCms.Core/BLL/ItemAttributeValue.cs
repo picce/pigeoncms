@@ -163,7 +163,7 @@ namespace PigeonCms
     {
         #region fields definition
 
-        private int itemId = 0;
+        private int itemId = -1;
         private int attributeId = 0;
         private int attributeValueId = 0;
         private int referred = 0;
