@@ -382,6 +382,7 @@ namespace PigeonCms
             List<T> resultList = new List<T>();
             F filter = new F();
             filter.Id = id==0 ? -1 : id;
+            filter.ShowOnlyRootItems = false;
             resultList = GetByFilter(filter, "");
             if (resultList.Count > 0)
                 result = resultList[0];
