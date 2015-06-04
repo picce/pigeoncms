@@ -780,6 +780,8 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         CurrentId = recordId;
         if (CurrentId == 0)
         {
+            notSavedNav.Visible = false;
+            plhTabContent.Visible = false;
             loadDropCategories(int.Parse(DropSectionsFilter.SelectedValue));
             obj.ItemTypeName = "Shop.ProductItem"; //DropNew.SelectedValue;
             obj.ItemDate = DateTime.Now;
@@ -794,18 +796,20 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         else
         {
             obj = new ProductItemsManager().GetByKey(CurrentId);
-            if (!obj.IsThreadRoot)
-            {
-                onlyIfRoot.Visible = false;
-                DropCategories.Enabled = false;
-                TxtAlias.Enabled = false;
-            }
-            else
-            {
-                onlyIfRoot.Visible = true;
-                DropCategories.Enabled = true;
-                TxtAlias.Enabled = true;
-            }
+            //if (!obj.IsThreadRoot)
+            //{
+            //    //onlyIfRoot.Visible = false;
+            //    DropCategories.Enabled = false;
+            //    TxtAlias.Enabled = false;
+            //}
+            //else
+            //{
+            //    //onlyIfRoot.Visible = true;
+            //    DropCategories.Enabled = true;
+            //    TxtAlias.Enabled = true;
+            //}
+            notSavedNav.Visible = true;
+            plhTabContent.Visible = true;
             loadDropCategories(obj.SectionId);
             obj2form(obj);
         }
@@ -1042,6 +1046,9 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
 
         // get all attributes
         var allAttributes = new List<PigeonCms.Attribute>();
+        // filter the attribute for item type !!
+        //var filter = new AttributeFilter();
+        //filter.AttributeType = "";
         allAttributes = new PigeonCms.AttributesManager().GetByFilter(new AttributeFilter(), "");
         
         //remove from list all attribute that have the same Id as the list above
@@ -1125,7 +1132,23 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         foreach (ItemAttributeValue delete in toDelete)
         {
             // TODO can't delete if assigned
-            new PigeonCms.ItemAttributesValuesManager().Delete(delete.ItemId, delete.AttributeId, delete.AttributeValueId, delete.Referred);
+            if (delete.ItemId > 0)
+            {
+                // return success message
+                var error = new
+                {
+                    success = false,
+                    message = "You have assigned variants with this attribute, can't delete it."
+                };
+
+                return toJson(error);
+
+            }
+            else
+            {
+                new PigeonCms.ItemAttributesValuesManager().Delete(delete.ItemId, delete.AttributeId, delete.AttributeValueId, delete.Referred);
+            }
+            
         }
 
         // return success message
@@ -1148,7 +1171,9 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         // only referred to itemId
         filter.Referred = itemId;
         // exclude related variants
-        filter.ItemId = 0;
+        //filter.ItemId = 0;
+
+
 
         // RUN
         var referredItemAttrVals = new ItemAttributesValuesManager().GetByFilter(filter, "");
@@ -1173,13 +1198,25 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
 
             foreach (var attributeValue in attributeValues)
             {
+                var filterItemAttVal = new ItemAttributeValueFilter();
+                filterItemAttVal.ItemId = itemId;
+                filterItemAttVal.AttributeId = attributeValue.AttributeId;
+                filterItemAttVal.AttributeValueId = attributeValue.Id;
+                var itemAttributeValue = new ItemAttributesValuesManager().GetByFilter(filterItemAttVal, "");
+                string isSelected = "";
+                if(itemAttributeValue != null && itemAttributeValue.Count > 0) {
+                    var item = itemAttributeValue.First();
+                    isSelected = (item.AttributeValueId == attributeValue.Id) ? "selected" : "";
+                }
+                
                 //element base
                 var infoValues = new
                 {
                     //attrId = referreditemVal.AttributeId,
                     attrValId = attributeValue.Id,
                     //attribute = attribute.Name,
-                    attributeValue = attributeValue.Value
+                    attributeValue = attributeValue.Value,
+                    selected = isSelected
                 };
 
                 attributeObject.Add(infoValues);
@@ -1323,7 +1360,7 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         var items = new ItemAttributesValuesManager().GetByFilter(filter, "");
 
         // group attributes
-        var attributes = items.GroupBy(x => x.AttributeId).Select(y => new PigeonCms.Attribute() { Id = y.Key }).ToList();
+        var attributes = items.GroupBy(x => x.AttributeId).Select(y => new PigeonCms.Attribute() { Id = y.Key }).OrderBy(x => x.Id).ToList();
 
         // string list splitted by comma
         var firstListIds = new List<string>();
@@ -1432,7 +1469,7 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
     /// <param name="attributeValueId"></param>
     /// <returns></returns>
     [PigeonCms.UserControlScriptMethod]
-    public static string SaveVariant(int itemId, string attributesValuesId, string defaults, string formFields, int variantId)
+    public static int SaveVariant(int itemId, string attributesValuesId, string defaults, string formFields, int variantId)
     {
 
         // serialize JSON in fake product
@@ -1445,6 +1482,8 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         var toStore = attributesValuesId.Split(',').ToList();
 
         bool isDefault = defaults == attributesValuesId;
+
+        // check if the default value was previously selected
 
         ProductItem childProduct = null;
         // get the parent, to update o to duplicate as child
@@ -1474,16 +1513,19 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
 
             var productCode = values.ElementAt(0).Value;
             var availabilty = values.ElementAt(1).Value;
-            var price = values.ElementAt(2).Value;
-            var offerPrice = values.ElementAt(3).Value;
-            var weight = values.ElementAt(4).Value;
+            decimal price = 0m;
+            decimal.TryParse(values.ElementAt(2).Value.Replace(".", ","), out price);
+            decimal offerPrice = 0m;
+            decimal.TryParse(values.ElementAt(3).Value.Replace(".", ","), out offerPrice);
+            decimal weight = 0m;
+            decimal.TryParse(values.ElementAt(4).Value.Replace(".", ","), out weight);
             var dimensions = values.ElementAt(5).Value;
 
             product.ProductCode = productCode;
             product.Availability = Convert.ToInt32(availabilty);
-            product.RegularPrice = Convert.ToDecimal(price);
-            product.SalePrice = Convert.ToDecimal(offerPrice);
-            product.Weight = Convert.ToDecimal(weight);
+            product.RegularPrice = price;
+            product.SalePrice = offerPrice;
+            product.Weight = weight;
             product.Dimensions = dimensions;
 
             // update
@@ -1504,8 +1546,8 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
                     if (itemAttrVal.ItemId == 0)
                     {
                         //update
-                        itemAttrVal.ItemId = theId;
-                        new ItemAttributesValuesManager().Update(itemAttrVal);
+                        //itemAttrVal.ItemId = theId;
+                        new ItemAttributesValuesManager().UpdateItemId(itemAttrVal, theId);
                     }
                     else if (itemAttrVal.ItemId > 0)
                     {
@@ -1524,18 +1566,23 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
             // we previously inserted this variant so simply update product
             product = new ProductItemsManager().GetByKey(variantId);
 
+            theId = product.Id;
+
             var productCode = values.ElementAt(0).Value;
             var availabilty = values.ElementAt(1).Value;
-            var price = values.ElementAt(2).Value;
-            var offerPrice = values.ElementAt(3).Value;
-            var weight = values.ElementAt(4).Value;
+            decimal price = 0m;
+            decimal.TryParse(values.ElementAt(2).Value.Replace(".", ","), out price);
+            decimal offerPrice = 0m;
+            decimal.TryParse(values.ElementAt(3).Value.Replace(".", ","), out offerPrice);
+            decimal weight = 0m;
+            decimal.TryParse(values.ElementAt(4).Value.Replace(".", ","), out weight);
             var dimensions = values.ElementAt(5).Value;
 
             product.ProductCode = productCode;
             product.Availability = Convert.ToInt32(availabilty);
-            product.RegularPrice = Convert.ToDecimal(price);
-            product.SalePrice = Convert.ToDecimal(offerPrice);
-            product.Weight = Convert.ToDecimal(weight);
+            product.RegularPrice = price;
+            product.SalePrice = offerPrice;
+            product.Weight = weight;
             product.Dimensions = dimensions;
 
             new ProductItemsManager().Update(product);
@@ -1543,7 +1590,7 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         }
 
         // TODO return message
-        return null;
+        return theId;
 
     }
 
@@ -1625,6 +1672,11 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
     [PigeonCms.UserControlScriptMethod]
     public static string DeleteVariant(int itemId, string attributesValuesId, int variantId)
     {
+        if (variantId == 0)
+        {
+            return "false";
+        }
+
         // make a list with AttributeValue ids to delete
         var toDelete = attributesValuesId.Split(',').ToList();
 
@@ -1653,8 +1705,7 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
                 if (temp != null && temp.Count > 0)
                 {
                     var update = temp.First();
-                    update.ItemId = 0;
-                    new ItemAttributesValuesManager().Update(update);
+                    new ItemAttributesValuesManager().UpdateItemId(update, 0);
                 }
             }
             else
@@ -1673,7 +1724,7 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         }
 
         // TODO return message
-        return null;
+        return "true";
     }
 
     /// <summary>

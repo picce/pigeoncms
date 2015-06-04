@@ -278,12 +278,13 @@ function onFailure(result) { }
 
                     <ul class="nav nav-pills">
                         <li class="active"><a href="#tab-main" data-toggle="tab"><%=base.GetLabel("Main", "Main") %></a></li>
-                        <asp:PlaceHolder ID="onlyIfRoot" runat="server">
                             <li><a href="#tab-security" data-toggle="tab"><%=base.GetLabel("Security", "Security") %></a></li>
                             <li><a href="#tab-parameters" data-toggle="tab"><%=base.GetLabel("Parameters", "Parameters") %></a></li>
-                            <li><a href="#tab-attributes" data-toggle="tab"><%=base.GetLabel("Attributes", "Attributes") %></a></li>
-                        </asp:PlaceHolder>
-                            <li><a href="#tab-variants" data-toggle="tab"><%=base.GetLabel("Variants", "Variants") %></a></li>
+                            <!-- placeholder to wait a valid id and store correct informations -->
+                            <asp:PlaceHolder ID="notSavedNav" runat="server" Visible="false">
+                                <li><a href="#tab-attributes" data-toggle="tab"><%=base.GetLabel("Attributes", "Attributes") %></a></li>
+                                <li><a href="#tab-variants" data-toggle="tab"><%=base.GetLabel("Variants", "Variants") %></a></li>
+                            </asp:PlaceHolder>
                     </ul>
 
                     <div class="tab-content">
@@ -375,39 +376,44 @@ function onFailure(result) { }
                             <uc1:ItemParams ID="ItemFields1" runat="server" />
                             <uc1:ItemParams ID="ItemParams1" runat="server" />
                         </div>
+                        
+                         <!-- placeholder to wait a valid id and store correct informations -->
+                        <asp:PlaceHolder ID="plhTabContent" runat="server" Visible="false">
 
-                        <!-- pane for attributes -->
-                        <div class="tab-pane fade" id="tab-attributes">
+                            <!-- pane for attributes -->
+                            <div class="tab-pane fade" id="tab-attributes">
 
-                            <h3> Item Attributes </h3>
+                                <h3> Item Attributes </h3>
 
-                            <div id="attributesForm" class="col-md-12 col-sm-12 col-lg-12 form-group" data-itemid="<%=ItemId %>">
-                                <%--<asp:Literal ID="ltrAttributes" runat="server" ></asp:Literal>--%>
-                            </div>
+                                <div id="attributesForm" class="col-md-12 col-sm-12 col-lg-12 form-group" data-itemid="<%=ItemId %>">
+                                    <%--<asp:Literal ID="ltrAttributes" runat="server" ></asp:Literal>--%>
+                                </div>
 
-                            <button id="updateValues" type="button" class="btn btn-success">Save Values</button>
+                                <button id="updateValues" type="button" class="btn btn-success">Save Values</button>
                                 
-                        </div>
+                            </div>
 
-                        <!-- pane for variants -->
-                        <div class="tab-pane fade" id="tab-variants">
+                            <!-- pane for variants -->
+                            <div class="tab-pane fade" id="tab-variants">
 
-                             <h3> Item Variants </h3>
+                                 <h3> Item Variants </h3>
 
-                            <div id="variantsForm" class="col-md-12 col-sm-12 col-lg-12 form-group" data-itemid="<%=ItemId %>">
+                                <div id="variantsForm" class="col-md-12 col-sm-12 col-lg-12 form-group" data-itemid="<%=ItemId %>">
 
-                                <div id="variantsBoxes" class="col-lg-12 form-group">
+                                    <div id="variantsBoxes" class="col-lg-12 form-group">
 
-                                </div>
+                                    </div>
 
-                                <div class="col-lg-12 form-group">
-                                    <button id="addVariant" type="button" class="btn btn-primary">Add Variant</button>
-                                    <button id="linkAll" type="button" class="btn btn-success">Link All Variants</button>
+                                    <div class="col-lg-12 form-group">
+                                        <button id="addVariant" type="button" class="btn btn-primary">Add Variant</button>
+                                        <button id="linkAll" type="button" class="btn btn-success">Link All Variants</button>
+                                    </div>
+
                                 </div>
 
                             </div>
 
-                        </div>
+                        </asp:PlaceHolder>
 
                     </div>
 

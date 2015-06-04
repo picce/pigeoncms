@@ -4,7 +4,7 @@
 		<div class="form-group">  
 			<% _.each(parsedAttributesValues, function (attrVals) { %> 
 				<div class="checkbox" data-attributeid="<%= attrVals.AttributeId %>"> 
-				<label><input type="checkbox" <%= attrVals.Checked %> value="<%= attrVals.Id %>, 0" /> <%= attrVals.Value %> </label>
+				<label><input type="checkbox" <%= attrVals.Checked %> value="<%= attrVals.Id %>" /> <%= attrVals.Value %> </label>
 				</div> <% }); %>  
 		</div> 
 	</div>

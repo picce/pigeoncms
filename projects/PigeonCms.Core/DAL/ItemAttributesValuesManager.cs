@@ -154,7 +154,7 @@ namespace PigeonCms
                 myCmd.Connection = myConn;
 
                 sSql = "UPDATE #__itemsAttributesValues SET ItemId=@ItemId, AttributeId=@AttributeId, AttributeValueId=@AttributeValueId, CustomValueString=@CustomValueString, Referred=@Referred"
-                + " WHERE ItemId = 0 AND AttributeId = @AttributeId AND AttributeValueId = @AttributeValueId";
+                + " WHERE ItemId = @ItemId AND AttributeId = @AttributeId AND AttributeValueId = @AttributeValueId";
                 myCmd.CommandText = Database.ParseSql(sSql);
                 myCmd.Parameters.Add(Database.Parameter(myProv, "ItemId", theObj.ItemId));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "AttributeId", theObj.AttributeId));
@@ -169,6 +169,38 @@ namespace PigeonCms
             }
             return result;
         }
+
+        public int UpdateItemId(ItemAttributeValue theObj, int newId)
+        {
+            DbProviderFactory myProv = Database.ProviderFactory;
+            DbConnection myConn = myProv.CreateConnection();
+            DbCommand myCmd = myConn.CreateCommand();
+            string sSql;
+            int result = 0;
+            try
+            {
+                myConn.ConnectionString = Database.ConnString;
+                myConn.Open();
+                myCmd.Connection = myConn;
+
+                sSql = "UPDATE #__itemsAttributesValues SET ItemId=@NewItemId"
+                + " WHERE ItemId = @ItemId AND AttributeId = @AttributeId AND AttributeValueId = @AttributeValueId";
+                myCmd.CommandText = Database.ParseSql(sSql);
+                myCmd.Parameters.Add(Database.Parameter(myProv, "ItemId", theObj.ItemId));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "NewItemId", newId));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "AttributeId", theObj.AttributeId));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "AttributeValueId", theObj.AttributeValueId));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "CustomValueString", theObj.CustomValueString));
+                //myCmd.Parameters.Add(Database.Parameter(myProv, "Referred", theObj.Referred));
+                result = myCmd.ExecuteNonQuery();
+            }
+            finally
+            {
+                myConn.Dispose();
+            }
+            return result;
+        }
+
 
         public ItemAttributeValue Insert(ItemAttributeValue newObj)
         {

@@ -12,32 +12,16 @@ var compileAttributes = function(attachTo) {
 
 	GetAttributeValuesForVariants(getAttributeValuesForVariantsSuccess, getAttributeValuesForVariantsFailed, parseInt(itemId));
 
+	ShowVariants(showVariantsSuccess, showVariantsFailed, parseInt(itemId));
+
 };
 
-// $(document).on('change', '#selectLinkValue', function(){
+// $(document).on('click', '#addVariant', function() {
 
-// 	var $this = $(this),
-// 		value = $this.val();
-
-// 	var itemId = $(container).data('itemid'),
-// 		attrVal = $('#selectLinkAttribute').val();
-
-// 	if(value > 0) {
-
-// 		//GetAttributeValuesForVariants(GetAttributeValuesForVariantsSuccess, GetAttributeValuesForVariantsFailed, value, parseInt(itemIdSuccess))
-// 		//emitter.emit('valsChanged');
-// 		GetLinkVariants(getLinkVariantsSuccess, getLinkVariantsFailed, parseInt(itemId), parseInt(attrVal), parseInt(value));
-			
-// 	}
+// 	var itemId = $(container).data('itemid');
+// 	GetLinkVariants(getLinkVariantsSuccess, getLinkVariantsFailed, parseInt(itemId), 0, 0);
 
 // });
-
-$(document).on('click', '#addVariant', function() {
-
-	var itemId = $(container).data('itemid');
-	GetLinkVariants(getLinkVariantsSuccess, getLinkVariantsFailed, parseInt(itemId), 0, 0);
-
-});
 
 
 $(document).on('click', '#linkAll', function() {
@@ -52,8 +36,6 @@ function getAttributeValuesForVariantsSuccess(result) {
 	console.log(result);
 	var attributesValues = result;
 	var parsedValues = $.parseJSON(attributesValues);
-
-	//debugger;
 
 	for(var key in parsedValues) {
 
@@ -75,22 +57,44 @@ function getAttributeValuesForVariantsFailed(result) {
 	console.log(result);
 }
 
+function showVariantsSuccess(result) {
+	console.log(result);
+	var variants = $.parseJSON(result);
+
+	_.each(variants, function(variant){
+		console.log(variant.Info);
+		console.log(variant.Product);
+		emitter.emit('generateInputs', variant.Info.ListIds, variant.Info.ListValues, variant.Product);
+	});
+}
+
+function showVariantsFailed(result) {
+	console.log(result);
+}
+
 function getLinkVariantsSuccess(result) {
 
 	var values = result,
 		parsedValues = $.parseJSON(values);
 
-	var ids = parsedValues.Listids,
+	var ids = parsedValues.ListIds,
 		values = parsedValues.ListValues;
 
-	for(var key in ids) {
-		emitter.emit('generateInputs', ids[key], values[key]);
-	}
+	//debugger;
 
-	// for(var key in parsedValues) {
-	// 	emitter.emit('valsChanged', parsedValues[key]);
-	// }
-	
+	var Product = {
+		Id: '0',
+		ProductCode: '',
+		Availability: '',
+		RegularPrice: '',
+		SalePrice: '',
+		Weight: ''
+	};
+
+
+	for(var key in ids) {
+		emitter.emit('generateInputs', ids[key], values[key], Product);
+	}
 }
 
 function getLinkVariantsFailed(result) {

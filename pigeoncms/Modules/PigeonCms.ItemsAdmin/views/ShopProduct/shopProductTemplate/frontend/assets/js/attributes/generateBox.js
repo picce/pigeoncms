@@ -8,12 +8,14 @@ var generateBox = function(parsedAttributesValues, text, attachTo) {
 	
     //set global container
     container = attachTo;
+    //itemId = $(container).data('itemid');
 
 	//generate template
 	var box = templates.boxAttributes;
 
 	//render template
 	var html = box({
+        //ReferredId: itemId,
 		parsedAttributesValues: parsedAttributesValues,
 		text: text
 	}); 
@@ -73,13 +75,13 @@ $(document).on('click', '#updateValues', function (e) {
         var self = $(this),
             attributeId = self.parents('.checkbox').data('attributeid'),
             checkval = self.val(),
-            itemIdValueId = checkval.split(',');
+            valueId = checkval;
             
         if (self.is(':checked')) {
             jsonArr.push({
-                ItemId: parseInt(itemIdValueId[1]),
+                ItemId: 0,
                 AttributeId: parseInt(attributeId),
-                AttributeValueId: parseInt(itemIdValueId[0]),
+                AttributeValueId: parseInt(valueId),
                 Referred: parseInt(itemId)
             });
         }
@@ -95,6 +97,8 @@ function saveValuesSuccess(result) {
 
     var parsedResult = $.parseJSON(result);
     var res = '';
+
+    itemId = $('#attributesForm').data('itemid');
     
     if (!parsedResult.success) {
         res = '<div class="alert alert-danger alert-dismissable">' +
@@ -106,11 +110,39 @@ function saveValuesSuccess(result) {
                     parsedResult.message + '</div>';
     }
 
+    CompileAttributes(refreshSuccess, refreshFailure, parseInt(itemId));
+
     $('#spanResult').css('display', 'block').append(res);
     
 }
 
 function saveValueValuesFailure(result) {
+    console.log(result);
+}
+
+function refreshSuccess(result) {
+    console.log(result);
+
+    var values = result,
+        parse = $.parseJSON(values);
+
+    $('#attributesForm').find('.panel').fadeOut(800).delay(800).remove();
+    for(var key in parse) {
+        var text = parse[key][0];
+        //parse = parse.splice(0, 1);
+        var parsedAttributesValues = parse[key].splice(1, parse[key].length);
+        //debugger;
+        var box = templates.boxAttributes;
+        var html = box({
+            parsedAttributesValues: parsedAttributesValues,
+            text: text
+        }); 
+        $('#attributesForm').append(html);
+    }
+
+}
+
+function refreshFailure(result) {
     console.log(result);
 }
 
