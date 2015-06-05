@@ -189,6 +189,9 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
             ResolveUrl(Config.ModulesPath + this.BaseModule.ModuleFullName + "/views/" +
             this.BaseModule.CurrViewFolder + "/app.js"));
 
+        Page.Header.Controls.Add(
+        new System.Web.UI.LiteralControl("<link rel=\"stylesheet\" type=\"text/css\" href=\"" + ResolveUrl(Config.ModulesPath + this.BaseModule.ModuleFullName + "/views/" + this.BaseModule.CurrViewFolder + "/jquery.fancybox.css") + "\" />"));
+
         if (this.BaseModule.DirectEditMode)
         {
             if (base.CurrItem.Id == 0)
@@ -1173,8 +1176,6 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         // exclude related variants
         //filter.ItemId = 0;
 
-
-
         // RUN
         var referredItemAttrVals = new ItemAttributesValuesManager().GetByFilter(filter, "");
 
@@ -1514,11 +1515,23 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
             var productCode = values.ElementAt(0).Value;
             var availabilty = values.ElementAt(1).Value;
             decimal price = 0m;
-            decimal.TryParse(values.ElementAt(2).Value.Replace(".", ","), out price);
+            if (!string.IsNullOrEmpty(values.ElementAt(2).Value))
+            {
+                decimal.TryParse(values.ElementAt(2).Value.Replace(".", ","), out price);
+            }
+
             decimal offerPrice = 0m;
-            decimal.TryParse(values.ElementAt(3).Value.Replace(".", ","), out offerPrice);
+            if (!string.IsNullOrEmpty(values.ElementAt(3).Value))
+            {
+                decimal.TryParse(values.ElementAt(3).Value.Replace(".", ","), out offerPrice);
+            }
+
             decimal weight = 0m;
-            decimal.TryParse(values.ElementAt(4).Value.Replace(".", ","), out weight);
+            if (!string.IsNullOrEmpty(values.ElementAt(4).Value))
+            {
+                decimal.TryParse(values.ElementAt(4).Value.Replace(".", ","), out weight);
+            }
+
             var dimensions = values.ElementAt(5).Value;
 
             product.ProductCode = productCode;
@@ -1546,8 +1559,8 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
                     if (itemAttrVal.ItemId == 0)
                     {
                         //update
-                        //itemAttrVal.ItemId = theId;
-                        new ItemAttributesValuesManager().UpdateItemId(itemAttrVal, theId);
+                        itemAttrVal.ItemId = theId;
+                        new ItemAttributesValuesManager().Update(itemAttrVal);
                     }
                     else if (itemAttrVal.ItemId > 0)
                     {
@@ -1571,11 +1584,23 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
             var productCode = values.ElementAt(0).Value;
             var availabilty = values.ElementAt(1).Value;
             decimal price = 0m;
-            decimal.TryParse(values.ElementAt(2).Value.Replace(".", ","), out price);
+            if (!decimal.TryParse(values.ElementAt(2).Value.Replace(".", ","), out price))
+            {
+                price = 0;
+            }
+            
             decimal offerPrice = 0m;
-            decimal.TryParse(values.ElementAt(3).Value.Replace(".", ","), out offerPrice);
+            if(!decimal.TryParse(values.ElementAt(3).Value.Replace(".", ","), out offerPrice))
+            {
+                offerPrice = 0;
+            }
+
             decimal weight = 0m;
-            decimal.TryParse(values.ElementAt(4).Value.Replace(".", ","), out weight);
+            if (!decimal.TryParse(values.ElementAt(4).Value.Replace(".", ","), out weight))
+            {
+                weight = 0;
+            }
+
             var dimensions = values.ElementAt(5).Value;
 
             product.ProductCode = productCode;
@@ -1619,6 +1644,7 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
             if (variants != null && variants.Count > 0)
             {
                 // get all values of variants and compile in object
+
                 var product = new
                 {
                     Id = productitem.Id,
@@ -1627,7 +1653,8 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
                     RegularPrice = productitem.RegularPrice,
                     SalePrice = productitem.SalePrice,
                     Weight = productitem.Weight,
-                    Dimensions = productitem.Dimensions
+                    Dimensions = productitem.Dimensions,
+                    Photos = productitem.Images
                 };
 
                 var ids = new List<string>();
@@ -1705,7 +1732,8 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
                 if (temp != null && temp.Count > 0)
                 {
                     var update = temp.First();
-                    new ItemAttributesValuesManager().UpdateItemId(update, 0);
+                    update.ItemId = 0;
+                    new ItemAttributesValuesManager().Update(update);
                 }
             }
             else
@@ -1725,6 +1753,18 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
 
         // TODO return message
         return "true";
+    }
+
+    /// <summary>
+    /// Refresh gallery on images upload (popup close)
+    /// </summary>
+    /// <param name="itemId"></param>
+    /// <returns></returns>
+    [PigeonCms.UserControlScriptMethod]
+    public static List<FileMetaInfo> RefreshGalleryById(int itemId)
+    {
+        var item = new ProductItemsManager().GetByKey(itemId);
+        return item.Images;
     }
 
     /// <summary>

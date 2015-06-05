@@ -21,6 +21,12 @@ namespace PigeonCms
         #region fields
 
         /// <summary>
+        /// Automatic Id as PKey
+        /// </summary>
+        [DataObjectField(true)]
+        public int Id { get; set; }
+
+        /// <summary>
         /// Item id, owner of Attribute
         /// </summary>
         [DataObjectField(true)]
@@ -164,9 +170,18 @@ namespace PigeonCms
         #region fields definition
 
         private int itemId = -1;
+        private int id = 0;
         private int attributeId = 0;
         private int attributeValueId = 0;
         private int referred = 0;
+
+        public int Id
+        {
+            [DebuggerStepThrough()]
+            get { return id; }
+            [DebuggerStepThrough()]
+            set { id = value; }
+        }
 
         public int ItemId
         {

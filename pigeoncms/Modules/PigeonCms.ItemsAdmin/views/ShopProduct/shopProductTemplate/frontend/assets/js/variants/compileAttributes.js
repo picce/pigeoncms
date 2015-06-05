@@ -26,7 +26,18 @@ var compileAttributes = function(attachTo) {
 
 $(document).on('click', '#linkAll', function() {
 
-	var itemId = $(container).data('itemid');
+	var $variants = $(container),
+		$forms = $variants.find('.form-variant'),
+		itemId = $variants.data('itemid');
+	debugger;
+	_.each($forms, function(form){
+		var $form = $(form),
+			variantId = $form.find('.saveVariant').data('variantid');
+		if(variantId == 0) {
+			$form.parent().remove();
+		}
+	});
+
 	GetLinkVariants(getLinkVariantsSuccess, getLinkVariantsFailed, parseInt(itemId), 0, 0);
 
 });
@@ -90,7 +101,6 @@ function getLinkVariantsSuccess(result) {
 		SalePrice: '',
 		Weight: ''
 	};
-
 
 	for(var key in ids) {
 		emitter.emit('generateInputs', ids[key], values[key], Product);

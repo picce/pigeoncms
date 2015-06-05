@@ -1,5 +1,6 @@
 var $ = require('jquery');
 var _ = require('lodash');
+require('fancybox')($);
 var emitter = require('../modules/emitter');
 var templates = require('../modules/templates');
 var validator = require('../modules/formValidator');
@@ -52,6 +53,8 @@ $(document).on('click', '.saveVariant', function(e){
 
 	});
 
+	//debugger;
+
 	var isValidForm = validator.validate($form, "has-error");
 
 	if(isValidForm) {
@@ -72,10 +75,8 @@ $(document).on('click', '.saveVariant', function(e){
 		formobj['Dimensions'] = $form.find('#DimL' + tail).val() + "," + $form.find('#DimW' + tail).val() + "," + $form.find('#DimH' + tail).val();
 
 		formArray.push(formobj);
-
+		SaveVariant(saveVariantSuccess, saveVariantFailed, parseInt(itemId), attributesValuesId, defaults.substring(0, defaults.length - 1), JSON.stringify(formArray), parseInt(variantId));
 	}
-
-	SaveVariant(saveVariantSuccess, saveVariantFailed, parseInt(itemId), attributesValuesId, defaults.substring(0, defaults.length - 1), JSON.stringify(formArray), parseInt(variantId));
 
 });
 
@@ -95,6 +96,44 @@ $(document).on('click', '.deleteVariant', function(e){
 
 });
 
+$(document).on('click', '.uploadImage', function(e){
+
+	e.preventDefault();
+
+	var $this = $(this),
+		itemId = $this.data('variantid'),
+		$form = $this.parents('.form-variant'),
+		attributesValuesId = $this.data('itemattributes').substring(0, $this.data('itemattributes').length - 1),
+		eachIds = attributesValuesId.split(',');
+
+	if(itemId > 0) {
+
+		var tail = '';
+
+		_.each(eachIds, function(id) {
+			tail += '_' + id;
+		});
+
+		$('<a href="/admin/images-upload.aspx?type=items&amp;id=' + itemId + '"></a>').fancybox({
+		    'width': '80%',
+		    'height': '80%',
+		    'type': 'iframe',
+		    'hideOnContentClick': false,
+		    beforeClose: function () { 
+		    	console.log('close');
+		    	window.$boxSave = $form.find('#gallery' + tail);
+		    	RefreshGalleryById(refreshGallerySuccess, refreshGalleryFailed, parseInt(itemId));
+		    }
+		}).click();
+
+	} else {
+
+		alert('save variant before upload gallery!');
+		return;
+
+	}
+
+});
 
 function saveVariantSuccess(result) {
 	console.log(result);
@@ -122,4 +161,22 @@ function deleteVariantSuccess(result) {
 
 function deleteVariantFailed(result) {
 
+}
+
+function refreshGallerySuccess(result) {
+	var images = $.parseJSON(result);
+	//debugger;
+
+	var form = 	_.template('<% _.each(Images, function (pics) { %> <img src="<%= pics.FileUrl %>?width=120&height=120&bgcolor=Ffffff&scale=both" /> <% }); %>');
+
+		var compiled = form({
+			Images: images
+		});
+
+
+	window.$boxSave.empty().append(compiled);
+}
+
+function refreshGalleryFailed(result) {
+	console.log(result);
 }

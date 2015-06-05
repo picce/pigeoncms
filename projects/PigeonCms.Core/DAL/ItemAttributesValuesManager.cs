@@ -7,13 +7,15 @@ using System.Text;
 
 namespace PigeonCms
 {
-    public class ItemAttributesValuesManager : ITableManager
+    public class ItemAttributesValuesManager : TableManager<AttributeValue, AttributeValueFilter, int>, ITableManager
     {
         [DebuggerStepThrough()]
         public ItemAttributesValuesManager()
         {
-            
+            this.TableName = "#__itemsAttributesValues";
+            this.KeyFieldName = "id";
         }
+
 
         public List<PigeonCms.ItemAttributeValue> GetByFilter(ItemAttributeValueFilter filter, string sort)
         {
@@ -30,7 +32,13 @@ namespace PigeonCms
                 myConn.Open();
                 myCmd.Connection = myConn;
 
-                sSql = "SELECT ItemId, AttributeId, AttributeValueId, CustomValueString, Referred FROM #__itemsAttributesValues WHERE 1=1 ";
+                sSql = "SELECT Id, ItemId, AttributeId, AttributeValueId, CustomValueString, Referred FROM " + this.TableName + " WHERE 1=1 ";
+
+                if (filter.Id > 0)
+                {
+                    sSql += " AND Id = @Id ";
+                    myCmd.Parameters.Add(Database.Parameter(myProv, "Id", filter.Id));
+                }
                 if (filter.ItemId > -1)
                 {
                     sSql += " AND ItemId = @ItemId ";
@@ -78,6 +86,8 @@ namespace PigeonCms
 
         protected void FillObject(PigeonCms.ItemAttributeValue result, DbDataReader myRd)
         {
+            if (!Convert.IsDBNull(myRd["Id"]))
+                result.Id = (int)myRd["Id"];
             if (!Convert.IsDBNull(myRd["ItemId"]))
                 result.ItemId = (int)myRd["ItemId"];
             if (!Convert.IsDBNull(myRd["AttributeId"]))
@@ -139,6 +149,37 @@ namespace PigeonCms
         }
 
 
+        //public int Update(ItemAttributeValue theObj)
+        //{
+        //    DbProviderFactory myProv = Database.ProviderFactory;
+        //    DbConnection myConn = myProv.CreateConnection();
+        //    DbCommand myCmd = myConn.CreateCommand();
+        //    string sSql;
+        //    int result = 0;
+
+        //    try
+        //    {
+        //        myConn.ConnectionString = Database.ConnString;
+        //        myConn.Open();
+        //        myCmd.Connection = myConn;
+
+        //        sSql = "UPDATE #__itemsAttributesValues SET ItemId=@ItemId, AttributeId=@AttributeId, AttributeValueId=@AttributeValueId, CustomValueString=@CustomValueString, Referred=@Referred"
+        //        + " WHERE id = @Id";
+        //        myCmd.CommandText = Database.ParseSql(sSql);
+        //        myCmd.Parameters.Add(Database.Parameter(myProv, "ItemId", theObj.ItemId));
+        //        myCmd.Parameters.Add(Database.Parameter(myProv, "AttributeId", theObj.AttributeId));
+        //        myCmd.Parameters.Add(Database.Parameter(myProv, "AttributeValueId", theObj.AttributeValueId));
+        //        myCmd.Parameters.Add(Database.Parameter(myProv, "CustomValueString", theObj.CustomValueString));
+        //        myCmd.Parameters.Add(Database.Parameter(myProv, "Referred", theObj.Referred));
+        //        result = myCmd.ExecuteNonQuery();
+        //    }
+        //    finally
+        //    {
+        //        myConn.Dispose();
+        //    }
+        //    return result;
+        //}
+
         public int Update(ItemAttributeValue theObj)
         {
             DbProviderFactory myProv = Database.ProviderFactory;
@@ -146,52 +187,20 @@ namespace PigeonCms
             DbCommand myCmd = myConn.CreateCommand();
             string sSql;
             int result = 0;
-
             try
             {
                 myConn.ConnectionString = Database.ConnString;
                 myConn.Open();
                 myCmd.Connection = myConn;
 
-                sSql = "UPDATE #__itemsAttributesValues SET ItemId=@ItemId, AttributeId=@AttributeId, AttributeValueId=@AttributeValueId, CustomValueString=@CustomValueString, Referred=@Referred"
-                + " WHERE ItemId = @ItemId AND AttributeId = @AttributeId AND AttributeValueId = @AttributeValueId";
+                sSql = "UPDATE " + this.TableName + " SET ItemId=@ItemId, AttributeId = @AttributeId, AttributeValueId = @AttributeValueId, CustomValueString =@CustomValueString"
+                + " WHERE Id= @Id";
                 myCmd.CommandText = Database.ParseSql(sSql);
                 myCmd.Parameters.Add(Database.Parameter(myProv, "ItemId", theObj.ItemId));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "Id", theObj.Id));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "AttributeId", theObj.AttributeId));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "AttributeValueId", theObj.AttributeValueId));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CustomValueString", theObj.CustomValueString));
-                myCmd.Parameters.Add(Database.Parameter(myProv, "Referred", theObj.Referred));
-                result = myCmd.ExecuteNonQuery();
-            }
-            finally
-            {
-                myConn.Dispose();
-            }
-            return result;
-        }
-
-        public int UpdateItemId(ItemAttributeValue theObj, int newId)
-        {
-            DbProviderFactory myProv = Database.ProviderFactory;
-            DbConnection myConn = myProv.CreateConnection();
-            DbCommand myCmd = myConn.CreateCommand();
-            string sSql;
-            int result = 0;
-            try
-            {
-                myConn.ConnectionString = Database.ConnString;
-                myConn.Open();
-                myCmd.Connection = myConn;
-
-                sSql = "UPDATE #__itemsAttributesValues SET ItemId=@NewItemId"
-                + " WHERE ItemId = @ItemId AND AttributeId = @AttributeId AND AttributeValueId = @AttributeValueId";
-                myCmd.CommandText = Database.ParseSql(sSql);
-                myCmd.Parameters.Add(Database.Parameter(myProv, "ItemId", theObj.ItemId));
-                myCmd.Parameters.Add(Database.Parameter(myProv, "NewItemId", newId));
-                myCmd.Parameters.Add(Database.Parameter(myProv, "AttributeId", theObj.AttributeId));
-                myCmd.Parameters.Add(Database.Parameter(myProv, "AttributeValueId", theObj.AttributeValueId));
-                myCmd.Parameters.Add(Database.Parameter(myProv, "CustomValueString", theObj.CustomValueString));
-                //myCmd.Parameters.Add(Database.Parameter(myProv, "Referred", theObj.Referred));
                 result = myCmd.ExecuteNonQuery();
             }
             finally
@@ -222,7 +231,7 @@ namespace PigeonCms
                 result.Referred = newObj.Referred;
                 result.CustomValueString = string.IsNullOrEmpty(newObj.CustomValueString) ? "" : newObj.CustomValueString;
 
-                sSql = "INSERT INTO  #__itemsAttributesValues (ItemId, AttributeId, AttributeValueId, CustomValueString, Referred) "
+                sSql = "INSERT INTO " + this.TableName + " (ItemId, AttributeId, AttributeValueId, CustomValueString, Referred) "
                 + "VALUES(@ItemId, @AttributeId, @AttributeValueId, @CustomValueString, @Referred) ";
                 myCmd.CommandText = Database.ParseSql(sSql);
                 myCmd.Parameters.Add(Database.Parameter(myProv, "ItemId", result.ItemId));
@@ -254,7 +263,7 @@ namespace PigeonCms
                 myConn.Open();
                 myCmd.Connection = myConn;
 
-                sSql = "DELETE FROM #__itemsAttributesValues WHERE ItemId = @ItemId ";
+                sSql = "DELETE FROM " + this.TableName + " WHERE ItemId = @ItemId ";
                 if (attributeId > 0)
                 {
                     sSql += " AND AttributeId = @AttributeId ";
