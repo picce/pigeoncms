@@ -263,7 +263,12 @@ namespace PigeonCms
                 myConn.Open();
                 myCmd.Connection = myConn;
 
-                sSql = "DELETE FROM " + this.TableName + " WHERE ItemId = @ItemId ";
+                sSql = "DELETE FROM " + this.TableName + " WHERE 1 = 1 ";
+                if (itemId > 0)
+                {
+                    sSql += " AND ItemId = @ItemId ";
+                    myCmd.Parameters.Add(Database.Parameter(myProv, "ItemId", itemId));
+                }
                 if (attributeId > 0)
                 {
                     sSql += " AND AttributeId = @AttributeId ";
@@ -280,7 +285,7 @@ namespace PigeonCms
                     myCmd.Parameters.Add(Database.Parameter(myProv, "Referred", referred));
                 }
                 myCmd.CommandText = Database.ParseSql(sSql);
-                myCmd.Parameters.Add(Database.Parameter(myProv, "ItemId", itemId));
+
                 res = myCmd.ExecuteNonQuery();
             }
             finally

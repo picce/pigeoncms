@@ -694,6 +694,7 @@ namespace PigeonCms
                 myConn.ConnectionString = Database.ConnString;
                 myConn.Open();
                 myCmd.Connection = myConn;
+                new ItemAttributesValuesManager().DeleteByReferred(id);
                 foreach (var item in list)
                 {
                     deleteObj(item, myProv, myConn, myCmd);
