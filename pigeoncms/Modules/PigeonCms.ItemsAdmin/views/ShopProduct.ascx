@@ -280,6 +280,7 @@ function onFailure(result) { }
                         <li class="active"><a href="#tab-main" data-toggle="tab"><%=base.GetLabel("Main", "Main") %></a></li>
                             <li><a href="#tab-security" data-toggle="tab"><%=base.GetLabel("Security", "Security") %></a></li>
                             <li><a href="#tab-parameters" data-toggle="tab"><%=base.GetLabel("Parameters", "Parameters") %></a></li>
+                            <li><a href="#tab-related" data-toggle="tab"><%=base.GetLabel("Related", "Related") %></a></li>
                             <!-- placeholder to wait a valid id and store correct informations -->
                             <asp:PlaceHolder ID="notSavedNav" runat="server" Visible="false">
                                 <li><a href="#tab-attributes" data-toggle="tab"><%=base.GetLabel("Attributes", "Attributes") %></a></li>
@@ -377,6 +378,18 @@ function onFailure(result) { }
                             <uc1:ItemParams ID="ItemParams1" runat="server" />
                         </div>
                         
+                        <div class="tab-pane fade" id="tab-related">
+                            <h3> Item Related </h3>
+                            <label for="typeProducts"> Type a product name to add in related list </label>
+                            <input id="typeProducts" class="form-control form-group" type="text" />
+
+                            
+                            <div id="relatedForm" class="col-md-12 col-sm-12 col-lg-12 form-group" data-itemid="<%=ItemId %>">
+                                <%--<asp:Literal ID="ltrAttributes" runat="server" ></asp:Literal>--%>
+                            </div>
+
+                        </div>
+
                          <!-- placeholder to wait a valid id and store correct informations -->
                         <asp:PlaceHolder ID="plhTabContent" runat="server" Visible="false">
 
@@ -396,17 +409,35 @@ function onFailure(result) { }
                             <!-- pane for variants -->
                             <div class="tab-pane fade" id="tab-variants">
 
-                                 <h3> Item Variants </h3>
-
                                 <div id="variantsForm" class="col-md-12 col-sm-12 col-lg-12 form-group" data-itemid="<%=ItemId %>">
 
-                                    <div id="variantsBoxes" class="col-lg-12 form-group">
+                                    <h3> Item Variants </h3>
+
+                                    <div id="variantsBoxes" class="col-lg-12 form-group row">
 
                                     </div>
 
                                     <div class="col-lg-12 form-group">
-                                        <button id="addVariant" type="button" class="btn btn-primary">Add Variant</button>
+
+                                        <select id="bulkActionSelect" class="form-group form-control col-md-4 col-sm-12">
+	                                        <option selected> -- Bulk Actions -- </option>
+	                                        <option value="ProductCode"> Product Code </option>
+	                                        <option value="Availability"> Availability </option>
+	                                        <option value="RegularPrice"> Price </option>
+	                                        <option value="SalePrice"> Offer Price </option>
+                                        </select>
+
+                                        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                                        </div>
+
+                                        <button id="bulkActionButton" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
+                                            Bulk Edit
+                                        </button>
+
                                         <button id="linkAll" type="button" class="btn btn-success">Link All Variants</button>
+
+                                        <button id="saveAll" type="button" class="btn btn-info"> Save All Variants </button>
+
                                     </div>
 
                                 </div>

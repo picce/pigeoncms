@@ -1,6 +1,6 @@
 <div class="col-sm-12 col-md-3">
+	<label for="selectLinkValue_<%= info.attrId %>">Select default <%= info.attribute %></label>
 	<select id="selectLinkValue_<%= info.attrId %>" class="form-control form-group">
-		<option selected> Select default <%= info.attribute %> </option>
 		<% _.each(parsedValues, function (vals) { %><option <%=vals.selected %> value="<%= vals.attrValId %>"><%= vals.attributeValue %></option><% }); %>
 	</select>
 </div>

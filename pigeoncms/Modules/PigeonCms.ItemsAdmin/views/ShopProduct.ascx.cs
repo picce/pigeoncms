@@ -1756,6 +1756,31 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
     }
 
     /// <summary>
+    /// Get all items and filter with linq with typed characters
+    /// </summary>
+    /// <param name="type"></param>
+    /// <returns></returns>
+    [PigeonCms.UserControlScriptMethod]
+    public static List<object> GetRelatedProductSearch(string type)
+    {
+        var items = new ProductItemsManager().GetByFilter(new ProductItemFilter(), "");
+        var prods = items.Select(x => x).Where(x => x.Title.Contains(type)).ToList();
+        var result = new List<object>();
+        foreach (var prod in prods)
+        {
+            var product = new
+            {
+                label = prod.Title,
+                value = prod.Id
+            };
+
+            result.Add(product);
+        }
+        return result;
+    }
+
+
+    /// <summary>
     /// Refresh gallery on images upload (popup close)
     /// </summary>
     /// <param name="itemId"></param>

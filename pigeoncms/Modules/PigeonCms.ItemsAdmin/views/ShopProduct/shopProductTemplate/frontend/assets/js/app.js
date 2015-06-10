@@ -8,6 +8,8 @@ var variants = require('./variants/compileAttributes.js');
 require('./variants/compileValues');
 require('./variants/generateInputs');
 
+var related = require('./related/autocompile.js');
+
 //fake json, substitute with ajax call
 //var json = '[{"Id":5,"ItemType":"","Name":"Colore","AttributeType":0,"AllowCustomValue":false,"MeasureUnit":""},{"Id":6,"ItemType":"","Name":"Materiale","AttributeType":0,"AllowCustomValue":true,"MeasureUnit":""}]';
 
@@ -28,5 +30,14 @@ $(document).on('show.bs.tab', 'a[data-toggle="tab"]', function (e) {
 		var containerVariants = document.getElementById('variantsForm');
 		variants.compileAttributes(containerVariants);
 		$(containerVariants).addClass('init');
+	}
+});
+
+$(document).on('show.bs.tab', 'a[data-toggle="tab"]', function (e) {
+	if($(this).text() == 'Related' && !$('#relatedForm').hasClass('init')) {
+		console.log('enter');
+		var containerRelated = document.getElementById('relatedForm');
+		related.autocompile(containerRelated);
+		$(containerRelated).addClass('init');
 	}
 });

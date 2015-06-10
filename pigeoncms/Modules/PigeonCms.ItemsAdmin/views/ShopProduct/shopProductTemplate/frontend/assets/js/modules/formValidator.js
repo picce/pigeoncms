@@ -49,7 +49,7 @@
             validField = false;
             $("[data-file-name='" + field.attr("name") + "']").parent().addClass(errorClass);
         }
-        debugger;
+        //debugger;
         if(field.is("[data-type='decimal']") && isNaN(val)) {
             console.log("|" + val + "|");
 

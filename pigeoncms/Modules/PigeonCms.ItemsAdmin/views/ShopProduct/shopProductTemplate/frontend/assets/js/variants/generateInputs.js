@@ -7,6 +7,7 @@ var validator = require('../modules/formValidator');
 
 window.$buttonSave;
 window.$buttonDelete;
+window.$buttonGallery;
 window.$boxDelete;
 window.$boxSave;
 
@@ -39,6 +40,7 @@ $(document).on('click', '.saveVariant', function(e){
 
 	window.$buttonSave = $this;
 	window.$buttonDelete = $form.find('.deleteVariant');
+	window.$buttonGallery = $form.find('.uploadImage');
 	window.$boxSave = $form.parent();
 
 	//debugger;
@@ -135,12 +137,66 @@ $(document).on('click', '.uploadImage', function(e){
 
 });
 
+$(document).on('change', '#bulkActionSelect', function(e){
+	e.preventDefault();
+
+	var $modal = $('#myModal'),
+		$select = $('#bulkActionSelect'),
+		valueSelect = $select.val(),
+		textSelect = $select.find("option:selected").text();
+
+	$modal.empty();
+
+	var $this = $(this),
+		bulktemplate = templates.bulkActions;
+
+	var compiled = bulktemplate({
+		selectText: textSelect,
+		selectValue: valueSelect
+	});
+
+	$modal.append(compiled);
+
+});
+
+$(document).on('click', '#bulkActionButton', function(e){
+	e.preventDefault();
+});
+
+$(document).on('click', '#setBulk', function(e){
+	e.preventDefault();
+	var $this = $(this),
+		value = document.getElementById('bulkValue').value,
+		id = $this.data('id'),
+		$form = $('#variantsForm');
+
+	$(":input[id^='"+ id + "']").val(value);
+
+	$('#closeBulk').click();
+
+});
+
+$(document).on('click', '#saveAll', function(e){
+	e.preventDefault();
+	var $form = $('#variantsForm');
+
+	$form.find('.saveVariant').each(function(){
+		debugger;
+		$(this).click();
+	});
+
+	//$('#closeBulk').click();
+
+});
+
+
 function saveVariantSuccess(result) {
 	console.log(result);
 	//debugger;
 	window.$buttonSave.data('variantid', result);
 	window.$buttonDelete.data('variantid', result);
-	window.$boxSave.removeClass('panel-default').addClass('panel-green');
+	window.$buttonGallery.data('variantid', result);
+	window.$boxSave.find('.panel').removeClass('panel-default').addClass('panel-success');
 }
 
 function saveVariantFailed(result) {

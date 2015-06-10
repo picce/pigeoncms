@@ -16,14 +16,6 @@ var compileAttributes = function(attachTo) {
 
 };
 
-// $(document).on('click', '#addVariant', function() {
-
-// 	var itemId = $(container).data('itemid');
-// 	GetLinkVariants(getLinkVariantsSuccess, getLinkVariantsFailed, parseInt(itemId), 0, 0);
-
-// });
-
-
 $(document).on('click', '#linkAll', function() {
 
 	var $variants = $(container),
@@ -105,6 +97,7 @@ function getLinkVariantsSuccess(result) {
 	for(var key in ids) {
 		emitter.emit('generateInputs', ids[key], values[key], Product);
 	}
+
 }
 
 function getLinkVariantsFailed(result) {

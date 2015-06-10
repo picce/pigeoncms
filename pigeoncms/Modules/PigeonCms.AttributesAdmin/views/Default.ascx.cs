@@ -11,6 +11,7 @@ using System.Web.UI.HtmlControls;
 using System.Web.Caching;
 using System.Collections.Generic;
 using PigeonCms;
+using System.Linq;
 using PigeonCms.Core.Helpers;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
@@ -240,6 +241,25 @@ public partial class Controls_AttributesAdmin : PigeonCms.BaseModuleControl
         LblErr.Text = "";
         LblOk.Text = "";
 
+        // conrollo che non tutti i valori siano vuoti
+        bool allEmpty = true;
+
+        foreach (KeyValuePair<string, string> item in Config.CultureList)
+        {
+            TextBox t1 = new TextBox();
+            t1 = (TextBox)PanelTitle.FindControl("TxtTitle" + item.Value);
+            if (!string.IsNullOrEmpty(t1.Text))
+            {
+                allEmpty = false;
+                break;
+            }
+        }
+
+        if (allEmpty)
+        {
+            return;
+        }
+
         try
         {
             PigeonCms.AttributeValue o1 = new PigeonCms.AttributeValue();
@@ -255,10 +275,11 @@ public partial class Controls_AttributesAdmin : PigeonCms.BaseModuleControl
                 values2obj(o1);
                 new AttributeValuesManager().Update(o1);
             }
+            base.CurrentKey = "0";
+            clearForm();
             Grid1.DataBind();
             GridValues.DataBind();
             LblOk.Text = RenderSuccess(Utility.GetLabel("RECORD_SAVED_MSG"));
-            clearForm();
 
         }
         catch (Exception e1)
@@ -346,12 +367,12 @@ public partial class Controls_AttributesAdmin : PigeonCms.BaseModuleControl
 
         clearForm();
         base.CurrentId = recordId;
+        loadDropsItemTypes();
         if (base.CurrentId > 0)
         {
             PigeonCms.Attribute obj = new PigeonCms.Attribute();
             obj = new PigeonCms.AttributesManager().GetByKey(base.CurrentId);
             obj2form(obj);
-            loadDropsItemTypes();
         }
         MultiView1.ActiveViewIndex = 1;
     }
@@ -417,7 +438,7 @@ public partial class Controls_AttributesAdmin : PigeonCms.BaseModuleControl
     private void loadDropsItemTypes()
     {
 
-        //DropItemType.Items.Clear();
+        DropItemType.Items.Clear();
         DropItemType.Items.Add(new ListItem(Utility.GetLabel("LblSelectItem", "Select item"), ""));
 
         var filter = new ItemTypeFilter();
