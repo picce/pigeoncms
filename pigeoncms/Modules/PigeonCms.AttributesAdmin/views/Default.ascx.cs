@@ -378,6 +378,7 @@ public partial class Controls_AttributesAdmin : PigeonCms.BaseModuleControl
             obj = new PigeonCms.AttributeValuesManager().GetByKey(attrValId);
             values2form(obj);
         }
+        GridValues.DataBind();
         MultiView1.ActiveViewIndex = 2;
     }
 

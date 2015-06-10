@@ -354,7 +354,7 @@ function pageLoad(sender, args) {
 
                             <div class="form-group col-sm-6 col-lg-3">
                                 <%=base.GetLabel("LblCssClass", "Css class", TxtCssClass, true)%>
-                                <asp:TextBox ID="TxtCssClass" MaxLength="50" runat="server" CssClass="form-control"></asp:TextBox>
+                                <asp:TextBox ID="TxtCssClass" MaxLength="200" runat="server" CssClass="form-control"></asp:TextBox>
                             </div>
 
                             <div class="form-group col-sm-6 col-lg-3">

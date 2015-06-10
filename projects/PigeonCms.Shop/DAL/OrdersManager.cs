@@ -45,7 +45,7 @@ namespace PigeonCms.Shop
                 + " t.qtyAmount, t.orderAmount, t.shipAmount, t.totalAmount, t.TotalPaid, t.currency, t.vatPercentage, "
                 + " t.invoiceId, t.invoiceRef, t.ordName, t.ordAddress, t.ordZipCode, t.ordCity, t.ordState, "
                 + " t.ordNation, t.ordPhone, t.ordEmail, t.couponCode, t.couponValue, "
-                + " t.paymentCode, t.shipCode "
+                + " t.paymentCode, t.shipCode, t.couponIsPercentage "
                 + " FROM [" + this.TableName + "] t "
                 + " WHERE 1=1 ";
 
@@ -188,7 +188,8 @@ namespace PigeonCms.Shop
                 QtyAmount=@QtyAmount, OrderAmount=@OrderAmount, ShipAmount=@ShipAmount, TotalAmount=@TotalAmount, TotalPaid=@TotalPaid, Currency=@Currency, VatPercentage=@VatPercentage, 
                 InvoiceId=@InvoiceId, InvoiceRef=@InvoiceRef, OrdName=@OrdName, OrdAddress=@OrdAddress, OrdZipCode=@OrdZipCode, 
                 OrdCity=@OrdCity, OrdState=@OrdState, OrdNation=@OrdNation, OrdPhone=@OrdPhone, OrdEmail=@OrdEmail, 
-                CouponCode=@CouponCode, CouponValue=@CouponValue, PaymentCode=@PaymentCode, ShipCode=@ShipCode 
+                CouponCode=@CouponCode, CouponValue=@CouponValue, 
+                PaymentCode=@PaymentCode, ShipCode=@ShipCode, CouponIsPercentage=@CouponIsPercentage
                 WHERE Id = @Id ";
                 myCmd.CommandText = Database.ParseSql(sSql);
                 myCmd.Parameters.Clear();
@@ -236,6 +237,7 @@ namespace PigeonCms.Shop
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CouponValue", theObj.CouponValue));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "PaymentCode", theObj.PaymentCode));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "ShipCode", theObj.ShipCode));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "CouponIsPercentage", theObj.CouponIsPercentage));
 
                 result = myCmd.ExecuteNonQuery();
             }
@@ -282,12 +284,14 @@ namespace PigeonCms.Shop
                     dateInserted, userInserted, dateUpdated, userUpdated, confirmed, paid, processed, invoiced, 
                     notes, QtyAmount, orderAmount, shipAmount, totalAmount, TotalPaid, currency, vatPercentage, 
                     invoiceId, invoiceRef, ordName, ordAddress, ordZipCode, ordCity, ordState, 
-                    ordNation, ordPhone, ordEmail, couponCode, couponValue, paymentCode, shipCode)
+                    ordNation, ordPhone, ordEmail, couponCode, couponValue, 
+                    paymentCode, shipCode, couponIsPercentage)
                     VALUES(@orderRef, @ownerUser, @customerId, @orderDate, @orderDateRequested, @orderDateShipped, 
                     @dateInserted, @userInserted, @dateUpdated, @userUpdated, @confirmed, @paid, @processed, @invoiced, 
                     @notes, @QtyAmount, @orderAmount, @shipAmount, @totalAmount, @TotalPaid, @currency, @vatPercentage, 
                     @invoiceId, @invoiceRef, @ordName, @ordAddress, @ordZipCode, @ordCity, @ordState, 
-                    @ordNation, @ordPhone, @ordEmail, @couponCode, @couponValue, @paymentCode, @shipCode)
+                    @ordNation, @ordPhone, @ordEmail, @couponCode, @couponValue, 
+                    @paymentCode, @shipCode, @couponIsPercentage)
                     SELECT SCOPE_IDENTITY()";
                 myCmd.CommandText = Database.ParseSql(sSql);
 
@@ -336,6 +340,7 @@ namespace PigeonCms.Shop
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CouponValue", theObj.CouponValue));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "PaymentCode", theObj.PaymentCode));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "ShipCode", theObj.ShipCode));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "CouponIsPercentage", theObj.CouponIsPercentage));
 
                 theObj.Id = (int)(decimal)myCmd.ExecuteScalar();
             }
@@ -389,7 +394,10 @@ namespace PigeonCms.Shop
             order.OrderAmount = orderAmount;
             decimal shipAmount = this.GetShipAmount(order);
             order.ShipAmount = shipAmount;
-            order.TotalAmount = orderAmount + shipAmount - order.CouponValue;
+
+            decimal couponValue = GetCouponAmount(order, orderAmount);
+            order.TotalAmount = orderAmount + shipAmount - couponValue;
+            
             this.Update(order);
         }
 
@@ -399,9 +407,14 @@ namespace PigeonCms.Shop
             return res;
         }
 
-        public virtual decimal GetCouponValue(Order order)
+        public virtual decimal GetCouponAmount(Order order, decimal orderAmount)
         {
             decimal res = order.CouponValue;
+            if (order.CouponIsPercentage && res <= 1)
+            {
+                //from 20150608
+                res = orderAmount * res;
+            }
             return res;
         }
 
@@ -491,6 +504,8 @@ namespace PigeonCms.Shop
                 result.PaymentCode = (string)myRd["PaymentCode"];
             if (!Convert.IsDBNull(myRd["ShipCode"]))
                 result.ShipCode = (string)myRd["ShipCode"];
+            if (!Convert.IsDBNull(myRd["CouponIsPercentage"]))
+                result.CouponIsPercentage = (bool)myRd["CouponIsPercentage"];
         }
 
     }//class

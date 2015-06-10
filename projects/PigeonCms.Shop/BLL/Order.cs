@@ -361,6 +361,20 @@ namespace PigeonCms.Shop
             set { couponValue = value; }
         }
 
+        private bool couponIsPercentage = false;
+        /// <summary>
+        /// allow couponValue as percentage (ex: 0.03 = 3%)
+        /// if true, couponValue is <= 1
+        /// </summary>
+        [DataObjectField(false)]
+        public bool CouponIsPercentage
+        {
+            [DebuggerStepThrough()]
+            get { return couponIsPercentage; }
+            [DebuggerStepThrough()]
+            set { couponIsPercentage = value; }
+        }
+
         private string paymentCode = "";
         [DataObjectField(false)]
         public string PaymentCode

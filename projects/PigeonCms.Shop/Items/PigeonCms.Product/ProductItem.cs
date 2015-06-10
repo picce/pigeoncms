@@ -6,7 +6,7 @@ using System.Text;
 
 namespace PigeonCms.Shop
 {
-    class ProductItem: Item
+    public class ProductItem: Item
     {       
         public ProductItem() 
         {
@@ -14,7 +14,7 @@ namespace PigeonCms.Shop
         }
 
         [ItemFieldMapAttribute(ItemFieldMapAttribute.CustomFields.CustomString1)]
-        public string Code
+        public string ProductCode
         {
             [DebuggerStepThrough()]
             get { return base.CustomString1; }
@@ -23,7 +23,7 @@ namespace PigeonCms.Shop
         }
 
         [ItemFieldMapAttribute(ItemFieldMapAttribute.CustomFields.CustomDecimal1)]
-        public decimal Price
+        public decimal RegularPrice
         {
             [DebuggerStepThrough()]
             get { return base.CustomDecimal1; }
@@ -32,12 +32,30 @@ namespace PigeonCms.Shop
         }
 
         [ItemFieldMapAttribute(ItemFieldMapAttribute.CustomFields.CustomDecimal2)]
-        public decimal OfferPrice
+        public decimal SalePrice
         {
             [DebuggerStepThrough()]
             get { return base.CustomDecimal2; }
             [DebuggerStepThrough()]
             set { base.CustomDecimal2 = value; }
+        }
+
+        [ItemFieldMapAttribute(ItemFieldMapAttribute.CustomFields.CustomDecimal3)]
+        public decimal Weight
+        {
+            [DebuggerStepThrough()]
+            get { return base.CustomDecimal3; }
+            [DebuggerStepThrough()]
+            set { base.CustomDecimal3 = value; }
+        }
+
+        [ItemFieldMapAttribute(ItemFieldMapAttribute.CustomFields.CustomString2)]
+        public string Dimensions
+        {
+            [DebuggerStepThrough()]
+            get { return base.CustomString2; }
+            [DebuggerStepThrough()]
+            set { base.CustomString2 = value; }
         }
 
         [ItemFieldMapAttribute(ItemFieldMapAttribute.CustomFields.CustomInt1)]
@@ -49,6 +67,7 @@ namespace PigeonCms.Shop
             set { base.CustomInt1 = value; }
         }
 
+		//modificare in Decimal
         [ItemFieldMapAttribute(ItemFieldMapAttribute.CustomFields.CustomInt2)]
         public int Review
         {
@@ -100,6 +119,14 @@ namespace PigeonCms.Shop
             [DebuggerStepThrough()]
             set { itemInsertedRange = value; }
         }
+
+    }
+
+    public class ProductItemsManager : ItemsManager<ProductItem, ProductItemFilter>
+    {
+        public ProductItemsManager()
+            : base()
+        { }
 
     }
 

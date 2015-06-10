@@ -1745,7 +1745,8 @@ CREATE TABLE #__attributes
 	itemType varchar(255) NULL,
 	name varchar(255) NULL,
 	attributeType int NULL,
-	allowCustomValue bit NULL
+	allowCustomValue bit NULL,
+	measureUnit varchar(50) NULL
 	)  ON [PRIMARY]
 GO
 ALTER TABLE #__attributes ADD CONSTRAINT
@@ -1773,18 +1774,18 @@ GO
 --items attributes values
 CREATE TABLE #__itemsAttributesValues
 	(
+	id int NOT NULL IDENTITY (1, 1),
 	itemId int NOT NULL,
 	attributeId int NOT NULL,
 	attributeValueId int NULL,
-	customValueString varchar(MAX) NULL
+	customValueString varchar(MAX) NULL, 
+	referred int NOT NULL
 	)  ON [PRIMARY]
-	 TEXTIMAGE_ON [PRIMARY]
 GO
 ALTER TABLE #__itemsAttributesValues ADD CONSTRAINT
 	PK_#__itemsAttributesValues PRIMARY KEY CLUSTERED 
 	(
-	itemId,
-	attributeId
+	id
 	) WITH( STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 
 GO
@@ -2256,4 +2257,14 @@ insert into #__geoZones
 ('IT', 'Monza e della Brianza', 'MB', '108', '03'),
 ('IT', 'Fermo', 'FM', '109', '11'),
 ('IT', 'Barletta-Andria-Trani', 'BT', '110', '16')
+GO
+
+--20150608 SHOP
+--allow couponValue as percentage (ex: 0.03 = 3%)
+--if true, couponValue is <= 1
+ALTER TABLE #__shop_orderHeader ADD
+	couponIsPercentage bit NULL
+GO
+UPDATE #__shop_orderHeader 
+SET couponIsPercentage=0 WHERE couponIsPercentage is null
 GO

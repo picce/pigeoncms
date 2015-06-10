@@ -55,6 +55,7 @@
     <Compile Include="DAL\OrderRowsManager.cs" />
     <Compile Include="DAL\OrdersManager.cs" />
     <Compile Include="Helpers\Settings.cs" />
+    <Compile Include="Items\PigeonCms.Product\ProductItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Provider\Payments\PayPal.cs" />
     <Compile Include="Provider\Payments\PaymentsProvider.cs" />

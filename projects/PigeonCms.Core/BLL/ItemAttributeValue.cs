@@ -13,11 +13,18 @@ namespace PigeonCms
         private int itemId;
 	    private int attributeId;
 	    private int attributeValueId;
+        private int referred;
         private string customValueString;
 
         private Dictionary<string, string> customValueTranslations = new Dictionary<string, string>();
 
         #region fields
+
+        /// <summary>
+        /// Automatic Id as PKey
+        /// </summary>
+        [DataObjectField(true)]
+        public int Id { get; set; }
 
         /// <summary>
         /// Item id, owner of Attribute
@@ -50,6 +57,16 @@ namespace PigeonCms
         }
 
         /// <summary>
+        /// Refferred, if variants doens't assigned refer to parent
+        /// </summary>
+        [DataObjectField(false)]
+        public int Referred
+        {
+            get { return referred; }
+            set { referred = value; }
+        }
+
+        /// <summary>
         /// CustomValue in Json format
         /// </summary>
         [DataObjectField(false)]
@@ -68,9 +85,9 @@ namespace PigeonCms
             get
             {
                 string res = "";
-                CustomValueTranslations.TryGetValue(Thread.CurrentThread.CurrentCulture.Name, out res);
+                customValueTranslations.TryGetValue(Thread.CurrentThread.CurrentCulture.Name, out res);
                 if (Utility.IsEmptyFckField(res))
-                    CustomValueTranslations.TryGetValue(Config.CultureDefault, out res);
+                    customValueTranslations.TryGetValue(Config.CultureDefault, out res);
                 return res;
             }
         }
@@ -117,8 +134,31 @@ namespace PigeonCms
 
         #endregion
 
-    }
+        public override bool Equals(System.Object obj)
+        {
+            // If parameter is null return false.
+            if (obj == null)
+            {
+                return false;
+            }
 
+            // If parameter cannot be cast to Point return false.
+            ItemAttributeValue p = obj as ItemAttributeValue;
+            if ((System.Object)p == null)
+            {
+                return false;
+            }
+
+            // Return true if the fields match:
+            return (this.Referred.Equals(p.Referred)) && (this.AttributeId.Equals(p.AttributeId)) && (this.AttributeValueId.Equals(p.AttributeValueId));
+        }
+
+        public override int GetHashCode()
+        {
+            return this.AttributeValueId.GetHashCode();
+        }
+
+    }
 
     /// <summary>
     /// Filter used in search
@@ -129,9 +169,19 @@ namespace PigeonCms
     {
         #region fields definition
 
-        private int itemId = 0;
+        private int itemId = -1;
+        private int id = 0;
         private int attributeId = 0;
         private int attributeValueId = 0;
+        private int referred = 0;
+
+        public int Id
+        {
+            [DebuggerStepThrough()]
+            get { return id; }
+            [DebuggerStepThrough()]
+            set { id = value; }
+        }
 
         public int ItemId
         {
@@ -157,9 +207,17 @@ namespace PigeonCms
             set { attributeValueId = value; }
         }
 
+        public int Referred
+        {
+            [DebuggerStepThrough()]
+            get { return referred; }
+            [DebuggerStepThrough()]
+            set { referred = value; }
+        }
+
+
         #endregion
 
     }
-
 
 }
