@@ -132,6 +132,21 @@ public partial class Controls_AttributesAdmin : PigeonCms.BaseModuleControl
             if (string.IsNullOrEmpty(LnkTitle.Text))
                 LnkTitle.Text += Utility.GetLabel("NO_VALUE", "<no value>");
 
+            var filter = new AttributeValueFilter();
+            filter.AttributeId = item.Id;
+            filter.NumOfRecords = 3;
+            var values = new AttributeValuesManager().GetByFilter(filter, "");
+
+            LinkButton LnkEditValues = (LinkButton)e.Row.FindControl("LnkEditValues");
+            LnkEditValues.Text = "<i class='fa fa-pgn_edit fa-fw'></i> First 3 records<br>";
+            Literal ValuesPreview = (Literal)e.Row.FindControl("ValuesPreview");
+            foreach (var value in values)
+            {
+                ValuesPreview.Text += Utility.Html.GetTextPreview(value.Value, 50, "") + "<br>";
+            }
+            if (string.IsNullOrEmpty(LnkTitle.Text))
+                LnkEditValues.Text += Utility.GetLabel("NO_VALUE", "<no value>");
+
             Literal LnkItemType = (Literal)e.Row.FindControl("LnkItemType");
             LnkItemType.Text += Utility.Html.GetTextPreview(item.ItemType, 50, "");
             if (string.IsNullOrEmpty(LnkItemType.Text))
@@ -289,6 +304,14 @@ public partial class Controls_AttributesAdmin : PigeonCms.BaseModuleControl
         finally
         {
         }
+    }
+
+    protected void BtnNewValue_Click(object sender, EventArgs e)
+    {
+        base.CurrentKey = "0";
+        clearForm();
+        Grid1.DataBind();
+        GridValues.DataBind();
     }
 
     protected void BtnCancel_Click(object sender, EventArgs e)

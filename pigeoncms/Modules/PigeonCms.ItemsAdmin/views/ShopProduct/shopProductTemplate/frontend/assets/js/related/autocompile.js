@@ -55,7 +55,14 @@ function getRelatedSuccess(result) {
 	        event.preventDefault();
 	        document.getElementById("typeProducts").value = ui.item.label;
 	    }
-    });
+    }).data( "ui-autocomplete" )._renderItem = function( ul, item ) {
+		ul.addClass('dropdown-menu');
+		console.log('worked');
+		return $( "<li></li>" )
+			.data("item.autocomplete", item)
+			.append( "<a>" + item.label + "</a>" )
+			.appendTo( ul );
+	};
 }
 
 function getRelatedFailed(result) {

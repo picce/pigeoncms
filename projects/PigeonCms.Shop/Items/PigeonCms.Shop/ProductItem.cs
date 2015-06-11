@@ -76,6 +76,15 @@ namespace PigeonCms.Shop
             set { base.CustomInt2 = value; }
         }
 
+        [ItemFieldMapAttribute(ItemFieldMapAttribute.CustomFields.CustomBool1)]
+        public bool IsDraft
+        {
+            [DebuggerStepThrough()]
+            get { return base.CustomBool1; }
+            [DebuggerStepThrough()]
+            set { base.CustomBool1 = value; }
+        }
+
     }
 
     [Serializable]

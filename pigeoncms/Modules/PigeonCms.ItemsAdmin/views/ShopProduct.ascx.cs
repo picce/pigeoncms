@@ -162,9 +162,9 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         LitItemType.Visible = this.ShowType;
 
         Grid1.Columns[COL_SECTION_INDEX].Visible = this.ShowSectionColumn;
-        Grid1.Columns[COL_ACCESSTYPE_INDEX].Visible = this.ShowSecurity;
-        Grid1.Columns[COL_ACCESSLEVEL_INDEX].Visible = this.ShowSecurity;
-        Grid1.Columns[COL_ID_INDEX].Visible = this.ShowSecurity;
+        //Grid1.Columns[COL_ACCESSTYPE_INDEX].Visible = this.ShowSecurity;
+        //Grid1.Columns[COL_ACCESSLEVEL_INDEX].Visible = this.ShowSecurity;
+        //Grid1.Columns[COL_ID_INDEX].Visible = this.ShowSecurity;
         PermissionsControl1.Visible = this.ShowSecurity;
 
         TxtItemDate.Visible = this.ShowDates;
@@ -445,84 +445,84 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
                 img1.Visible = true;
             }
 
-            //permissions
-            //read
-            string readAccessLevel = item.ReadAccessCode;
-            if (item.ReadAccessLevel > 0)
-                readAccessLevel += " " + item.ReadAccessLevel.ToString();
-            if (!string.IsNullOrEmpty(readAccessLevel))
-                readAccessLevel = " - " + readAccessLevel;
+            ////permissions
+            ////read
+            //string readAccessLevel = item.ReadAccessCode;
+            //if (item.ReadAccessLevel > 0)
+            //    readAccessLevel += " " + item.ReadAccessLevel.ToString();
+            //if (!string.IsNullOrEmpty(readAccessLevel))
+            //    readAccessLevel = " - " + readAccessLevel;
 
-            //write
-            string writeAccessLevel = item.WriteAccessCode;
-            if (item.WriteAccessLevel > 0)
-                writeAccessLevel += " " + item.WriteAccessLevel.ToString();
-            if (!string.IsNullOrEmpty(writeAccessLevel))
-                writeAccessLevel = " - " + writeAccessLevel;
+            ////write
+            //string writeAccessLevel = item.WriteAccessCode;
+            //if (item.WriteAccessLevel > 0)
+            //    writeAccessLevel += " " + item.WriteAccessLevel.ToString();
+            //if (!string.IsNullOrEmpty(writeAccessLevel))
+            //    writeAccessLevel = " - " + writeAccessLevel;
 
-            Literal LitAccessTypeDesc = (Literal)e.Row.FindControl("LitAccessTypeDesc");
-            //read
-            LitAccessTypeDesc.Text = item.ReadAccessType.ToString();
-            if (item.ReadAccessType != MenuAccesstype.Public)
-            {
-                string roles = "";
-                foreach (string role in item.ReadRolenames)
-                {
-                    roles += role + ", ";
-                }
-                if (roles.EndsWith(", ")) roles = roles.Substring(0, roles.Length - 2);
-                if (roles.Length > 0)
-                    roles = " (" + roles + ")";
-                LitAccessTypeDesc.Text += Utility.Html.GetTextPreview(roles, 60, "");
-                LitAccessTypeDesc.Text += readAccessLevel;
-            }
-            if (LitAccessTypeDesc.Text != "") LitAccessTypeDesc.Text += "<br />";
-            //write
-            LitAccessTypeDesc.Text += item.WriteAccessType.ToString();
-            if (item.WriteAccessType != MenuAccesstype.Public)
-            {
-                string roles = "";
-                foreach (string role in item.WriteRolenames)
-                {
-                    roles += role + ", ";
-                }
-                if (roles.EndsWith(", ")) roles = roles.Substring(0, roles.Length - 2);
-                if (roles.Length > 0)
-                    roles = " (" + roles + ")";
-                LitAccessTypeDesc.Text += Utility.Html.GetTextPreview(roles, 60, "");
-                LitAccessTypeDesc.Text += writeAccessLevel;
-            }
+            //Literal LitAccessTypeDesc = (Literal)e.Row.FindControl("LitAccessTypeDesc");
+            ////read
+            //LitAccessTypeDesc.Text = item.ReadAccessType.ToString();
+            //if (item.ReadAccessType != MenuAccesstype.Public)
+            //{
+            //    string roles = "";
+            //    foreach (string role in item.ReadRolenames)
+            //    {
+            //        roles += role + ", ";
+            //    }
+            //    if (roles.EndsWith(", ")) roles = roles.Substring(0, roles.Length - 2);
+            //    if (roles.Length > 0)
+            //        roles = " (" + roles + ")";
+            //    LitAccessTypeDesc.Text += Utility.Html.GetTextPreview(roles, 60, "");
+            //    LitAccessTypeDesc.Text += readAccessLevel;
+            //}
+            //if (LitAccessTypeDesc.Text != "") LitAccessTypeDesc.Text += "<br />";
+            ////write
+            //LitAccessTypeDesc.Text += item.WriteAccessType.ToString();
+            //if (item.WriteAccessType != MenuAccesstype.Public)
+            //{
+            //    string roles = "";
+            //    foreach (string role in item.WriteRolenames)
+            //    {
+            //        roles += role + ", ";
+            //    }
+            //    if (roles.EndsWith(", ")) roles = roles.Substring(0, roles.Length - 2);
+            //    if (roles.Length > 0)
+            //        roles = " (" + roles + ")";
+            //    LitAccessTypeDesc.Text += Utility.Html.GetTextPreview(roles, 60, "");
+            //    LitAccessTypeDesc.Text += writeAccessLevel;
+            //}
 
 
-            //files upload
-            var LnkUploadFiles = (HyperLink)e.Row.FindControl("LnkUploadFiles");
-            LnkUploadFiles.NavigateUrl = this.FilesUploadUrl
-                + "?type=items&id=" + item.Id.ToString();
-            if (this.IsMobileDevice == false)
-                LnkUploadFiles.CssClass = "fancyRefresh";
-            var LitFilesCount = (Literal)e.Row.FindControl("LitFilesCount");
-            int filesCount = item.Files.Count;
-            if (filesCount > 0)
-            {
-                LitFilesCount.Text = filesCount.ToString();
-                LitFilesCount.Text += filesCount == 1 ? " file" : " files";
-                LitFilesCount.Text += "<br />(" + Utility.GetFileHumanLength(item.FilesSize) + ")";
-            }
+            ////files upload
+            //var LnkUploadFiles = (HyperLink)e.Row.FindControl("LnkUploadFiles");
+            //LnkUploadFiles.NavigateUrl = this.FilesUploadUrl
+            //    + "?type=items&id=" + item.Id.ToString();
+            //if (this.IsMobileDevice == false)
+            //    LnkUploadFiles.CssClass = "fancyRefresh";
+            //var LitFilesCount = (Literal)e.Row.FindControl("LitFilesCount");
+            //int filesCount = item.Files.Count;
+            //if (filesCount > 0)
+            //{
+            //    LitFilesCount.Text = filesCount.ToString();
+            //    LitFilesCount.Text += filesCount == 1 ? " file" : " files";
+            //    LitFilesCount.Text += "<br />(" + Utility.GetFileHumanLength(item.FilesSize) + ")";
+            //}
 
-            //images upload
-            var LnkUploadImg = (HyperLink)e.Row.FindControl("LnkUploadImg");
-            LnkUploadImg.NavigateUrl = this.ImagesUploadUrl
-                + "?type=items&id=" + item.Id.ToString();
-            if (this.IsMobileDevice == false)
-                LnkUploadImg.CssClass = "fancyRefresh";
-            var LitImgCount = (Literal)e.Row.FindControl("LitImgCount");
-            int imgCount = item.Images.Count;
-            if (imgCount > 0)
-            {
-                LitImgCount.Text = imgCount.ToString();
-                LitImgCount.Text += imgCount == 1 ? " file" : " files";
-                LitImgCount.Text += "<br />(" + Utility.GetFileHumanLength(item.ImagesSize) + ")";
-            }
+            ////images upload
+            //var LnkUploadImg = (HyperLink)e.Row.FindControl("LnkUploadImg");
+            //LnkUploadImg.NavigateUrl = this.ImagesUploadUrl
+            //    + "?type=items&id=" + item.Id.ToString();
+            //if (this.IsMobileDevice == false)
+            //    LnkUploadImg.CssClass = "fancyRefresh";
+            //var LitImgCount = (Literal)e.Row.FindControl("LitImgCount");
+            //int imgCount = item.Images.Count;
+            //if (imgCount > 0)
+            //{
+            //    LitImgCount.Text = imgCount.ToString();
+            //    LitImgCount.Text += imgCount == 1 ? " file" : " files";
+            //    LitImgCount.Text += "<br />(" + Utility.GetFileHumanLength(item.ImagesSize) + ")";
+            //}
         }
     }
 
@@ -537,6 +537,9 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
 
     protected void BtnCancel_Click(object sender, EventArgs e)
     {
+        if(new ProductItemsManager().GetByKey(this.CurrentId).IsDraft) {
+            new ProductItemsManager().DeleteById(this.CurrentId);
+        }
         LblErr.Text = RenderError("");
         LblOk.Text = RenderSuccess("");
         MultiView1.ActiveViewIndex = VIEW_GRID;
@@ -602,16 +605,16 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
 
         try
         {
-            var o1 = new ProductItem();
-
-            if (CurrentId == 0)
+            var o1 = new ProductItemsManager().GetByKey(CurrentId);  //precarico i campi esistenti e nn gestiti dal form
+            if (o1.IsDraft)
             {
+                o1.IsDraft = false;
                 form2obj(o1);
-                o1 = new ProductItemsManager().Insert(o1);
+                new ProductItemsManager().Update(o1);
             }
             else
             {
-                o1 = new ProductItemsManager().GetByKey(CurrentId);  //precarico i campi esistenti e nn gestiti dal form
+
                 form2obj(o1);
                 new ProductItemsManager().Update(o1);
             }
@@ -783,8 +786,6 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         CurrentId = recordId;
         if (CurrentId == 0)
         {
-            notSavedNav.Visible = false;
-            plhTabContent.Visible = false;
             loadDropCategories(int.Parse(DropSectionsFilter.SelectedValue));
             obj.ItemTypeName = "Shop.ProductItem"; //DropNew.SelectedValue;
             obj.ItemDate = DateTime.Now;
@@ -795,24 +796,13 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
             obj.CategoryId = defaultCategoryId;
             obj2form(obj);
             LitItemType.Text = "Shop.ProductItem"; //DropNew.SelectedValue;
+            obj.IsDraft = true;
+            var currentProd = new ProductItemsManager().Insert(obj);
+            this.CurrentId = currentProd.Id;
         }
         else
         {
             obj = new ProductItemsManager().GetByKey(CurrentId);
-            //if (!obj.IsThreadRoot)
-            //{
-            //    //onlyIfRoot.Visible = false;
-            //    DropCategories.Enabled = false;
-            //    TxtAlias.Enabled = false;
-            //}
-            //else
-            //{
-            //    //onlyIfRoot.Visible = true;
-            //    DropCategories.Enabled = true;
-            //    TxtAlias.Enabled = true;
-            //}
-            notSavedNav.Visible = true;
-            plhTabContent.Visible = true;
             loadDropCategories(obj.SectionId);
             obj2form(obj);
         }
@@ -1053,6 +1043,7 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         //var filter = new AttributeFilter();
         //filter.AttributeType = "";
         allAttributes = new PigeonCms.AttributesManager().GetByFilter(new AttributeFilter(), "");
+        allAttributes = allAttributes.Where(x => x.AllowCustomValue == false).ToList();
         
         //remove from list all attribute that have the same Id as the list above
         var res = (List<PigeonCms.Attribute>)allAttributes.Where(x => !attributesId.Any(x2 => x2 == x.Id)).ToList();
@@ -1067,6 +1058,7 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
     [PigeonCms.UserControlScriptMethod]
     public static List<PigeonCms.AttributeValue> GetAttributeValues(int id)
     {
+
         // get values
         var myValues = new List<PigeonCms.AttributeValue>();
         PigeonCms.AttributeValueFilter filter = new PigeonCms.AttributeValueFilter();
@@ -1108,20 +1100,56 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         // get all actual attributes
         var actualAttributes = new ItemAttributesValuesManager().GetByReferredId(itemId);
 
+        var toInsert = new List<ItemAttributeValue>();
         var toDelete = new List<ItemAttributeValue>();
 
         if (actualAttributes != null && actualAttributes.Count > 0)
         {
+            // we need to check if we added a new attribute
+            // if yes, we will save the new attributes with ID for each record previously inserted
+            // to not lose records 
+            var oldAttributes = actualAttributes.GroupBy(x => x.AttributeId).Select(y => new PigeonCms.Attribute() { Id = y.Key }).ToList();
+            var takenAttributes = values.GroupBy(x => x.AttributeId).Select(y => new PigeonCms.Attribute() { Id = y.Key }).ToList();
+
+            var newAttributes = takenAttributes.Select(x => x.Id).Except(oldAttributes.Select(x => x.Id)).ToList();
+
+            var valuesWithNewAttributes = values.Where(x => newAttributes.Any(x2 => x2 == x.AttributeId)).OrderBy(x => x.AttributeId).ToList();
+
+            var actualAttributesAssigned = actualAttributes.Select(x => x.ItemId).Where(x => x > 0).ToList();
+
+            // group to not have duplicates!! 
+            var list = actualAttributesAssigned.GroupBy(i => i, (e, g) => new { Value = e, Count = g.Count() });
+
+            foreach (var assigned in list)
+            {
+                if (valuesWithNewAttributes != null && valuesWithNewAttributes.Count > 0)
+                {
+                    //// iterate each Value to be inserted of the new attribute and assign the ItemId to keep Value
+
+                    var toAdd = valuesWithNewAttributes.First();
+                    // remove from list to insert
+                    values.Remove(toAdd);
+                    // insert with the id of variants populated
+                    toAdd.ItemId = assigned.Value;
+                    new PigeonCms.ItemAttributesValuesManager().Insert(toAdd);
+
+                }
+
+            }
+
+            //// DELETE LIST
             // exclude to actualAttributes the new Values, if values are less than actualAttributes, the exclusion will be deleted
             toDelete = actualAttributes.Except(values).ToList();
-        }
 
-        var toInsert  = values;
-
-        if (actualAttributes != null && actualAttributes.Count > 0)
-        {
+            //// INSERT LIST
+            toInsert = values;
             // exclude to new Values the nactualAttributes, if actualAttributes are less than values, the exclusion will be inserted
             toInsert = values.Except(actualAttributes).ToList();
+
+        }
+        else
+        {
+            toInsert = values;
         }
 
 
@@ -1343,6 +1371,8 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
             {
                 var ids = "";
                 var vals = "";
+
+                variants = variants.OrderBy(x => x.AttributeId).ToList();
 
                 // iterate each value
                 foreach (var variant in variants)
@@ -1659,6 +1689,8 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
 
                 var ids = new List<string>();
                 var values = new List<string>();
+
+                variants = variants.OrderBy(x => x.AttributeId).ToList();
 
                 // add ids and values to know the information of each box
                 foreach (var variant in variants)

@@ -75,6 +75,7 @@ var deleteQuestion = '<%=PigeonCms.Utility.GetLabel("RECORD_DELETE_QUESTION") %>
                                     <ItemTemplate>
                                         <asp:LinkButton ID="LnkEditValues" runat="server" CausesValidation="false" 
                                         CommandName="EditValues" CommandArgument='<%#Eval("Id") %>'><i class='fa fa-pgn_edit fa-fw'></i></asp:LinkButton>
+                                        <asp:Literal ID="ValuesPreview" runat="server" />
                                     </ItemTemplate>
                                 </asp:TemplateField>
 
@@ -187,6 +188,7 @@ var deleteQuestion = '<%=PigeonCms.Utility.GetLabel("RECORD_DELETE_QUESTION") %>
                     <asp:Literal ID="editValueName" runat="server"></asp:Literal>
                     <div class="pull-right">
                         <div class="btn-group">
+                            <asp:Button ID="BtnNewValue" runat="server" Text="New" CssClass="btn btn-warning btn-xs" OnClick="BtnNewValue_Click" />
                             <asp:Button ID="BtnSaveValues" runat="server" Text="<%$ Resources:PublicLabels, CmdSave %>" CssClass="btn btn-primary btn-xs" OnClick="BtnSaveValues_Click" />
                             <asp:Button ID="BtnCancelValues" runat="server" Text="<%$ Resources:PublicLabels, CmdCancel %>" CssClass="btn btn-default btn-xs" CausesValidation="false" OnClick="BtnCancel_Click" />
                         </div>

@@ -202,7 +202,7 @@ function onFailure(result) { }
                                 </ItemTemplate>
                             </asp:TemplateField>
                     
-                            <asp:TemplateField HeaderText="Access Level" SortExpression="AccessCode, AccessLevel" Visible="false">
+                     <%--       <asp:TemplateField HeaderText="Access Level" SortExpression="AccessCode, AccessLevel" Visible="false">
                                 <ItemTemplate>
                                 <asp:Literal ID="LitAccessLevel" runat="server" Text=""></asp:Literal>
                                 </ItemTemplate>
@@ -235,7 +235,7 @@ function onFailure(result) { }
                                         <i class='fa fa-pgn_delete fa-fw'></i>
                                     </asp:LinkButton>
                                 </ItemTemplate>
-                            </asp:TemplateField>
+                            </asp:TemplateField>--%>
                     
                             <asp:BoundField DataField="Id" HeaderText="ID" SortExpression="Id" ItemStyle-HorizontalAlign="Right" HeaderStyle-HorizontalAlign="Right" />
                         </Columns>
@@ -281,11 +281,8 @@ function onFailure(result) { }
                             <li><a href="#tab-security" data-toggle="tab"><%=base.GetLabel("Security", "Security") %></a></li>
                             <li><a href="#tab-parameters" data-toggle="tab"><%=base.GetLabel("Parameters", "Parameters") %></a></li>
                             <li><a href="#tab-related" data-toggle="tab"><%=base.GetLabel("Related", "Related") %></a></li>
-                            <!-- placeholder to wait a valid id and store correct informations -->
-                            <asp:PlaceHolder ID="notSavedNav" runat="server" Visible="false">
-                                <li><a href="#tab-attributes" data-toggle="tab"><%=base.GetLabel("Attributes", "Attributes") %></a></li>
-                                <li><a href="#tab-variants" data-toggle="tab"><%=base.GetLabel("Variants", "Variants") %></a></li>
-                            </asp:PlaceHolder>
+                            <li><a href="#tab-attributes" data-toggle="tab"><%=base.GetLabel("Attributes", "Attributes") %></a></li>
+                            <li><a href="#tab-variants" data-toggle="tab"><%=base.GetLabel("Variants", "Variants") %></a></li>
                     </ul>
 
                     <div class="tab-content">
@@ -390,61 +387,58 @@ function onFailure(result) { }
 
                         </div>
 
-                         <!-- placeholder to wait a valid id and store correct informations -->
-                        <asp:PlaceHolder ID="plhTabContent" runat="server" Visible="false">
+                        <!-- pane for attributes -->
+                        <div class="tab-pane fade" id="tab-attributes">
 
-                            <!-- pane for attributes -->
-                            <div class="tab-pane fade" id="tab-attributes">
+                            <h3> Item Attributes </h3>
 
-                                <h3> Item Attributes </h3>
+                            <div id="attributesForm" class="col-md-12 col-sm-12 col-lg-12 form-group" data-itemid="<%=ItemId %>">
+                                <%--<asp:Literal ID="ltrAttributes" runat="server" ></asp:Literal>--%>
+                            </div>
 
-                                <div id="attributesForm" class="col-md-12 col-sm-12 col-lg-12 form-group" data-itemid="<%=ItemId %>">
-                                    <%--<asp:Literal ID="ltrAttributes" runat="server" ></asp:Literal>--%>
-                                </div>
-
-                                <button id="updateValues" type="button" class="btn btn-success">Save Values</button>
+                            <button id="updateValues" type="button" class="btn btn-success">Save Values</button>
                                 
-                            </div>
+                        </div>
 
-                            <!-- pane for variants -->
-                            <div class="tab-pane fade" id="tab-variants">
+                        <!-- pane for variants -->
+                        <div class="tab-pane fade" id="tab-variants">
 
-                                <div id="variantsForm" class="col-md-12 col-sm-12 col-lg-12 form-group" data-itemid="<%=ItemId %>">
+                            <div id="variantsForm" class="col-md-12 col-sm-12 col-lg-12 form-group" data-itemid="<%=ItemId %>">
 
-                                    <h3> Item Variants </h3>
+                                <h3> Item Variants </h3>
 
-                                    <div id="variantsBoxes" class="col-lg-12 form-group row">
+                                <div id="variantsBoxes" class="col-lg-12 form-group row">
 
+                                </div>
+
+                                <div class="col-lg-12 form-group">
+
+                                    <select id="bulkActionSelect" class="form-group form-control col-md-4 col-sm-12">
+	                                    <option selected> -- Bulk Actions -- </option>
+	                                    <option value="ProductCode"> Product Code </option>
+	                                    <option value="Availability"> Availability </option>
+	                                    <option value="RegularPrice"> Price </option>
+	                                    <option value="SalePrice"> Offer Price </option>
+                                    </select>
+
+                                    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
                                     </div>
 
-                                    <div class="col-lg-12 form-group">
+                                    <button id="bulkActionButton" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
+                                        Bulk Edit
+                                    </button>
 
-                                        <select id="bulkActionSelect" class="form-group form-control col-md-4 col-sm-12">
-	                                        <option selected> -- Bulk Actions -- </option>
-	                                        <option value="ProductCode"> Product Code </option>
-	                                        <option value="Availability"> Availability </option>
-	                                        <option value="RegularPrice"> Price </option>
-	                                        <option value="SalePrice"> Offer Price </option>
-                                        </select>
+                                    <button id="linkAll" type="button" class="btn btn-success">Link All Variants</button>
 
-                                        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-                                        </div>
+                                    <button id="saveAll" type="button" class="btn btn-info"> Save All Variants </button>
 
-                                        <button id="bulkActionButton" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
-                                            Bulk Edit
-                                        </button>
-
-                                        <button id="linkAll" type="button" class="btn btn-success">Link All Variants</button>
-
-                                        <button id="saveAll" type="button" class="btn btn-info"> Save All Variants </button>
-
-                                    </div>
+                                    <button id="deleteAll" type="button" class="btn btn-warning"> Delete All Variants </button>
 
                                 </div>
 
                             </div>
 
-                        </asp:PlaceHolder>
+                        </div>
 
                     </div>
 

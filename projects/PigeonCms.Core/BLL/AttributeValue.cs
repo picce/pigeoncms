@@ -107,6 +107,7 @@ namespace PigeonCms
 
         private int id = 0;
         private int attributeId = 0;
+        private int numOfRecords = 0;
 
         public int Id
         {
@@ -122,6 +123,14 @@ namespace PigeonCms
             get { return attributeId; }
             [DebuggerStepThrough()]
             set { attributeId = value; }
+        }
+
+        public int NumOfRecords
+        {
+            [DebuggerStepThrough()]
+            get { return numOfRecords; }
+            [DebuggerStepThrough()]
+            set { numOfRecords = value; }
         }
 
         #endregion
