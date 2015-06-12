@@ -442,85 +442,38 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
                 img1.Visible = true;
             }
 
-            ////permissions
-            ////read
-            //string readAccessLevel = item.ReadAccessCode;
-            //if (item.ReadAccessLevel > 0)
-            //    readAccessLevel += " " + item.ReadAccessLevel.ToString();
-            //if (!string.IsNullOrEmpty(readAccessLevel))
-            //    readAccessLevel = " - " + readAccessLevel;
+            // now have to compose the list with the couple of ids compiled, so take all variants productitem
+            var productfilter = new ProductItemFilter();
+            productfilter.ThreadId = item.Id;
+            productfilter.ShowOnlyRootItems = false;
+            var productitems = new ProductItemsManager().GetByFilter(productfilter, "");
 
-            ////write
-            //string writeAccessLevel = item.WriteAccessCode;
-            //if (item.WriteAccessLevel > 0)
-            //    writeAccessLevel += " " + item.WriteAccessLevel.ToString();
-            //if (!string.IsNullOrEmpty(writeAccessLevel))
-            //    writeAccessLevel = " - " + writeAccessLevel;
+            // iterate them
+            foreach (var productitem in productitems)
+            {
+                // check if are compiled
+                var variants = new ItemAttributesValuesManager().GetByItemId(productitem.Id);
+                if (variants != null && variants.Count > 0)
+                {
+                    variants = variants.OrderBy(x => x.AttributeId).ToList();
 
-            //Literal LitAccessTypeDesc = (Literal)e.Row.FindControl("LitAccessTypeDesc");
-            ////read
-            //LitAccessTypeDesc.Text = item.ReadAccessType.ToString();
-            //if (item.ReadAccessType != MenuAccesstype.Public)
-            //{
-            //    string roles = "";
-            //    foreach (string role in item.ReadRolenames)
-            //    {
-            //        roles += role + ", ";
-            //    }
-            //    if (roles.EndsWith(", ")) roles = roles.Substring(0, roles.Length - 2);
-            //    if (roles.Length > 0)
-            //        roles = " (" + roles + ")";
-            //    LitAccessTypeDesc.Text += Utility.Html.GetTextPreview(roles, 60, "");
-            //    LitAccessTypeDesc.Text += readAccessLevel;
-            //}
-            //if (LitAccessTypeDesc.Text != "") LitAccessTypeDesc.Text += "<br />";
-            ////write
-            //LitAccessTypeDesc.Text += item.WriteAccessType.ToString();
-            //if (item.WriteAccessType != MenuAccesstype.Public)
-            //{
-            //    string roles = "";
-            //    foreach (string role in item.WriteRolenames)
-            //    {
-            //        roles += role + ", ";
-            //    }
-            //    if (roles.EndsWith(", ")) roles = roles.Substring(0, roles.Length - 2);
-            //    if (roles.Length > 0)
-            //        roles = " (" + roles + ")";
-            //    LitAccessTypeDesc.Text += Utility.Html.GetTextPreview(roles, 60, "");
-            //    LitAccessTypeDesc.Text += writeAccessLevel;
-            //}
+                    Literal variantsCompiled = e.Row.FindControl("variantsCompiled") as Literal;
 
+                    // add ids and values to know the information of each box
+                    foreach (var variant in variants)
+                    {
+                        var value = new PigeonCms.AttributeValuesManager().GetByKey(variant.AttributeValueId).Value;
+                        variantsCompiled.Text += value + " - " ;
+                    }
 
-            ////files upload
-            //var LnkUploadFiles = (HyperLink)e.Row.FindControl("LnkUploadFiles");
-            //LnkUploadFiles.NavigateUrl = this.FilesUploadUrl
-            //    + "?type=items&id=" + item.Id.ToString();
-            //if (this.IsMobileDevice == false)
-            //    LnkUploadFiles.CssClass = "fancyRefresh";
-            //var LitFilesCount = (Literal)e.Row.FindControl("LitFilesCount");
-            //int filesCount = item.Files.Count;
-            //if (filesCount > 0)
-            //{
-            //    LitFilesCount.Text = filesCount.ToString();
-            //    LitFilesCount.Text += filesCount == 1 ? " file" : " files";
-            //    LitFilesCount.Text += "<br />(" + Utility.GetFileHumanLength(item.FilesSize) + ")";
-            //}
+                    variantsCompiled.Text = variantsCompiled.Text.Substring(0, variantsCompiled.Text.Length - 3) + "<br>";
+                    
+                }
 
-            ////images upload
-            //var LnkUploadImg = (HyperLink)e.Row.FindControl("LnkUploadImg");
-            //LnkUploadImg.NavigateUrl = this.ImagesUploadUrl
-            //    + "?type=items&id=" + item.Id.ToString();
-            //if (this.IsMobileDevice == false)
-            //    LnkUploadImg.CssClass = "fancyRefresh";
-            //var LitImgCount = (Literal)e.Row.FindControl("LitImgCount");
-            //int imgCount = item.Images.Count;
-            //if (imgCount > 0)
-            //{
-            //    LitImgCount.Text = imgCount.ToString();
-            //    LitImgCount.Text += imgCount == 1 ? " file" : " files";
-            //    LitImgCount.Text += "<br />(" + Utility.GetFileHumanLength(item.ImagesSize) + ")";
-            //}
+            }
+
         }
+
     }
 
     protected void BtnSave_Click(object sender, EventArgs e)

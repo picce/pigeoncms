@@ -2,7 +2,9 @@ var $ = require('jquery');
 var _ = require('lodash');
 var emitter = require('../modules/emitter');
 var templates = require('../modules/templates');
+
 var container;
+
 
 var compileAttributes = function(attachTo) {
 
@@ -13,6 +15,8 @@ var compileAttributes = function(attachTo) {
 	GetAttributeValuesForVariants(getAttributeValuesForVariantsSuccess, getAttributeValuesForVariantsFailed, parseInt(itemId));
 
 	ShowVariants(showVariantsSuccess, showVariantsFailed, parseInt(itemId));
+
+	emitter.emit('variantsButton');
 
 };
 
@@ -69,6 +73,7 @@ function showVariantsSuccess(result) {
 		console.log(variant.Product);
 		emitter.emit('generateInputs', variant.Info.ListIds, variant.Info.ListValues, variant.Product);
 	});
+
 }
 
 function showVariantsFailed(result) {

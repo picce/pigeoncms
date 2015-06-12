@@ -171,7 +171,12 @@ function onFailure(result) { }
                                 </ItemTemplate>
                             </asp:TemplateField>
 
-                            <asp:BoundField DataField="ItemTypeName" HeaderText="<%$ Resources:PublicLabels, LblType %>" />
+                            <%--<asp:BoundField DataField="ItemTypeName" HeaderText="<%$ Resources:PublicLabels, LblType %>" />--%>
+                            <asp:TemplateField HeaderText="Variants Compiled" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
+                                <ItemTemplate>
+                                    <asp:Literal ID="variantsCompiled" runat="server" />
+                                </ItemTemplate>
+                            </asp:TemplateField>
 
                             <asp:BoundField DataField="Ordering"  SortExpression="Ordering" ItemStyle-HorizontalAlign="Right" />
                             <asp:TemplateField HeaderText="<%$ Resources:PublicLabels, LblOrder %>" ItemStyle-HorizontalAlign="Right" SortExpression="Ordering">
@@ -196,13 +201,13 @@ function onFailure(result) { }
                                 </ItemTemplate>
                             </asp:TemplateField>
                     
-                            <asp:TemplateField HeaderText="Access" SortExpression="AccessType">
+              <%--              <asp:TemplateField HeaderText="Access" SortExpression="AccessType">
                                 <ItemTemplate>
                                 <asp:Literal ID="LitAccessTypeDesc" runat="server" Text=""></asp:Literal>
                                 </ItemTemplate>
                             </asp:TemplateField>
                     
-                     <%--       <asp:TemplateField HeaderText="Access Level" SortExpression="AccessCode, AccessLevel" Visible="false">
+                            <asp:TemplateField HeaderText="Access Level" SortExpression="AccessCode, AccessLevel" Visible="false">
                                 <ItemTemplate>
                                 <asp:Literal ID="LitAccessLevel" runat="server" Text=""></asp:Literal>
                                 </ItemTemplate>
@@ -226,7 +231,7 @@ function onFailure(result) { }
                                     <br />
                                     <span><asp:Literal ID="LitImgCount" runat="server" Text=""></asp:Literal></span>
                                 </ItemTemplate>
-                            </asp:TemplateField>
+                            </asp:TemplateField>--%>
                     
                             <asp:TemplateField HeaderText="" ItemStyle-HorizontalAlign="Center" ItemStyle-Width="10">
                                 <ItemTemplate>
@@ -235,7 +240,7 @@ function onFailure(result) { }
                                         <i class='fa fa-pgn_delete fa-fw'></i>
                                     </asp:LinkButton>
                                 </ItemTemplate>
-                            </asp:TemplateField>--%>
+                            </asp:TemplateField>
                     
                             <asp:BoundField DataField="Id" HeaderText="ID" SortExpression="Id" ItemStyle-HorizontalAlign="Right" HeaderStyle-HorizontalAlign="Right" />
                         </Columns>

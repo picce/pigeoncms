@@ -28,8 +28,6 @@ var autocompile = function(attachTo) {
 	
 };
 
-$()
-
 function getRelatedSuccess(result) {
 	//console.log(result);
 	var tags = $.parseJSON(result);

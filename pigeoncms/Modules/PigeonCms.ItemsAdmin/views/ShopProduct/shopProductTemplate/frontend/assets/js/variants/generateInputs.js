@@ -4,12 +4,6 @@ var emitter = require('../modules/emitter');
 var templates = require('../modules/templates');
 var validator = require('../modules/formValidator');
 
-//window.$buttonSave;
-//window.$buttonDelete;
-//window.$buttonGallery;
-//window.$boxDelete;
-//window.$boxSave;
-
 var generateInputs = function(ids, values, product) {
 
 	var form = templates.inputVariants;
@@ -21,6 +15,9 @@ var generateInputs = function(ids, values, product) {
 	});
 
 	$('#variantsForm').append(compiled);
+
+	emitter.emit('variantsButton');
+
 };
 
 emitter.on('generateInputs', generateInputs);
@@ -37,15 +34,6 @@ $(document).on('click', '.saveVariant', function(e){
 		$boxes = $('#variantsBoxes');
 		defaults = "";
 
-		debugger;
-
-	//window.$buttonSave = $this;
-	//window.$buttonDelete = $form.find('.deleteVariant');
-	//window.$buttonGallery = $form.find('.uploadImage');
-	//window.$boxSave = $form.parent();
-
-	//debugger;
-
 	var formArray = [];
 
 	_.each($boxes.find('select'), function (elem){
@@ -55,8 +43,6 @@ $(document).on('click', '.saveVariant', function(e){
 		defaults += value + ',';
 
 	});
-
-	//debugger;
 
 	var isValidForm = validator.validate($form, "has-error");
 
@@ -95,8 +81,6 @@ $(document).on('click', '.deleteVariant', function(e){
 		eachIds = attributesValuesId.split(','),
 		$form = $this.parents('.form-variant'),
 		variantId = $this.data('variantid');
-
-	//window.$boxDelete = $form.parent();
 
 	DeleteVariant($.proxy(deleteVariantSuccess, this), deleteVariantFailed, parseInt(itemId), attributesValuesId, parseInt(variantId));
 
@@ -189,9 +173,7 @@ $(document).on('click', '#saveAll', function(e){
 	 	$(this).click();
 	 });
 
-	$saveButton.click();
-
-	//alert('all variants saved !');
+	 $saveButton.click();
 
 });
 
@@ -200,25 +182,25 @@ $(document).on('click', '#deleteAll', function(e){
 	var $form = $('#variantsForm');
 
 	$form.find('.deleteVariant').each(function(){
-		$(this).click();
+	    var $this = $(this),
+            isSaved = $this.data('variantid');
+	    if(isSaved > 0) {
+	        $this.click();
+	    }
+        
 	});
-
-	//alert('all variants deleted !');
 
 });
 
 
 function saveVariantSuccess(result) {
 
-    //console.log(this);
     var $buttonClicked = $(this),
         $form = $buttonClicked.parents('.form-variant'),
         $boxSave = $form.parent(),
         $buttonDelete = $form.find('.deleteVariant'),
         $buttonGallery = $form.find('.uploadImage');
 
-	//console.log(result);
-	//debugger;
     $buttonClicked.data('variantid', result);
 	$buttonDelete.data('variantid', result);
 	$buttonGallery.data('variantid', result);
@@ -230,10 +212,6 @@ function saveVariantFailed(result) {
 }
 
 function deleteVariantSuccess(result) {
-	// console.log(result);
-	// var success = Boolean(result);
-    // console.log(success);
-
     var $buttonDelete = $(this),
         $form = $buttonDelete.parents('.form-variant'),
         $boxDelete = $form.parent();
@@ -243,7 +221,8 @@ function deleteVariantSuccess(result) {
 	} else {
 		alert('can\'t delete unassigned variant');
 	}
-	
+
+	_.delay(800, emitter.emit('variantsButton'));
 }
 
 function deleteVariantFailed(result) {
@@ -265,5 +244,6 @@ function refreshGallerySuccess(result) {
 }
 
 function refreshGalleryFailed(result) {
-	console.log(result);
+    console.log(result);
 }
+
