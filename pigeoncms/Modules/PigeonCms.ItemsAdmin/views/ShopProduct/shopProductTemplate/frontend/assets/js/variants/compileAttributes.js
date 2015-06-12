@@ -85,13 +85,20 @@ function getLinkVariantsSuccess(result) {
 
 	//debugger;
 
+	var dims = {
+	   DimL: "",
+	   DimW: "",
+	   DimH: ""
+	}
+
 	var Product = {
 		Id: '0',
 		ProductCode: '',
 		Availability: '',
 		RegularPrice: '',
 		SalePrice: '',
-		Weight: ''
+		Weight: '',
+		Dimensions: dims
 	};
 
 	for(var key in ids) {

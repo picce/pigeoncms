@@ -187,10 +187,7 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
 
         Utility.Script.RegisterClientScriptInclude(this, "appjs",
             ResolveUrl(Config.ModulesPath + this.BaseModule.ModuleFullName + "/views/" +
-            this.BaseModule.CurrViewFolder + "/app.js"));
-
-        Page.Header.Controls.Add(
-        new System.Web.UI.LiteralControl("<link rel=\"stylesheet\" type=\"text/css\" href=\"" + ResolveUrl(Config.ModulesPath + this.BaseModule.ModuleFullName + "/views/" + this.BaseModule.CurrViewFolder + "/jquery.fancybox.css") + "\" />"));
+            this.BaseModule.CurrViewFolder + "/assets/js/app.js"));
 
         if (this.BaseModule.DirectEditMode)
         {
@@ -1564,6 +1561,7 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
 
             var dimensions = values.ElementAt(5).Value;
 
+
             product.ProductCode = productCode;
             product.Availability = Convert.ToInt32(availabilty);
             product.RegularPrice = price;
@@ -1673,6 +1671,17 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
             var variants = new ItemAttributesValuesManager().GetByItemId(productitem.Id);
             if (variants != null && variants.Count > 0)
             {
+
+
+                var valuesDims = productitem.Dimensions.Split(',');
+
+                var vals = new
+                {
+                    DimL = valuesDims[0],
+                    DimW = valuesDims[1],
+                    DimH = valuesDims[2]
+                };
+
                 // get all values of variants and compile in object
 
                 var product = new
@@ -1683,7 +1692,7 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
                     RegularPrice = productitem.RegularPrice,
                     SalePrice = productitem.SalePrice,
                     Weight = productitem.Weight,
-                    Dimensions = productitem.Dimensions,
+                    Dimensions = vals,
                     Photos = productitem.Images
                 };
 

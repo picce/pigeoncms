@@ -219,6 +219,8 @@ pip-log.txt
 pigeoncms\Bin
 Installation\install.txt
 pigeoncms\web.config
+Bin/  
+node_modules
 projects\pigeoncms.sln
 *.csproj
 *.dll

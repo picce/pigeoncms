@@ -38,13 +38,13 @@
 						        <label for="">Dimensions (L x W x H)</label>
 						    </div>
 						    <div class="col-md-4 col-sm-12">
-						        <input name="DimL<% _.each(ids, function (id) { %>_<%= id %><% }); %>" type="text" data-type="decimal" id="DimL<% _.each(ids, function (id) { %>_<%= id %><% }); %>" class="form-control">
+						        <input name="DimL<% _.each(ids, function (id) { %>_<%= id %><% }); %>" value="<%= Product.Dimensions.DimL %>" type="text" data-type="decimal" id="DimL<% _.each(ids, function (id) { %>_<%= id %><% }); %>" class="form-control">
 						    </div>
 						    <div class="col-md-4 col-sm-12">
-						        <input name="DimW<% _.each(ids, function (id) { %>_<%= id %><% }); %>" type="text" data-type="decimal" id="DimW<% _.each(ids, function (id) { %>_<%= id %><% }); %>" class="form-control">
+						        <input name="DimW<% _.each(ids, function (id) { %>_<%= id %><% }); %>" value="<%= Product.Dimensions.DimW %>" type="text" data-type="decimal" id="DimW<% _.each(ids, function (id) { %>_<%= id %><% }); %>" class="form-control">
 						    </div>
 						    <div class="col-md-4 col-sm-12 form-group">
-						        <input name="DimH<% _.each(ids, function (id) { %>_<%= id %><% }); %>" type="text" data-type="decimal" id="DimH<% _.each(ids, function (id) { %>_<%= id %><% }); %>" class="form-control">
+						        <input name="DimH<% _.each(ids, function (id) { %>_<%= id %><% }); %>" value="<%= Product.Dimensions.DimH %>" type="text" data-type="decimal" id="DimH<% _.each(ids, function (id) { %>_<%= id %><% }); %>" class="form-control">
 						    </div>
 						</div>
 						<div class="col-lg-12" id="gallery<% _.each(ids, function (id) { %>_<%= id %><% }); %>">
