@@ -275,17 +275,6 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         Grid1.DataBind();
     }
 
-    //protected void DropNew_SelectedIndexChanged(object sender, EventArgs e)
-    //{
-    //    if (!checkAddNewFilters())
-    //        Utility.SetDropByValue(DropNew, "");
-    //    else
-    //    {
-    //        try { editRow(0); }
-    //        catch (Exception e1) { LblErr.Text = RenderError(e1.Message); }
-    //    }
-    //}
-
     protected void BtnNew_Click(object sender, EventArgs e)
     {
         try
@@ -324,26 +313,6 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
                 filter.Enabled = Utility.TristateBool.NotSet;
                 break;
         }
-
-        //if (DropItemTypesFilter.SelectedValue != "")
-        //    filter.ItemType = DropItemTypesFilter.SelectedValue;
-        //if (this.ItemId > 0)
-        //    filter.Id = this.ItemId;
-
-        //int secId = -1;
-        //int.TryParse(DropSectionsFilter.SelectedValue, out secId);
-
-        //int catId = -1;
-        //int.TryParse(DropCategoriesFilter.SelectedValue, out catId);
-
-
-        //if (base.SectionId > 0)
-        //    filter.SectionId = base.SectionId;
-        //else
-        //    filter.SectionId = secId;
-        //filter.CategoryId = catId;
-
-        //filter.ShowOnlyRootItems = false;
 
         e.InputParameters["filter"] = filter;
         e.InputParameters["sort"] = "";
@@ -601,14 +570,7 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         ChkEnabled.Checked = true;
         TxtAlias.Text = "";
         TxtCssClass.Text = "";
-        //TxtAvailability.Text = "";
-        //TxtProductCode.Text = "";
-        //TxtOfferPrice.Text = "";
-        //TxtPrice.Text = "";
-        //TxtWeight.Text = "";
-        //TxtDimL.Text = "";
-        //TxtDimW.Text = "";
-        //TxtDimH.Text = "";
+
         this.ItemDate = DateTime.MinValue;
         this.ValidFrom = DateTime.MinValue;
         this.ValidTo = DateTime.MinValue;
@@ -640,19 +602,6 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         obj.ItemDate = this.ItemDate;
         obj.ValidFrom = this.ValidFrom;
         obj.ValidTo = this.ValidTo;
-        //obj.ProductCode = TxtProductCode.Text;
-        //obj.RegularPrice = decimal.Parse(TxtPrice.Text);
-        //obj.SalePrice = decimal.Parse(TxtOfferPrice.Text);
-        //obj.Availability = int.Parse(TxtAvailability.Text);
-        //obj.Weight = decimal.Parse(TxtWeight.Text);
-
-        string diml, dimw, dimh;
-
-        //diml = (string.IsNullOrEmpty(TxtDimL.Text)) ? "0" : TxtDimL.Text;
-        //dimw = (string.IsNullOrEmpty(TxtDimW.Text)) ? "0" : TxtDimW.Text;
-        //dimh = (string.IsNullOrEmpty(TxtDimH.Text)) ? "0" : TxtDimH.Text;
-
-        //obj.Dimensions = diml + "," + dimw + "," + dimh;
 
         if (CurrentId == 0)
             obj.ItemTypeName = LitItemType.Text;
@@ -828,7 +777,6 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
     private void loadDropCategories(int sectionId)
     {
         DropCategories.Items.Clear();
-        //DropCategories.Items.Add(new ListItem("", "0"));  //mandatory category
 
         var catFilter = new CategoriesFilter();
         var catList = new List<Category>();
@@ -845,9 +793,6 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
 
     private void loadDropsItemTypes()
     {
-
-        //DropNew.Items.Clear();
-        //DropNew.Items.Add(new ListItem(Utility.GetLabel("LblCreateNew", "Create new"), ""));
 
         DropItemTypesFilter.Items.Clear();
         DropItemTypesFilter.Items.Add(new ListItem(Utility.GetLabel("LblSelectItem", "Select item"), ""));
@@ -1755,10 +1700,13 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
     /// <param name="type"></param>
     /// <returns></returns>
     [PigeonCms.UserControlScriptMethod]
-    public static List<object> GetRelatedProductSearch(string type)
+    public static List<object> GetRelatedProductSearch(string type, int itemId)
     {
         var items = new ProductItemsManager().GetByFilter(new ProductItemFilter(), "");
-        var prods = items.Select(x => x).Where(x => x.Title.Contains(type)).ToList();
+        items = items.Where(x => x.Id != itemId).ToList();
+        var presents = new ProductItemsManager().getRelatedByKey(itemId);
+        var except = items.Where(x => !presents.Any(x2 => x2.Id == x.Id)).ToList();
+        var prods = except.Select(x => x).Where(x => x.Title.ToLower().Contains(type.ToLower())).ToList();
         var result = new List<object>();
         foreach (var prod in prods)
         {
@@ -1772,6 +1720,27 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         }
         return result;
     }
+    /// <summary>
+    /// Get related compiled previously
+    /// </summary>
+    /// <param name="type"></param>
+    /// <returns></returns>
+    [PigeonCms.UserControlScriptMethod]
+    public static List<object> GetRelatedById(int itemId)
+    {
+        var result = new List<object>();
+        var items = new ProductItemsManager().getRelatedByKey(itemId);
+        foreach(var item in items) {
+            var prod = new {
+                id = item.Id,
+                name = item.Title
+            };
+
+            result.Add(prod);
+        }
+        return result;
+    }
+
 
 
     /// <summary>
@@ -1784,6 +1753,40 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
     {
         var item = new ProductItemsManager().GetByKey(itemId);
         return item.Images;
+    }
+
+    /// <summary>
+    /// Get a list of related products
+    /// </summary>
+    /// <param name="itemId"></param>
+    /// <returns></returns>
+    [PigeonCms.UserControlScriptMethod]
+    public List<ProductItem> GetRelatedList(int itemId)
+    {
+        var item = new ProductItemsManager().getRelatedByKey(itemId);
+        return item;
+    }
+
+    /// <summary>
+    /// Delete related on close icon
+    /// </summary>
+    /// <param name="itemId"></param>
+    /// <param name="relatedId"></param>
+    [PigeonCms.UserControlScriptMethod]
+    public static void DeleteRelated(int itemId, int relatedId)
+    {
+        new ProductItemsManager().deleteRelated(itemId, relatedId);
+    }
+
+    /// <summary>
+    /// set related on autocompile form
+    /// </summary>
+    /// <param name="itemId"></param>
+    /// <param name="relatedId"></param>
+    [PigeonCms.UserControlScriptMethod]
+    public static void SetRelatedProducts(int itemId, int relatedId)
+    {
+        new ProductItemsManager().setRelated(itemId, relatedId);
     }
 
     /// <summary>
