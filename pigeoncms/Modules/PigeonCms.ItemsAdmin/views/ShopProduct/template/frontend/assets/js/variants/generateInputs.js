@@ -4,19 +4,24 @@ var emitter = require('../modules/emitter');
 var templates = require('../modules/templates');
 var validator = require('../modules/formValidator');
 
-var generateInputs = function(ids, values, product) {
+var generateInputs = function(ids, values, product, customAttributes) {
+
+	var itemId = $('#variantsForm').data('itemid');
 
 	var form = templates.inputVariants;
 
 	var compiled = form({
 		values: values,
 		ids: ids,
-		Product: product
+		Product: product,
+		customAttributes: customAttributes
 	});
 
 	$('#variantsForm').append(compiled);
 
 	emitter.emit('variantsButton');
+
+	//GetCustomValues($.proxy(getCustomSuccess, proxy), getCustomFailed, parseInt(itemId));
 
 };
 
@@ -32,6 +37,7 @@ $(document).on('click', '.saveVariant', function(e){
 		$form = $this.parents('.form-variant'),
 		variantId = $this.data('variantid'),
 		$boxes = $('#variantsBoxes');
+		$customAttribute = $form.find('.custom-attribute'),
 		defaults = "";
 
 	var formArray = [];
@@ -53,7 +59,7 @@ $(document).on('click', '.saveVariant', function(e){
 		_.each(eachIds, function(id) {
 			tail += '_' + id;
 		});
-		
+
 		var formobj = {};
 
 		formobj['ProductCode'] = $form.find('#ProductCode' + tail).val();
@@ -67,8 +73,21 @@ $(document).on('click', '.saveVariant', function(e){
 		formobj['Dimensions'] = dimL + "," + dimW + "," + dimH;
 
 		formArray.push(formobj);
-		SaveVariant($.proxy(saveVariantSuccess, $this), saveVariantFailed, parseInt(itemId), attributesValuesId, defaults.substring(0, defaults.length - 1), JSON.stringify(formArray), parseInt(variantId));
+
 	}
+
+	var customArray = [];
+
+	$customAttribute.each(function(){
+		console.log($(this).data('attributeid'));
+		var customobj = {};
+		customobj['Id'] = $(this).data('attributeid');
+		customobj['Value'] = $(this).val();
+
+		customArray.push(customobj);
+	});
+
+	SaveVariant($.proxy(saveVariantSuccess, $this), saveVariantFailed, parseInt(itemId), attributesValuesId, defaults.substring(0, defaults.length - 1), JSON.stringify(formArray), JSON.stringify(customArray), parseInt(variantId));
 
 });
 
@@ -109,7 +128,7 @@ $(document).on('click', '.uploadImage', function(e){
 		    'height': '80%',
 		    'type': 'iframe',
 		    'hideOnContentClick': false,
-		    onClosed: function () { 
+		    onClosed: function () {
 		    	console.log('close');
 		    	window.$boxSave = $form.find('#gallery' + tail);
 		    	RefreshGalleryById(refreshGallerySuccess, refreshGalleryFailed, parseInt(itemId));
@@ -166,14 +185,14 @@ $(document).on('click', '#setBulk', function(e){
 
 $(document).on('click', '#saveAll', function(e){
 	e.preventDefault();
-	var $form = $('#variantsForm'),
-		$saveButton = $form.find('.saveVariant').eq(0);
+	var $form = $('#variantsForm');
+		//$saveButton = $form.find('.saveVariant').eq(0);
 
 	 $form.find('.saveVariant').each(function(){
 	 	$(this).click();
 	 });
 
-	 $saveButton.click();
+	 //$saveButton.click();
 
 });
 
@@ -187,7 +206,7 @@ $(document).on('click', '#deleteAll', function(e){
 	    if(isSaved > 0) {
 	        $this.click();
 	    }
-        
+
 	});
 
 });
@@ -246,4 +265,5 @@ function refreshGallerySuccess(result) {
 function refreshGalleryFailed(result) {
     console.log(result);
 }
+
 

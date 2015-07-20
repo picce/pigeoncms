@@ -5,29 +5,34 @@ var templates = require('../modules/templates');
 var container;
 
 var compileAttributes = function(attachTo) {
-	
+
 	container = attachTo;
 
 	var itemId = $(container).data('itemid');
 
 	GetAttributes(getAttributesSuccess, getAttributesFailure, parseInt(itemId));
-	
+
 };
 
 function getAttributesSuccess(result) {
 
  	var attributes = result;
 
+ 	console.log(attributes);
+
 	//parse the json
 	var parsedAttributes = $.parseJSON(attributes);
+
+	console.log(parsedAttributes);
 
 	//generate template
 	var select = templates.attributesAttributes;
 
 	//render template
 	var html = select({
-		parsedAttributes: parsedAttributes
-	}); 
+		withValues: parsedAttributes.withValues,
+		withoutValues: parsedAttributes.withoutValues
+	});
 
 	//useful logs
 	// console.log('json :' + parsedAttributes );
@@ -62,14 +67,26 @@ function getAttributeValuesSuccess(result) {
 	//assign result
 	var attributesValues = result;
 
-    //parse json 
+    //parse json
 	var parsedAttributesValues = $.parseJSON(attributesValues);
 
-	var text = $('#selectAttributes').find("option:selected").text();
-		value = $('#selectAttributes').find("option:selected").val();
-	
-	//build box with emitter
-	emitter.emit('generateBox', parsedAttributesValues, text, container);
+	var text = $('#selectAttributes').find("option:selected").text(),
+		value = $('#selectAttributes').find("option:selected").val(),
+		type = $('#selectAttributes').find("option:selected").data('generate');
+
+	console.log(type);
+
+	if(type == 'box')
+	{
+		//build box with emitter
+		emitter.emit('generateBox', parsedAttributesValues, text, container);
+	}
+	else if (type == 'span')
+	{
+		emitter.emit('generateSpan', value, text, container);
+	}
+
+
 
 	//remove from select the option clicked
 	$('#selectAttributes option[value="' + value + '"]').remove();

@@ -53,7 +53,7 @@ function getAttributeValuesForVariantsSuccess(result) {
 		var selectBox = tmpl({
 			info: info,
 			parsedValues: parsedValues[key]
-		}); 
+		});
 
 		$('#variantsBoxes').append(selectBox);
 	}
@@ -71,7 +71,7 @@ function showVariantsSuccess(result) {
 	_.each(variants, function(variant){
 		console.log(variant.Info);
 		console.log(variant.Product);
-		emitter.emit('generateInputs', variant.Info.ListIds, variant.Info.ListValues, variant.Product);
+		emitter.emit('generateInputs', variant.Info.ListIds, variant.Info.ListValues, variant.Product, variant.CustomFields);
 	});
 
 }
@@ -87,6 +87,8 @@ function getLinkVariantsSuccess(result) {
 
 	var ids = parsedValues.ListIds,
 		values = parsedValues.ListValues;
+
+	var itemId = $(container).data('itemid');
 
 	//debugger;
 
@@ -106,14 +108,33 @@ function getLinkVariantsSuccess(result) {
 		Dimensions: dims
 	};
 
-	for(var key in ids) {
-		emitter.emit('generateInputs', ids[key], values[key], Product);
-	}
+	var proxy = { values: values, ids: ids, Product: Product}
+
+	GetCustomValues($.proxy(getCustomSuccess, proxy), getCustomFailed, parseInt(itemId));
 
 }
 
 function getLinkVariantsFailed(result) {
 	console.log(result);
+}
+
+
+function getCustomSuccess(result) {
+
+	var customAttributes = $.parseJSON(result);
+
+	console.log(this);
+
+	console.log(customAttributes);
+
+	for(var key in this.ids) {
+		emitter.emit('generateInputs', this.ids[key], this.values[key], this.Product, customAttributes);
+	}
+
+}
+
+function getCustomFailed(result) {
+    console.log(result);
 }
 
 //export compileAttributes

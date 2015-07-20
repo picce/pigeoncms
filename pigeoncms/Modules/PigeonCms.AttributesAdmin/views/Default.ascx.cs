@@ -132,20 +132,35 @@ public partial class Controls_AttributesAdmin : PigeonCms.BaseModuleControl
             if (string.IsNullOrEmpty(LnkTitle.Text))
                 LnkTitle.Text += Utility.GetLabel("NO_VALUE", "<no value>");
 
-            var filter = new AttributeValueFilter();
-            filter.AttributeId = item.Id;
-            filter.NumOfRecords = 3;
-            var values = new AttributeValuesManager().GetByFilter(filter, "");
+            if(item.AllowCustomValue == false) {
 
-            LinkButton LnkEditValues = (LinkButton)e.Row.FindControl("LnkEditValues");
-            LnkEditValues.Text = "<i class='fa fa-pgn_edit fa-fw'></i> First 3 records<br>";
-            Literal ValuesPreview = (Literal)e.Row.FindControl("ValuesPreview");
-            foreach (var value in values)
-            {
-                ValuesPreview.Text += Utility.Html.GetTextPreview(value.Value, 50, "") + "<br>";
+                var filter = new AttributeValueFilter();
+                filter.AttributeId = item.Id;
+                filter.NumOfRecords = 3;
+                var values = new AttributeValuesManager().GetByFilter(filter, "");
+
+                LinkButton LnkEditValues = (LinkButton)e.Row.FindControl("LnkEditValues");
+                LnkEditValues.Text = "<i class='fa fa-pgn_edit fa-fw'></i> Edit Records <br>";
+                Literal ValuesPreview = (Literal)e.Row.FindControl("ValuesPreview");
+                string records = "";
+                foreach (var value in values)
+                {
+                    records +=  " - " + Utility.Html.GetTextPreview(value.Value, 50, "");
+                }
+
+                if(records.Length > 2)
+                    ValuesPreview.Text = records.Substring(2);
+
+                if (string.IsNullOrEmpty(LnkTitle.Text))
+                    LnkEditValues.Text += Utility.GetLabel("NO_VALUE", "<no value>");
+
             }
-            if (string.IsNullOrEmpty(LnkTitle.Text))
-                LnkEditValues.Text += Utility.GetLabel("NO_VALUE", "<no value>");
+            else
+            {
+                LinkButton LnkEditValues = (LinkButton)e.Row.FindControl("LnkEditValues");
+                LnkEditValues.Text = "";
+                LnkEditValues.Enabled = false;
+            }
 
             Literal LnkItemType = (Literal)e.Row.FindControl("LnkItemType");
             LnkItemType.Text += Utility.Html.GetTextPreview(item.ItemType, 50, "");
@@ -449,7 +464,20 @@ public partial class Controls_AttributesAdmin : PigeonCms.BaseModuleControl
 
         try
         {
-            new PigeonCms.AttributeValuesManager().DeleteById(recordId);
+            // have to check if is used by some products 
+            var iavfilter = new ItemAttributeValueFilter();
+            iavfilter.AttributeValueId = recordId;
+            iavfilter.OnlyPopulatedFields = true;
+            bool isUsed = (new ItemAttributesValuesManager().GetByFilter(iavfilter, "").Count > 0);
+            if (!isUsed)
+            {
+                new PigeonCms.AttributeValuesManager().DeleteById(recordId);
+            }
+            else
+            {
+                LblErr.Text = RenderError("value assigned to a product. delete the product before the attribute.");
+            }
+            
         }
         catch (Exception e)
         {

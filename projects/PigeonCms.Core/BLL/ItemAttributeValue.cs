@@ -174,6 +174,9 @@ namespace PigeonCms
         private int attributeId = 0;
         private int attributeValueId = 0;
         private int referred = 0;
+        private bool onlyPopulatedFields = false;
+        private bool onlyWithValues = false;
+        private bool onlyCustomFields = false;
 
         public int Id
         {
@@ -215,6 +218,29 @@ namespace PigeonCms
             set { referred = value; }
         }
 
+        public bool OnlyPopulatedFields
+        {
+            [DebuggerStepThrough()]
+            get { return onlyPopulatedFields; }
+            [DebuggerStepThrough()]
+            set { onlyPopulatedFields = value; }
+        }
+
+        public bool OnlyWithValues
+        {
+            [DebuggerStepThrough()]
+            get { return onlyWithValues; }
+            [DebuggerStepThrough()]
+            set { onlyWithValues = value; }
+        }
+
+        public bool OnlyCustomFields
+        {
+            [DebuggerStepThrough()]
+            get { return onlyCustomFields; }
+            [DebuggerStepThrough()]
+            set { onlyCustomFields = value; }
+        }
 
         #endregion
 

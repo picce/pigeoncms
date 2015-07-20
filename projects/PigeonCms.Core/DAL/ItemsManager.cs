@@ -694,7 +694,13 @@ namespace PigeonCms
                 myConn.ConnectionString = Database.ConnString;
                 myConn.Open();
                 myCmd.Connection = myConn;
+
+                // delete all references in attributesValues 
                 new ItemAttributesValuesManager().DeleteByReferred(id);
+
+                // delete all references in related
+                deleteRelatedByKey(id);
+
                 foreach (var item in list)
                 {
                     deleteObj(item, myProv, myConn, myCmd);
@@ -1298,6 +1304,36 @@ namespace PigeonCms
             }
 
             return relatedItemList;
+        }
+
+        public void deleteRelatedByKey(int itemId)
+        {
+            DbProviderFactory myProv = Database.ProviderFactory;
+            DbConnection myConn = myProv.CreateConnection();
+            DbCommand myCmd = myConn.CreateCommand();
+
+            myConn.ConnectionString = Database.ConnString;
+            myConn.Open();
+            myCmd.Connection = myConn;
+
+            try
+            {
+                string sSql = "";
+                sSql = "DELETE"
+                  + " FROM #__items_Related "
+                  + " WHERE ItemId = @ItemId "
+                  + " OR RelatedId = @itemId ";
+
+                myCmd.CommandText = Database.ParseSql(sSql);
+                myCmd.Parameters.Clear();
+                myCmd.Parameters.Add(Database.Parameter(myProv, "ItemId", itemId));
+                myCmd.ExecuteNonQuery();
+            }
+            finally
+            {
+                myConn.Dispose();
+            }
+
         }
 
         public void setRelated(int itemId, int RelatedId)

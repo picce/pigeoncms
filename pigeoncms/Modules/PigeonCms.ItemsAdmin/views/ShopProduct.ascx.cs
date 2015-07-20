@@ -424,7 +424,7 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
                 var variants = new ItemAttributesValuesManager().GetByItemId(productitem.Id);
                 if (variants != null && variants.Count > 0)
                 {
-                    variants = variants.OrderBy(x => x.AttributeId).ToList();
+                    variants = variants.Where(x => x.AttributeValueId > 0).OrderBy(x => x.AttributeId).ToList();
 
                     Literal variantsCompiled = e.Row.FindControl("variantsCompiled") as Literal;
 
@@ -918,12 +918,12 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
     /// <param name="itemId"></param>
     /// <returns></returns>
     [PigeonCms.UserControlScriptMethod]
-    public static List<PigeonCms.Attribute> GetAttributes(int itemId)
+    public static object GetAttributes(int itemId)
     {
         // get all attributes referred to itemId
         var items = new ItemAttributesValuesManager().GetByReferredId(itemId);
 
-         var attributesId = new List<int>();
+        var attributesId = new List<int>();
 
         if (items != null && items.Count > 0)
         {
@@ -938,12 +938,31 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         //var filter = new AttributeFilter();
         //filter.AttributeType = "";
         allAttributes = new PigeonCms.AttributesManager().GetByFilter(new AttributeFilter(), "");
-        allAttributes = allAttributes.Where(x => x.AllowCustomValue == false).ToList();
-        
+        var withValues = allAttributes.Where(x => x.AllowCustomValue == false).ToList();
+        var customValues = allAttributes.Where(x => x.AllowCustomValue == true).ToList();
+
         //remove from list all attribute that have the same Id as the list above
-        var res = (List<PigeonCms.Attribute>)allAttributes.Where(x => !attributesId.Any(x2 => x2 == x.Id)).ToList();
-        return res;
+        //var res = new List<List<PigeonCms.Attribute>>();
+
+        var result = new
+        {
+            withValues = (List<PigeonCms.Attribute>)withValues.Where(x => !attributesId.Any(x2 => x2 == x.Id)).ToList(),
+            withoutValues = (List<PigeonCms.Attribute>)customValues.Where(x => !attributesId.Any(x2 => x2 == x.Id)).ToList()
+        };
+
+        return result;
     }
+
+    /////// <summary>
+    /////// return all attributes that are not assigned to an element with specific itemId
+    /////// </summary>
+    /////// <param name="itemId"></param>
+    /////// <returns></returns>
+    ////[PigeonCms.UserControlScriptMethod]
+    ////public static object GetAttributesCustom(int itemId)
+    ////{
+
+    ////}
 
     /// <summary>
     /// get attributeValue from given AttributeId
@@ -1103,7 +1122,19 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         var referredItemAttrVals = new ItemAttributesValuesManager().GetByFilter(filter, "");
 
         // get a list with attributes (to separe select object)
-        var attributes = referredItemAttrVals.GroupBy(x => x.AttributeId).Select(y => new PigeonCms.Attribute() { Id = y.Key }).ToList();
+        var valuesGroup = referredItemAttrVals.GroupBy(items => items.AttributeId)
+                                .Select(groups => groups.ToList())
+                                .ToList();
+        //var attributes = referredItemAttrVals.GroupBy(x => x.AttributeId).Select(y => new PigeonCms.Attribute() { Id = y.Key }).ToList();
+        //attributes = attributes.Where(x => x.AllowCustomValue == false).ToList();
+
+        var attributes = new List<PigeonCms.Attribute>();
+
+        foreach (var group in valuesGroup)
+        {
+            var attribute = new AttributesManager().GetByKey(group.First().AttributeId);
+            if (!attribute.AllowCustomValue) attributes.Add(attribute);
+        }
 
         //prepare result
         var result = new List<object>();
@@ -1173,7 +1204,11 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
     public static string CompileAttributes(int itemId)
     {
         // get all referred attributes
-        var items = new ItemAttributesValuesManager().GetByReferredId(itemId);
+        // with no custom
+        var iavFilter = new ItemAttributeValueFilter();
+        iavFilter.Referred = itemId;
+        iavFilter.OnlyWithValues = true;
+        var items = new ItemAttributesValuesManager().GetByFilter(iavFilter, "");
 
         var attributesId = new List<int>();
 
@@ -1185,7 +1220,7 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
 
         var attributesValues = new List<PigeonCms.AttributeValue>();
 
-        var success = new List<object>();
+        var boxes = new List<object>();
 
         // iterate attributesId
         foreach (int attributeId in attributesId)
@@ -1216,8 +1251,45 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
                 };
                 singleAtt.Add(obj);
             }
-            success.Add(singleAtt);
+
+            boxes.Add(singleAtt);
         }
+
+        // get all referred attributes
+        // with custom
+        iavFilter = new ItemAttributeValueFilter();
+        iavFilter.Referred = itemId;
+        iavFilter.OnlyCustomFields = true;
+        var itemsCustom = new ItemAttributesValuesManager().GetByFilter(iavFilter, "");
+        attributesId = new List<int>();
+
+        // if not nulll retrieve only AttributesId form list 
+        if (itemsCustom != null && itemsCustom.Count > 0)
+        {
+            attributesId = itemsCustom.GroupBy(x => x.AttributeId).Select(y => new PigeonCms.Attribute() { Id = y.Key }).ToList().Select(x => x.Id).ToList();
+        }
+
+        attributesValues = new List<PigeonCms.AttributeValue>();
+
+        var spans = new List<object>();
+
+        // iterate attributesId
+        foreach (int attributeId in attributesId)
+        {
+
+            // add the name of attribute on a list
+            var singleAtt = new List<object>();
+            singleAtt.Add(new AttributesManager().GetByKey(attributeId).Name);
+            singleAtt.Add(attributeId);
+
+            spans.Add(singleAtt);
+        }
+
+        var success = new
+        {
+            boxes = boxes,
+            spans = spans
+        };
 
         return toJson(success);
     }
@@ -1245,6 +1317,7 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
 
         //get only attributeValues referred to itemId
         filter.Referred = itemId;
+        filter.OnlyWithValues = true;
 
         // now have to compose the list with the couple of ids compiled, so take all variants productitem
         var productfilter = new ProductItemFilter();
@@ -1267,7 +1340,7 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
                 var ids = "";
                 var vals = "";
 
-                variants = variants.OrderBy(x => x.AttributeId).ToList();
+                variants = variants.OrderBy(x => x.AttributeId).Where(x => x.AttributeValueId > 0).ToList();
 
                 // iterate each value
                 foreach (var variant in variants)
@@ -1386,6 +1459,34 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
 
     }
 
+    [PigeonCms.UserControlScriptMethod]
+    public static List<object> GetCustomValues(int itemId)
+    {
+        var filter = new ItemAttributeValueFilter();
+        filter.OnlyCustomFields = true;
+        filter.Referred = itemId;
+
+        var items = new ItemAttributesValuesManager().GetByFilter(filter, "");
+
+        items = items.Where(x => x.ItemId == 0).ToList();
+
+        var iavs = new List<object>();
+
+        foreach (var item in items)
+        {
+            var iav = new {
+                CustomValue = item.CustomValueString,
+                Name = new PigeonCms.AttributesManager().GetByKey(item.AttributeId).Name,
+                Id = item.AttributeId
+            };
+
+            iavs.Add(iav);
+        }
+
+        return iavs;
+
+    }
+
 
     /// <summary>
     /// Save the variant creating a new item with threadId referred to parent element.
@@ -1395,12 +1496,13 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
     /// <param name="attributeValueId"></param>
     /// <returns></returns>
     [PigeonCms.UserControlScriptMethod]
-    public static int SaveVariant(int itemId, string attributesValuesId, string defaults, string formFields, int variantId)
+    public static int SaveVariant(int itemId, string attributesValuesId, string defaults, string formFields, string customFields, int variantId)
     {
 
         // serialize JSON in fake product
         var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
         var values = serializer.Deserialize<List<Dictionary<string, string>>>(formFields)[0];
+        var customs = serializer.Deserialize <List<Dictionary<string, string>>>(customFields);
 
         var filter = new ItemAttributeValueFilter();
 
@@ -1540,6 +1642,32 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
 
         }
 
+        foreach (var custom in customs)
+        {
+            filter = new ItemAttributeValueFilter();
+            filter.OnlyCustomFields = true;
+            filter.ItemId = theId;
+            filter.AttributeId = Convert.ToInt32(custom["Id"]);
+            var customField = new ItemAttributesValuesManager().GetByFilter(filter, "");
+            if (customField == null || customField.Count == 0)
+            {
+                var insert = new ItemAttributeValue();
+                insert.Referred = theId;
+                insert.ItemId = theId;
+                insert.AttributeId = Convert.ToInt32(custom["Id"]);
+                insert.CustomValueString = custom["Value"];
+                insert.AttributeValueId = 0;
+                new ItemAttributesValuesManager().Insert(insert);
+            }
+            else
+            {
+               
+                var update = customField.First();
+                update.CustomValueString = custom["Value"];
+                new ItemAttributesValuesManager().Update(update);
+            }
+        }
+
         // TODO return message
         return theId;
 
@@ -1569,7 +1697,6 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
             var variants = new ItemAttributesValuesManager().GetByItemId(productitem.Id);
             if (variants != null && variants.Count > 0)
             {
-
 
                 var valuesDims = productitem.Dimensions.Split(',');
 
@@ -1607,6 +1734,25 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
                     values.Add(value.Value);
                 }
 
+                var filter = new ItemAttributeValueFilter();
+                filter.Referred = itemId;
+                filter.OnlyCustomFields = true;
+                filter.ItemId = productitem.Id;
+                var customFields = new ItemAttributesValuesManager().GetByFilter(filter, "");
+
+                var custAttr = new List<object>();
+
+                foreach (var customField in customFields)
+                {
+                    var attribute = new
+                    {
+                        Name = new PigeonCms.AttributesManager().GetByKey(customField.AttributeId).Name,
+                        CustomValue = customField.CustomValueString,
+                        Id = customField.AttributeId
+                    };
+                    custAttr.Add(attribute);
+                }
+
                 var info = new
                 {
                     ListIds = ids,
@@ -1616,7 +1762,8 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
                 var singleVariant = new
                 {
                     Product = product,
-                    Info = info
+                    Info = info,
+                    CustomFields = custAttr
                 };
 
                 // create the object with variantInfo and Datainfo
@@ -1778,6 +1925,44 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         new ProductItemsManager().deleteRelated(itemId, relatedId);
     }
 
+    /// <summary>
+    /// Delete related on close icon
+    /// </summary>
+    /// <param name="itemId"></param>
+    /// <param name="relatedId"></param>    
+    [PigeonCms.UserControlScriptMethod]
+    public static object RemoveCustom(int attributeId, int itemId)
+    {
+        var filter = new ItemAttributeValueFilter();
+        filter.OnlyCustomFields = true;
+        filter.Referred = itemId;
+        filter.AttributeId = attributeId;
+        var customField = new ItemAttributesValuesManager().GetByFilter(filter, "");
+        customField = customField.Where(x => x.ItemId > 0).ToList();
+        if (customField == null || customField.Count == 0) {
+            new ItemAttributesValuesManager().Delete(0, attributeId, 0, itemId);
+
+            var success = new
+            {
+                success = true,
+                message = "Successfully removed."
+            };
+
+            return success;
+
+        }
+        else
+        {
+            var error = new
+            {
+                success = false,
+                message = "You have assigned variants with this attribute, can't delete it."
+            };
+
+            return error;
+        }
+    }
+    
     /// <summary>
     /// set related on autocompile form
     /// </summary>

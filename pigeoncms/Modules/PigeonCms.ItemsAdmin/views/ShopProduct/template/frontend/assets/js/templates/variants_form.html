@@ -1,15 +1,15 @@
 <div class="col-lg-12">
 	<form id="formData<% _.each(ids, function (id) { %>_<%= id %><% }); %>" class="form-variant">
-		<div class="panel panel-default">  
-			<div class="panel-heading">   
+		<div class="panel panel-default">
+			<div class="panel-heading">
 				<a data-toggle="collapse" data-parent="#formData<% _.each(ids, function (id) { %>_<%= id %><% }); %>" href="#collapse<% _.each(ids, function (id) { %>_<%= id %><% }); %>">Variants in <% _.each(values, function (value) { %> <%= value %> <% }); %> </a>
 			</div>
 			<div id="collapse<% _.each(ids, function (id) { %>_<%= id %><% }); %>" class="panel-collapse collapse"">
-				<div class="panel-body"> 
-					<div class="form-group"> 
+				<div class="panel-body">
+					<div class="form-group">
 						<div class="form-group col-md-6 col-sm-12">
 						    <label for="ProductCode<% _.each(ids, function (id) { %>_<%= id %><% }); %>">Product Code</label>
-						    <input name="ProductCode<% _.each(ids, function (id) { %>_<%= id %><% }); %>" value="<%= Product.ProductCode %>" type="text" id="ProductCode<% _.each(ids, function (id) { %>_<%= id %><% }); %>" required class="form-control">  
+						    <input name="ProductCode<% _.each(ids, function (id) { %>_<%= id %><% }); %>" value="<%= Product.ProductCode %>" type="text" id="ProductCode<% _.each(ids, function (id) { %>_<%= id %><% }); %>" required class="form-control">
 						</div>
 						<div class="form-group col-md-6 col-sm-12">
 							<label for="Availability<% _.each(ids, function (id) { %>_<%= id %><% }); %>">Availability</label>
@@ -47,20 +47,31 @@
 						        <input name="DimH<% _.each(ids, function (id) { %>_<%= id %><% }); %>" value="<%= Product.Dimensions.DimH %>" type="text" data-type="decimal" id="DimH<% _.each(ids, function (id) { %>_<%= id %><% }); %>" class="form-control">
 						    </div>
 						</div>
+
+						<% _.each(customAttributes, function (customAttribute) { %>
+
+							<div class="col-md-12 col-sm-12 col-lg-12 form-group">
+								<label for="<%=customAttribute.Name %><% _.each(ids, function (id) { %>_<%= id %><% }); %>"> <%= customAttribute.Name %> </label>
+								<input name="<%=customAttribute.Name%><% _.each(ids, function (id) { %>_<%= id %><% }); %>" value="<%= customAttribute.CustomValue %>" type="text" id="<%=customAttribute.Name %><% _.each(ids, function (id) { %>_<%= id %><% }); %>" data-attributeid="<%=customAttribute.Id%>" class="form-control custom-attribute" />
+
+							</div>
+
+						<% }); %>
+
 						<div class="col-lg-12" id="gallery<% _.each(ids, function (id) { %>_<%= id %><% }); %>">
-							<% _.each(Product.Photos, function (pics) { 
+							<% _.each(Product.Photos, function (pics) {
 								%> <img src="<%= pics.FileUrl %>?width=120&height=120&bgcolor=Ffffff&scale=both" /> <%
 							}); %>
-						</div>		
+						</div>
 					</div>
 				</div>
-				<div class="panel-footer"> 
+				<div class="panel-footer">
 				    <button type="button" class="saveVariant btn btn-success" data-saveids="<% _.each(ids, function (id) { %><%=id%>,<% }); %>" data-variantid="<%= Product.Id %>">Save Variant</button>
 				    <button type="button" class="deleteVariant btn btn-danger" data-deleteids="<% _.each(ids, function (id) { %><%=id%>,<% }); %>" data-variantid="<%= Product.Id %>">Delete Variant</button>
 				    <button type="button" class="uploadImage btn btn-primary" data-itemattributes="<% _.each(ids, function (id) { %><%=id%>,<% }); %>" data-variantid="<%= Product.Id %>">
 				    	<i class="fa fa-pgn_image fa-fw"></i>
 				    </button>
-				</div>  
+				</div>
 			</div>
 		</div>
 	</form>

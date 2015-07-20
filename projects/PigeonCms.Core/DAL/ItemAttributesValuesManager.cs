@@ -59,6 +59,18 @@ namespace PigeonCms
                     sSql += " AND Referred = @Referred ";
                     myCmd.Parameters.Add(Database.Parameter(myProv, "Referred", filter.Referred));
                 }
+                if (filter.OnlyPopulatedFields)
+                {
+                    sSql += " AND ItemId > 0 ";
+                }
+                if (filter.OnlyWithValues)
+                {
+                    sSql += " AND AttributeValueId > 0 ";
+                }
+                if (filter.OnlyCustomFields)
+                {
+                    sSql += " AND AttributeValueId = 0 ";
+                }
                 if (!string.IsNullOrEmpty(sort))
                 {
                     sSql += " ORDER BY " + sort;
@@ -140,6 +152,23 @@ namespace PigeonCms
             if (itemId > 0)
             {
                 filter.Referred = itemId;
+                //filter.AttributeId = attributeId;
+                list = this.GetByFilter(filter, "");
+                if (list.Count > 0)
+                    return list;
+            }
+            return null;
+        }
+
+        public List<PigeonCms.ItemAttributeValue> GetByReferredId(int itemId, bool onlyPopulated)
+        {
+            //var result = new PigeonCms.ItemAttributeValue();
+            var list = new List<PigeonCms.ItemAttributeValue>();
+            PigeonCms.ItemAttributeValueFilter filter = new ItemAttributeValueFilter();
+            if (itemId > 0)
+            {
+                filter.Referred = itemId;
+                filter.OnlyPopulatedFields = true;
                 //filter.AttributeId = attributeId;
                 list = this.GetByFilter(filter, "");
                 if (list.Count > 0)

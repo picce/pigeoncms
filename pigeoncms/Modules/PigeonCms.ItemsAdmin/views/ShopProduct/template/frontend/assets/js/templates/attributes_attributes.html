@@ -1,4 +1,5 @@
 <select id="selectAttributes" class="form-control form-group">
 	<option selected> SELECT ATTRIBUTE </option>
-	<% _.each(parsedAttributes, function (attr) { %><option value="<%= attr.Id %>"><%= attr.Name %></option><% }); %>
+	<% _.each(withValues, function (attr) { %><option value="<%= attr.Id %>" data-generate="box"><%= attr.Name %></option><% }); %>
+    <% _.each(withoutValues, function (attr) { %><option value="<%= attr.Id %>" data-generate="span"><%= attr.Name %></option><% }); %>
 </select>
