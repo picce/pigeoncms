@@ -914,71 +914,83 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
 
     /// <summary>
     /// return all attributes that are not assigned to an element with specific itemId
+    /// ritorna tutti gli attributi che non sono assegnati ad un elemento con uno specifico id.
+    /// OK
     /// </summary>
     /// <param name="itemId"></param>
     /// <returns></returns>
     [PigeonCms.UserControlScriptMethod]
     public static object GetAttributes(int itemId)
     {
-        // get all attributes referred to itemId
-        var items = new ItemAttributesValuesManager().GetByReferredId(itemId);
+        // set the managers
+        // dichiaro i managers
+        var iavMng = new ItemAttributesValuesManager();
+        var attrMng = new AttributesManager();
 
-        var attributesId = new List<int>();
+        // set filter
+        // dichiaro il filter
+        var filter = new AttributeFilter();
+
+        // get all attributes referred to itemId
+        // prendi gli attributi riferiti all'itemId richiesto
+        var items = iavMng.GetByReferredId(itemId);
+
+        // object to return
+        // oggetto da ritornare 
+        var result = new object();
+
+        // groupedIds
+        var groupByAttributesId = new List<int>();
 
         if (items != null && items.Count > 0)
         {
-            // extract only the attributeId from the ItemAttributesValue List
-            attributesId = items.GroupBy(x => x.AttributeId).Select(y => new PigeonCms.Attribute() { Id = y.Key }).ToList().Select(x => x.Id).ToList();
+            // groupBy AttributeId the list , just to iterate on them.
+            // raggruppo gli attributi , in modo da poter scorrerli
+            //attributesId = items.GroupBy(x => x.AttributeId).Select(y => new PigeonCms.Attribute() { Id = y.Key }).ToList().Select(x => x.Id).ToList();
+            groupByAttributesId = items.GroupBy(elems => elems.AttributeId)
+                                    .Select(groups => groups.ToList())
+                                    .Select(grouped => grouped.First().AttributeId)
+                                    .ToList();
         }
 
-
         // get all attributes
-        var allAttributes = new List<PigeonCms.Attribute>();
-        // filter the attribute for item type !!
-        //var filter = new AttributeFilter();
-        //filter.AttributeType = "";
-        allAttributes = new PigeonCms.AttributesManager().GetByFilter(new AttributeFilter(), "");
+        // prendo tutti gli attributi
+        var allAttributes = attrMng.GetByFilter(filter, "");
+
+        // separe the list, one with values, and one with custom values
+        // separo la lista e prendo gli attributi con i valori compilati e quelli con i valori custom
         var withValues = allAttributes.Where(x => x.AllowCustomValue == false).ToList();
         var customValues = allAttributes.Where(x => x.AllowCustomValue == true).ToList();
 
-        //remove from list all attribute that have the same Id as the list above
-        //var res = new List<List<PigeonCms.Attribute>>();
-
-        var result = new
+        // remove from list all attribute that have the same Id as the list above
+        // rimuovo dalla lista totale gli attributi che non hanno l'Id presente tra quelli riferiti all'Item padre.
+        result = new
         {
-            withValues = (List<PigeonCms.Attribute>)withValues.Where(x => !attributesId.Any(x2 => x2 == x.Id)).ToList(),
-            withoutValues = (List<PigeonCms.Attribute>)customValues.Where(x => !attributesId.Any(x2 => x2 == x.Id)).ToList()
+            withValues = withValues.Where( wv => !groupByAttributesId.Any( g => g == wv.Id)).ToList(),
+            withoutValues = customValues.Where(wv => !groupByAttributesId.Any(g => g == wv.Id)).ToList()
         };
 
         return result;
     }
 
-    /////// <summary>
-    /////// return all attributes that are not assigned to an element with specific itemId
-    /////// </summary>
-    /////// <param name="itemId"></param>
-    /////// <returns></returns>
-    ////[PigeonCms.UserControlScriptMethod]
-    ////public static object GetAttributesCustom(int itemId)
-    ////{
-
-    ////}
-
     /// <summary>
     /// get attributeValue from given AttributeId
+    /// OK
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
     [PigeonCms.UserControlScriptMethod]
-    public static List<PigeonCms.AttributeValue> GetAttributeValues(int id)
+    public static List<AttributeValue> GetAttributeValues(int id)
     {
-
-        // get values
-        var myValues = new List<PigeonCms.AttributeValue>();
-        PigeonCms.AttributeValueFilter filter = new PigeonCms.AttributeValueFilter();
+        // declarations
+        var filter = new AttributeValueFilter();
+        var mng = new AttributeValuesManager();
+        // apply filter
+        // applico il filtro per un dato attributeId
         filter.AttributeId = id;
-        myValues = new PigeonCms.AttributeValuesManager().GetByFilter(filter, "");
-
+        // RUN
+        var myValues = mng.GetByFilter(filter, "");
+        //return
         return myValues;
     }
 
@@ -987,6 +999,7 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
     /// It takes a JSON with checked checkboxes, excluding the itemAttributesValues saved 
     /// it generate 2 list, one to insert, one to exclude.
     /// You can't remove a variant with assigned itemId, only with referred and itemId = 0.
+    /// MIGLIORARE SI PUO'
     /// </summary>
     /// <param name="jsonArr"></param>
     /// <param name="itemId"></param>
@@ -995,25 +1008,33 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
     public static string SaveAttributeValues(string jsonArr, int itemId)
     {
         // serialize JSON in ItemAttributeValue List
+        // serializzo la lista degli attributi selezionati in una lista di itemAttributeValues
         var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
-        var values = serializer.Deserialize<List<PigeonCms.ItemAttributeValue>>(jsonArr);
+        var values = serializer.Deserialize<List<ItemAttributeValue>>(jsonArr);
 
         // declare product objects
-        var man = new PigeonCms.Shop.ProductItemsManager();
-        var prodfilter = new ProductItemFilter();
+        // dichiarazione oggetto prodotti , filtro , manager
+        var man = new ProductItemsManager();
+        var filterProd = new ProductItemFilter();
 
         // declare itemAttributeValue objects
-        var itemAttr = new PigeonCms.ItemAttributeValue();
-        var filter = new PigeonCms.ItemAttributeValueFilter();
+        // dichiaro gli oggetti, manager, filtri per gli itemAttributeValues
+        var itemAttr = new ItemAttributeValue();
+        var itemAttrMan = new ItemAttributesValuesManager();
+        var filter = new ItemAttributeValueFilter();
 
-       // get all products (also child of itemId)
-        prodfilter.ThreadId = itemId;
-        prodfilter.ShowOnlyRootItems = false;
-        var products = man.GetByFilter(prodfilter, "");
+        // get all products (also child of itemId)
+        // prendo tutti i prodotti (anche i figli dell'itemId) v 
+        filterProd.ThreadId = itemId;
+        filterProd.ShowOnlyRootItems = false;
+        var products = man.GetByFilter(filterProd, "");
 
         // get all actual attributes
-        var actualAttributes = new ItemAttributesValuesManager().GetByReferredId(itemId);
+        // prendo gli attributi attualmente salvati nel database
+        var actualAttributes = itemAttrMan.GetByReferredId(itemId);
 
+        // declare list to insert and to delete
+        // dichiaro le liste che saranno popolate con i valori da inserire e da rimuovere
         var toInsert = new List<ItemAttributeValue>();
         var toDelete = new List<ItemAttributeValue>();
 
@@ -1022,42 +1043,61 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
             // we need to check if we added a new attribute
             // if yes, we will save the new attributes with ID for each record previously inserted
             // to not lose records 
-            var oldAttributes = actualAttributes.GroupBy(x => x.AttributeId).Select(y => new PigeonCms.Attribute() { Id = y.Key }).ToList();
-            var takenAttributes = values.GroupBy(x => x.AttributeId).Select(y => new PigeonCms.Attribute() { Id = y.Key }).ToList();
+            // controllo se nuovi attributi sono stati selezionati
+            // se ci sono, salveremo con un id per ogni record precedentemente inserito
+            // questo è per non perdere i valori già compilati ma al massimo editarli
+            //var oldAttributes = actualAttributes.GroupBy(x => x.AttributeId).Select(y => new PigeonCms.Attribute() { Id = y.Key }).ToList();
+            //var takenAttributes = values.GroupBy(x => x.AttributeId).Select(y => new PigeonCms.Attribute() { Id = y.Key }).ToList();
+            var oldAttributes = actualAttributes.GroupBy(elems => elems.AttributeId)
+                        .Select(groups => groups.ToList())
+                        .Select(grouped => grouped.First().AttributeId)
+                        .ToList();
+            var takenAttributes = values.GroupBy(elems => elems.AttributeId)
+                       .Select(groups => groups.ToList())
+                       .Select(grouped => grouped.First().AttributeId)
+                       .ToList();
 
-            var newAttributes = takenAttributes.Select(x => x.Id).Except(oldAttributes.Select(x => x.Id)).ToList();
+            // newattributes is takenattributes without oldattributes
+            // i nuovi attributi sono gli attributi appena presi dal form senza i vecchi salvati in db
+            var newAttributes = takenAttributes.Except(oldAttributes).ToList();
 
+            // TODO devo ricordarmi il perchè di questa cosa così mistica
             var valuesWithNewAttributes = values.Where(x => newAttributes.Any(x2 => x2 == x.AttributeId)).OrderBy(x => x.AttributeId).ToList();
 
+            // the attributes actually saved with itemId more than zero, means that are assigned
+            // negli attributi attualmente salvati, quelli con itemId maggiore di zero sono sicuramente popolati
             var actualAttributesAssigned = actualAttributes.Select(x => x.ItemId).Where(x => x > 0).ToList();
 
-            // group to not have duplicates!! 
-            var list = actualAttributesAssigned.GroupBy(i => i, (e, g) => new { Value = e, Count = g.Count() });
+            // group to not have duplicates, if they assigned to more item with the same referredId we will have duplicates
+            // raggruppo gli attributi attualmente assegnati, se sono assegnati a più di un elemento con stesso referredId avremo dei duplicati altrimenti
+            // TODO che bella scritta così
+            var groupedActualAssigned = actualAttributesAssigned.GroupBy(i => i, (e, g) => new { Value = e, Count = g.Count() });
 
-            foreach (var assigned in list)
+            // iterate on list previously created
+            // iteriamo nella lista appena generata
+            foreach (var assigned in groupedActualAssigned)
             {
+                // check mistyc things
                 if (valuesWithNewAttributes != null && valuesWithNewAttributes.Count > 0)
                 {
-                    //// iterate each Value to be inserted of the new attribute and assign the ItemId to keep Value
-
+                    //iterate each Value to be inserted of the new attribute and assign the ItemId to keep Value
                     var toAdd = valuesWithNewAttributes.First();
                     // remove from list to insert
                     values.Remove(toAdd);
                     // insert with the id of variants populated
                     toAdd.ItemId = assigned.Value;
-                    new PigeonCms.ItemAttributesValuesManager().Insert(toAdd);
-
+                    itemAttrMan.Insert(toAdd);
                 }
-
             }
 
-            //// DELETE LIST
+            //DELETE LIST
             // exclude to actualAttributes the new Values, if values are less than actualAttributes, the exclusion will be deleted
+            // escludo dalla lista degli attributi salvati in database, quelli presi dal form, creando il fieldset da inserire
             toDelete = actualAttributes.Except(values).ToList();
 
-            //// INSERT LIST
-            toInsert = values;
-            // exclude to new Values the nactualAttributes, if actualAttributes are less than values, the exclusion will be inserted
+            // INSERT LIST
+            // exclude to new Values the actualAttributes, if actualAttributes are less than values, the exclusion will be inserted
+            // escludo dalla lista degli attributi presi dal form quelli presenti in database, creando il fieldset da inserire
             toInsert = values.Except(actualAttributes).ToList();
 
         }
@@ -1066,129 +1106,165 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
             toInsert = values;
         }
 
-
-        //insert
-        foreach (ItemAttributeValue insert in toInsert)
+        // create object to return
+        // creo gli oggetti da ritornare
+        // TODO labels
+        var error = new
         {
-            new PigeonCms.ItemAttributesValuesManager().Insert(insert);
-        }
+            success = false,
+            message = "You have assigned variants with this attribute, can't delete it."
+        };
 
-        //delete
-        foreach (ItemAttributeValue delete in toDelete)
-        {
-            // TODO can't delete if assigned
-            if (delete.ItemId > 0)
-            {
-                // return success message
-                var error = new
-                {
-                    success = false,
-                    message = "You have assigned variants with this attribute, can't delete it."
-                };
-
-                return toJson(error);
-
-            }
-            else
-            {
-                new PigeonCms.ItemAttributesValuesManager().Delete(delete.ItemId, delete.AttributeId, delete.AttributeValueId, delete.Referred);
-            }
-            
-        }
-
-        // return success message
         var success = new
         {
             success = true,
             message = "All savings done well."
         };
 
-        // return in JSON format
+        // insert each value
+        // inserisci ogni valore
+        foreach (ItemAttributeValue insert in toInsert)
+        {
+            itemAttrMan.Insert(insert);
+        }
+
+        // delete each value
+        // elimina ogni valore
+        foreach (ItemAttributeValue delete in toDelete)
+        {
+            // if itemAttributeValue has itemId higher than zero, means that is assigned and you have to delete variant first.
+            // se l'itemAttributeValue ha itemId maggiore di zero, significa che è assegnato e quindi dovrai prima eliminare le varianti a cui è stato assegnato.
+            if (delete.ItemId > 0)
+            {
+                // return error message
+                return toJson(error);
+            }
+            else
+            {
+                // delete the record
+                itemAttrMan.Delete(delete.ItemId, delete.AttributeId, delete.AttributeValueId, delete.Referred);
+            }
+            
+        }
+
+        // return success JSON format
         return toJson(success);
 
     }
 
+    /// <summary>
+    /// Method used to return info to generate the box on variants.
+    /// Metodo usato per recuperate le info e generare i box varianti
+    /// MIGLIORARE SI PUO'
+    /// </summary>
+    /// <param name="jsonArr"></param>
+    /// <param name="itemId"></param>
+    /// <returns></returns>
     [PigeonCms.UserControlScriptMethod]
     public static string GetAttributeValuesForVariants(int itemId)
     {
-        // filter for ItemAttributeValue
+        // object declaration
+        // dichiarazioni
         var filter = new ItemAttributeValueFilter();
-        // only referred to itemId
-        filter.Referred = itemId;
-        // exclude related variants
-        //filter.ItemId = 0;
+        var man = new ItemAttributesValuesManager();
 
-        // RUN
-        var referredItemAttrVals = new ItemAttributesValuesManager().GetByFilter(filter, "");
+
+        // only referred to itemId
+        // prendo solamente gli elementi riferiti all'itemId
+        filter.Referred = itemId;
+        var referredItemAttrVals = man.GetByFilter(filter, "");
 
         // get a list with attributes (to separe select object)
+        // prendo una lista con gli attributi (per separare gli oggetti)
         var valuesGroup = referredItemAttrVals.GroupBy(items => items.AttributeId)
                                 .Select(groups => groups.ToList())
                                 .ToList();
-        //var attributes = referredItemAttrVals.GroupBy(x => x.AttributeId).Select(y => new PigeonCms.Attribute() { Id = y.Key }).ToList();
-        //attributes = attributes.Where(x => x.AllowCustomValue == false).ToList();
 
+        // object declaration
+        // dichiarazioni
         var attributes = new List<PigeonCms.Attribute>();
+        var attMan = new AttributesManager();
 
+        // iterate on created groups of attributes
+        // scorro i gruppi appena creati
         foreach (var group in valuesGroup)
         {
-            var attribute = new AttributesManager().GetByKey(group.First().AttributeId);
-            if (!attribute.AllowCustomValue) attributes.Add(attribute);
+            var attribute = attMan.GetByKey(group.First().AttributeId);
+            // add only if values are not custom
+            // aggiungi solo se i valori sono preimpostati e non custom
+            if (!attribute.AllowCustomValue)
+            {
+                attributes.Add(attribute);
+            }
         }
 
-        //prepare result
+        // prepare result
+        // preparo il risultato
         var result = new List<object>();
+
+        // object declaration
+        // dichiarazioni
+        var valuesFilter = new AttributeValueFilter();
+        var valuesMan = new AttributeValuesManager();
 
         foreach (var attribute in attributes)
         {
             // get all itemId referred itemAttributeValue of attribute 
-            var filterValue = new PigeonCms.AttributeValueFilter();
-            filterValue.AttributeId = attribute.Id;
-            var attributeValues = new PigeonCms.AttributeValuesManager().GetByFilter(filterValue, "");
+            // prendo tutti gli itemId riferiti agli itemAttributeValue di ciascun attributo
+            valuesFilter.AttributeId = attribute.Id;
+            var attributeValues = valuesMan.GetByFilter(valuesFilter, "");
 
             // keep only value who has same id as the list with only selected user values
-            attributeValues = (List<PigeonCms.AttributeValue>)attributeValues.Where(x => referredItemAttrVals.Any(x2 => x2.AttributeValueId == x.Id)).ToList();
+            // mantengo solamente i valori che corrispondono alla lista dei valori selezionati dall'utente
+            attributeValues = attributeValues.Where(x => referredItemAttrVals.Any(x2 => x2.AttributeValueId == x.Id)).ToList();
 
+            // delcarations
+            // dichiarazioni
             var attributeObject = new List<object>();
 
+            // iterate on this values
+            // scorriamo su questi valori
             foreach (var attributeValue in attributeValues)
             {
-                var filterItemAttVal = new ItemAttributeValueFilter();
-                filterItemAttVal.ItemId = itemId;
-                filterItemAttVal.AttributeId = attributeValue.AttributeId;
-                filterItemAttVal.AttributeValueId = attributeValue.Id;
-                var itemAttributeValue = new ItemAttributesValuesManager().GetByFilter(filterItemAttVal, "");
+                // filter = new ItemAttributeValueFilter();
+                filter.ItemId = itemId;
+                filter.AttributeId = attributeValue.AttributeId;
+                filter.AttributeValueId = attributeValue.Id;
+                var itemAttributeValue = man.GetByFilter(filter, "");
+
+                // seleziono un probabile valore salvato
                 string isSelected = "";
                 if(itemAttributeValue != null && itemAttributeValue.Count > 0) {
                     var item = itemAttributeValue.First();
                     isSelected = (item.AttributeValueId == attributeValue.Id) ? "selected" : "";
                 }
                 
-                //element base
+                // element base
                 var infoValues = new
                 {
-                    //attrId = referreditemVal.AttributeId,
                     attrValId = attributeValue.Id,
-                    //attribute = attribute.Name,
                     attributeValue = attributeValue.Value,
                     selected = isSelected
                 };
 
+                // add to list
                 attributeObject.Add(infoValues);
 
             }
 
+            // save here info about attribute (name and id)
+            // salvo qui le info sull'attributo (nome e id)
             var infoAttribute = new
             {
                 attrId = attribute.Id,
-                attribute = new PigeonCms.AttributesManager().GetByKey(attribute.Id).Name,
+                attribute = attMan.GetByKey(attribute.Id).Name,
             };
 
+            // add to list
             attributeObject.Add(infoAttribute);
 
             //add element to result
             result.Add(attributeObject);
-            //result.Add(infoAttribute);
         }
 
         //convert in json and return
@@ -1197,51 +1273,79 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
     
     /// <summary>
     /// Compile the select box used to select default values
+    /// Compila la select usata per indicare l'attributo di default.
+    /// MIGLIORARE SI PUO'
     /// </summary>
     /// <param name="itemId"></param>
     /// <returns></returns>
     [PigeonCms.UserControlScriptMethod]
     public static string CompileAttributes(int itemId)
     {
+        // declarations
+        // dichiarazioni
+        var attrValFilter = new ItemAttributeValueFilter();
+        var attrValMan = new ItemAttributesValuesManager();
+
         // get all referred attributes
         // with no custom
-        var iavFilter = new ItemAttributeValueFilter();
-        iavFilter.Referred = itemId;
-        iavFilter.OnlyWithValues = true;
-        var items = new ItemAttributesValuesManager().GetByFilter(iavFilter, "");
+        attrValFilter.Referred = itemId;
+        attrValFilter.OnlyWithValues = true;
+        var items = attrValMan.GetByFilter(attrValFilter, "");
 
+        // declarations
+        // dichiarazioni
         var attributesId = new List<int>();
 
         // if not nulll retrieve only AttributesId form list 
+        // se ci sono valori, raggruppo per AttributeId
         if (items != null && items.Count > 0)
         {
-            attributesId = items.GroupBy(x => x.AttributeId).Select(y => new PigeonCms.Attribute() { Id = y.Key } ).ToList().Select(x => x.Id).ToList();
+            attributesId = items.GroupBy(elems => elems.AttributeId)
+                                .Select(groups => groups.ToList())
+                                .Select(grouped => grouped.First().AttributeId)
+                                .ToList();
         }
 
-        var attributesValues = new List<PigeonCms.AttributeValue>();
-
+        // declarations
+        // dichiarazioni
+        var attributesValues = new List<AttributeValue>();
         var boxes = new List<object>();
 
+        // declarations
+        // dichiarazioni
+        var attFilter = new AttributeFilter();
+        var attMan = new AttributesManager();
+
+        // declarations
+        // dichiarazioni
+        var filter = new AttributeValueFilter();
+        var man = new AttributeValuesManager();
+
         // iterate attributesId
+        // scorro la lista di attributeId ottenuta prima
         foreach (int attributeId in attributesId)
         {
             // get the record of AttributeValue having attributeId
-            var filter = new AttributeValueFilter();
+            // prendo i valori degli attributi
             filter.AttributeId = attributeId;
-            attributesValues = new PigeonCms.AttributeValuesManager().GetByFilter(filter, "");
+            attributesValues = man.GetByFilter(filter, "");
 
             // add the name of attribute on a list
+            // aggiungo il nome dell'attributo in una lista
             var singleAtt = new List<object>();
-            singleAtt.Add( new AttributesManager().GetByKey(attributeId).Name );
+            singleAtt.Add(attMan.GetByKey(attributeId).Name);
 
             // iterate all values of attributeId
-            foreach (PigeonCms.AttributeValue attrVal in attributesValues)
+            // scorro tutti i valori ottenuti
+            foreach (var attrVal in attributesValues)
             {
                 // get the element and put value checked if it is (if in initial list is present one of these values)
+                // prendo l'elemento e lo rendo checked se nella lista iniziale è presente
                 int index = items.Select(x => x.AttributeValueId).ToList().IndexOf(attrVal.Id);
                 string valueIn = (index > -1) ? "checked='true'" : "";
 
                 // create object to add in return list
+                // creo l'oggetto da aggiungere nella lista da tornare
                 var obj = new
                 {
                     Id = attrVal.Id,
@@ -1252,39 +1356,51 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
                 singleAtt.Add(obj);
             }
 
+            // aggiungi al box
             boxes.Add(singleAtt);
         }
 
-        // get all referred attributes
-        // with custom
-        iavFilter = new ItemAttributeValueFilter();
-        iavFilter.Referred = itemId;
-        iavFilter.OnlyCustomFields = true;
-        var itemsCustom = new ItemAttributesValuesManager().GetByFilter(iavFilter, "");
+        // get all referred attributes with custom values
+        // prendo tutti gli elementi con gli attributi a valori custom
+        attrValFilter = new ItemAttributeValueFilter();
+        attrValFilter.Referred = itemId;
+        attrValFilter.OnlyCustomFields = true;
+        var itemsCustom = attrValMan.GetByFilter(attrValFilter, "");
+
         attributesId = new List<int>();
 
-        // if not nulll retrieve only AttributesId form list 
+        // if not null retrieve only AttributesId form list 
+        // se non nulla prendo solamente la lista degli attributeId
         if (itemsCustom != null && itemsCustom.Count > 0)
         {
-            attributesId = itemsCustom.GroupBy(x => x.AttributeId).Select(y => new PigeonCms.Attribute() { Id = y.Key }).ToList().Select(x => x.Id).ToList();
+            attributesId = items.GroupBy(elems => elems.AttributeId)
+                                .Select(groups => groups.ToList())
+                                .Select(grouped => grouped.First().AttributeId)
+                                .ToList();
         }
 
-        attributesValues = new List<PigeonCms.AttributeValue>();
-
+        // declarations
+        // dichiarazioni
+        attributesValues = new List<AttributeValue>();
         var spans = new List<object>();
 
         // iterate attributesId
+        // scorro gli attributeId
         foreach (int attributeId in attributesId)
         {
-
             // add the name of attribute on a list
+            // aggiungo il nome in lista
             var singleAtt = new List<object>();
-            singleAtt.Add(new AttributesManager().GetByKey(attributeId).Name);
+
+            // add name and id of attribute
+            // aggiungo il name e l'id dell'attribute 
+            singleAtt.Add(attMan.GetByKey(attributeId).Name);
             singleAtt.Add(attributeId);
 
             spans.Add(singleAtt);
         }
 
+        // return complete list
         var success = new
         {
             boxes = boxes,
@@ -1294,6 +1410,7 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         return toJson(success);
     }
 
+    // TODO Refactor
     /// <summary>
     /// Return an object that allows to compile the template with input forms for variants.
     /// Iterate on attributes and for each attributeValue add the single Id and Value in a list.
@@ -1459,15 +1576,29 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
 
     }
 
+    /// <summary>
+    /// Get only custom value
+    /// Prendo solo i campi custom
+    /// OK
+    /// </summary>
+    /// <param name="itemId"></param>
+    /// <returns></returns>
     [PigeonCms.UserControlScriptMethod]
     public static List<object> GetCustomValues(int itemId)
     {
+        // declarations 
+        // dichiarazione
         var filter = new ItemAttributeValueFilter();
+        var man = new ItemAttributesValuesManager();
+
+        // get only custom fields of referredID
+        // prendo solo i campi custom di un determinato referredId
         filter.OnlyCustomFields = true;
         filter.Referred = itemId;
+        var items = man.GetByFilter(filter, "");
 
-        var items = new ItemAttributesValuesManager().GetByFilter(filter, "");
-
+        // take only unassigned items
+        // prendo solo gli elementi non assegnati
         items = items.Where(x => x.ItemId == 0).ToList();
 
         var iavs = new List<object>();
