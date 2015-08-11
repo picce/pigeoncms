@@ -153,7 +153,7 @@ namespace PigeonCms
                     stylesheets += $(this).attr('href') + ',';
                 });
                 function initEditor() {
-                    tinyMCE.init({
+                    /*tinyMCE.init({
                         mode: 'textareas',
                         theme: '" + editorTheme + @"',
                         relative_urls: false, 
@@ -168,6 +168,15 @@ namespace PigeonCms
                         theme_advanced_statusbar_location: 'bottom',
                         theme_advanced_resizing: true,
                         extended_valid_elements: 'iframe[class|src|frameborder=0|alt|title|width|height|align|name]'
+                    });*/
+                    tinymce.init({
+                        selector: 'textarea',
+                        plugins: [
+                                 'advlist autolink link image lists charmap print preview hr anchor pagebreak spellchecker',
+                                 'searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking',
+                                 'save table contextmenu directionality emoticons template paste textcolor'
+                           ],
+                        image_advtab: true
                     });
                 }
                 ";
@@ -175,7 +184,8 @@ namespace PigeonCms
 
 
             //tinyMce editor
-            Utility.Script.RegisterClientScriptInclude(control, "tinymce", control.ResolveUrl("~/plugins/tiny_mce/tiny_mce.js"));
+            //Utility.Script.RegisterClientScriptInclude(control, "tinymce", control.ResolveUrl("~/plugins/tiny_mce/tiny_mce.js"));
+            Utility.Script.RegisterClientScriptInclude(control, "tinymce", control.ResolveUrl("~/plugins/tiny_mce_new/tinymce.min.js"));
 
             Utility.Script.RegisterClientScriptBlock(control, "initEditorText", initEditorText);
 
@@ -221,7 +231,7 @@ namespace PigeonCms
             ");
 
             Utility.Script.RegisterStartupScript(upd1, "initEditor", @"
-            try{ initEditor(); }
+            try{ setTimeout(function() { initEditor(); }, 1000); }
             catch(err) {}
             ");
             control.Page.ClientScript.RegisterOnSubmitStatement(control.GetType(), "save", "tinyMCE.triggerSave();");            
