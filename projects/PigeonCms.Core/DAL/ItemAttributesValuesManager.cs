@@ -24,7 +24,7 @@ namespace PigeonCms
             DbDataReader myRd = null;
             DbCommand myCmd = myConn.CreateCommand();
             string sSql;
-            List<PigeonCms.ItemAttributeValue> result = new List<PigeonCms.ItemAttributeValue>();
+            var result = new List<PigeonCms.ItemAttributeValue>();
 
             try
             {
@@ -32,8 +32,8 @@ namespace PigeonCms
                 myConn.Open();
                 myCmd.Connection = myConn;
 
-                sSql = "SELECT Id, ItemId, AttributeId, AttributeValueId, CustomValueString, Referred FROM " + this.TableName + " WHERE 1=1 ";
-
+                sSql = "SELECT Id, ItemId, AttributeId, AttributeValueId, CustomValueString, Referred "
+                + " FROM " + this.TableName + " WHERE 1=1 ";
                 if (filter.Id > 0)
                 {
                     sSql += " AND Id = @Id ";
@@ -58,6 +58,18 @@ namespace PigeonCms
                 {
                     sSql += " AND Referred = @Referred ";
                     myCmd.Parameters.Add(Database.Parameter(myProv, "Referred", filter.Referred));
+                }
+                if (filter.OnlyPopulatedFields)
+                {
+                    sSql += " AND ItemId > 0 ";
+                }
+                if (filter.OnlyWithValues)
+                {
+                    sSql += " AND AttributeValueId > 0 ";
+                }
+                if (filter.OnlyCustomFields)
+                {
+                    sSql += " AND AttributeValueId = 0 ";
                 }
                 if (!string.IsNullOrEmpty(sort))
                 {
@@ -104,7 +116,7 @@ namespace PigeonCms
         {
             var result = new PigeonCms.ItemAttributeValue();
             var list = new List<PigeonCms.ItemAttributeValue>();
-            PigeonCms.ItemAttributeValueFilter filter = new ItemAttributeValueFilter();
+            var filter = new ItemAttributeValueFilter();
             if (itemId > 0 && attributeId > 0)
             {
                 filter.ItemId = itemId;
@@ -118,67 +130,29 @@ namespace PigeonCms
 
         public List<PigeonCms.ItemAttributeValue> GetByItemId(int itemId)
         {
-            //var result = new PigeonCms.ItemAttributeValue();
             var list = new List<PigeonCms.ItemAttributeValue>();
-            PigeonCms.ItemAttributeValueFilter filter = new ItemAttributeValueFilter();
+            var filter = new ItemAttributeValueFilter();
             if (itemId > 0)
             {
                 filter.ItemId = itemId;
-                //filter.AttributeId = attributeId;
                 list = this.GetByFilter(filter, "");
-                if (list.Count > 0)
-                    return list;
             }
-            return null;
+            return list;
         }
 
-        public List<PigeonCms.ItemAttributeValue> GetByReferredId(int itemId)
+        public List<PigeonCms.ItemAttributeValue> GetByReferredId(int itemId, bool onlyPopulated = false)
         {
-            //var result = new PigeonCms.ItemAttributeValue();
             var list = new List<PigeonCms.ItemAttributeValue>();
-            PigeonCms.ItemAttributeValueFilter filter = new ItemAttributeValueFilter();
+            var filter = new ItemAttributeValueFilter();
             if (itemId > 0)
             {
                 filter.Referred = itemId;
+                filter.OnlyPopulatedFields = onlyPopulated;
                 //filter.AttributeId = attributeId;
                 list = this.GetByFilter(filter, "");
-                if (list.Count > 0)
-                    return list;
             }
-            return null;
+            return list;
         }
-
-
-        //public int Update(ItemAttributeValue theObj)
-        //{
-        //    DbProviderFactory myProv = Database.ProviderFactory;
-        //    DbConnection myConn = myProv.CreateConnection();
-        //    DbCommand myCmd = myConn.CreateCommand();
-        //    string sSql;
-        //    int result = 0;
-
-        //    try
-        //    {
-        //        myConn.ConnectionString = Database.ConnString;
-        //        myConn.Open();
-        //        myCmd.Connection = myConn;
-
-        //        sSql = "UPDATE #__itemsAttributesValues SET ItemId=@ItemId, AttributeId=@AttributeId, AttributeValueId=@AttributeValueId, CustomValueString=@CustomValueString, Referred=@Referred"
-        //        + " WHERE id = @Id";
-        //        myCmd.CommandText = Database.ParseSql(sSql);
-        //        myCmd.Parameters.Add(Database.Parameter(myProv, "ItemId", theObj.ItemId));
-        //        myCmd.Parameters.Add(Database.Parameter(myProv, "AttributeId", theObj.AttributeId));
-        //        myCmd.Parameters.Add(Database.Parameter(myProv, "AttributeValueId", theObj.AttributeValueId));
-        //        myCmd.Parameters.Add(Database.Parameter(myProv, "CustomValueString", theObj.CustomValueString));
-        //        myCmd.Parameters.Add(Database.Parameter(myProv, "Referred", theObj.Referred));
-        //        result = myCmd.ExecuteNonQuery();
-        //    }
-        //    finally
-        //    {
-        //        myConn.Dispose();
-        //    }
-        //    return result;
-        //}
 
         public int Update(ItemAttributeValue theObj)
         {
@@ -193,7 +167,10 @@ namespace PigeonCms
                 myConn.Open();
                 myCmd.Connection = myConn;
 
-                sSql = "UPDATE " + this.TableName + " SET ItemId=@ItemId, AttributeId = @AttributeId, AttributeValueId = @AttributeValueId, CustomValueString =@CustomValueString"
+                sSql = "UPDATE " + this.TableName 
+                + " SET ItemId=@ItemId, AttributeId = @AttributeId, "
+                + " AttributeValueId = @AttributeValueId, "
+                + " CustomValueString =@CustomValueString"
                 + " WHERE Id= @Id";
                 myCmd.CommandText = Database.ParseSql(sSql);
                 myCmd.Parameters.Add(Database.Parameter(myProv, "ItemId", theObj.ItemId));
@@ -217,7 +194,7 @@ namespace PigeonCms
             DbConnection myConn = myProv.CreateConnection();
             DbCommand myCmd = myConn.CreateCommand();
             string sSql;
-            ItemAttributeValue result = new ItemAttributeValue();
+            var result = new ItemAttributeValue();
 
             try
             {
@@ -257,6 +234,9 @@ namespace PigeonCms
             string sSql;
             int res = 0;
 
+            if (itemId <= 0 && referred <= 0)
+                throw new ArgumentException("Warning: invalid itemId and referredId");
+
             try
             {
                 myConn.ConnectionString = Database.ConnString;
@@ -295,7 +275,11 @@ namespace PigeonCms
             return res;
         }
 
-        public int DeleteById(int itemId)
+
+
+
+        //TOCHECK-LOLLO - renamed in DeleteByItemId da DeleByID
+        public int DeleteByItemId(int itemId)
         {
             return this.Delete(itemId, 0, 0, 0);
         }
@@ -305,5 +289,11 @@ namespace PigeonCms
             return this.Delete(0, 0, 0, referred);
         }
 
+        //TOCHECK-LOLLO - added - usato dove?
+        [Obsolete("CHECK se usato", true)]
+        public override int DeleteById(int recordId)
+        {
+            return base.DeleteById(recordId);
+        }
     }
 }

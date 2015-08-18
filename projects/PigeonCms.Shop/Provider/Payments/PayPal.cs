@@ -18,13 +18,14 @@ using System.Text;
 namespace PigeonCms.Shop.PaymentsProvider
 {
 
+
     public class PayPal : BasePayment
     {
         //override is mandatory to use event in derived class
         //public override event EventHandler<BasePayment.ConfirmEventArgs> OnConfirm;
 
 
-        public override void Submit(PigeonCms.Shop.Order order, NameValueCollection data = null)
+        public override void Submit(IOrder order, NameValueCollection data = null)
         {
             decimal tot = order.TotalAmount;
             string item = "Order " + order.OrderRef + " / " + order.OrderDate.ToShortDateString();
@@ -66,7 +67,6 @@ namespace PigeonCms.Shop.PaymentsProvider
             RedirHelper.RedirectAndPOST(base.Page, base.PaymentData.PaySubmitUrl, fields);
         }
 
-
         public override void Confirm()
         {
             var args = new ConfirmEventArgs();
@@ -74,7 +74,8 @@ namespace PigeonCms.Shop.PaymentsProvider
             args.Success = true;
 
             string orderRef = HttpContext.Current.Request.Form["item_number"];
-            args.OrderToPay = new OrdersManager().GetByOrderRef(orderRef);
+            var man = new OrdersManager<Order, OrdersFilter, OrderRow, OrderRowsFilter>(); //new OM();
+            args.OrderToPay = man.GetByOrderRef(orderRef);
 
             if (args.OrderToPay.Id == 0)
             {

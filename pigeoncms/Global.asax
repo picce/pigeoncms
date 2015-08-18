@@ -51,7 +51,7 @@
             + "Stack trace: " + stack + Environment.NewLine;
         //Server.ClearError();
 
-        string logFileName = "~/Logs/errors.txt";
+        string logFileName = Config.LogsPath + "errors.txt";
         logFileName = HttpContext.Current.Request.MapPath(logFileName);
 
         try
@@ -69,7 +69,9 @@
         catch (DirectoryNotFoundException)
         {
             Directory.CreateDirectory(
-                HttpContext.Current.Request.MapPath("~/Logs"));
+                HttpContext.Current.Request.MapPath(
+                Config.LogsPath)
+                );
         }
         catch (Exception) { }
         //System.Diagnostics.EventLog.WriteEntry("PigeonCms.Application_Error", err, System.Diagnostics.EventLogEntryType.Error);

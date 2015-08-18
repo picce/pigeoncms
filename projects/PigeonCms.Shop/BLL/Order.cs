@@ -10,8 +10,69 @@ using System.Web;
 
 namespace PigeonCms.Shop
 {
+    public interface IOrder : ITable
+    {
+        int Id { get; set; }
+        string OrderRef { get; set; }
+        string OwnerUser { get; set; }
+        int CustomerId { get; set; }
+        DateTime OrderDate { get; set; }
+        DateTime OrderDateRequested { get; set; }
+        DateTime OrderDateShipped { get; set; }
+        DateTime DateInserted { get; set; }
+        string UserInserted { get; set; }
+        DateTime DateUpdated { get; set; }
+        string UserUpdated { get; set; }
+        bool Confirmed { get; set; }
+        bool Paid { get; set; }
+        bool Processed { get; set; }
+        bool Invoiced { get; set; }
+        string Notes { get; set; }
+        decimal QtyAmount { get; set; }
+        decimal OrderAmount { get; set; }
+        decimal ShipAmount { get; set; }
+        decimal TotalAmount { get; set; }
+        decimal TotalPaid { get; set; }
+        string Currency { get; set; }
+        int InvoiceId { get; set; }
+        string InvoiceRef { get; set; }
+        
+        //ORDER customer details HERE
+        string OrdName { get; set; }
+        string OrdAddress { get; set; }
+        string OrdZipCode { get; set; }
+        string OrdCity { get; set; }
+        string OrdState { get; set; }
+        string OrdNation { get; set; }
+        string OrdPhone { get; set; }
+        string OrdEmail { get; set; }
 
-    public class Order : ITable
+        string CouponCode { get; set; }
+        decimal CouponValue { get; set; }
+        bool CouponIsPercentage { get; set; }
+        string PaymentCode { get; set; }
+        string ShipCode { get; set; }
+        string JsData { get; set; }
+        string Custom1 { get; set; }
+        string Custom2 { get; set; }
+        string Custom3 { get; set; }
+    }
+
+    public interface IOrderFilter
+    {
+        int Id { get; set; }
+        string OrderRef { get; set; }
+        string OwnerUser { get; set; }
+        int CustomerId { get; set; }
+        Utility.TristateBool Confirmed { get; set; }
+        Utility.TristateBool Paid { get; set; }
+        Utility.TristateBool Processed { get; set; }
+        string CouponCode { get; set; }
+        List<int> ExcludeIdList { get; set; }
+    }
+
+
+    public class Order : IOrder
     {
         public Order()
         {
@@ -188,6 +249,9 @@ namespace PigeonCms.Shop
         }
 
         private decimal orderAmount = 0;
+        /// <summary>
+        /// sum of rows AmountWithTaxes
+        /// </summary>
         [DataObjectField(false)]
         public decimal OrderAmount
         {
@@ -208,6 +272,10 @@ namespace PigeonCms.Shop
         }
 
         private decimal totalAmount = 0;
+        /// <summary>
+        /// Calculated by OM.CalculateSummary(orderId)
+        /// ex. OrderAmount + ShipAmount - OM.GetCouponAmount;
+        /// </summary>
         [DataObjectField(false)]
         public decimal TotalAmount
         {
@@ -235,16 +303,6 @@ namespace PigeonCms.Shop
             get { return currency; }
             [DebuggerStepThrough()]
             set { currency = value; }
-        }
-
-        private int vatPercentage = 0;
-        [DataObjectField(false)]
-        public int VatPercentage
-        {
-            [DebuggerStepThrough()]
-            get { return vatPercentage; }
-            [DebuggerStepThrough()]
-            set { vatPercentage = value; }
         }
 
         private int invoiceId = 0;
@@ -395,6 +453,44 @@ namespace PigeonCms.Shop
             set { shipCode = value; }
         }
 
+        private string jsData = "";
+        /// <summary>
+        /// json serialized obj
+        /// </summary>
+        public string JsData
+        {
+            [DebuggerStepThrough()]
+            get { return jsData; }
+            [DebuggerStepThrough()]
+            set { jsData = value; }
+        }
+
+        private string custom1 = "";
+        public string Custom1
+        {
+            [DebuggerStepThrough()]
+            get { return custom1; }
+            [DebuggerStepThrough()]
+            set { custom1 = value; }
+        }
+
+        private string custom2 = "";
+        public string Custom2
+        {
+            [DebuggerStepThrough()]
+            get { return custom2; }
+            [DebuggerStepThrough()]
+            set { custom2 = value; }
+        }
+
+        private string custom3 = "";
+        public string Custom3
+        {
+            [DebuggerStepThrough()]
+            get { return custom3; }
+            [DebuggerStepThrough()]
+            set { custom3 = value; }
+        }
 
 
         List<OrderRow> rows = null;
@@ -406,7 +502,8 @@ namespace PigeonCms.Shop
                 {
                     var filter = new OrderRowsFilter();
                     filter.OrderId = (this.Id > 0 ? this.Id : -1);
-                    rows = new OrderRowsManager<OrdersManager>().GetByFilter(filter, "");
+                    var man = new OrdersManager<Order, OrdersFilter, OrderRow, OrderRowsFilter>();
+                    rows = man.Rows_GetByFilter(filter, "");
                 }
                 return rows;
             }
@@ -430,7 +527,7 @@ namespace PigeonCms.Shop
     }
 
     [Serializable]
-    public class OrdersFilter
+    public class OrdersFilter: IOrderFilter
     {
         private int id = 0;
         private string orderRef = "";

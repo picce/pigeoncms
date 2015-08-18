@@ -13,15 +13,17 @@ using PigeonCms.Core.Helpers;
 
 namespace PigeonCms.Shop.OrdersProvider
 {
-    public class CurrentOrder<MH, MR>
-        where MH : OrdersManager, new()
-        where MR : OrderRowsManager<MH>, new()
+    public class CurrentOrder<OM, OT, OF, RT, RF>
+        where OM : IOrdersManager<OT, OF, RT, RF>, new()
+        where OT : IOrder, new()
+        where OF : PigeonCms.Shop.IOrderFilter, new()
+        where RT : PigeonCms.Shop.OrderRow, new()
+        where RF : PigeonCms.Shop.OrderRowsFilter, new()
     {
         private const string COOKIE_NAME = "pgnshop";
         private const string COOKIE_KEY_ORDERID = "oid";
         private CookiesManager ckMan = new CookiesManager(COOKIE_NAME, true);
-        private MH ordMan = new MH();
-        private MR rowMan = new MR(); 
+        private OM ordMan = new OM();
 
 
         private int orderId = 0;
@@ -30,17 +32,17 @@ namespace PigeonCms.Shop.OrdersProvider
             get { return this.orderId; }
         }
 
-        private Order order = null;
-        public Order Order
+        private OT order = default(OT);
+        public OT Order
         {
             get
             {
                 if (this.OrderId <= 0)
-                    order = null;
+                    order = new OT();
 
-                if (order == null)
+                if (order == null || order.Id == 0)
                 {
-                    order = new Order();
+                    order = new OT();
                     if (this.OrderId > 0)
                     {
                         order = ordMan.GetByKey(this.OrderId);
@@ -66,7 +68,7 @@ namespace PigeonCms.Shop.OrdersProvider
                     if (res > 0)
                     {
                         //check if order exists
-                        var man = new OrdersManager();
+                        var man = new OM();
                         var ord = man.GetByKey(res);
 
                         //cause new order and new cookie policies
@@ -98,7 +100,7 @@ namespace PigeonCms.Shop.OrdersProvider
 
         public void AddRow(string productCode, decimal qty)
         {
-            var row = new OrderRow();
+            var row = new RT();
             row.ProductCode = productCode;
             
             //TODO retrieve product data
@@ -108,21 +110,21 @@ namespace PigeonCms.Shop.OrdersProvider
             this.AddRow(row);
         }
 
-        public void AddRow(OrderRow row)
+        public void AddRow(RT row)
         {
             if (this.OrderId == 0)
             {
                 var settings = new PigeonCms.Shop.Settings();
 
                 //create new order
-                var ord = new Order();
+                var ord = new OT();
                 ord.Currency = settings.ShopCurrency;
                 ord = ordMan.Insert(ord);
                 this.orderCookie = ord.Id;
             }
 
             row.OrderId = this.OrderId;
-            rowMan.Insert(row);
+            ordMan.Rows_Insert(row);
         }
 
         public int RemoveRow(int rowId)
@@ -130,7 +132,7 @@ namespace PigeonCms.Shop.OrdersProvider
             int res = 0;
             if (checkRowId(rowId))
             {
-                res = rowMan.DeleteById(rowId);
+                res = ordMan.Rows_DeleteById(rowId);
             }
             return res;
         }
@@ -140,12 +142,12 @@ namespace PigeonCms.Shop.OrdersProvider
             int res = 0;
             if (checkRowId(rowId))
             {
-                var row = rowMan.GetByKey(rowId);
+                var row = ordMan.Rows_GetByKey(rowId);
                 row.Qty += incValue;
                 if (row.Qty < 0)
                     return 0;
 
-                res = rowMan.Update(row);
+                res = ordMan.Rows_Update(row);
                 if (row.Qty == 0)
                 {
                     RemoveRow(rowId);
@@ -159,9 +161,9 @@ namespace PigeonCms.Shop.OrdersProvider
             int res = 0;
             if (checkRowId(rowId))
             {
-                var row = rowMan.GetByKey(rowId);
+                var row = ordMan.Rows_GetByKey(rowId);
                 row.Qty = qty;
-                res = rowMan.Update(row);
+                res = ordMan.Rows_Update(row);
             }
             return res;
         }
@@ -185,16 +187,16 @@ namespace PigeonCms.Shop.OrdersProvider
         }
 
         /// <summary>
-        /// check if rowId if in current order
+        /// check if rowId is in current order
         /// </summary>
         private bool checkRowId(int rowId)
         {
             bool res = false;
-            var filter = new OrderRowsFilter();
+            var filter = new RF();
             filter.OrderId = this.OrderId > 0 ? this.OrderId : -1;
             filter.Id = rowId > 0 ? rowId : -1;
             //sec check
-            var list = rowMan.GetByFilter(filter, "");
+            var list = ordMan.Rows_GetByFilter(filter, "");
             if (list.Count == 1)
                 res = true;
 

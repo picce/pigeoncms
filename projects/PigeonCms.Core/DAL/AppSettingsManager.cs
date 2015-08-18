@@ -60,11 +60,10 @@ namespace PigeonCms
         /// </summary>
         /// <param name="keyName"></param>
         /// <returns></returns>
-        public static string GetValue(string keyName)
+        public static string GetValue(string keyName, string defaultValue = "")
         {
             string result = "";
-            Object obj;
-            obj = HttpContext.Current.Application[keyName];
+            Object obj = HttpContext.Current.Application[keyName];
             if (obj == null)
             {
                 AppSetting appSetting = new AppSetting();
@@ -80,6 +79,10 @@ namespace PigeonCms
             {
                 result = obj.ToString();
             }
+
+            if (string.IsNullOrEmpty(result))
+                result = defaultValue;
+
             return result;
         }
 

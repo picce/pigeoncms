@@ -240,6 +240,46 @@ namespace PigeonCms.Shop
                     notes = value; 
             }
         }
+
+        private string jsData = "";
+        /// <summary>
+        /// json serialized obj
+        /// </summary>
+        public string JsData
+        {
+            [DebuggerStepThrough()]
+            get { return jsData; }
+            [DebuggerStepThrough()]
+            set { jsData = value; }
+        }
+
+        private string custom1 = "";
+        public string Custom1
+        {
+            [DebuggerStepThrough()]
+            get { return custom1; }
+            [DebuggerStepThrough()]
+            set { custom1 = value; }
+        }
+
+        private string custom2 = "";
+        public string Custom2
+        {
+            [DebuggerStepThrough()]
+            get { return custom2; }
+            [DebuggerStepThrough()]
+            set { custom2 = value; }
+        }
+
+        private string custom3 = "";
+        public string Custom3
+        {
+            [DebuggerStepThrough()]
+            get { return custom3; }
+            [DebuggerStepThrough()]
+            set { custom3 = value; }
+        }
+
     }
 
 

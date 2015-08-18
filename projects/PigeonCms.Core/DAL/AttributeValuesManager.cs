@@ -23,6 +23,7 @@ namespace PigeonCms
             DbDataReader myRd = null;
             DbCommand myCmd = myConn.CreateCommand();
             string sSql;
+            string topItems = "";
             List<PigeonCms.AttributeValue> result = new List<PigeonCms.AttributeValue>();
 
             try
@@ -31,7 +32,12 @@ namespace PigeonCms
                 myConn.Open();
                 myCmd.Connection = myConn;
 
-                sSql = "SELECT Id, AttributeId, ValueString FROM " + this.TableName + " WHERE 1=1 ";
+                if (filter.NumOfRecords > 0)
+                {
+                    topItems = "TOP " + filter.NumOfRecords.ToString();
+                }
+
+                sSql = "SELECT " + topItems + " Id, AttributeId, ValueString FROM " + this.TableName + " WHERE 1=1 ";
                 if (filter.Id > 0)
                 {
                     sSql += " AND Id = @Id ";

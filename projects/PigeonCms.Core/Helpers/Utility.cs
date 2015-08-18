@@ -18,6 +18,8 @@ using System.Collections;
 using System.Security.Cryptography;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using Newtonsoft.Json.Linq;
+
 
 namespace PigeonCms
 {
@@ -26,6 +28,40 @@ namespace PigeonCms
     /// </summary>
     public static class Utility
     {
+        /// <summary>
+        /// useful methods to manage json data
+        /// </summary>
+        public class Json
+        {
+            public static string ParseString(string fieldName, JObject jsData)
+            {
+                string res = "";
+                try
+                {
+                    res = (string)jsData[fieldName];
+                }
+                catch (Exception)
+                {
+                    PigeonCms.Tracer.Log("Json.ParseString - Invalid Json " + fieldName + " field [" + jsData.ToString() + "]");
+                }
+                return res;
+            }
+
+            public static decimal ParseDecimal(string fieldName, JObject jsData)
+            {
+                decimal res = 0;
+                try
+                {
+                    res = (decimal)jsData[fieldName];
+                }
+                catch (Exception)
+                {
+                    PigeonCms.Tracer.Log("JsonParseDecimal - Invalid Json " + fieldName + " field [" + jsData.ToString() + "]");
+                }
+                return res;
+            }
+        }
+
         /// <summary>
         /// useful methods to manage to work with html
         /// </summary>

@@ -382,6 +382,7 @@ namespace PigeonCms
             List<T> resultList = new List<T>();
             F filter = new F();
             filter.Id = id==0 ? -1 : id;
+            filter.ShowOnlyRootItems = false;
             resultList = GetByFilter(filter, "");
             if (resultList.Count > 0)
                 result = resultList[0];
@@ -693,7 +694,7 @@ namespace PigeonCms
                 myConn.ConnectionString = Database.ConnString;
                 myConn.Open();
                 myCmd.Connection = myConn;
-                new ItemAttributesValuesManager().DeleteByReferred(id);
+
                 foreach (var item in list)
                 {
                     deleteObj(item, myProv, myConn, myCmd);
@@ -719,27 +720,43 @@ namespace PigeonCms
             currObj.DeleteFiles();
             new PermissionProvider().RemovePermissionById(currObj.ReadPermissionId);
             new PermissionProvider().RemovePermissionById(currObj.WritePermissionId);
+            
+            new ItemAttributesValuesManager().DeleteByReferred(currObj.Id);
+
 
             //myTrans = myConn.BeginTransaction();
             //myCmd.Transaction = myTrans;
 
+            //item
             sSql = "DELETE FROM [" + this.TableName + "] WHERE Id = @Id ";
             myCmd.CommandText = Database.ParseSql(sSql);
             myCmd.Parameters.Clear();
             myCmd.Parameters.Add(Database.Parameter(myProv, "Id", currObj.Id));
             myCmd.ExecuteNonQuery();
 
+            //culture
             sSql = "DELETE FROM [" + this.TableName + "_Culture] WHERE ItemId = @ItemId ";
             myCmd.CommandText = Database.ParseSql(sSql);
             myCmd.Parameters.Clear();
             myCmd.Parameters.Add(Database.Parameter(myProv, "ItemId", currObj.Id));
             myCmd.ExecuteNonQuery();
 
+            //optional fields
             sSql = "DELETE FROM [#__itemFieldValues] WHERE ItemId = @ItemId ";
             myCmd.CommandText = Database.ParseSql(sSql);
             myCmd.Parameters.Clear();
             myCmd.Parameters.Add(Database.Parameter(myProv, "ItemId", currObj.Id));
             myCmd.ExecuteNonQuery();
+
+            //related
+            sSql = @"DELETE FROM #__itemsRelated 
+            WHERE ItemId = @ItemId  OR RelatedId = @itemId ";
+            myCmd.CommandText = Database.ParseSql(sSql);
+            myCmd.Parameters.Clear();
+            myCmd.Parameters.Add(Database.Parameter(myProv, "ItemId", currObj.Id));
+            myCmd.ExecuteNonQuery();
+
+
         }
 
         private class SectionPredicate
@@ -1249,5 +1266,114 @@ namespace PigeonCms
             return res;
         }
 
+		//TOCHECK-LOLLO
+        //ottimizzare qry (magari includere in ItemsFilter) - includere prop Related (List<T>) in Item; renamed
+        public List<T> GetRelatedItems(int itemId)
+        {
+            DbProviderFactory myProv = Database.ProviderFactory;
+            DbConnection myConn = myProv.CreateConnection();
+            DbDataReader myRd = null;
+            DbCommand myCmd = myConn.CreateCommand();
+            var relatedIdList = new List<int>();
+            string sSql;
+
+            myConn.ConnectionString = Database.ConnString;
+            myConn.Open();
+            myCmd.Connection = myConn;
+
+            try {
+                sSql = "SELECT RelatedId "
+                  + " FROM #__itemsRelated r "
+                  + " WHERE ItemId = @ItemId ";
+
+                myCmd.CommandText = Database.ParseSql(sSql);
+                myCmd.Parameters.Clear();
+                myCmd.Parameters.Add(Database.Parameter(myProv, "ItemId", itemId));
+                myRd = myCmd.ExecuteReader();
+                while (myRd.Read())
+                {
+                    int RelatedId = 0;
+
+                    if (!Convert.IsDBNull(myRd["RelatedId"]))
+                        RelatedId = (int)myRd["RelatedId"];
+
+                    relatedIdList.Add(RelatedId);
+                }
+                myRd.Close();
+            }
+            finally
+            {
+                myConn.Dispose();
+            }
+
+            //TODO add in filter List<int>
+            var relatedItemList = new List<T>();
+            foreach(var Id in relatedIdList) {
+                relatedItemList.Add(this.GetByKey(Id));
+            }
+
+            return relatedItemList;
+        }
+
+		//TOCHECK-LOLLO - edit picce (in SetRelated) TODO: check if exists
+        //TODO check if exists
+        public void SetRelated(int itemId, int RelatedId)
+        {
+            DbProviderFactory myProv = Database.ProviderFactory;
+            DbConnection myConn = myProv.CreateConnection();
+            DbCommand myCmd = myConn.CreateCommand();
+
+            myConn.ConnectionString = Database.ConnString;
+            myConn.Open();
+            myCmd.Connection = myConn;
+
+            try
+            {
+                string sSql = "";
+                sSql = "INSERT INTO #__itemsRelated (ItemId, RelatedId) "
+                      + " VALUES(@ItemId, @RelatedId) ";
+                myCmd.CommandText = Database.ParseSql(sSql);
+                myCmd.Parameters.Clear();
+                myCmd.Parameters.Add(Database.Parameter(myProv, "ItemId", itemId));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "RelatedId", RelatedId));
+                myCmd.ExecuteNonQuery();
+
+            }
+            finally
+            {
+                myConn.Dispose();
+            }
+            
+        }
+        
+        //TOCHECK-LOLLO - edit picce (in DeleteRelated) TODO: check if exists
+        public void DeleteRelated(int itemId, int relatedId)
+        {
+            DbProviderFactory myProv = Database.ProviderFactory;
+            DbConnection myConn = myProv.CreateConnection();
+            DbCommand myCmd = myConn.CreateCommand();
+
+            myConn.ConnectionString = Database.ConnString;
+            myConn.Open();
+            myCmd.Connection = myConn;
+
+            try
+            {
+                string sSql = "";
+                sSql = "DELETE FROM #__itemsRelated "
+                      + " WHERE ItemId=@ItemId AND RelatedId=@RelatedId ";
+                myCmd.CommandText = Database.ParseSql(sSql);
+                myCmd.Parameters.Clear();
+                myCmd.Parameters.Add(Database.Parameter(myProv, "ItemId", itemId));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "RelatedId", relatedId));
+                myCmd.ExecuteNonQuery();
+            }
+            finally
+            {
+                myConn.Dispose();
+            }
+
+        }
+             
     }
 }

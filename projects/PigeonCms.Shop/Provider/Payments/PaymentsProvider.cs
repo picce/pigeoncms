@@ -15,8 +15,7 @@ using System.Web.UI;
 
 namespace PigeonCms.Shop.PaymentsProvider
 {
-    public abstract class BasePayment/*<OM>*/
-        /*where OM: PigeonCms.Shop.OrdersManager, new()*/
+    public abstract class BasePayment
     {
         protected Payment PaymentData = null;
         protected Page Page = null;
@@ -31,7 +30,7 @@ namespace PigeonCms.Shop.PaymentsProvider
             return this;
         }
 
-        public abstract void Submit(PigeonCms.Shop.Order order, NameValueCollection data = null);
+        public abstract void Submit(IOrder order, NameValueCollection data = null);
 
         //How to: Raise Base Class Events in Derived Classes
         //https://msdn.microsoft.com/en-us/library/hy3sefw3.aspx
@@ -54,7 +53,7 @@ namespace PigeonCms.Shop.PaymentsProvider
         {
             public bool Success = false;
             public decimal TotalPaid = 0m;
-            public Order OrderToPay = null;
+            public IOrder OrderToPay = default(IOrder);
             public Payment PaymentData = null;
             public string MessageName;
             public Exception Exception = null;
@@ -122,8 +121,7 @@ namespace PigeonCms.Shop.PaymentsProvider
     /// create an instance of class specified in paycode/payment
     /// the specified class have to extend BasePayment abstract class
     /// </summary>
-    public sealed class PaymentFactory/*<OM>
-        where OM : PigeonCms.Shop.OrdersManager, new()*/
+    public class PaymentFactory
     {
         public static BasePayment Create(Page page, string payCode)
         {

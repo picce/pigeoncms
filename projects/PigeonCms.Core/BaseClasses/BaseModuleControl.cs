@@ -38,6 +38,17 @@ namespace PigeonCms
 
         #region properties
 
+        private bool standAlone = false;
+        /// <summary>
+        /// set to true to use as standalone control
+        /// eg. in EngineBasePage pages
+        /// </summary>
+        public bool StandAlone
+        {
+            get { return standAlone; }
+            set { standAlone = value; }
+        }
+
         /// <summary>
         /// int pkey, current record Id (usually used by admin modules to keep current record state)
         /// </summary>
@@ -69,6 +80,7 @@ namespace PigeonCms
         }
 
         public PigeonCms.Module BaseModule { get; set; }
+
         
         private PigeonCms.Menu currMenu = new PigeonCms.Menu();
         public PigeonCms.Menu CurrMenu 
@@ -76,6 +88,8 @@ namespace PigeonCms
             get { return currMenu; }
             set { currMenu = value; } 
         }
+
+
 
         /// <summary>
         /// absolute path of current module 
@@ -375,10 +389,10 @@ namespace PigeonCms
             if (labelsList == null)
             {
                 //preload all labels of current moduletype
-                labelsList = LabelsProvider.GetLabelsByResourceSet(BaseModule.ModuleFullName);
+                labelsList = LabelsProvider.GetLabelsByResourceSet(this.BaseModule.ModuleFullName);
             }
             res = LabelsProvider.GetLocalizedLabelFromList(
-                BaseModule.ModuleFullName,
+                this.BaseModule.ModuleFullName,
                 labelsList, 
                 resourceId, 
                 defaultValue, 

@@ -1,0 +1,49 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeFile="puppets.master.cs" Inherits="puppets" %>
+<%@ Register Src="~/pgn-admin/modules/PigeonCms.Debug/views/Debug.ascx" TagPrefix="uc1" TagName="Debug" %>
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <title></title>
+    <link href="/assets/css/main.css" rel="stylesheet" type="text/css" />
+    <asp:ContentPlaceHolder id="CphHead" runat="server">
+    </asp:ContentPlaceHolder>
+</head>
+<body>
+    <form id="form1" runat="server">
+
+    <div class="menu">
+        <ul>
+            <li>
+                <a href="/"><%=CurrPage.GetLabel("AQ_menu", "Home", "Labels") %></a>
+            </li>
+            <li>
+                <a href="/contents/images"><%=CurrPage.GetLabel("AQ_menu", "Images", "Images") %></a>
+            </li>
+            <li>
+                <a href="/contents/cache"><%=CurrPage.GetLabel("AQ_menu", "Cache", "Cache") %></a>
+            </li>
+            <li>
+                <a href="/contents/list"><%=CurrPage.GetLabel("AQ_menu", "List", "List items") %></a>
+            </li>
+            <li>
+                <a href="/private"><%=CurrPage.GetLabel("AQ_menu", "PrivateArea", "Private area") %></a>
+            </li>
+            <li>
+                <%=MenuLogout %>
+            </li>
+        </ul>
+    </div>
+
+    <div>
+        <asp:ContentPlaceHolder id="CphMain" runat="server">
+        </asp:ContentPlaceHolder>
+    </div>
+
+    <uc1:Debug runat="server" StandAlone="true" ID="Debug1" />
+
+    </form>
+</body>
+</html>

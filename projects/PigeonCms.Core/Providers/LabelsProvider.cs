@@ -238,6 +238,26 @@ namespace PigeonCms
                             else
                                 return false;
                         }).Value;
+
+                    //added 20150701
+                    //try default culture
+                    if (string.IsNullOrEmpty(res) && Config.CultureDefault.ToLower() != forcedCultureCode.ToLower())
+                    {
+                        try
+                        {
+                            res = labelsList.Find(
+                                delegate(ResLabel labelToFind)
+                                {
+                                    if (labelToFind.ResourceId.ToLower() == resourceId.ToLower() &&
+                                        labelToFind.CultureName.ToLower() == Config.CultureDefault.ToLower())
+                                        return true;
+                                    else
+                                        return false;
+                                }).Value;
+                        }
+                        catch (NullReferenceException)
+                        { res = ""; }
+                    }
                 }
                 catch (NullReferenceException)
                 {

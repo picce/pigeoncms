@@ -9,8 +9,28 @@ using System.Diagnostics;
 
 namespace PigeonCms.Shop
 {
+    public interface IOrderRow : ITable
+    {
+        int Id { get; set; }
+        int OrderId { get; set; }
+        string ProductCode { get; set; }
+        decimal Qty { get; set; }
+        decimal PriceNet { get; set; }
+        decimal TaxPercentage { get; set; }
+        string RowNotes { get; set; }
+        PigeonCms.Shop.IOrder Order { get; }
+        decimal PriceWithTaxes { get; }
+        decimal AmountNet { get; }
+        decimal AmountWithTaxes { get; }
+    }
 
-    public class OrderRow : ITable
+    public interface IOrderRowsFilter
+    {
+        int Id { get; set; }
+        int OrderId { get; set; }
+    }
+
+    public class OrderRow : IOrderRow
     {
         public OrderRow()
         {
@@ -35,14 +55,14 @@ namespace PigeonCms.Shop
             set { productCode = value; }
         }
 
-        private decimal priceFull = 0.0m;
+        private decimal qty = 0m;
         [DataObjectField(false)]
-        public decimal PriceFull
+        public decimal Qty
         {
             [DebuggerStepThrough()]
-            get { return priceFull; }
+            get { return qty; }
             [DebuggerStepThrough()]
-            set { priceFull = value; }
+            set { qty = value; }
         }
 
         private decimal priceNet = 0.0m;
@@ -55,14 +75,14 @@ namespace PigeonCms.Shop
             set { priceNet = value; }
         }
 
-        private decimal qty = 0m;
+        private decimal taxPercentage = 0.0m;
         [DataObjectField(false)]
-        public decimal Qty
+        public decimal TaxPercentage
         {
             [DebuggerStepThrough()]
-            get { return qty; }
+            get { return taxPercentage; }
             [DebuggerStepThrough()]
-            set { qty = value; }
+            set { taxPercentage = value; }
         }
 
         private string rowNotes = "";
@@ -75,55 +95,59 @@ namespace PigeonCms.Shop
             set { rowNotes = value; }
         }
 
-        public decimal RowPrice
-        {
-            get
-            {
-                return this.PriceFull * this.qty;
-            }
-        }
-
-
-        Order order = null;
-        public Order Order
+        private IOrder order = null;
+        public IOrder Order
         {
             get
             {
                 if (order == null)
                 {
-                    order = new OrdersManager().GetByKey(
-                        this.OrderId);
+                    var man = new OrdersManager<Order, OrdersFilter, OrderRow, OrderRowsFilter>();
+                    order = man.GetByKey(this.OrderId);
                 }
                 return order;
             }
         }
 
-        //DroidCatalogue.DroidItem droidItem = null;
-        //public DroidCatalogue.DroidItem DroidItem
-        //{
-        //    get
-        //    {
-        //        if (droidItem == null)
-        //        {
-        //            droidItem = new DroidCatalogue.DroidItemsManager(false, false).GetByKey(
-        //                this.DroidItemId);
-        //        }
-        //        return droidItem;
-        //    }
-        //}
-
+        /// <summary>
+        /// PriceNet + (PriceNet * TaxPercentage / 100)
+        /// </summary>
         [DataObjectField(false)]
-        public decimal Amount
+        public decimal PriceWithTaxes
+        {
+            get
+            {
+                return this.PriceNet + 
+                    (this.PriceNet * this.TaxPercentage / 100);
+            }
+        }
+
+        /// <summary>
+        /// Qty * PriceNet
+        /// </summary>
+        [DataObjectField(false)]
+        public decimal AmountNet
         {
             get
             {
                 return this.Qty * this.PriceNet;
             }
         }
+
+        /// <summary>
+        /// Qty * PriceWithTaxes
+        /// </summary>
+        public decimal AmountWithTaxes
+        {
+            get
+            {
+                return this.Qty * this.PriceWithTaxes;
+            }
+        }
     }
 
     [Serializable]
-    public class OrderRowsFilter
+    public class OrderRowsFilter : IOrderRowsFilter
     {
         private int id = 0;
         private int orderId = 0;
