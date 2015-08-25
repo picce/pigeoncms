@@ -3,7 +3,7 @@ ASP.NET opensource cms
 ---
 ###Get started
 * [Requirements](wiki/base/requirements.md)
-* [Install and server setup](wiki/base/install.md)
+* [Installation and server setup](wiki/base/install.md)
 * [Upgrade](wiki/base/upgrade.md)
 * [Your first contents](wiki/base/first-contents.md)
 * [Labels and items](wiki/base/labels-and-items.md)
