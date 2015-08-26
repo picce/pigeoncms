@@ -16,6 +16,9 @@ Open zip file and save files in your favourite location (example: `c:\sites\pige
 
 **Website** only version contains the folder `pigeoncms`
 
-**Full solution** versione contains the following folders:  
+**Full solution** version contains the following folders:  
 `pigeoncms` the website folder  
 `projects` the folder contains the solution file `pigeoncms.sln` and the core project.
+
+####Choose and configure webserver
+
