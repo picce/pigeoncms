@@ -42,27 +42,36 @@ namespace PigeonCms.Engine
                 throw new ArgumentException("empty resourceId");
 
             string res = "";
-            if (!labelsList.ContainsKey(resourceSet))
+
+            try
             {
-                //preload all labels of current moduletype
-                var labels = LabelsProvider.GetLabelsByResourceSet(resourceSet);
-                labelsList.Add(resourceSet, labels);
+                if (!labelsList.ContainsKey(resourceSet))
+                {
+                    //preload all labels of current moduletype
+                    var labels = LabelsProvider.GetLabelsByResourceSet(resourceSet);
+                    labelsList.Add(resourceSet, labels);
+                }
+                res = LabelsProvider.GetLocalizedLabelFromList(
+                    resourceSet,
+                    labelsList[resourceSet],
+                    resourceId,
+                    defaultValue,
+                    textMode,
+                    forcedCultureCode);
+                if (string.IsNullOrEmpty(res))
+                {
+                    res = defaultValue;
+                }
+                if (HttpContext.Current.Request.QueryString["tp"] == "1")
+                {
+                    res = "[" + resourceId + "]" + res;
+                }
             }
-            res = LabelsProvider.GetLocalizedLabelFromList(
-                resourceSet,
-                labelsList[resourceSet],
-                resourceId, 
-                defaultValue, 
-                textMode,
-                forcedCultureCode);
-            if (string.IsNullOrEmpty(res))
+            catch (System.Data.SqlClient.SqlException ex)
             {
-                res = defaultValue;
+                Response.Redirect(Config.InstallationPath);
             }
-            if (HttpContext.Current.Request.QueryString["tp"] == "1")
-            {
-                res = "[" + resourceId + "]" + res;
-            }
+
             return res;
         }
 

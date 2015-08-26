@@ -15,11 +15,9 @@ using System.Globalization;
 using PigeonCms;
 using PigeonCms.Core.Helpers;
 using PigeonCms.Shop;
-//using FredCK.FCKeditorV2;
 
 public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
 {
-    //const int CAT_START = 1000;
     const int COL_ALIAS_INDEX = 2;
     const int COL_SECTION_INDEX = 3;
     const int COL_CATEGORY_INDEX = 4;
@@ -33,6 +31,14 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
     const int VIEW_GRID = 0;
     const int VIEW_INSERT = 1;
 
+    protected PigeonCms.Shop.Settings ShopSettings = new PigeonCms.Shop.Settings();
+
+    ItemAttributesValuesManager man = new ItemAttributesValuesManager();
+    AttributeValuesManager vman = new AttributeValuesManager();
+    ProductItemsManager pman = new ProductItemsManager();
+    AttributesManager aman = new AttributesManager();
+    AttributeSetsManager sman = new AttributeSetsManager();
+    List<PigeonCms.Attribute> attributes = new List<PigeonCms.Attribute>();
 
     protected DateTime ItemDate
     {
@@ -95,14 +101,6 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         }
     }
 
-    protected int ItemId
-    {
-        get
-        {
-            return base.CurrentId;   
-        }
-    }
-
     protected new void Page_Init(object sender, EventArgs e)
     {
         base.Page_Init(sender, e);
@@ -114,13 +112,13 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
             //title
             Panel pan1 = new Panel();
             pan1.CssClass = "form-group input-group";
-            PanelTitle.Controls.Add(pan1);
 
             TextBox txt1 = new TextBox();
             txt1.ID = "TxtTitle" + item.Value;
             txt1.MaxLength = 200;
             txt1.CssClass = "form-control";
             txt1.ToolTip = item.Key;
+            txt1.ClientIDMode = System.Web.UI.ClientIDMode.Static;
             LabelsProvider.SetLocalizedControlVisibility(this.ShowOnlyDefaultCulture, item.Key, txt1);
             pan1.Controls.Add(txt1);
             Literal lit1 = new Literal();
@@ -129,6 +127,7 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
             pan1.Controls.Add(lit1);
             if (item.Key == Config.CultureDefault)
                 titleId = txt1.ClientID;
+            PanelTitle.Controls.Add(pan1);
 
             //description
             var txt2 = (Controls_ContentEditorControl)LoadControl("~/Controls/ContentEditorControl.ascx");
@@ -142,6 +141,27 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
             if (!this.ShowOnlyDefaultCulture)
                 lit2.Text = "&nbsp;[<i>" + item.Value + "</i>]<br /><br />";
             PanelDescription.Controls.Add(lit2);
+        }
+
+        if (IsPostBack)
+        {
+            int setId = 0;
+            int.TryParse(DropSets.SelectedValue, out setId);
+            var afilter = new AttributeFilter();
+            if (setId > 0)
+            {
+                var set = sman.GetByKey(setId);
+                foreach (var attributeId in set.AttributesList)
+                {
+                    attributes.Add(aman.GetByKey(attributeId));
+                }
+            }
+            else
+            {
+                attributes = aman.GetByFilter(afilter, "");
+            }
+            PanelAttributes.Controls.Add(generateAttributesDropDown());
+            QuickAttributes.Controls.Add(generateAttributesDropDown(true));
         }
 
         if (this.BaseModule.DirectEditMode)
@@ -162,9 +182,6 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         LitItemType.Visible = this.ShowType;
 
         Grid1.Columns[COL_SECTION_INDEX].Visible = this.ShowSectionColumn;
-        //Grid1.Columns[COL_ACCESSTYPE_INDEX].Visible = this.ShowSecurity;
-        //Grid1.Columns[COL_ACCESSLEVEL_INDEX].Visible = this.ShowSecurity;
-        //Grid1.Columns[COL_ID_INDEX].Visible = this.ShowSecurity;
         PermissionsControl1.Visible = this.ShowSecurity;
 
         TxtItemDate.Visible = this.ShowDates;
@@ -185,15 +202,11 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         LblOk.Text = RenderSuccess("");
         LblErr.Text = RenderError("");
 
-        Utility.Script.RegisterClientScriptInclude(this, "appjs",
-            ResolveUrl(Config.ModulesPath + this.BaseModule.ModuleFullName + "/views/" +
-            this.BaseModule.CurrViewFolder + "/assets/js/app.js"));
-
         if (this.BaseModule.DirectEditMode)
         {
             if (base.CurrItem.Id == 0)
                 throw new ArgumentException();
-            if (new PigeonCms.Shop.ProductItemsManager().GetByKey(base.CurrItem.Id).Id == 0)
+            if (pman.GetByKey(base.CurrItem.Id).Id == 0)
                 throw new ArgumentException();
         }
 
@@ -207,7 +220,7 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
                 loadDropCategoriesFilter(secId);
             }
             loadDropsItemTypes();
-            //loadAttributesRepeater();
+            loadDropSets();
         }
         else
         {
@@ -219,7 +232,7 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
             var currentItem = new ProductItem();
             if (CurrentId > 0)
             {
-                currentItem = new ProductItemsManager().GetByKey(CurrentId);
+                currentItem = pman.GetByKey(CurrentId);
                 ItemParams1.LoadParams(currentItem);
                 ItemFields1.LoadFields(currentItem);
             }
@@ -237,7 +250,7 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         }
         if (this.BaseModule.DirectEditMode)
         {
-            //DropNew.Visible = false;
+            DropNew.Visible = false;
             BtnNew.Visible = false;
             BtnCancel.OnClientClick = "closePopup();";
 
@@ -275,20 +288,54 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         Grid1.DataBind();
     }
 
+    protected void DropNew_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        if (!checkAddNewFilters())
+            Utility.SetDropByValue(DropNew, "");
+        else
+        {
+            try { editRow(0); }
+            catch (Exception e1) { LblErr.Text = RenderError(e1.Message); }
+        }
+    }
+
+    protected void DropSets_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        string strIdSet = DropSets.SelectedValue;
+        int id = 0;
+        int.TryParse(strIdSet, out id);
+
+        hideAttributesDropDown(id);
+        hideAttributesDropDown(id, true);
+        GridViewSimple.DataBind();
+    }
+
     protected void BtnNew_Click(object sender, EventArgs e)
     {
         try
         {
-            //if (checkAddNewFilters())
-            //{
-                //Utility.SetDropByValue(DropNew, this.ItemType);
+            if (checkAddNewFilters())
+            {
+                Utility.SetDropByValue(DropNew, this.CurrItem.CustomInt2.ToString());
                 editRow(0);
-            //}
+            }
         }
         catch (Exception e1) { LblErr.Text = RenderError(e1.Message); }
     }
 
     protected void ObjDs1_ObjectCreating(object sender, ObjectDataSourceEventArgs e)
+    {
+        var typename = new ProductItemsManager();
+        e.ObjectInstance = typename;
+    }
+
+    protected void ObjDs2_ObjectCreating(object sender, ObjectDataSourceEventArgs e)
+    {
+        var typename = new ProductItemsManager();
+        e.ObjectInstance = typename;
+    }
+
+    protected void ObjDs3_ObjectCreating(object sender, ObjectDataSourceEventArgs e)
     {
         var typename = new ProductItemsManager();
         e.ObjectInstance = typename;
@@ -313,6 +360,81 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
                 filter.Enabled = Utility.TristateBool.NotSet;
                 break;
         }
+
+        //filter.ShowOnlyRootItems = false;
+
+        int secId = -1;
+        int.TryParse(DropSectionsFilter.SelectedValue, out secId);
+
+        int catId = -1;
+        int.TryParse(DropCategoriesFilter.SelectedValue, out catId);
+
+        if (base.SectionId > 0)
+            filter.SectionId = base.SectionId;
+        else
+            filter.SectionId = secId;
+        filter.CategoryId = catId;
+
+        e.InputParameters["filter"] = filter;
+        e.InputParameters["sort"] = "";
+    }
+
+    protected void ObjDs2_Selecting(object sender, ObjectDataSourceSelectingEventArgs e)
+    {
+        //see http://msdn.microsoft.com/en-us/library/w3f99sx1.aspx
+        //for use generics with ObjDs TypeName
+        var filter = new ProductItemFilter();
+
+        filter.Enabled = Utility.TristateBool.NotSet;
+        switch (DropEnabledFilter.SelectedValue)
+        {
+            case "1":
+                filter.Enabled = Utility.TristateBool.True;
+                break;
+            case "0":
+                filter.Enabled = Utility.TristateBool.False;
+                break;
+            default:
+                filter.Enabled = Utility.TristateBool.NotSet;
+                break;
+        }
+
+        filter.ShowOnlyRootItems = false;
+
+        
+        var main = pman.GetByKey(base.CurrentId);
+        int setDrop = 0;
+        int.TryParse(DropSets.SelectedValue, out setDrop);
+        int setId = (main.AttributeSet > 0) ? main.AttributeSet : setDrop;
+
+        filter.ProductType = 1;
+        filter.AttributeSet = setId;
+
+        e.InputParameters["filter"] = filter;
+        e.InputParameters["sort"] = "";
+    }
+
+    protected void ObjDs3_Selecting(object sender, ObjectDataSourceSelectingEventArgs e)
+    {
+        //see http://msdn.microsoft.com/en-us/library/w3f99sx1.aspx
+        //for use generics with ObjDs TypeName
+        var filter = new ProductItemFilter();
+
+        filter.Enabled = Utility.TristateBool.NotSet;
+        switch (DropEnabledFilter.SelectedValue)
+        {
+            case "1":
+                filter.Enabled = Utility.TristateBool.True;
+                break;
+            case "0":
+                filter.Enabled = Utility.TristateBool.False;
+                break;
+            default:
+                filter.Enabled = Utility.TristateBool.NotSet;
+                break;
+        }
+
+        filter.ShowOnlyRootItems = true;
 
         e.InputParameters["filter"] = filter;
         e.InputParameters["sort"] = "";
@@ -382,10 +504,15 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
             LinkButton LnkTitle = (LinkButton)e.Row.FindControl("LnkTitle");
             LnkTitle.Text = "<i class='fa fa-pgn_edit fa-fw'></i>";
             if (!item.IsThreadRoot)
-                LnkTitle.Text += "--";
+                LnkTitle.ForeColor = System.Drawing.Color.Brown;
+            if (item.IsDraft)
+                LnkTitle.ForeColor = System.Drawing.Color.Red;
             LnkTitle.Text += Utility.Html.GetTextPreview(item.Title, 30, "");
             if (string.IsNullOrEmpty(item.Title))
                 LnkTitle.Text += Utility.GetLabel("NO_VALUE", "<no value>");
+
+            Literal LitProductType = (Literal)e.Row.FindControl("LitProductType");
+            LitProductType.Text = item.ProductType.ToString();
 
             if (item.CategoryId > 0)
             {
@@ -411,34 +538,61 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
                 img1.Visible = true;
             }
 
-            // now have to compose the list with the couple of ids compiled, so take all variants productitem
-            var productfilter = new ProductItemFilter();
-            productfilter.ThreadId = item.Id;
-            productfilter.ShowOnlyRootItems = false;
-            var productitems = new ProductItemsManager().GetByFilter(productfilter, "");
+        }
 
-            // iterate them
-            foreach (var productitem in productitems)
+    }
+
+    protected void GridViewSimple_RowDataBound(object sender, GridViewRowEventArgs e)
+    {
+        if (e.Row.RowType == DataControlRowType.DataRow)
+        {
+            var item = new ProductItem();
+            item = (ProductItem)e.Row.DataItem;
+
+            if (item.IsThreadRoot)
+                lastRowDataboundRoot = e.Row;
+            else
             {
-                // check if are compiled
-                var variants = new ItemAttributesValuesManager().GetByItemId(productitem.Id);
-                if (variants != null && variants.Count > 0)
-                {
-                    variants = variants.Where(x => x.AttributeValueId > 0).OrderBy(x => x.AttributeId).ToList();
+                if (lastRowDataboundRoot != null)
+                    e.Row.RowState = lastRowDataboundRoot.RowState; //keeps same style of thread root
+            }
 
-                    Literal variantsCompiled = e.Row.FindControl("variantsCompiled") as Literal;
+            CheckBox chkRow = (CheckBox)e.Row.FindControl("chkRow");
+            if (item.ThreadId == this.CurrentId)
+            {
+                chkRow.Checked = true;
+            }
+        }
 
-                    // add ids and values to know the information of each box
-                    foreach (var variant in variants)
-                    {
-                        var value = new PigeonCms.AttributeValuesManager().GetByKey(variant.AttributeValueId).Value;
-                        variantsCompiled.Text += value + " - ";
-                    }
+    }
 
-                    variantsCompiled.Text = variantsCompiled.Text.Substring(0, variantsCompiled.Text.Length - 3) + "<br>";
+    protected void GridRelated_RowDataBound(object sender, GridViewRowEventArgs e)
+    {
+        if (e.Row.RowType == DataControlRowType.DataRow)
+        {
+            var item = new ProductItem();
+            item = (ProductItem)e.Row.DataItem;
 
-                }
+            //if (item.Id == base.CurrentId)
+            //{
+            //    e.Row.Visible = false;
+            //}
 
+            if (item.IsThreadRoot)
+                lastRowDataboundRoot = e.Row;
+            else
+            {
+                if (lastRowDataboundRoot != null)
+                    e.Row.RowState = lastRowDataboundRoot.RowState; //keeps same style of thread root
+            }
+
+            var pman = new ProductItemsManager();
+            var relatedIds = pman.GetRelatedItems(CurrentId).Select(x => x.Id);
+
+            CheckBox chkRow = (CheckBox)e.Row.FindControl("chkRow");
+            if (relatedIds.Contains(item.Id))
+            {
+                chkRow.Checked = true;
             }
 
         }
@@ -454,10 +608,20 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         }
     }
 
+    protected void BtnQuickAdd_Click(object sender, EventArgs e)
+    {
+        if (checkQuickAdd())
+        {
+            if (saveQuickAdd())
+                MultiView1.ActiveViewIndex = VIEW_INSERT;
+        }
+    }
+
     protected void BtnCancel_Click(object sender, EventArgs e)
     {
-        if(new ProductItemsManager().GetByKey(this.CurrentId).IsDraft) {
-            new ProductItemsManager().DeleteById(this.CurrentId);
+        if (pman.GetByKey(this.CurrentId).IsDraft)
+        {
+            pman.DeleteById(this.CurrentId);
         }
         LblErr.Text = RenderError("");
         LblOk.Text = RenderSuccess("");
@@ -473,10 +637,10 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
                 MultiView1.ActiveViewIndex = VIEW_INSERT;
         }
 
-        //if (MultiView1.ActiveViewIndex == VIEW_GRID)    //list view
-        //{
-        //    Utility.SetDropByValue(DropNew, "");
-        //}
+        if (MultiView1.ActiveViewIndex == VIEW_GRID)    //list view
+        {
+            Utility.SetDropByValue(DropNew, "");
+        }
     }
 
     #region private methods
@@ -494,7 +658,7 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
             var list = new List<PigeonCms.Shop.ProductItem>();
 
             filter.Alias = TxtAlias.Text;
-            list = new ProductItemsManager().GetByFilter(filter, "");
+            list = pman.GetByFilter(filter, "");
             if (list.Count > 0)
             {
                 if (this.CurrentId == 0)
@@ -516,6 +680,53 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         return res;
     }
 
+    private bool checkQuickAdd()
+    {
+        LblErr.Text = RenderError("");
+        LblOk.Text = RenderSuccess("");
+        bool res = true;
+        string err = "";
+        var pfilter = new ProductItemFilter();
+        var filter = new ItemAttributeValueFilter();
+        pfilter.ThreadId = CurrentId;
+        pfilter.ShowOnlyRootItems = false;
+        var pChilds = pman.GetByFilter(pfilter, "");
+        foreach (var pChild in pChilds)
+        {
+            int pId = pChild.Id;
+            filter.ItemId = pId;
+            var values = man.GetByFilter(filter, "");
+            int foundIn = 0,
+                presentAttributes = 0;
+
+            // QUI salvo gli attributi quick edit
+
+            foreach (var attribute in attributes)
+            {
+                DropDownList d1 = new DropDownList();
+                d1 = (DropDownList)PanelAttributes.FindControl("DropAttributeValuesQuick" + attribute.Name);
+                int attributeValueId = 0;
+                int.TryParse(d1.SelectedValue, out attributeValueId);
+                if (attributeValueId > 0)
+                {
+                    presentAttributes++;
+                    var exist = values.Exists(x => x.AttributeId == attribute.Id && x.AttributeValueId == attributeValueId);
+                    if (exist)
+                    {
+                        foundIn++;
+                    }
+                }
+            }
+            if (foundIn == presentAttributes)
+            {
+                res = false;
+                err += "Existing variant<br />";
+            }
+        }
+        LblErr.Text = RenderError(err);
+        return res;
+    }
+
     private bool saveForm()
     {
         bool res = false;
@@ -524,22 +735,69 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
 
         try
         {
-            var o1 = new ProductItemsManager().GetByKey(CurrentId);  //precarico i campi esistenti e nn gestiti dal form
-            if (o1.IsDraft)
-            {
-                o1.IsDraft = false;
-                form2obj(o1);
-                new ProductItemsManager().Update(o1);
-            }
-            else
-            {
+            var o1 = pman.GetByKey(CurrentId);  //precarico i campi esistenti e nn gestiti dal form
+            List<ItemAttributeValue> a1 = null;
 
-                form2obj(o1);
-                new ProductItemsManager().Update(o1);
+            a1 = form2obj(o1);
+            pman.Update(o1);
+
+            man.DeleteByItemId(CurrentId);
+
+            foreach (var a in a1)
+            {
+                man.Insert(a);
+            }
+
+            removeFromCache();
+
+            Grid1.DataBind();
+            GridViewSimple.DataBind();
+            GridRelated.DataBind();
+            LblOk.Text = RenderSuccess(Utility.GetLabel("RECORD_SAVED_MSG"));
+            res = true;
+        }
+        catch (CustomException e1)
+        {
+            if (e1.CustomMessage == ProductItemsManager.MaxItemsException)
+                LblErr.Text = RenderError(base.GetLabel("LblMaxItemsReached", "you have reached the maximum number of elements"));
+            else
+                LblErr.Text = RenderError(e1.CustomMessage);
+        }
+        catch (Exception e1)
+        {
+            LblErr.Text = RenderError(Utility.GetLabel("RECORD_ERR_MSG") + "<br />" + e1.ToString());
+        }
+        finally
+        {
+        }
+        return res;
+    }
+
+    private bool saveQuickAdd()
+    {
+        bool res = false;
+        LblErr.Text = RenderError("");
+        LblOk.Text = RenderSuccess("");
+        try
+        {
+            var o1 = new ProductItem();  //precarico i campi esistenti e nn gestiti dal form
+            var a1 = quickform2obj(o1);
+
+            var prod = pman.Insert(o1);
+
+            // cancello tutti i record con questo itemID
+            man.DeleteByItemId(prod.Id);
+
+            foreach (var a in a1)
+            {
+                a.ItemId = prod.Id;
+                man.Insert(a);
             }
             removeFromCache();
 
             Grid1.DataBind();
+            GridViewSimple.DataBind();
+            clearQuickForm();
             LblOk.Text = RenderSuccess(Utility.GetLabel("RECORD_SAVED_MSG"));
             res = true;
         }
@@ -570,6 +828,7 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         ChkEnabled.Checked = true;
         TxtAlias.Text = "";
         TxtCssClass.Text = "";
+        //DropSets.SelectedValue = "-1";
 
         this.ItemDate = DateTime.MinValue;
         this.ValidFrom = DateTime.MinValue;
@@ -583,14 +842,40 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
             var txt2 = new Controls_ContentEditorControl();
             txt2 = Utility.FindControlRecursive<Controls_ContentEditorControl>(this, "TxtDescription" + item.Value);
             txt2.Text = "";
-            //FCKeditor t2 = new FCKeditor();
-            //t2 = (FCKeditor)PanelDescription.FindControl("TxtDescription" + item.Value);
-            //t2.Value = "";
         }
+
+        foreach (var attribute in attributes)
+        {
+            DropDownList d1 = new DropDownList();
+            d1 = (DropDownList)QuickAttributes.FindControl("DropAttributeValues" + attribute.Name);
+            d1.SelectedValue = "0";
+        }
+
         PermissionsControl1.ClearForm();
     }
 
-    private void form2obj(ProductItem obj)
+    private void clearQuickForm()
+    {
+        DropEnabled.SelectedValue = "0";
+        QuickTxtRegularPrice.Text = "";
+        QuickTxtSalePrice.Text = "";
+        QuickTxtSKU.Text = "";
+        QuickTxtRegularPrice.Text = "";
+        QuickTxtSalePrice.Text = "";
+        QuickTxtWeight.Text = "";
+        QuickTxtQty.Text = "";
+        QuickDropStock.SelectedValue = "1";
+           
+        foreach (var attribute in attributes)
+        {
+            DropDownList d1 = new DropDownList();
+            d1 = (DropDownList)QuickAttributes.FindControl("DropAttributeValuesQuick" + attribute.Name);
+            d1.SelectedValue = "0";
+        }
+
+    }
+
+    private List<ItemAttributeValue> form2obj(ProductItem obj)
     {
         obj.Id = CurrentId;
         obj.Enabled = ChkEnabled.Checked;
@@ -602,6 +887,47 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         obj.ItemDate = this.ItemDate;
         obj.ValidFrom = this.ValidFrom;
         obj.ValidTo = this.ValidTo;
+
+        // product fields
+
+        // Product Type
+        int type = 0;
+        int.TryParse(DropNew.SelectedValue, out type);
+        if (type > 0)
+        {
+            obj.ProductType = (ProductItem.ProductTypeEnum)type;
+        } 
+        // Attribute Set
+        int attributeSetId = 0;
+        int.TryParse(DropSets.SelectedValue, out attributeSetId);
+        if (attributeSetId > 0)
+        {
+            obj.AttributeSet = attributeSetId;
+        }
+        // Draft
+        obj.IsDraft = false;
+        // SKU
+        obj.SKU = TxtSKU.Text;
+        // Regular Price
+        decimal regPrice = 0m;
+        decimal.TryParse(TxtRegularPrice.Text, out regPrice);
+        obj.RegularPrice = regPrice;
+        // Sale Price
+        decimal salePrice = 0m;
+        decimal.TryParse(TxtSalePrice.Text, out salePrice);
+        obj.SalePrice = salePrice;
+        // Weight
+        decimal weight = 0m;
+        decimal.TryParse(TxtWeight.Text, out weight);
+        obj.Weight = weight;
+        // Qty
+        int qty = 0;
+        int.TryParse(TxtQty.Text, out qty);
+        obj.Availability = qty;
+        // Stock
+        int inStock = 0;
+        int.TryParse(DropStock.SelectedValue, out inStock);
+        obj.InStock = (inStock == 1) ? true : false;
 
         if (CurrentId == 0)
             obj.ItemTypeName = LitItemType.Text;
@@ -615,16 +941,179 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
             var txt2 = new Controls_ContentEditorControl();
             txt2 = Utility.FindControlRecursive<Controls_ContentEditorControl>(this, "TxtDescription" + item.Value);
             obj.DescriptionTranslations.Add(item.Key, txt2.Text);
+        }
 
-            //FCKeditor t2 = new FCKeditor();
-            //t2 = (FCKeditor)PanelDescription.FindControl("TxtDescription" + item.Value);
-            //obj.DescriptionTranslations.Add(item.Key, t2.Value);
+        foreach(GridViewRow r in GridViewSimple.Rows)
+        {
+            CheckBox cb = (CheckBox)r.FindControl("chkRow");
+            string IdString = r.Cells[5].Text;
+
+            int Id = 0;
+            int.TryParse(IdString, out Id);
+            var p = pman.GetByKey(Id);
+
+            if (cb.Checked)
+            {
+                p.ThreadId = CurrentId;
+            }
+            else
+            {
+                if (p.ThreadId == CurrentId )
+                    p.ThreadId = p.Id;
+            }
+
+            try
+            {
+                pman.Update(p);
+            }
+            catch (Exception e1)
+            {
+                LblErr.Text = RenderError(Utility.GetLabel("RECORD_ERR_MSG") + "<br />" + e1.ToString());
+            }
+
+        }
+
+        foreach (GridViewRow r in GridRelated.Rows)
+        {
+            CheckBox cb = (CheckBox)r.FindControl("chkRow");
+            string IdString = r.Cells[5].Text;
+            int Id = 0;
+            int.TryParse(IdString, out Id);
+            var p = pman.GetByKey(Id);
+
+            if (cb.Checked)
+            {
+                try
+                {
+                    pman.SetRelated(CurrentId, p.Id);
+                }
+                catch (Exception e1)
+                {
+                    LblErr.Text = RenderError(Utility.GetLabel("RECORD_ERR_MSG") + "<br />" + e1.ToString());
+                }
+            }
+            else
+            {
+                try
+                {
+                    pman.DeleteRelated(CurrentId, p.Id);
+                }
+                catch (Exception e1)
+                {
+                    LblErr.Text = RenderError(Utility.GetLabel("RECORD_ERR_MSG") + "<br />" + e1.ToString());
+                }
+            }
+
+        }
+
+        var atts = new List<ItemAttributeValue>();
+
+        // Store ItemAttributeValues
+
+        var set = sman.GetByKey(attributeSetId);
+
+        attributes.Clear();
+
+        foreach (var attributeId in set.AttributesList)
+        {
+            var attribute = aman.GetByKey(attributeId);
+            attributes.Add(attribute);
+        }
+
+        foreach (var attribute in attributes)
+        {
+            DropDownList d1 = new DropDownList();
+            d1 = (DropDownList)PanelAttributes.FindControl("DropAttributeValues" + attribute.Name);
+            int attributeValueId = 0;
+            int.TryParse(d1.SelectedValue, out attributeValueId);
+            var record = new ItemAttributeValue();
+            record.AttributeId = attribute.Id;
+            record.AttributeValueId = attributeValueId;
+            record.ItemId = CurrentId;
+            atts.Add(record);
         }
 
         obj.ItemParams = FormBuilder.GetParamsString(obj.ItemType.Params, ItemParams1);
         string fieldsString = FormBuilder.GetParamsString(obj.ItemType.Fields, ItemFields1);
         obj.LoadCustomFieldsFromString(fieldsString);
         PermissionsControl1.Form2obj(obj);
+
+        return atts;
+
+    }
+
+    private List<ItemAttributeValue> quickform2obj(ProductItem obj)
+    {
+        int enabled = 0;
+        int.TryParse(DropEnabled.SelectedValue, out enabled);
+        obj.Enabled = (enabled == 1) ? true : false;
+        obj.TitleTranslations.Clear();
+        obj.DescriptionTranslations.Clear();
+        obj.CategoryId = int.Parse(DropCategories.SelectedValue);
+        obj.ThreadId = CurrentId;
+        obj.ItemDate = this.ItemDate;
+        obj.ValidFrom = this.ValidFrom;
+        obj.ValidTo = this.ValidTo;
+
+        // product fields
+        obj.ProductType = ProductItem.ProductTypeEnum.Simple;
+        int set = 0;
+        int.TryParse(DropSets.SelectedValue, out set);
+        obj.AttributeSet = set;
+        obj.IsDraft = false;
+        obj.SKU = QuickTxtSKU.Text;
+        decimal regPrice = 0m;
+        decimal.TryParse(QuickTxtRegularPrice.Text, out regPrice);
+        obj.RegularPrice = regPrice;
+        decimal salePrice = 0m;
+        decimal.TryParse(QuickTxtSalePrice.Text, out salePrice);
+        obj.SalePrice = salePrice;
+        decimal weight = 0m;
+        decimal.TryParse(QuickTxtWeight.Text, out weight);
+        obj.Weight = weight;
+        int qty = 0;
+        int.TryParse(QuickTxtQty.Text, out qty);
+        obj.Availability = qty;
+        int inStock = 0;
+        int.TryParse(QuickDropStock.SelectedValue, out inStock);
+        obj.InStock = (inStock == 1) ? true : false;
+
+        var atts = new List<ItemAttributeValue>();
+
+        // QUI raccolo i quick attributevalue da salvare
+
+        string endofname = "";
+        foreach (var attribute in attributes)
+        {
+            DropDownList d1 = new DropDownList();
+            d1 = (DropDownList)QuickAttributes.FindControl("DropAttributeValuesQuick" + attribute.Name);
+            int attributeValueId = 0;
+            int.TryParse(d1.SelectedValue, out attributeValueId);
+            if (attributeValueId > 0)
+            {
+                endofname += "-" + d1.SelectedItem.Text;
+                var record = new ItemAttributeValue();
+                record.AttributeId = attribute.Id;
+                record.AttributeValueId = attributeValueId;
+                atts.Add(record);
+            }
+
+        }
+
+        foreach (KeyValuePair<string, string> item in Config.CultureList)
+        {
+            TextBox t1 = new TextBox();
+            t1 = (TextBox)PanelTitle.FindControl("TxtTitle" + item.Value);
+            obj.TitleTranslations.Add(item.Key, t1.Text + endofname);
+        }
+        obj.Alias = TxtAlias.Text + endofname.ToLower();
+
+        obj.ItemParams = FormBuilder.GetParamsString(obj.ItemType.Params, ItemParams1);
+        string fieldsString = FormBuilder.GetParamsString(obj.ItemType.Fields, ItemFields1);
+        obj.LoadCustomFieldsFromString(fieldsString);
+        PermissionsControl1.Form2obj(obj);
+
+        return atts;
     }
 
     private void obj2form(ProductItem obj)
@@ -651,12 +1140,47 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
             txt2 = Utility.FindControlRecursive<Controls_ContentEditorControl>(this, "TxtDescription" + item.Value);
             obj.DescriptionTranslations.TryGetValue(item.Key, out sDescriptionTraslation);
             txt2.Text = sDescriptionTraslation;
-            //string sDescriptionTraslation = "";
-            //FCKeditor t2 = new FCKeditor();
-            //t2 = (FCKeditor)PanelDescription.FindControl("TxtDescription" + item.Value);
-            //obj.DescriptionTranslations.TryGetValue(item.Key, out sDescriptionTraslation);
-            //t2.Value = sDescriptionTraslation;
         }
+
+        // QUI popolo le varianti se son già salvate
+
+        var set = sman.GetByKey(obj.AttributeSet);
+        var filter = new ItemAttributeValueFilter();
+
+        attributes.Clear();
+
+        foreach (var attributeId in set.AttributesList)
+        {
+            var attribute = aman.GetByKey(attributeId);
+            attributes.Add(attribute);
+        }
+
+        foreach (var attribute in attributes)
+        {
+            DropDownList d1 = new DropDownList();
+            ItemAttributeValue record = null; ;
+            d1 = (DropDownList)PanelAttributes.FindControl("DropAttributeValues" + attribute.Name);
+
+            filter.AttributeId = attribute.Id;
+            filter.ItemId = obj.Id;
+            var result = man.GetByFilter(filter, "");
+
+            if(result != null && result.Count > 0) {
+                record = result[0];
+                Utility.SetDropByValue(d1, record.AttributeValueId.ToString());
+            }   
+        }
+
+        //product fields
+        TxtSKU.Text = obj.SKU;
+        TxtRegularPrice.Text = obj.RegularPrice.ToString();
+        TxtSalePrice.Text = obj.SalePrice.ToString();
+        TxtWeight.Text = obj.Weight.ToString();
+        TxtQty.Text = obj.Availability.ToString();
+        DropStock.SelectedValue = (obj.InStock) ? "1" : "0";
+        if (obj.AttributeSet > 0)
+            DropSets.SelectedValue = (obj.AttributeSet.ToString());
+
         ItemParams1.ClearParams();
         ItemFields1.ClearParams();
 
@@ -668,6 +1192,17 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         this.ItemDate = obj.ItemDate;
         this.ValidFrom = obj.ValidFrom;
         this.ValidTo = obj.ValidTo;
+
+        PlhConfigurableProductPane.Visible = false;
+        plhConfigurableProductTab.Visible = false;
+        int itemType = 0;
+        int.TryParse(DropNew.SelectedValue, out itemType);
+        if ((ProductItem.ProductTypeEnum)itemType == ProductItem.ProductTypeEnum.Configurable || obj.ProductType == ProductItem.ProductTypeEnum.Configurable)
+        {
+            PlhConfigurableProductPane.Visible = true;
+            plhConfigurableProductTab.Visible = true;
+        }
+
     }
 
 
@@ -682,11 +1217,11 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
             throw new Exception("user not authenticated");
 
         clearForm();
+        clearQuickForm();
         CurrentId = recordId;
         if (CurrentId == 0)
         {
             loadDropCategories(int.Parse(DropSectionsFilter.SelectedValue));
-            //obj.ItemTypeName = "Shop.ProductItem"; //DropNew.SelectedValue;
             obj.ItemDate = DateTime.Now;
             obj.ValidFrom = DateTime.Now;
             obj.ValidTo = DateTime.MinValue;
@@ -696,15 +1231,23 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
             obj2form(obj);
             LitItemType.Text = obj.ItemTypeName;
             obj.IsDraft = true;
-            var currentProd = new ProductItemsManager().Insert(obj);
+            var currentProd = pman.Insert(obj);
             this.CurrentId = currentProd.Id;
         }
         else
         {
-            obj = new ProductItemsManager().GetByKey(CurrentId);
+            obj = pman.GetByKey(CurrentId);
             loadDropCategories(obj.SectionId);
+
+            // QUI nascondere le dropdown in più
+
+            hideAttributesDropDown(obj.AttributeSet);
+            hideAttributesDropDown(obj.AttributeSet, true);
+
             obj2form(obj);
         }
+        GridRelated.DataBind();
+        GridViewSimple.DataBind();
         MultiView1.ActiveViewIndex = VIEW_INSERT;
     }
 
@@ -718,7 +1261,7 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
             if (!PgnUserCurrent.IsAuthenticated)
                 throw new Exception("user not authenticated");
 
-            new ProductItemsManager().DeleteById(recordId);
+            pman.DeleteById(recordId);
             removeFromCache();
         }
         catch (Exception e)
@@ -794,36 +1337,86 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
     private void loadDropsItemTypes()
     {
 
-        DropItemTypesFilter.Items.Clear();
-        DropItemTypesFilter.Items.Add(new ListItem(Utility.GetLabel("LblSelectItem", "Select item"), ""));
+        DropNew.Items.Clear();
+        DropNew.Items.Add(new ListItem(GetLabel("LblNewProduct", "New Product"), "0"));
+        DropNew.Items.Add(new ListItem(GetLabel("LblSimpleProduct", "Simple Product"), ((int)ProductItem.ProductTypeEnum.Simple).ToString()));
+        DropNew.Items.Add(new ListItem(GetLabel("LblConfigurableProduct", "Configurable Product"), ((int)ProductItem.ProductTypeEnum.Configurable).ToString()));
 
-        var filter = new ItemTypeFilter();
-        if (!string.IsNullOrEmpty(this.ItemType))
-            filter.FullName = this.ItemType;
-        List<ItemType> recordList = new ItemTypeManager().GetByFilter(filter, "FullName");
-        foreach (ItemType record1 in recordList)
+        BtnNew.Visible = false;
+        DropNew.Visible = true;
+    }
+
+    private void loadDropSets()
+    {
+        DropSets.Items.Clear();
+        DropSets.Items.Add(new ListItem(GetLabel("LblSelectSets", "Select Attribute Set"), "-1"));
+        var sfilter = new AttributeSetFilter();
+        var sets = sman.GetByFilter(sfilter, "");
+        foreach (var set in sets)
         {
-            //DropNew.Items.Add(
-            //    new ListItem(record1.FullName, record1.FullName));
+            DropSets.Items.Add(new ListItem(set.Name, set.Id.ToString()));
+        }
+    }
 
-            DropItemTypesFilter.Items.Add(
-                new ListItem(record1.FullName, record1.FullName));
+    private Panel generateAttributesDropDown(bool isQuick = false)
+    {        
+        Panel pan1 = new Panel();
+        pan1.CssClass = "form-group";
+
+        foreach (var attribute in attributes)
+        {
+
+            
+            var valueFilter = new AttributeValueFilter();
+            valueFilter.AttributeId = attribute.Id;
+            var values = vman.GetByFilter(valueFilter, "");
+            string quick = (isQuick) ? "Quick" : "";
+
+            DropDownList drop = new DropDownList();
+            drop.ID = "DropAttributeValues" + quick + attribute.Name;
+            drop.CssClass = "form-control form-group";
+            drop.Items.Add(new ListItem("-- " + attribute.Name + " --", "0"));
+
+            foreach (var value in values)
+            {
+                drop.Items.Add(new ListItem(value.Value, value.Id.ToString()));
+            }
+
+            pan1.Controls.Add(drop);
         }
 
-        BtnNew.Visible = true;
+        return pan1;
+    }
 
-        //if (!string.IsNullOrEmpty(this.ItemType))
-        //{
-        //    BtnNew.Visible = true;
-        //    //DropNew.Visible = false;
-        //    DropItemTypesFilter.Visible = false;
-        //}
-        //else
-        //{
-        //    BtnNew.Visible = false;
-        //    //DropNew.Visible = true;
-        //    DropItemTypesFilter.Visible = true;
-        //}
+    private void hideAttributesDropDown(int setId, bool isQuick = false)
+    {
+
+        // QUI nascondere le dropdown in più
+        var set = sman.GetByKey(setId);
+
+        attributes.Clear();
+        foreach (var attributeId in set.AttributesList)
+        {
+            var afilter = new AttributeFilter();
+            attributes.Add(aman.GetByKey(attributeId));
+        }
+
+        string quick = (isQuick) ? "Quick" : "";
+        DropDownList d1 = new DropDownList();
+
+        var allAttributes = aman.GetByFilter(new AttributeFilter(), "");
+        var exclude = attributes = allAttributes.Except(attributes).ToList();
+
+        foreach (var attribute in exclude)
+        {
+            if(!isQuick) {
+                d1 = (DropDownList)PanelAttributes.FindControl("DropAttributeValues" + attribute.Name);
+            } else {
+                d1 = (DropDownList)QuickAttributes.FindControl("DropAttributeValues" + quick + attribute.Name);
+            }
+            d1.Visible = false;
+        }
+        
     }
 
     private void setFlag(int recordId, bool value, string flagName)
@@ -842,7 +1435,7 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
                 default:
                     break;
             }
-            new ProductItemsManager().Update(o1);
+            pman.Update(o1);
             removeFromCache();
         }
         catch (Exception e1)
@@ -862,7 +1455,7 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
             if (!PgnUserCurrent.IsAuthenticated)
                 throw new Exception("user not authenticated");
 
-            new ProductItemsManager().MoveRecord(recordId, direction);
+            pman.MoveRecord(recordId, direction);
             removeFromCache();
             Grid1.DataBind();
             MultiView1.ActiveViewIndex = VIEW_GRID;
@@ -910,1261 +1503,6 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
     {
         //return ClientScript.GetPostBackEventReference(this, null);
         //__doPostBack('__Page', 'MyCustomArgument')
-    }
-
-    /// <summary>
-    /// return all attributes that are not assigned to an element with specific itemId
-    /// ritorna tutti gli attributi che non sono assegnati ad un elemento con uno specifico id.
-    /// OK
-    /// </summary>
-    /// <param name="itemId"></param>
-    /// <returns></returns>
-    [PigeonCms.UserControlScriptMethod]
-    public static object GetAttributes(int itemId)
-    {
-        // set the managers
-        // dichiaro i managers
-        var iavMng = new ItemAttributesValuesManager();
-        var attrMng = new AttributesManager();
-
-        // set filter
-        // dichiaro il filter
-        var filter = new AttributeFilter();
-
-        // get all attributes referred to itemId
-        // prendi gli attributi riferiti all'itemId richiesto
-        var items = iavMng.GetByReferredId(itemId);
-
-        // object to return
-        // oggetto da ritornare 
-        var result = new object();
-
-        // groupedIds
-        var groupByAttributesId = new List<int>();
-
-        if (items != null && items.Count > 0)
-        {
-            // groupBy AttributeId the list , just to iterate on them.
-            // raggruppo gli attributi , in modo da poter scorrerli
-            //attributesId = items.GroupBy(x => x.AttributeId).Select(y => new PigeonCms.Attribute() { Id = y.Key }).ToList().Select(x => x.Id).ToList();
-            groupByAttributesId = items.GroupBy(elems => elems.AttributeId)
-                                    .Select(groups => groups.ToList())
-                                    .Select(grouped => grouped.First().AttributeId)
-                                    .ToList();
-        }
-
-        // get all attributes
-        // prendo tutti gli attributi
-        var allAttributes = attrMng.GetByFilter(filter, "");
-
-        // separe the list, one with values, and one with custom values
-        // separo la lista e prendo gli attributi con i valori compilati e quelli con i valori custom
-        var withValues = allAttributes.Where(x => x.AllowCustomValue == false).ToList();
-        var customValues = allAttributes.Where(x => x.AllowCustomValue == true).ToList();
-
-        // remove from list all attribute that have the same Id as the list above
-        // rimuovo dalla lista totale gli attributi che non hanno l'Id presente tra quelli riferiti all'Item padre.
-        result = new
-        {
-            withValues = withValues.Where( wv => !groupByAttributesId.Any( g => g == wv.Id)).ToList(),
-            withoutValues = customValues.Where(wv => !groupByAttributesId.Any(g => g == wv.Id)).ToList()
-        };
-
-        return result;
-    }
-
-    /// <summary>
-    /// get attributeValue from given AttributeId
-    /// OK
-    /// </summary>
-    /// <param name="id"></param>
-    /// <returns></returns>
-    [PigeonCms.UserControlScriptMethod]
-    public static List<AttributeValue> GetAttributeValues(int id)
-    {
-        // declarations
-        var filter = new AttributeValueFilter();
-        var mng = new AttributeValuesManager();
-        // apply filter
-        // applico il filtro per un dato attributeId
-        filter.AttributeId = id;
-        // RUN
-        var myValues = mng.GetByFilter(filter, "");
-        //return
-        return myValues;
-    }
-
-    /// <summary>
-    /// Save checkbox forms of attributes tab.
-    /// It takes a JSON with checked checkboxes, excluding the itemAttributesValues saved 
-    /// it generate 2 list, one to insert, one to exclude.
-    /// You can't remove a variant with assigned itemId, only with referred and itemId = 0.
-    /// MIGLIORARE SI PUO'
-    /// </summary>
-    /// <param name="jsonArr"></param>
-    /// <param name="itemId"></param>
-    /// <returns></returns>
-    [PigeonCms.UserControlScriptMethod]
-    public static string SaveAttributeValues(string jsonArr, int itemId)
-    {
-        // serialize JSON in ItemAttributeValue List
-        // serializzo la lista degli attributi selezionati in una lista di itemAttributeValues
-        var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
-        var values = serializer.Deserialize<List<ItemAttributeValue>>(jsonArr);
-
-        // declare product objects
-        // dichiarazione oggetto prodotti , filtro , manager
-        var man = new ProductItemsManager();
-        var filterProd = new ProductItemFilter();
-
-        // declare itemAttributeValue objects
-        // dichiaro gli oggetti, manager, filtri per gli itemAttributeValues
-        var itemAttr = new ItemAttributeValue();
-        var itemAttrMan = new ItemAttributesValuesManager();
-        var filter = new ItemAttributeValueFilter();
-
-        // get all products (also child of itemId)
-        // prendo tutti i prodotti (anche i figli dell'itemId) v 
-        filterProd.ThreadId = itemId;
-        filterProd.ShowOnlyRootItems = false;
-        var products = man.GetByFilter(filterProd, "");
-
-        // get all actual attributes
-        // prendo gli attributi attualmente salvati nel database
-        var actualAttributes = itemAttrMan.GetByReferredId(itemId);
-
-        // declare list to insert and to delete
-        // dichiaro le liste che saranno popolate con i valori da inserire e da rimuovere
-        var toInsert = new List<ItemAttributeValue>();
-        var toDelete = new List<ItemAttributeValue>();
-
-        if (actualAttributes != null && actualAttributes.Count > 0)
-        {
-            // we need to check if we added a new attribute
-            // if yes, we will save the new attributes with ID for each record previously inserted
-            // to not lose records 
-            // controllo se nuovi attributi sono stati selezionati
-            // se ci sono, salveremo con un id per ogni record precedentemente inserito
-            // questo è per non perdere i valori già compilati ma al massimo editarli
-            //var oldAttributes = actualAttributes.GroupBy(x => x.AttributeId).Select(y => new PigeonCms.Attribute() { Id = y.Key }).ToList();
-            //var takenAttributes = values.GroupBy(x => x.AttributeId).Select(y => new PigeonCms.Attribute() { Id = y.Key }).ToList();
-            var oldAttributes = actualAttributes.GroupBy(elems => elems.AttributeId)
-                        .Select(groups => groups.ToList())
-                        .Select(grouped => grouped.First().AttributeId)
-                        .ToList();
-            var takenAttributes = values.GroupBy(elems => elems.AttributeId)
-                       .Select(groups => groups.ToList())
-                       .Select(grouped => grouped.First().AttributeId)
-                       .ToList();
-
-            // newattributes is takenattributes without oldattributes
-            // i nuovi attributi sono gli attributi appena presi dal form senza i vecchi salvati in db
-            var newAttributes = takenAttributes.Except(oldAttributes).ToList();
-
-            // TODO devo ricordarmi il perchè di questa cosa così mistica
-            var valuesWithNewAttributes = values.Where(x => newAttributes.Any(x2 => x2 == x.AttributeId)).OrderBy(x => x.AttributeId).ToList();
-
-            // the attributes actually saved with itemId more than zero, means that are assigned
-            // negli attributi attualmente salvati, quelli con itemId maggiore di zero sono sicuramente popolati
-            var actualAttributesAssigned = actualAttributes.Select(x => x.ItemId).Where(x => x > 0).ToList();
-
-            // group to not have duplicates, if they assigned to more item with the same referredId we will have duplicates
-            // raggruppo gli attributi attualmente assegnati, se sono assegnati a più di un elemento con stesso referredId avremo dei duplicati altrimenti
-            // TODO che bella scritta così
-            var groupedActualAssigned = actualAttributesAssigned.GroupBy(i => i, (e, g) => new { Value = e, Count = g.Count() });
-
-            // iterate on list previously created
-            // iteriamo nella lista appena generata
-            foreach (var assigned in groupedActualAssigned)
-            {
-                // check mistyc things
-                if (valuesWithNewAttributes != null && valuesWithNewAttributes.Count > 0)
-                {
-                    //iterate each Value to be inserted of the new attribute and assign the ItemId to keep Value
-                    var toAdd = valuesWithNewAttributes.First();
-                    // remove from list to insert
-                    values.Remove(toAdd);
-                    // insert with the id of variants populated
-                    toAdd.ItemId = assigned.Value;
-                    itemAttrMan.Insert(toAdd);
-                }
-            }
-
-            //DELETE LIST
-            // exclude to actualAttributes the new Values, if values are less than actualAttributes, the exclusion will be deleted
-            // escludo dalla lista degli attributi salvati in database, quelli presi dal form, creando il fieldset da inserire
-            toDelete = actualAttributes.Except(values).ToList();
-
-            // INSERT LIST
-            // exclude to new Values the actualAttributes, if actualAttributes are less than values, the exclusion will be inserted
-            // escludo dalla lista degli attributi presi dal form quelli presenti in database, creando il fieldset da inserire
-            toInsert = values.Except(actualAttributes).ToList();
-
-        }
-        else
-        {
-            toInsert = values;
-        }
-
-        // create object to return
-        // creo gli oggetti da ritornare
-        // TODO labels
-        var error = new
-        {
-            success = false,
-            message = "You have assigned variants with this attribute, can't delete it."
-        };
-
-        var success = new
-        {
-            success = true,
-            message = "All savings done well."
-        };
-
-        // insert each value
-        // inserisci ogni valore
-        foreach (ItemAttributeValue insert in toInsert)
-        {
-            itemAttrMan.Insert(insert);
-        }
-
-        // delete each value
-        // elimina ogni valore
-        foreach (ItemAttributeValue delete in toDelete)
-        {
-            // if itemAttributeValue has itemId higher than zero, means that is assigned and you have to delete variant first.
-            // se l'itemAttributeValue ha itemId maggiore di zero, significa che è assegnato e quindi dovrai prima eliminare le varianti a cui è stato assegnato.
-            if (delete.ItemId > 0)
-            {
-                // return error message
-                return toJson(error);
-            }
-            else
-            {
-                // delete the record
-                itemAttrMan.Delete(delete.ItemId, delete.AttributeId, delete.AttributeValueId, delete.Referred);
-            }
-            
-        }
-
-        // return success JSON format
-        return toJson(success);
-
-    }
-
-    /// <summary>
-    /// Method used to return info to generate the box on variants.
-    /// Metodo usato per recuperate le info e generare i box varianti
-    /// MIGLIORARE SI PUO'
-    /// </summary>
-    /// <param name="jsonArr"></param>
-    /// <param name="itemId"></param>
-    /// <returns></returns>
-    [PigeonCms.UserControlScriptMethod]
-    public static string GetAttributeValuesForVariants(int itemId)
-    {
-        // object declaration
-        // dichiarazioni
-        var filter = new ItemAttributeValueFilter();
-        var man = new ItemAttributesValuesManager();
-
-
-        // only referred to itemId
-        // prendo solamente gli elementi riferiti all'itemId
-        filter.Referred = itemId;
-        var referredItemAttrVals = man.GetByFilter(filter, "");
-
-        // get a list with attributes (to separe select object)
-        // prendo una lista con gli attributi (per separare gli oggetti)
-        var valuesGroup = referredItemAttrVals.GroupBy(items => items.AttributeId)
-                                .Select(groups => groups.ToList())
-                                .ToList();
-
-        // object declaration
-        // dichiarazioni
-        var attributes = new List<PigeonCms.Attribute>();
-        var attMan = new AttributesManager();
-
-        // iterate on created groups of attributes
-        // scorro i gruppi appena creati
-        foreach (var group in valuesGroup)
-        {
-            var attribute = attMan.GetByKey(group.First().AttributeId);
-            // add only if values are not custom
-            // aggiungi solo se i valori sono preimpostati e non custom
-            if (!attribute.AllowCustomValue)
-            {
-                attributes.Add(attribute);
-            }
-        }
-
-        // prepare result
-        // preparo il risultato
-        var result = new List<object>();
-
-        // object declaration
-        // dichiarazioni
-        var valuesFilter = new AttributeValueFilter();
-        var valuesMan = new AttributeValuesManager();
-
-        foreach (var attribute in attributes)
-        {
-            // get all itemId referred itemAttributeValue of attribute 
-            // prendo tutti gli itemId riferiti agli itemAttributeValue di ciascun attributo
-            valuesFilter.AttributeId = attribute.Id;
-            var attributeValues = valuesMan.GetByFilter(valuesFilter, "");
-
-            // keep only value who has same id as the list with only selected user values
-            // mantengo solamente i valori che corrispondono alla lista dei valori selezionati dall'utente
-            attributeValues = attributeValues.Where(x => referredItemAttrVals.Any(x2 => x2.AttributeValueId == x.Id)).ToList();
-
-            // delcarations
-            // dichiarazioni
-            var attributeObject = new List<object>();
-
-            // iterate on this values
-            // scorriamo su questi valori
-            foreach (var attributeValue in attributeValues)
-            {
-                // filter = new ItemAttributeValueFilter();
-                filter.ItemId = itemId;
-                filter.AttributeId = attributeValue.AttributeId;
-                filter.AttributeValueId = attributeValue.Id;
-                var itemAttributeValue = man.GetByFilter(filter, "");
-
-                // seleziono un probabile valore salvato
-                string isSelected = "";
-                if(itemAttributeValue != null && itemAttributeValue.Count > 0) {
-                    var item = itemAttributeValue.First();
-                    isSelected = (item.AttributeValueId == attributeValue.Id) ? "selected" : "";
-                }
-                
-                // element base
-                var infoValues = new
-                {
-                    attrValId = attributeValue.Id,
-                    attributeValue = attributeValue.Value,
-                    selected = isSelected
-                };
-
-                // add to list
-                attributeObject.Add(infoValues);
-
-            }
-
-            // save here info about attribute (name and id)
-            // salvo qui le info sull'attributo (nome e id)
-            var infoAttribute = new
-            {
-                attrId = attribute.Id,
-                attribute = attMan.GetByKey(attribute.Id).Name,
-            };
-
-            // add to list
-            attributeObject.Add(infoAttribute);
-
-            //add element to result
-            result.Add(attributeObject);
-        }
-
-        //convert in json and return
-        return toJson(result);
-    }
-    
-    /// <summary>
-    /// Compile the select box used to select default values
-    /// Compila la select usata per indicare l'attributo di default.
-    /// MIGLIORARE SI PUO'
-    /// </summary>
-    /// <param name="itemId"></param>
-    /// <returns></returns>
-    [PigeonCms.UserControlScriptMethod]
-    public static string CompileAttributes(int itemId)
-    {
-        // declarations
-        // dichiarazioni
-        var attrValFilter = new ItemAttributeValueFilter();
-        var attrValMan = new ItemAttributesValuesManager();
-
-        // get all referred attributes
-        // with no custom
-        attrValFilter.Referred = itemId;
-        attrValFilter.OnlyWithValues = true;
-        var items = attrValMan.GetByFilter(attrValFilter, "");
-
-        // declarations
-        // dichiarazioni
-        var attributesId = new List<int>();
-
-        // if not nulll retrieve only AttributesId form list 
-        // se ci sono valori, raggruppo per AttributeId
-        if (items != null && items.Count > 0)
-        {
-            attributesId = items.GroupBy(elems => elems.AttributeId)
-                                .Select(groups => groups.ToList())
-                                .Select(grouped => grouped.First().AttributeId)
-                                .ToList();
-        }
-
-        // declarations
-        // dichiarazioni
-        var attributesValues = new List<AttributeValue>();
-        var boxes = new List<object>();
-
-        // declarations
-        // dichiarazioni
-        var attFilter = new AttributeFilter();
-        var attMan = new AttributesManager();
-
-        // declarations
-        // dichiarazioni
-        var filter = new AttributeValueFilter();
-        var man = new AttributeValuesManager();
-
-        // iterate attributesId
-        // scorro la lista di attributeId ottenuta prima
-        foreach (int attributeId in attributesId)
-        {
-            // get the record of AttributeValue having attributeId
-            // prendo i valori degli attributi
-            filter.AttributeId = attributeId;
-            attributesValues = man.GetByFilter(filter, "");
-
-            // add the name of attribute on a list
-            // aggiungo il nome dell'attributo in una lista
-            var singleAtt = new List<object>();
-            singleAtt.Add(attMan.GetByKey(attributeId).Name);
-
-            // iterate all values of attributeId
-            // scorro tutti i valori ottenuti
-            foreach (var attrVal in attributesValues)
-            {
-                // get the element and put value checked if it is (if in initial list is present one of these values)
-                // prendo l'elemento e lo rendo checked se nella lista iniziale è presente
-                int index = items.Select(x => x.AttributeValueId).ToList().IndexOf(attrVal.Id);
-                string valueIn = (index > -1) ? "checked='true'" : "";
-
-                // create object to add in return list
-                // creo l'oggetto da aggiungere nella lista da tornare
-                var obj = new
-                {
-                    Id = attrVal.Id,
-                    Value = attrVal.Value,
-                    AttributeId = attrVal.AttributeId,
-                    Checked = valueIn
-                };
-                singleAtt.Add(obj);
-            }
-
-            // aggiungi al box
-            boxes.Add(singleAtt);
-        }
-
-        // get all referred attributes with custom values
-        // prendo tutti gli elementi con gli attributi a valori custom
-        attrValFilter = new ItemAttributeValueFilter();
-        attrValFilter.Referred = itemId;
-        attrValFilter.OnlyCustomFields = true;
-        var itemsCustom = attrValMan.GetByFilter(attrValFilter, "");
-
-        attributesId = new List<int>();
-
-        // if not null retrieve only AttributesId form list 
-        // se non nulla prendo solamente la lista degli attributeId
-        if (itemsCustom != null && itemsCustom.Count > 0)
-        {
-            attributesId = itemsCustom.GroupBy(elems => elems.AttributeId)
-                                .Select(groups => groups.ToList())
-                                .Select(grouped => grouped.First().AttributeId)
-                                .ToList();
-        }
-
-        // declarations
-        // dichiarazioni
-        attributesValues = new List<AttributeValue>();
-        var spans = new List<object>();
-
-        // iterate attributesId
-        // scorro gli attributeId
-        foreach (int attributeId in attributesId)
-        {
-            // add the name of attribute on a list
-            // aggiungo il nome in lista
-            var singleAtt = new List<object>();
-
-            // add name and id of attribute
-            // aggiungo il name e l'id dell'attribute 
-            singleAtt.Add(attMan.GetByKey(attributeId).Name);
-            singleAtt.Add(attributeId);
-
-            spans.Add(singleAtt);
-        }
-
-        // return complete list
-        var success = new
-        {
-            boxes = boxes,
-            spans = spans
-        };
-
-        return toJson(success);
-    }
-
-    /// <summary>
-    /// Return an object that allows to compile the template with input forms for variants.
-    /// Iterate on attributes and for each attributeValue add the single Id and Value in a list.
-    /// </summary>
-    /// <param name="itemId"></param>
-    /// <param name="attributeId"></param>
-    /// <param name="attributeValueId"></param>
-    /// <returns></returns>
-    [PigeonCms.UserControlScriptMethod]
-    public static string GetLinkVariants(int itemId, int attributeId, int attributeValueId)
-    {
-        var filter = new ItemAttributeValueFilter();
-        var man = new ItemAttributesValuesManager();
-        var attrValMan = new AttributeValuesManager();
-
-        //can be present for select box
-        if(attributeId > 0) 
-            filter.AttributeId = attributeId;
-
-        //can be present for select box
-        if(attributeValueId > 0)
-            filter.AttributeValueId = attributeValueId;
-
-        //get only attributeValues referred to itemId
-        filter.Referred = itemId;
-        filter.OnlyWithValues = true;
-
-        // now have to compose the list with the couple of ids compiled, so take all variants productitem
-        var productfilter = new ProductItemFilter();
-        var productMan = new ProductItemsManager();
-
-        productfilter.ThreadId = itemId;
-        productfilter.ShowOnlyRootItems = false;
-        var productitems = productMan.GetByFilter(productfilter, "");
-
-        List<string> compiled = new List<string>();
-        List<string> compiledValues = new List<string>();
-
-        // iterate on each variant productitem
-        foreach (var productitem in productitems)
-        {
-            // get the values related to item.
-            var variants = man.GetByItemId(productitem.Id);
-
-            // if are present
-            if (variants != null && variants.Count > 0)
-            {
-                var ids = "";
-                var vals = "";
-
-                variants = variants.OrderBy(x => x.AttributeId).Where(x => x.AttributeValueId > 0).ToList();
-
-                // iterate each value
-                foreach (var variant in variants)
-                {
-                    // add with comma in list
-                    ids += variant.AttributeValueId + ",";
-                    vals += attrValMan.GetByKey(variant.AttributeValueId).Value + ",";
-                }
-                compiledValues.Add(vals.Substring(0, vals.Length - 1));
-                compiled.Add(ids.Substring(0, ids.Length - 1));
-            }
-            
-        }
-
-        // RUN
-        var items = man.GetByFilter(filter, "");
-
-        // group attributes
-        var attributes = items.GroupBy(x => x.AttributeId).Select(y => new PigeonCms.Attribute() { Id = y.Key }).OrderBy(x => x.Id).ToList();
-
-        // string list splitted by comma
-        var firstListIds = new List<string>();
-        var firstListValues = new List<string>();
-
-        foreach (var attribute in attributes)
-        {
-            // get all values from attribute
-            var filterValue = new PigeonCms.AttributeValueFilter();
-            filterValue.AttributeId = attribute.Id;
-            var attributeValues = attrValMan.GetByFilter(filterValue, "");
-
-            // keep only selected attributes value
-            attributeValues = attributeValues.Where(x => items.Any(x2 => x2.AttributeValueId == x.Id)).ToList();
-
-            // where store ids and values to be added
-            var secondListIds = new List<string>();
-            var secondListValues = new List<string>();
-
-            // prepare new ids and values
-            foreach (var attributeValue in attributeValues)
-            {
-                secondListIds.Add(attributeValue.Id.ToString());
-                secondListValues.Add(attributeValue.Value.ToString());
-            }
-
-            // if in firstList are values, i get one by one adding for each row
-            // my new ids and values from secondList
-            // then i replace first with second updating datas
-            if (firstListIds.Count > 0)
-            {
-                var tempListIds = new List<string>();
-                foreach (string secondIds in secondListIds)
-                {
-                    foreach (string firstIds in firstListIds)
-                    {
-                        tempListIds.Add(firstIds + "," + secondIds);
-                    }
-                }
-                firstListIds = tempListIds;
-            }
-            else
-            {
-                firstListIds = secondListIds;
-            }
-
-            if (firstListValues.Count > 0)
-            {
-                var tempListValue = new List<string>();
-                foreach (string secondValues in secondListValues)
-                {
-                    foreach (string firstValues in firstListValues)
-                    {
-                        tempListValue.Add(firstValues + "," + secondValues);
-                    }
-                }
-                firstListValues = tempListValue;
-            } 
-            else 
-            {
-                firstListValues = secondListValues;
-            }
-
-        }
-
-        // transform in list of list string
-        // to be returned in object and not in one value with comma
-        var listids = new List<List<string>>();
-        var listvalues = new List<List<string>>();
-
-        // exclude list previously compiled
-        firstListIds = firstListIds.Except(compiled).ToList();
-        firstListValues = firstListValues.Except(compiledValues).ToList();
-
-        // transform now to int list
-        foreach (string rowIds in firstListIds)
-        {
-            var row = rowIds.Split(',').ToList();
-            listids.Add(row);
-        }
-        // transform now to string list
-        foreach (string rowValues in firstListValues)
-        {
-            var row = rowValues.Split(',').ToList();
-            listvalues.Add(row);
-        }
-
-        // prepare result
-        var result = new
-        {
-            ListIds = listids,
-            ListValues = listvalues
-        };
-
-        // return in json format
-        return toJson(result);
-
-    }
-
-    /// <summary>
-    /// Get only custom value
-    /// Prendo solo i campi custom
-    /// OK
-    /// </summary>
-    /// <param name="itemId"></param>
-    /// <returns></returns>
-    [PigeonCms.UserControlScriptMethod]
-    public static List<object> GetCustomValues(int itemId)
-    {
-        // declarations 
-        // dichiarazione
-        var filter = new ItemAttributeValueFilter();
-        var man = new ItemAttributesValuesManager();
-
-        // get only custom fields of referredID
-        // prendo solo i campi custom di un determinato referredId
-        filter.OnlyCustomFields = true;
-        filter.Referred = itemId;
-        var items = man.GetByFilter(filter, "");
-
-        // take only unassigned items
-        // prendo solo gli elementi non assegnati
-        items = items.Where(x => x.ItemId == 0).ToList();
-
-        var iavs = new List<object>();
-
-        foreach (var item in items)
-        {
-            var iav = new {
-                CustomValue = item.CustomValueString,
-                Name = new PigeonCms.AttributesManager().GetByKey(item.AttributeId).Name,
-                Id = item.AttributeId
-            };
-
-            iavs.Add(iav);
-        }
-
-        return iavs;
-
-    }
-
-    /// <summary>
-    /// Save the variant creating a new item with threadId referred to parent element.
-    /// </summary>
-    /// <param name="itemId"></param>
-    /// <param name="attributeId"></param>
-    /// <param name="attributeValueId"></param>
-    /// <returns></returns>
-    [PigeonCms.UserControlScriptMethod]
-    public static int SaveVariant(int itemId, string attributesValuesId, string defaults, string formFields, string customFields, int variantId)
-    {
-
-        // serialize JSON in fake product
-        // serializzo il JSON in un finto prodotto
-        var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
-        var values = serializer.Deserialize<List<Dictionary<string, string>>>(formFields)[0];
-        var customs = serializer.Deserialize <List<Dictionary<string, string>>>(customFields);
-
-        var filter = new ItemAttributeValueFilter();
-        var man = new ProductItemsManager();
-        var attrMan = new ItemAttributesValuesManager();
-        var valMan = new AttributeValuesManager();
-
-        var listDefault = defaults.Split(',').ToList();
-        var toStore = attributesValuesId.Split(',').ToList();
-
-        bool isDefault = defaults == attributesValuesId;
-
-        // check if the default value was previously selected
-        ProductItem childProduct = null;
-
-        // get the parent, to update or to duplicate as child
-        // prendo il padre, per aggiornare o duplicare come figlio il record
-        ProductItem product = man.GetByKey(itemId);
-        int theId = 0;
-        
-        // compile product fields
-        // compilo i campi del prodotto
-        var productCode = values.ElementAt(0).Value;
-        var availabiltyString = values.ElementAt(1).Value;
-        var priceString = values.ElementAt(2).Value;
-        var offerString = values.ElementAt(3).Value;
-        var weightString = values.ElementAt(4).Value;
-        var dimensions = values.ElementAt(5).Value;
-
-        // parse values as they are in database
-        // converto i valori nel corrispettivo tipo in database
-        decimal price = 0m;
-        if (!string.IsNullOrEmpty(priceString))
-        {
-            decimal.TryParse(priceString.Replace(".", ","), out price);
-        }
-
-        decimal offerPrice = 0m;
-        if (!string.IsNullOrEmpty(offerString))
-        {
-            decimal.TryParse(offerString.Replace(".", ","), out offerPrice);
-        }
-
-        decimal weight = 0m;
-        if (!string.IsNullOrEmpty(weightString))
-        {
-            decimal.TryParse(weightString.Replace(".", ","), out weight);
-        }
-
-        int availabilty = 0;
-        if (!string.IsNullOrEmpty(availabiltyString))
-        {
-            int.TryParse(availabiltyString, out availabilty);
-        }
-
-        product.ProductCode = productCode;
-        product.Availability = availabilty;
-        product.RegularPrice = price;
-        product.SalePrice = offerPrice;
-        product.Weight = weight;
-        product.Dimensions = dimensions;
-
-        // we never inserted this variant before
-        // non abbiamo mai inserito questa variante prima
-        if (variantId == 0)
-        {
-            // if is default, father product id 
-            // se è default, prendo l'id del padre
-            if (isDefault)
-            {
-                theId = itemId;
-            }
-            // create a child if not !
-            // altrimenti creo un figlio
-            else
-            {
-                product.Id = 0;
-                product.ThreadId = itemId;
-
-                childProduct = man.Insert(product);
-                theId = childProduct.Id;
-            }
-
-            // compile product with form data
-            product.Id = theId;
-
-            // update
-            man.Update(product);
-
-            // store the variants ! assign the id of product to itemId if is 0, else create new record
-            // salvo le varianti ! assegno l'id del prodotto all'itemId se è 0, altrimenti creo un nuovo record
-            foreach (var store in toStore)
-            {
-                // parse
-                int attributeValueId = 0;
-                int.TryParse(store, out attributeValueId);
-
-                var attributeValue = valMan.GetByKey(attributeValueId);
-
-                filter.Referred = itemId;
-                filter.AttributeId = attributeValue.AttributeId;
-                filter.AttributeValueId = attributeValue.Id;
-
-                var itemAttrVal = attrMan.GetByFilter(filter, "").First();
-
-                if (itemAttrVal != null)
-                {
-                    if (itemAttrVal.ItemId == 0)
-                    {
-                        //update
-                        itemAttrVal.ItemId = theId;
-                        attrMan.Update(itemAttrVal);
-                    }
-                    else if (itemAttrVal.ItemId > 0)
-                    {
-                        //duplica
-                        itemAttrVal.ItemId = theId;
-                        attrMan.Insert(itemAttrVal);
-                    }
-
-                }
-
-            }
-
-        }
-        else
-        {
-            // we previously inserted this variant so simply update product
-            // abbiamo inserito la variante, aggiorniamo il record
-            product.Id = variantId;
-            man.Update(product);
-        }
-
-        // save custom fields
-        // salvo i campi custom
-        foreach (var custom in customs)
-        {
-            var customIdString = custom["Id"];
-            int customId = 0;
-
-            int.TryParse(customIdString, out customId);
-
-            filter = new ItemAttributeValueFilter();
-            filter.OnlyCustomFields = true;
-            filter.ItemId = theId;
-            filter.AttributeId = customId;
-
-            var customField = attrMan.GetByFilter(filter, "");
-            if (customField == null || customField.Count == 0)
-            {
-                var insert = new ItemAttributeValue();
-                insert.Referred = theId;
-                insert.ItemId = theId;
-                insert.AttributeId = customId;
-                insert.CustomValueString = custom["Value"];
-                insert.AttributeValueId = 0;
-                attrMan.Insert(insert);
-            }
-            else
-            {
-               
-                var update = customField.First();
-                update.CustomValueString = custom["Value"];
-                attrMan.Update(update);
-            }
-        }
-
-        // TODO return message
-        return theId;
-
-    }
-
-    /// <summary>
-    /// Show at tab variant the compiled variants
-    /// </summary>
-    /// <param name="itemId"></param>
-    /// <returns></returns>
-    [PigeonCms.UserControlScriptMethod]
-    public static List<object> ShowVariants(int itemId)
-    {
-        // now have to compose the list with the couple of ids compiled, so take all variants productitem
-        // ora dobbiamo comporre la lista con le coppie di id compilate, prendiamo tutte le varianti del productitem
-        var productfilter = new ProductItemFilter();
-        var productMan = new ProductItemsManager();
-        var man = new ItemAttributesValuesManager();
-        var attrMan = new AttributeValuesManager();
-        var attributeMan = new AttributesManager();
-
-        productfilter.ThreadId = itemId;
-        productfilter.ShowOnlyRootItems = false;
-        var productitems = productMan.GetByFilter(productfilter, "");
-
-        var variantsList = new List<object>();
-
-        // iterate them
-        // scorro
-        foreach (var productitem in productitems)
-        {
-            // check if are compiled
-            // controllo che siano compilate
-            var variants = man.GetByItemId(productitem.Id);
-            // se non sono vuote
-            if (variants != null && variants.Count > 0)
-            {
-                var valuesDims = productitem.Dimensions.Split(',');
-
-                var vals = new
-                {
-                    DimL = valuesDims[0],
-                    DimW = valuesDims[1],
-                    DimH = valuesDims[2]
-                };
-
-                // get all values of variants and compile in object
-
-                var product = new
-                {
-                    Id = productitem.Id,
-                    ProductCode = productitem.ProductCode,
-                    Availability = productitem.Availability,
-                    RegularPrice = productitem.RegularPrice,
-                    SalePrice = productitem.SalePrice,
-                    Weight = productitem.Weight,
-                    Dimensions = vals,
-                    Photos = productitem.Images
-                };
-
-                var ids = new List<string>();
-                var values = new List<string>();
-
-                variants = variants.OrderBy(x => x.AttributeId).ToList();
-
-                // add ids and values to know the information of each box
-                // aggiungo ad una lista di id e valori per conoscere l'informazione di ogni box
-                foreach (var variant in variants)
-                {
-                    ids.Add(variant.AttributeValueId.ToString());
-                    var value = attrMan.GetByKey(variant.AttributeValueId);
-                    values.Add(value.Value);
-                }
-
-                var filter = new ItemAttributeValueFilter();
-                filter.Referred = itemId;
-                filter.OnlyCustomFields = true;
-                filter.ItemId = productitem.Id;
-
-                var customFields = man.GetByFilter(filter, "");
-
-                var custAttr = new List<object>();
-
-                foreach (var customField in customFields)
-                {
-                    var attribute = new
-                    {
-                        Name = attributeMan.GetByKey(customField.AttributeId).Name,
-                        CustomValue = customField.CustomValueString,
-                        Id = customField.AttributeId
-                    };
-                    custAttr.Add(attribute);
-                }
-
-                var info = new
-                {
-                    ListIds = ids,
-                    ListValues = values
-                };
-
-                var singleVariant = new
-                {
-                    Product = product,
-                    Info = info,
-                    CustomFields = custAttr
-                };
-
-                // create the object with variantInfo and Datainfo
-                variantsList.Add(singleVariant);
-            }
-
-        }
-
-        return variantsList;
-    }
-
-    /// <summary>
-    /// Delete variant previously inserted.
-    /// </summary>
-    /// <param name="itemId"></param>
-    /// <param name="attributesValuesId"></param>
-    /// <param name="variantId"></param>
-    /// <returns></returns>
-    [PigeonCms.UserControlScriptMethod]
-    public static string DeleteVariant(int itemId, string attributesValuesId, int variantId)
-    {
-        // check if variantId is compiled
-        // controllo che esista il valore di variantId
-        if (variantId == 0)
-        {
-            return "false";
-        }
-
-        // make a list with AttributeValue ids to delete
-        // faccio una lista di attributeValue ids che verranno eliminati
-        var toDelete = attributesValuesId.Split(',').ToList();
-
-        var filter = new ItemAttributeValueFilter();
-        var man = new ItemAttributesValuesManager();
-        //var attrValMan = new ItemAttributesValuesManager();
-
-        // iterate on themù
-        // scorro
-        foreach (var delete in toDelete)
-        {
-            // check if we have the value with 0 at id and itemId at referred, if we don't make this control
-            // the application will delete the association with attribute.
-            // If we have, simply delete the record.
-            // controllo se ha 0 all'id ed il valore itemId al campo referred, se non facessimo questo controllo
-            // l'applicazione cancellerebbe l'associazione con l'attributo.
-            // se vero, cancelliamo il record
-            filter.ItemId = 0;
-            filter.AttributeValueId = Convert.ToInt32(delete);
-            filter.Referred = itemId;
-
-            var items = man.GetByFilter(filter, "");
-            var present = new ItemAttributeValue();
-
-            // check if list is not null, and take the record we would to check
-            // controllo che la lista non sia nulla, e prendo il record che voglio controllare.
-            if (items != null && items.Count > 0)
-            {
-                present = items.First();
-            }
-
-            // not present, simply put 0 at itemId to not lost the association with item and attribute
-            // se non è present, metto 0 all'itemId per non perdere l'associazione tra item e attribute
-            if (present == null)
-            {
-                filter.ItemId = variantId;
-                var temp = man.GetByFilter(filter, "");
-                if (temp != null && temp.Count > 0)
-                {
-                    var update = temp.First();
-                    update.ItemId = 0;
-                    man.Update(update);
-                }
-            }
-            else
-            {
-                // brutally delete ! :D
-                man.Delete(variantId, 0, Convert.ToInt32(delete), itemId);
-            }
-           
-
-        }
-
-        //don't delete if is the parentItem cause it' will delete the product ! :o
-        // non cancellare se è la variante principare, cancellerebbe il prodotto !
-        if (itemId != variantId)
-        {
-            man.DeleteById(variantId);
-        }
-
-        // TODO return message
-        return "true";
-    }
-
-    /// <summary>
-    /// Get all items and filter with linq with typed characters
-    /// </summary>
-    /// <param name="type"></param>
-    /// <returns></returns>
-    [PigeonCms.UserControlScriptMethod]
-    public static List<object> GetRelatedProductSearch(string type, int itemId)
-    {
-        // declarations
-        // dichiarazioni
-        var man = new ProductItemsManager();
-        var filter = new ProductItemFilter();
-        var items = man.GetByFilter(filter, "");
-
-        // take all items except who has the same itemId of the item i'm compiling
-        // prendo tutti gli item che non hanno lo stesso id dell'elemento che sto compilando
-        items = items.Where(x => x.Id != itemId).ToList();
-
-        // make a list with product previously related
-        // faccio una lista con i prodotti che ho già correlato
-        var presents = man.GetRelatedItems(itemId);
-
-        // remove from all items list all items presents 
-        // rimuovo gli elementi presenti dalla lista dei possibili correlati
-        var except = items.Where(x => !presents.Any(x2 => x2.Id == x.Id)).ToList();
-
-        // exec search query
-        // eseguo la query di ricerca
-        var prods = except.Select(x => x).Where(x => x.Title.ToLower().Contains(type.ToLower())).ToList();
-
-        // return the result
-        // ritorno il risultato
-        var result = new List<object>();
-        foreach (var prod in prods)
-        {
-            var product = new
-            {
-                label = prod.Title,
-                value = prod.Id
-            };
-
-            result.Add(product);
-        }
-        return result;
-    }
-
-    /// <summary>
-    /// Get related compiled previously
-    /// </summary>
-    /// <param name="type"></param>
-    /// <returns></returns>
-    [PigeonCms.UserControlScriptMethod]
-    public static List<object> GetRelatedById(int itemId)
-    {
-        var result = new List<object>();
-        var man = new ProductItemsManager();
-        var items = man.GetRelatedItems(itemId);
-
-        foreach(var item in items) {
-            var prod = new {
-                id = item.Id,
-                name = item.Title
-            };
-            result.Add(prod);
-        }
-
-        return result;
-    }
-
-    /// <summary>
-    /// Refresh gallery on images upload (popup close)
-    /// </summary>
-    /// <param name="itemId"></param>
-    /// <returns></returns>
-    [PigeonCms.UserControlScriptMethod]
-    public static List<FileMetaInfo> RefreshGalleryById(int itemId)
-    {
-        var man = new ProductItemsManager();
-        var item = man.GetByKey(itemId);
-        return item.Images;
-    }
-
-    /// <summary>
-    /// Get a list of related products
-    /// </summary>
-    /// <param name="itemId"></param>
-    /// <returns></returns>
-    [PigeonCms.UserControlScriptMethod]
-    public List<ProductItem> GetRelatedList(int itemId)
-    {
-        var man = new ProductItemsManager();
-        var item = man.GetRelatedItems(itemId);
-        return item;
-    }
-
-    /// <summary>
-    /// Delete related on close icon
-    /// </summary>
-    /// <param name="itemId"></param>
-    /// <param name="relatedId"></param>
-    [PigeonCms.UserControlScriptMethod]
-    public static void DeleteRelated(int itemId, int relatedId)
-    {
-        var man = new ProductItemsManager();
-        man.DeleteRelated(itemId, relatedId);
-    }
-
-    /// <summary>
-    /// set related on autocompile form
-    /// </summary>
-    /// <param name="itemId"></param>
-    /// <param name="relatedId"></param>
-    [PigeonCms.UserControlScriptMethod]
-    public static void SetRelatedProducts(int itemId, int relatedId)
-    {
-        var man = new ProductItemsManager();
-        man.SetRelated(itemId, relatedId);
-    }
-
-    /// <summary>
-    /// Delete related on close icon
-    /// </summary>
-    /// <param name="itemId"></param>
-    /// <param name="relatedId"></param>    
-    [PigeonCms.UserControlScriptMethod]
-    public static object RemoveCustom(int attributeId, int itemId)
-    {
-        // declarations
-        // dichiarazioni
-        var filter = new ItemAttributeValueFilter();
-        var man = new ItemAttributesValuesManager();
-
-        // get only custom fields with referred the item
-        // prendo solo i custom field con referred uguale ad itemId
-        filter.OnlyCustomFields = true;
-        filter.Referred = itemId;
-        filter.AttributeId = attributeId;
-
-        // get only fields having itemId higher than zero, it means that the field is assigned to a variant
-        // prendo solamente i campi custom field con itemId maggiore di zero, significa che sono assegnati ad una variante
-        var customField = man.GetByFilter(filter, "");
-        customField = customField.Where(x => x.ItemId > 0).ToList();
-
-        if (customField == null || customField.Count == 0) {
-            man.Delete(0, attributeId, 0, itemId);
-
-            var success = new
-            {
-                success = true,
-                message = "Successfully removed."
-            };
-
-            return success;
-        }
-        else
-        {
-            var error = new
-            {
-                success = false,
-                message = "You have assigned variants with this attribute, can't delete it."
-            };
-
-            return error;
-        }
     }
 
     /// <summary>

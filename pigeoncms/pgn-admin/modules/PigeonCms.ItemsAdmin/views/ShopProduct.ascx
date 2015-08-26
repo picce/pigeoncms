@@ -8,6 +8,8 @@
     // <!CDATA[
 
     function preloadAlias(sourceControlName, targetControl) {
+        console.log(sourceControlName);
+        console.log(targetControl);
         var res = document.getElementById(sourceControlName).value;
         if (targetControl.value == "") {
             res = res.toLowerCase();
@@ -38,8 +40,8 @@
                     $(this).parent('tr').hide();
             });
 
-    });
-}
+        });
+    }
 
 var upd1 = '<%=Upd1.ClientID%>';
 
@@ -62,7 +64,6 @@ function onFailure(result) { }
 </script>
 
 <cc1:ToolkitScriptManager ID="ScriptManager1" runat="server" EnablePageMethods="true"></cc1:ToolkitScriptManager>
-<%--<asp:ScriptManager ID="ScriptManager1" runat="server" EnablePageMethods="true"></asp:ScriptManager>--%>
 <asp:UpdateProgress ID="UpdateProgress1" runat="server" DisplayAfter="1" AssociatedUpdatePanelID="Upd1">
     <ProgressTemplate>
         <div class="loading"><%=PigeonCms.Utility.GetLabel("LblLoading", "loading") %></div>
@@ -90,8 +91,8 @@ function onFailure(result) { }
                     <div class="panel-body"> 
                         <div class="pull-right">
                             <div class="btn-group adminToolbar">
-                                <%--<asp:DropDownList runat="server" ID="DropNew"  AutoPostBack="true" CssClass="form-control" 
-                                    OnSelectedIndexChanged="DropNew_SelectedIndexChanged"></asp:DropDownList>--%>
+                                <asp:DropDownList runat="server" ID="DropNew"  AutoPostBack="true" CssClass="form-control" 
+                                    OnSelectedIndexChanged="DropNew_SelectedIndexChanged"></asp:DropDownList>
                                 <asp:Button ID="BtnNew" runat="server" Text="<%$ Resources:PublicLabels, CmdNew %>" 
                                     Visible="true" CssClass="btn btn-primary btn-xs" OnClick="BtnNew_Click" />
                             </div>
@@ -124,10 +125,6 @@ function onFailure(result) { }
                                 <asp:DropDownList ID="DropCategoriesFilter" runat="server" AutoPostBack="true" CssClass="form-control" 
                                 OnSelectedIndexChanged="DropCategoriesFilter_SelectedIndexChanged"></asp:DropDownList>
                             </div>
-                            <div class="form-group col-lg-3 col-md-6">
-                                <asp:DropDownList ID="DropItemTypesFilter" runat="server" AutoPostBack="true" CssClass="form-control" 
-                                OnSelectedIndexChanged="DropItemTypesFilter_SelectedIndexChanged"></asp:DropDownList>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -155,9 +152,13 @@ function onFailure(result) { }
                                 </ItemTemplate>
                             </asp:TemplateField>
 
-                            <asp:BoundField DataField="Alias" HeaderText="Alias" SortExpression="Alias" />
+                            <asp:TemplateField HeaderText="Product Type" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
+                                <ItemTemplate>
+                                    <asp:Literal ID="LitProductType" runat="server" />
+                                </ItemTemplate>
+                            </asp:TemplateField>
 
-                            <%--<asp:BoundField DataField="CssClass" HeaderText="Css" SortExpression="CssClass" />--%>
+                            <asp:BoundField DataField="Alias" HeaderText="Alias" SortExpression="Alias" />
 
                             <asp:TemplateField HeaderText="<%$ Resources:PublicLabels, LblSection %>" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
                                 <ItemTemplate>
@@ -171,15 +172,14 @@ function onFailure(result) { }
                                 </ItemTemplate>
                             </asp:TemplateField>
 
-                            <%--<asp:BoundField DataField="ItemTypeName" HeaderText="<%$ Resources:PublicLabels, LblType %>" />--%>
-                            <asp:TemplateField HeaderText="Variants Compiled" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
+<%--                            <asp:TemplateField HeaderText="Variants Compiled" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
                                 <ItemTemplate>
                                     <asp:Literal ID="variantsCompiled" runat="server" />
                                 </ItemTemplate>
-                            </asp:TemplateField>
+                            </asp:TemplateField>--%>
 
-                            <asp:BoundField DataField="Ordering"  SortExpression="Ordering" ItemStyle-HorizontalAlign="Right" />
-                            <asp:TemplateField HeaderText="<%$ Resources:PublicLabels, LblOrder %>" ItemStyle-HorizontalAlign="Right" SortExpression="Ordering">
+                            <asp:BoundField DataField="Ordering"  SortExpression="Ordering" ItemStyle-HorizontalAlign="Left" />
+                            <asp:TemplateField HeaderText="<%$ Resources:PublicLabels, LblOrder %>" ItemStyle-HorizontalAlign="Left" SortExpression="Ordering">
                                 <ItemTemplate>
                                     <asp:LinkButton ID="ImgMoveUp" runat="server" CommandName="MoveUp" CommandArgument='<%#Eval("Id") %>'>
                                         <i class='fa fa-pgn_up fa-fw'></i>                            
@@ -190,7 +190,7 @@ function onFailure(result) { }
                                 </ItemTemplate>
                             </asp:TemplateField>
 
-                            <asp:TemplateField HeaderText="<%$ Resources:PublicLabels, LblEnabled %>" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center">
+                            <asp:TemplateField HeaderText="<%$ Resources:PublicLabels, LblEnabled %>" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
                                 <ItemTemplate>
                                     <asp:LinkButton ID="ImgEnabledOk" runat="server" CommandName="ImgEnabledOk" Visible="false" CommandArgument='<%#Eval("Id") %>'>
                                         <i class='fa fa-pgn_checked fa-fw'></i>
@@ -201,39 +201,7 @@ function onFailure(result) { }
                                 </ItemTemplate>
                             </asp:TemplateField>
                     
-              <%--              <asp:TemplateField HeaderText="Access" SortExpression="AccessType">
-                                <ItemTemplate>
-                                <asp:Literal ID="LitAccessTypeDesc" runat="server" Text=""></asp:Literal>
-                                </ItemTemplate>
-                            </asp:TemplateField>
-                    
-                            <asp:TemplateField HeaderText="Access Level" SortExpression="AccessCode, AccessLevel" Visible="false">
-                                <ItemTemplate>
-                                <asp:Literal ID="LitAccessLevel" runat="server" Text=""></asp:Literal>
-                                </ItemTemplate>
-                            </asp:TemplateField>
-
-                            <asp:TemplateField HeaderText="<%$ Resources:PublicLabels, LblFiles %>" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center">
-                                <ItemTemplate>
-                                    <asp:HyperLink ID="LnkUploadFiles" runat="server">
-                                        <i class='fa fa-pgn_attach fa-fw'></i>
-                                    </asp:HyperLink>
-                                    <br />
-                                    <span><asp:Literal ID="LitFilesCount" runat="server" Text=""></asp:Literal></span>
-                                </ItemTemplate>
-                            </asp:TemplateField>
-                    
-                            <asp:TemplateField HeaderText="Img">
-                                <ItemTemplate>
-                                    <asp:HyperLink ID="LnkUploadImg" runat="server">
-                                        <i class='fa fa-pgn_image fa-fw'></i>
-                                    </asp:HyperLink>
-                                    <br />
-                                    <span><asp:Literal ID="LitImgCount" runat="server" Text=""></asp:Literal></span>
-                                </ItemTemplate>
-                            </asp:TemplateField>--%>
-                    
-                            <asp:TemplateField HeaderText="" ItemStyle-HorizontalAlign="Center" ItemStyle-Width="10">
+                            <asp:TemplateField HeaderText="" ItemStyle-HorizontalAlign="Left" ItemStyle-Width="10">
                                 <ItemTemplate>
                                     <asp:LinkButton ID="LnkDel" runat="server" CommandName="DeleteRow" 
                                         CommandArgument='<%#Eval("Id") %>' OnClientClick="return confirm(deleteQuestion);">
@@ -242,7 +210,7 @@ function onFailure(result) { }
                                 </ItemTemplate>
                             </asp:TemplateField>
                     
-                            <asp:BoundField DataField="Id" HeaderText="ID" SortExpression="Id" ItemStyle-HorizontalAlign="Right" HeaderStyle-HorizontalAlign="Right" />
+                            <asp:BoundField DataField="Id" HeaderText="ID" SortExpression="Id" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left" />
                         </Columns>
                     </asp:GridView>
                     </div>
@@ -265,7 +233,7 @@ function onFailure(result) { }
         </asp:View>
    
 
-        <asp:View ID="ViewInsert" runat="server">
+        <asp:View ID="ViewInsert" runat="server" >
 
             <div class="panel panel-default">
 
@@ -273,7 +241,7 @@ function onFailure(result) { }
                     <%=base.GetLabel("LblDetails", "Details") %>
                     <div class="pull-right">
                         <div class="btn-group">
-                            <asp:Button ID="BtnSave" runat="server" Text="<%$ Resources:PublicLabels, CmdSave %>" CssClass="btn btn-primary btn-xs" OnClick="BtnSave_Click" />
+                            <asp:Button ID="BtnSave" runat="server" Text="<%$ Resources:PublicLabels, CmdSave %>" CssClass="btn btn-primary btn-xs" OnClick="BtnSave_Click" validationgroup="SaveProduct" />
                             <asp:Button ID="BtnCancel" runat="server" Text="<%$ Resources:PublicLabels, CmdCancel %>" CssClass="btn btn-default btn-xs" CausesValidation="false" OnClick="BtnCancel_Click" />
                         </div>
                     </div>
@@ -283,35 +251,95 @@ function onFailure(result) { }
 
                     <ul class="nav nav-pills">
                         <li class="active"><a href="#tab-main" data-toggle="tab"><%=base.GetLabel("Main", "Main") %></a></li>
-                            <li><a href="#tab-security" data-toggle="tab"><%=base.GetLabel("Security", "Security") %></a></li>
-                            <li><a href="#tab-parameters" data-toggle="tab"><%=base.GetLabel("Parameters", "Parameters") %></a></li>
-                            <li><a href="#tab-related" data-toggle="tab"><%=base.GetLabel("Related", "Related") %></a></li>
-                            <li><a href="#tab-attributes" data-toggle="tab"><%=base.GetLabel("Attributes", "Attributes") %></a></li>
-                            <li><a href="#tab-variants" data-toggle="tab"><%=base.GetLabel("Variants", "Variants") %></a></li>
+                        <li><a href="#tab-security" data-toggle="tab"><%=base.GetLabel("Security", "Security") %></a></li>
+                        <li><a href="#tab-parameters" data-toggle="tab"><%=base.GetLabel("Parameters", "Parameters") %></a></li>
+                        <li><a href="#tab-related" data-toggle="tab"><%=base.GetLabel("Related", "Related") %></a></li>
+                        <asp:PlaceHolder ID="plhConfigurableProductTab" runat="server" Visible="false">
+                            <li><a href="#tab-associated" data-toggle="tab"><%=base.GetLabel("Associated", "Associated Products") %></a></li>
+                        </asp:PlaceHolder>
                     </ul>
 
                     <div class="tab-content">
                         
                         <div class="tab-pane fade in active" id="tab-main">
 
-                            <div class="form-group col-md-4">
+                            <div class="form-group col-md-3">
                                 <%=base.GetLabel("LblItemType", "Item type", LitItemType, true)%>
                                 <asp:TextBox ID="LitItemType" runat="server" Enabled="false" CssClass="form-control"></asp:TextBox>
                             </div>
 
-                            <div class="form-group col-md-4">
+                            <div class="form-group col-md-3">
                                 <%=base.GetLabel("LblCategory", "Category", DropCategories, true)%>
                                 <asp:DropDownList ID="DropCategories" runat="server" CssClass="form-control"></asp:DropDownList>
                             </div>
 
-                            <div class="form-group col-md-4">
+                            <div class="form-group col-md-3">
                                 <%=base.GetLabel("LblEnabled", "Enabled", ChkEnabled, true)%>
                                 <asp:CheckBox ID="ChkEnabled" runat="server" CssClass="form-control" Enabled="true" />
                             </div>
+
+                            <div class="form-group col-md-3">
+                                <%=base.GetLabel("LblSet", "Select Attribute Set", DropSets, true)%>
+                                <asp:DropDownList ID="DropSets" runat="server" AutoPostBack="true" CssClass="form-control" OnSelectedIndexChanged="DropSets_SelectedIndexChanged"></asp:DropDownList>
+                            </div>
                                               
-                            <div class="form-group col-lg-12">
+                            <div class="col-lg-12">
                                 <%=base.GetLabel("LblTitle", "Title", null, true)%>
                                 <asp:Panel runat="server" ID="PanelTitle"></asp:Panel>
+                            </div>
+
+                            <div class="form-group col-md-6">
+                                <%=base.GetLabel("LblSKU", "SKU", TxtSKU, true)%>
+                                <asp:RequiredFieldValidator ID="ReqSKU" ControlToValidate="TxtSKU" runat="server" Text="*" validationgroup="SaveProduct"></asp:RequiredFieldValidator>
+                                <asp:TextBox ID="TxtSKU" runat="server" CssClass="form-control"></asp:TextBox>
+                            </div>
+
+                            <div class="col-md-6">
+                                <%=base.GetLabel("LblWeight", "Weight", TxtWeight, true)%>
+                                <asp:RequiredFieldValidator ID="ReqWeight" ControlToValidate="TxtWeight" runat="server" Text="*" validationgroup="SaveProduct"></asp:RequiredFieldValidator>
+                                <div class="form-group input-group">
+                                    <asp:TextBox ID="TxtWeight" runat="server" CssClass="form-control"></asp:TextBox>
+                                    <span class='input-group-addon'><%=ShopSettings.ItemWeightUnit %></span>
+                                </div>
+                            </div>
+
+                            <div class="form-group col-lg-12">
+                                <%=base.GetLabel("LblAttributes", "Attributes", null, true)%>
+                                <asp:Panel runat="server" ID="PanelAttributes"></asp:Panel>
+                            </div>
+
+                            <div class="col-md-6">
+                                <%=base.GetLabel("LblRegularPrice", "Regular Price", TxtRegularPrice, true)%>
+                                <asp:RequiredFieldValidator ID="ReqRegularPrice" ControlToValidate="TxtRegularPrice" runat="server" Text="*" validationgroup="SaveProduct"></asp:RequiredFieldValidator>
+                                <div class="form-group input-group">
+                                    <asp:TextBox ID="TxtRegularPrice" runat="server" CssClass="form-control"></asp:TextBox>
+                                    <span class='input-group-addon'><%=ShopSettings.ShopCurrency %></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <%=base.GetLabel("LblSalePrice", "Sale Price", TxtSalePrice, true)%>
+                                <div class="form-group input-group">
+                                    <asp:TextBox ID="TxtSalePrice" runat="server" CssClass="form-control"></asp:TextBox>
+                                    <span class='input-group-addon'><%=ShopSettings.ShopCurrency %></span>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-12">
+                                <div class="form-group col-md-6" style="padding-left:0">
+                                    <%=base.GetLabel("LblStock", "Stock Availability", DropStock, true)%>
+                                    <asp:DropDownList ID="DropStock" runat="server" CssClass="form-control">
+                                        <asp:ListItem Value="1" Text="In Stock"></asp:ListItem>
+                                        <asp:ListItem Value="0" Text="Out Of Stock"></asp:ListItem>
+                                    </asp:DropDownList>
+                                    <asp:RequiredFieldValidator ID="ReqDropStock" ControlToValidate="DropStock" runat="server" Text="*" validationgroup="SaveProduct"></asp:RequiredFieldValidator>
+                                </div>
+
+                                <div class="form-group col-md-6" style="padding-right:0">
+                                    <%=base.GetLabel("LblAvailability", "Qty", TxtQty, true)%>
+                                    <asp:RequiredFieldValidator ID="ReqTxtQty" ControlToValidate="TxtQty" runat="server" Text="*" validationgroup="SaveProduct"></asp:RequiredFieldValidator>
+                                    <asp:TextBox ID="TxtQty" runat="server" CssClass="form-control"></asp:TextBox>
+                                </div>
                             </div>
 
                             <div class="form-group col-md-6">
@@ -381,69 +409,159 @@ function onFailure(result) { }
                         </div>
                         
                         <div class="tab-pane fade" id="tab-related">
-                            <h3> Item Related </h3>
-                            <label for="typeProducts"> Type a product name to add in related list </label>
-                            <input id="typeProducts" class="form-control form-group" type="text" />
-
                             
-                            <div id="relatedForm" class="col-md-12 col-sm-12 col-lg-12 form-group" data-itemid="<%=ItemId %>">
-                                <%--<asp:Literal ID="ltrAttributes" runat="server" ></asp:Literal>--%>
-                            </div>
+                            <div class="row col-lg-12">
+                                 
+                                <div class="panel panel-default">
+                                    <div class="table-responsive">
 
-                        </div>
+                                        <asp:GridView ID="GridRelated" runat="server" AllowPaging="True" AllowSorting="true" Width="100%" AutoGenerateColumns="False"
+                                            DataSourceID="ObjDs3" DataKeyNames="Id" OnRowDataBound="GridRelated_RowDataBound">
+                                            <Columns>
+                                                <asp:TemplateField HeaderText="Associate" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
+                                                    <ItemTemplate>
+                                                        <asp:CheckBox ID="chkRow" runat="server" />
+                                                    </ItemTemplate>
+                                                </asp:TemplateField>
+                                                <asp:BoundField DataField="Title" HeaderText="Title" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left" />
+                                                <asp:BoundField DataField="SKU" HeaderText="SKU" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left" />
+                                                <asp:BoundField DataField="RegularPrice" HeaderText="Regular Price" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left" />
+                                                <asp:BoundField DataField="SalePrice" HeaderText="Sale Price" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left" />
+                                                <asp:BoundField DataField="Id" HeaderText="ID" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left" />
+                                            </Columns>
+                                        </asp:GridView>
 
-                        <!-- pane for attributes -->
-                        <div class="tab-pane fade" id="tab-attributes">
+                                        <asp:ObjectDataSource ID="ObjDs3" runat="server" 
+                                            SortParameterName="sort" SelectMethod="GetByFilter" 
+                                            TypeName="PigeonCms.Shop.ProductItemsManager" 
+                                            OnObjectCreating="ObjDs3_ObjectCreating"
+                                            OnSelecting="ObjDs3_Selecting">
+                                            <SelectParameters>
+                                                <asp:Parameter Name="filter" Type="Object" />
+                                                <asp:Parameter Name="sort" Type="String" DefaultValue="" />
+                                            </SelectParameters>
+                                            <DeleteParameters>
+                                                <asp:Parameter Name="Id" Type="Int32" />
+                                            </DeleteParameters>
+                                        </asp:ObjectDataSource>
 
-                            <h3> Item Attributes </h3>
-
-                            <div id="attributesForm" class="col-md-12 col-sm-12 col-lg-12 form-group" data-itemid="<%=ItemId %>">
-                                <%--<asp:Literal ID="ltrAttributes" runat="server" ></asp:Literal>--%>
-                            </div>
-
-                            <button id="updateValues" type="button" class="btn btn-success">Save Values</button>
-                                
-                        </div>
-
-                        <!-- pane for variants -->
-                        <div class="tab-pane fade" id="tab-variants">
-
-                            <div id="variantsForm" class="col-md-12 col-sm-12 col-lg-12 form-group" data-itemid="<%=ItemId %>">
-
-                                <h3> Item Variants </h3>
-
-                                <div id="variantsBoxes" class="col-lg-12 form-group row">
-
+                                    </div>
                                 </div>
 
-                                <div class="col-lg-12 form-group">
+                            </div>
+                        </div>
 
-                                    <select id="bulkActionSelect" class="form-group form-control col-md-4 col-sm-12">
-	                                    <option selected> -- Bulk Actions -- </option>
-	                                    <option value="ProductCode"> Product Code </option>
-	                                    <option value="Availability"> Availability </option>
-	                                    <option value="RegularPrice"> Price </option>
-	                                    <option value="SalePrice"> Offer Price </option>
-                                    </select>
+                        <asp:PlaceHolder ID="PlhConfigurableProductPane" runat="server" Visible="false">
 
-                                    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                            <div class="tab-pane fade" id="tab-associated">
+
+                                <div class="row">
+
+                                    <div class="form-group col-md-6">
+
+                                        <div class="form-group col-lg-12">
+                                            <%=base.GetLabel("LblSKU", "SKU", QuickTxtSKU, true)%>
+                                            <asp:RequiredFieldValidator ID="ReqQuickSKU" ControlToValidate="QuickTxtSKU" runat="server" Text="*" validationgroup="QuickProduct"></asp:RequiredFieldValidator>
+                                            <asp:TextBox ID="QuickTxtSKU" runat="server" CssClass="form-control"></asp:TextBox>
+                                        </div>
+
+                                        <div class="form-group col-lg-12">
+                                            <%=base.GetLabel("LblEnabled", "Enabled", DropEnabled, true)%>
+                                            <asp:DropDownList ID="DropEnabled" runat="server" CssClass="form-control">
+                                                <asp:ListItem Value="" Text="-- Select status --"></asp:ListItem>
+                                                <asp:ListItem Value="1" Text="Enabled"></asp:ListItem>
+                                                <asp:ListItem Value="0" Text="Disabled"></asp:ListItem>
+                                            </asp:DropDownList>
+                                        </div>
+
+                                        <div class="form-group col-lg-12">
+                                            <%=base.GetLabel("LblWeight", "Weight", QuickTxtWeight, true)%>
+                                            <asp:RequiredFieldValidator ID="ReqQuickWeight" ControlToValidate="QuickTxtWeight" runat="server" Text="*" validationgroup="QuickProduct"></asp:RequiredFieldValidator>
+                                            <asp:TextBox ID="QuickTxtWeight" runat="server" CssClass="form-control"></asp:TextBox>
+                                        </div>
+
+                                        <div class="form-group col-lg-12">
+                                            <%=base.GetLabel("LblAttributes", "Attributes", null, true)%>
+                                            <asp:Panel runat="server" ID="QuickAttributes"></asp:Panel>
+                                        </div>
+
+                                        <div class="form-group col-md-6">
+                                            <%=base.GetLabel("LblRegularPrice", "Regular Price", QuickTxtRegularPrice, true)%>
+                                            <asp:RequiredFieldValidator ID="ReqQuickRegPrice" ControlToValidate="QuickTxtRegularPrice" runat="server" Text="*" validationgroup="QuickProduct"></asp:RequiredFieldValidator>
+                                            <asp:TextBox ID="QuickTxtRegularPrice" runat="server" CssClass="form-control"></asp:TextBox>
+                                        </div>
+
+                                        <div class="form-group col-md-6">
+                                            <%=base.GetLabel("LblSalePrice", "Sale Price", QuickTxtSalePrice, true)%>
+                                            <asp:TextBox ID="QuickTxtSalePrice" runat="server" CssClass="form-control"></asp:TextBox>
+                                        </div>
+
+                                        <div class="form-group col-md-6">
+                                            <%=base.GetLabel("LblStock", "Stock Availability", QuickDropStock, true)%>
+                                            <asp:DropDownList ID="QuickDropStock" runat="server" CssClass="form-control">
+                                                <asp:ListItem Value="1" Text="In Stock"></asp:ListItem>
+                                                <asp:ListItem Value="0" Text="Out Of Stock"></asp:ListItem>
+                                            </asp:DropDownList>
+                                            <asp:RequiredFieldValidator ID="ReqQuickStock" ControlToValidate="QuickDropStock" runat="server" Text="*" validationgroup="QuickProduct"></asp:RequiredFieldValidator>
+                                        </div>
+
+                                        <div class="form-group col-md-6">
+                                            <%=base.GetLabel("LblAvailability", "Qty", QuickTxtQty, true)%>
+                                            <asp:RequiredFieldValidator ID="ReqQuickQty" ControlToValidate="QuickTxtQty" runat="server" Text="*" validationgroup="QuickProduct"></asp:RequiredFieldValidator>
+                                            <asp:TextBox ID="QuickTxtQty" runat="server" CssClass="form-control"></asp:TextBox>
+                                        </div>
+
+                                        <div class="form-group col-lg-12">
+                                              <asp:Button ID="BtnQuickAdd" runat="server" Text="Quick Add" CssClass="btn btn-primary btn-xs" OnClick="BtnQuickAdd_Click" validationgroup="QuickProduct" />
+                                        </div>
+
                                     </div>
 
-                                    <button id="bulkActionButton" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
-                                        Bulk Edit
-                                    </button>
+                                    <div class="form-group col-md-6">
 
-                                    <button id="linkAll" type="button" class="btn btn-success">Link All Variants</button>
+                                        <div class="panel panel-default">
+                                            <div class="table-responsive">
 
-                                    <button id="saveAll" type="button" class="btn btn-info"> Save All Variants </button>
+                                                <asp:GridView ID="GridViewSimple" runat="server" AllowPaging="True" AllowSorting="true" Width="100%" AutoGenerateColumns="False"
+                                                    DataSourceID="ObjDs2" DataKeyNames="Id" OnRowDataBound="GridViewSimple_RowDataBound">
+                                                    <Columns>
+                                                        <asp:TemplateField HeaderText="Associate" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
+                                                            <ItemTemplate>
+                                                                <asp:CheckBox ID="chkRow" runat="server" />
+                                                            </ItemTemplate>
+                                                        </asp:TemplateField>
+                                                        <asp:BoundField DataField="Title" HeaderText="Title" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left" />
+                                                        <asp:BoundField DataField="SKU" HeaderText="SKU" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left" />
+                                                        <asp:BoundField DataField="RegularPrice" HeaderText="Regular Price" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left" />
+                                                        <asp:BoundField DataField="SalePrice" HeaderText="Sale Price" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left" />
+                                                        <asp:BoundField DataField="Id" HeaderText="ID" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left" />
+                                                    </Columns>
+                                                </asp:GridView>
 
-                                    <button id="deleteAll" type="button" class="btn btn-warning"> Delete All Variants </button>
+                                                <asp:ObjectDataSource ID="ObjDs2" runat="server" 
+                                                    SortParameterName="sort" SelectMethod="GetByFilter" 
+                                                    TypeName="PigeonCms.Shop.ProductItemsManager" 
+                                                    OnObjectCreating="ObjDs2_ObjectCreating"
+                                                    OnSelecting="ObjDs2_Selecting">
+                                                    <SelectParameters>
+                                                        <asp:Parameter Name="filter" Type="Object" />
+                                                        <asp:Parameter Name="sort" Type="String" DefaultValue="" />
+                                                    </SelectParameters>
+                                                    <DeleteParameters>
+                                                        <asp:Parameter Name="Id" Type="Int32" />
+                                                    </DeleteParameters>
+                                                </asp:ObjectDataSource>
+
+                                            </div>
+                                        </div>
+
+                                    </div>
 
                                 </div>
 
                             </div>
 
-                        </div>
+                        </asp:PlaceHolder>
 
                     </div>
 

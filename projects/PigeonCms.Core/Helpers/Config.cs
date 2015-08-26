@@ -192,6 +192,11 @@ namespace PigeonCms
             get { return AppSettingsManager.GetValue("CurrentTheme", "default"); }
         }
 
+        public static string GetConfigValue(string key, string defaultValue = "")
+        {
+            return getConfigValue(key, defaultValue);
+        }
+
         private static string getConfigValue(string key, string defaultValue = "")
         {
             string res = "";

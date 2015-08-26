@@ -82,9 +82,21 @@ namespace PigeonCms.Shop
                 myRd = myCmd.ExecuteReader();
                 while (myRd.Read())
                 {
-                    Coupon item = new Coupon();
+                    bool bAdd = true;
+                    var item = new Coupon();
                     FillObject(item, myRd);
-                    result.Add(item);
+
+                    if (filter.IsValid != Utility.TristateBool.NotSet)
+                    {
+                        bAdd = false;
+                        if (filter.IsValid != Utility.TristateBool.True && item.IsValid)
+                            bAdd = true;
+                        if (filter.IsValid != Utility.TristateBool.False && !item.IsValid)
+                            bAdd = true;
+                    }
+
+                    if (bAdd)
+                        result.Add(item);
                 }
                 myRd.Close();
             }
@@ -109,6 +121,23 @@ namespace PigeonCms.Shop
             return result;
         }
 
+        public Coupon GetByCode(string code)
+        {
+            var result = new Coupon();
+            var resultList = new List<Coupon>();
+            var filter = new CouponsFilter();
+
+            if (string.IsNullOrEmpty(code))
+                return result;
+
+            filter.Code = code;
+            resultList = GetByFilter(filter, "");
+            if (resultList.Count > 0)
+                result = resultList[0];
+
+            return result;
+        }
+
         public override int Update(Coupon theObj)
         {
             DbProviderFactory myProv = Database.ProviderFactory;
@@ -118,12 +147,7 @@ namespace PigeonCms.Shop
             int result = 0;
 
             theObj.DateUpdated = DateTime.Now;
-            if (theObj.UserInserted == 0)
-                theObj.UserUpdated = PgnUserCurrent.Current.Id;
-            if (theObj.UserUpdated == 0)
-                theObj.UserUpdated = PgnUserCurrent.Current.Id;
-            if (theObj.DateInserted == DateTime.MinValue)
-                theObj.DateInserted = DateTime.Now;
+            theObj.UserUpdated = PgnUserCurrent.UserName;
 
             try
             {
@@ -139,8 +163,8 @@ namespace PigeonCms.Shop
                 myCmd.CommandText = Database.ParseSql(sSql);
                 myCmd.Parameters.Add(Database.Parameter(myProv, "Id", theObj.Id));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "Code", theObj.Code));
-                myCmd.Parameters.Add(Database.Parameter(myProv, "DateInserted", theObj.DateInserted));
-                myCmd.Parameters.Add(Database.Parameter(myProv, "UserInserted", theObj.UserInserted));
+                //myCmd.Parameters.Add(Database.Parameter(myProv, "DateInserted", theObj.DateInserted));
+                //myCmd.Parameters.Add(Database.Parameter(myProv, "UserInserted", theObj.UserInserted));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "DateUpdated", theObj.DateUpdated));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "UserUpdated", theObj.UserUpdated));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "ValidFrom", theObj.ValidFrom));
@@ -188,9 +212,9 @@ namespace PigeonCms.Shop
 
                 myCmd.Parameters.Add(Database.Parameter(myProv, "Code", result.Code));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "DateInserted", DateTime.Now));
-                myCmd.Parameters.Add(Database.Parameter(myProv, "UserInserted", PgnUserCurrent.Current.Id));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "UserInserted", PgnUserCurrent.UserName));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "DateUpdated", DateTime.Now));
-                myCmd.Parameters.Add(Database.Parameter(myProv, "UserUpdated", PgnUserCurrent.Current.Id));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "UserUpdated", PgnUserCurrent.UserName));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "ValidFrom", result.UserUpdated));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "ValidTo", result.ValidTo));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "Enabled", result.Enabled));
@@ -219,11 +243,11 @@ namespace PigeonCms.Shop
             if (!Convert.IsDBNull(myRd["DateInserted"]))
                 result.DateInserted = (DateTime)myRd["DateInserted"];
             if (!Convert.IsDBNull(myRd["UserInserted"]))
-                result.UserInserted = (int)myRd["UserInserted"];
+                result.UserInserted = (string)myRd["UserInserted"];
             if (!Convert.IsDBNull(myRd["DateUpdated"]))
                 result.DateUpdated = (DateTime)myRd["DateUpdated"];
             if (!Convert.IsDBNull(myRd["UserUpdated"]))
-                result.UserUpdated = (int)myRd["UserUpdated"];
+                result.UserUpdated = (string)myRd["UserUpdated"];
             if (!Convert.IsDBNull(myRd["ValidFrom"]))
                 result.ValidFrom = (DateTime)myRd["ValidFrom"];
             if (!Convert.IsDBNull(myRd["ValidTo"]))

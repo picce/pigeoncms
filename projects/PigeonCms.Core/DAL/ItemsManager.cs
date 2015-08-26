@@ -235,7 +235,7 @@ namespace PigeonCms
                     sSql += " AND t.CustomBool2 = @CustomBool2 ";
                     myCmd.Parameters.Add(Database.Parameter(myProv, "CustomBool2", filter.CustomBool2));
                 }
-                if (filter.CustomBool1 != Utility.TristateBool.NotSet)
+                if (filter.CustomBool3 != Utility.TristateBool.NotSet)
                 {
                     sSql += " AND t.CustomBool3 = @CustomBool3 ";
                     myCmd.Parameters.Add(Database.Parameter(myProv, "CustomBool3", filter.CustomBool3));
@@ -720,8 +720,9 @@ namespace PigeonCms
             currObj.DeleteFiles();
             new PermissionProvider().RemovePermissionById(currObj.ReadPermissionId);
             new PermissionProvider().RemovePermissionById(currObj.WritePermissionId);
-            
-            new ItemAttributesValuesManager().DeleteByReferred(currObj.Id);
+
+            var iman = new ItemAttributesValuesManager();
+            iman.DeleteByItemId(currObj.Id);
 
 
             //myTrans = myConn.BeginTransaction();

@@ -7,14 +7,21 @@ using System.Text;
 namespace PigeonCms.Shop
 {
     public class ProductItem: Item
-    {       
+    {
+        public enum ProductTypeEnum
+        {
+            NotSet = 0,
+            Simple = 1,
+            Configurable
+        }
+
         public ProductItem() 
         {
             base.ItemTypeName = "PigeonCms.Shop.ProductItem";
         }
 
         [ItemFieldMapAttribute(ItemFieldMapAttribute.CustomFields.CustomString1)]
-        public string ProductCode
+        public string SKU
         {
             [DebuggerStepThrough()]
             get { return base.CustomString1; }
@@ -49,15 +56,6 @@ namespace PigeonCms.Shop
             set { base.CustomDecimal3 = value; }
         }
 
-        [ItemFieldMapAttribute(ItemFieldMapAttribute.CustomFields.CustomString2)]
-        public string Dimensions
-        {
-            [DebuggerStepThrough()]
-            get { return base.CustomString2; }
-            [DebuggerStepThrough()]
-            set { base.CustomString2 = value; }
-        }
-
         [ItemFieldMapAttribute(ItemFieldMapAttribute.CustomFields.CustomInt1)]
         public int Availability
         {
@@ -67,14 +65,41 @@ namespace PigeonCms.Shop
             set { base.CustomInt1 = value; }
         }
 
-		//modificare in Decimal
+        ////modificare in Decimal
+        //[ItemFieldMapAttribute(ItemFieldMapAttribute.CustomFields.CustomInt2)]
+        //public int Review
+        //{
+        //    [DebuggerStepThrough()]
+        //    get { return base.CustomInt2; }
+        //    [DebuggerStepThrough()]
+        //    set { base.CustomInt2 = value; }
+        //}
+
         [ItemFieldMapAttribute(ItemFieldMapAttribute.CustomFields.CustomInt2)]
-        public int Review
+        public int AttributeSet
         {
             [DebuggerStepThrough()]
             get { return base.CustomInt2; }
             [DebuggerStepThrough()]
             set { base.CustomInt2 = value; }
+        }
+
+        [ItemFieldMapAttribute(ItemFieldMapAttribute.CustomFields.CustomInt3)]
+        public ProductItem.ProductTypeEnum ProductType
+        {
+            [DebuggerStepThrough()]
+            get 
+            {
+                ProductItem.ProductTypeEnum res = ProductTypeEnum.NotSet;
+                try
+                {
+                    res = (ProductItem.ProductTypeEnum)base.CustomInt3;
+                }
+                catch { }
+                return res;
+            }
+            [DebuggerStepThrough()]
+            set { base.CustomInt3 = (int)value; }
         }
 
         [ItemFieldMapAttribute(ItemFieldMapAttribute.CustomFields.CustomBool1)]
@@ -86,17 +111,30 @@ namespace PigeonCms.Shop
             set { base.CustomBool1 = value; }
         }
 
+        [ItemFieldMapAttribute(ItemFieldMapAttribute.CustomFields.CustomBool2)]
+        public bool InStock
+        {
+            [DebuggerStepThrough()]
+            get { return base.CustomBool2; }
+            [DebuggerStepThrough()]
+            set { base.CustomBool2 = value; }
+        }
+
     }
 
     [Serializable]
     public class ProductItemFilter : ItemsFilter
     {
+        private Utility.TristateBool customBool1 = Utility.TristateBool.NotSet;
+        private Utility.TristateBool customBool2 = Utility.TristateBool.NotSet;
+        private Utility.TristateBool customBool3 = Utility.TristateBool.NotSet;
+
         public ProductItemFilter()
         {
             this.ItemType = "PigeonCms.Shop.ProductItem";
         }
 
-        public string Code
+        public string SKU
         {
             [DebuggerStepThrough()]
             get { return base.CustomString1; }
@@ -112,7 +150,31 @@ namespace PigeonCms.Shop
             set { base.CustomInt1 = value; }
         }
 
-        public int Review
+        public Utility.TristateBool InStock
+        {
+            [DebuggerStepThrough()]
+            get { return customBool2; }
+            [DebuggerStepThrough()]
+            set { customBool2 = value; }
+        }
+
+        public Utility.TristateBool Enabled
+        {
+            [DebuggerStepThrough()]
+            get { return base.Enabled; }
+            [DebuggerStepThrough()]
+            set { base.Enabled = value; }
+        }
+
+        public int ProductType
+        {
+            [DebuggerStepThrough()]
+            get { return base.CustomInt3; }
+            [DebuggerStepThrough()]
+            set { base.CustomInt3 = value; }
+        }
+
+        public int AttributeSet
         {
             [DebuggerStepThrough()]
             get { return base.CustomInt2; }

@@ -6,8 +6,6 @@
 <script type="text/javascript">
     var deleteQuestion = '<%=PigeonCms.Utility.GetLabel("RECORD_DELETE_QUESTION") %>';
 
-    //Sys.WebForms.PageRequestManager.getInstance().add_beginRequest(startRequest);
-    //Sys.WebForms.PageRequestManager.getInstance().add_endRequest(endRequest);
 
     function editRow(resId) {
         var upd1 = '<%=Upd1.ClientID%>';
@@ -18,33 +16,7 @@
         }
     }
 
-//    $(document).ready(function () {
-
-//        $(document).off("click", "a.fancyRefresh");
-//        $(document).on("click", "a.fancyRefresh", function () {
-//            $(this).fancybox({
-
-//                'width': '80%',
-//                'height': '80%',
-//                'type': 'iframe',
-//                'hideOnContentClick': false,
-//                onClosed: function () {
-//                    var upd1 = '<%=Upd1.ClientID%>';
-//                    if (upd1 != null) {
-//                        __doPostBack(upd1, 'grid');
-//                    }
-//                }
-
-//            }).trigger("click");
-//            return false;
-//        });
-
-//    });
-
-
-
     function pageLoad(sender, args) {
-        //rebind();
 
         if (args.get_isPartialLoad()) {
 
@@ -67,7 +39,6 @@
     }
 
     function uploadError(sender, args) {
-        //addToClientTable(args.get_fileName(), "<span style='color:red;'>" + args.get_errorMessage() + "</span>");
         console.log(args.get_errorMessage());
     }
 
@@ -94,7 +65,6 @@
 
 
 <cc1:ToolkitScriptManager ID="ScriptManager1" runat="server" EnablePageMethods="true"></cc1:ToolkitScriptManager>
-<%--<asp:ScriptManager ID="ScriptManager1" runat="server"></asp:ScriptManager>--%>
 <asp:UpdateProgress ID="UpdateProgress1" runat="server" DisplayAfter="1" AssociatedUpdatePanelID="Upd1">
     <ProgressTemplate>
         <div class="loading"><%=PigeonCms.Utility.GetLabel("LblLoading", "loading") %></div>
@@ -144,7 +114,8 @@
 
                     </div>
                     <div id="collapseOne" class="panel-collapse collapse in">
-                        <div class="panel-body">                    
+                        <div class="panel-body">
+                                              
                             <div class="form-group">
                                 <asp:DropDownList ID="DropModuleTypesFilter" runat="server" AutoPostBack="true" CssClass="form-control" OnSelectedIndexChanged="DropModuleTypesFilter_SelectedIndexChanged"></asp:DropDownList>
                             </div>

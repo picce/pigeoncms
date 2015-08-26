@@ -25,5 +25,9 @@ namespace PigeonCms.Shop
             }
         }
 
+        public string ItemWeightUnit
+        {
+            get { return AppSettingsManager.GetValue("PigeonCms.Shop_ItemWeightUnit", "Kg"); }
+        }
     }
 }

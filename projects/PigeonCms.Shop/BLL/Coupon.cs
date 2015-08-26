@@ -54,9 +54,9 @@ namespace PigeonCms.Shop
             set { dateUpdated = value; }
         }
 
-        private int userInserted = 0;
+        private string userInserted = "";
         [DataObjectField(true)]
-        public int UserInserted
+        public string UserInserted
         {
             [DebuggerStepThrough()]
             get { return userInserted; }
@@ -64,9 +64,9 @@ namespace PigeonCms.Shop
             set { userInserted = value; }
         }
 
-        private int userUpdated = 0;
+        private string userUpdated = "";
         [DataObjectField(true)]
-        public int UserUpdated
+        public string UserUpdated
         {
             [DebuggerStepThrough()]
             get { return userUpdated; }
@@ -94,16 +94,6 @@ namespace PigeonCms.Shop
             set { validTo = value; }
         }
 
-        //private PigeonCms.Utility.TristateBool enabled = PigeonCms.Utility.TristateBool.NotSet;
-        //[DataObjectField(true)]
-        //public PigeonCms.Utility.TristateBool Enabled
-        //{
-        //    [DebuggerStepThrough()]
-        //    get { return enabled; }
-        //    [DebuggerStepThrough()]
-        //    set { enabled = value; }
-        //}
-
         private decimal amount = 0m;
         [DataObjectField(true)]
         public decimal Amount
@@ -113,16 +103,6 @@ namespace PigeonCms.Shop
             [DebuggerStepThrough()]
             set { amount = value; }
         }
-
-        //private PigeonCms.Utility.TristateBool isPercentage = PigeonCms.Utility.TristateBool.NotSet;
-        //[DataObjectField(true)]
-        //public PigeonCms.Utility.TristateBool IsPercentage
-        //{
-        //    [DebuggerStepThrough()]
-        //    get { return isPercentage; }
-        //    [DebuggerStepThrough()]
-        //    set { isPercentage = value; }
-        //}
 
         private decimal minOrderAmount = 0m;
         [DataObjectField(false)]
@@ -164,6 +144,32 @@ namespace PigeonCms.Shop
             set { usesCounter = value; }
         }
 
+        public bool IsValid//(decimal currentOrderTotal)
+        {
+            get
+            {
+                bool res = true;
+
+                if (this.Enabled == false)
+                    res = false;
+
+                if (this.MaxUses > 0 && this.UsesCounter >= this.MaxUses)
+                    res = false;
+
+                DateTime now = DateTime.Now.Date;
+                if (this.ValidFrom != DateTime.MinValue && now < this.ValidFrom.Date)
+                    res = false;
+
+                if (this.ValidTo != DateTime.MinValue && now > this.ValidTo.Date)
+                    res = false;
+
+                //if (minOrderAmount > currentOrderTotal)
+                //    res = false;
+
+                return res;
+            }
+        }
+
     }
 
     [Serializable]
@@ -175,6 +181,7 @@ namespace PigeonCms.Shop
         private DatesRange validFromRange = new DatesRange(DatesRange.RangeType.Always);
         private DatesRange validToRange = new DatesRange(DatesRange.RangeType.Always);
         private Utility.TristateBool enabled = Utility.TristateBool.NotSet;
+        private Utility.TristateBool isValid = Utility.TristateBool.NotSet;
         private string itemType = "";
         //private List<int> categoriesIdList = new List<int>();
 
@@ -223,6 +230,14 @@ namespace PigeonCms.Shop
             get { return enabled; }
             [DebuggerStepThrough()]
             set { enabled = value; }
+        }
+
+        public Utility.TristateBool IsValid
+        {
+            [DebuggerStepThrough()]
+            get { return isValid; }
+            [DebuggerStepThrough()]
+            set { isValid = value; }
         }
 
         public string ItemType

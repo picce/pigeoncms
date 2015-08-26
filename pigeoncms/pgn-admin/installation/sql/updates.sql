@@ -498,7 +498,7 @@ END
 GO
 
 
---20100215
+--20100215 - TODO manually
 alter #__items 
 	CustomString1 varchar(MAX) NULL,
 	CustomString2 varchar(MAX) NULL,
@@ -2334,7 +2334,7 @@ edit paymentCode(x20)
 edit shipCode(x20)
 */
 
---items related
+--items related SHOP
 CREATE TABLE #__itemsRelated
 	(
 	itemId int not NULL,
@@ -2349,3 +2349,36 @@ ALTER TABLE #__itemsRelated ADD CONSTRAINT
 	) WITH( STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 
 GO
+
+--20150826 SHOP
+--set of attributes
+CREATE TABLE #__attributeSet(
+	[id] [int] IDENTITY(1,1) NOT NULL,
+	[name] [varchar](255) NOT NULL,
+	[attributesList] [varchar](255) NOT NULL,
+ CONSTRAINT [PK_#__attributeSet] PRIMARY KEY CLUSTERED 
+(
+	[id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+--201508267
+--remove old itemAttributeValues and reinsert the old one
+DROP TABLE #__itemsAttributesValues
+GO
+
+CREATE TABLE [#__itemsAttributesValues](
+	[itemId] [int] NOT NULL,
+	[attributeId] [int] NOT NULL,
+	[attributeValueId] [int] NOT NULL,
+	[CustomValueString] [varchar](max) NULL,
+ CONSTRAINT [PK_#__itemsAttributesValues] PRIMARY KEY CLUSTERED 
+(
+	[itemId] ASC,
+	[attributeId] ASC,
+	[attributeValueId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+

@@ -3,7 +3,7 @@
 PigeonCms - Open source Content Management System 
 https://github.com/picce/pigeoncms
 Copyright © 2015 Nicola Ridolfi - picce@yahoo.it
-version: 2.0.0
+version: 2.9.1
 Licensed under the terms of "GNU General Public License v3"
 For the full license text see license.txt or
 visit "http://www.gnu.org/licenses/gpl.html"
@@ -39,3 +39,19 @@ visit "http://www.gnu.org/licenses/gpl.html"
 -bugs fix
 -started test with Dapper as ORM
 
+@entry
+@date: 20150819
+@version: 2.9.1
+@contributors: 
+picce - Nicola Ridolfi
+liqueflies - Lorenzo Girardi
+@wn: deploy on github https://github.com/picce/pigeoncms
+-picce: PigeonCms.Shop assembly - 60%
+-picce: InBundle version. New folders structure. Use Pigeon as FrontEnd framework
+-picce: new script create.sql and bulk.sql
+-picce: starts working on new demo site
+-picce: working on UX
+-picce: working on WebMatrix template integration
+-picce: working on @Razor compatibility
+-picce: bugs fixing
+-liqueflies: working on shop 

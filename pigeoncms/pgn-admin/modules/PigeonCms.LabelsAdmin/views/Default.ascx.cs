@@ -1,5 +1,6 @@
 using System;
 using System.Data;
+using System.Linq;
 using System.Configuration;
 using System.Collections;
 using System.IO;
@@ -22,6 +23,8 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
     const int COL_TEXTMODE = 3;
     const int COL_VALUES = 4;
     const int COL_DELETE = 5;
+
+    private List<PigeonCms.Culture> culturesList = new List<PigeonCms.Culture>();
 
     protected string ModuleFullName
     {
@@ -140,8 +143,6 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         }
     }
 
-
-
     public ContentEditorProvider.Configuration.EditorTypeEnum LastTextMode
     {
         get
@@ -160,7 +161,6 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
     protected new void Page_Init(object sender, EventArgs e)
     {
         base.Page_Init(sender, e);
-        //Utility.Script.RegisterStartupScript(Upd1, "rebind", "rebind();");
 
         if (Page.IsPostBack)
         {
@@ -201,6 +201,11 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
     {
         LblOk.Text = RenderSuccess("");
         LblErr.Text = RenderError("");
+
+        var cultMan = new PigeonCms.CulturesManager();
+        var cultFilter = new PigeonCms.CulturesFilter();
+        culturesList = cultMan.GetByFilter(cultFilter, "");
+
 
         if (!Page.IsPostBack)
         {
@@ -286,15 +291,35 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
             lfilter.ResourceSet = item.ResourceSet;
             lfilter.ResourceId = item.ResourceId;
             labelList = man.GetByFilter(lfilter, "");
-            foreach (var label in labelList)
+            
+            const string ROW = "<span class='[[rowClass]]'><i>[[rowCulture]]</i>: [[rowLabel]]</span><br>";
+            foreach(var culture in culturesList)
             {
+                ResLabel label = labelList.FirstOrDefault(
+                    s => s.CultureName == culture.CultureCode);
+
+                if (label == null)
+                    label = new ResLabel();
+
                 if (string.IsNullOrEmpty(defaultValue))
                     defaultValue = label.Value;
 
-                values += label.Value + ", ";
+                string rowClass = "text-success";
+                if (string.IsNullOrEmpty(label.Value))
+                {
+                    label.Value = "<i>NO VALUE</i>";
+                    if (culture.Enabled)
+                        rowClass = "text-danger";//missing
+                    else
+                        rowClass = "text-warning";//missing but cutlure not enabled
+                }
+
+                values += ROW
+                    .Replace("[[rowClass]]", rowClass)
+                    .Replace("[[rowCulture]]", culture.CultureCode)
+                    .Replace("[[rowLabel]]", Utility.Html.GetTextPreview(label.Value, 50, ""));
             }
-            if (values.EndsWith(", ")) values = values.Substring(0, values.Length - 2);
-            LitValue.Text += Utility.Html.GetTextPreview(values, 100, "");
+            LitValue.Text += values;
 
             //image preview on Image TextMode
             Image ImgPreview = (Image)e.Row.FindControl("ImgPreview");
@@ -338,7 +363,6 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         MultiView1.ActiveViewIndex = 0;
 
         Grid1.DataBind();
-
     }
 
     protected void DropTextMode_TextChanged(object sender, EventArgs e)
@@ -370,6 +394,35 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         }
     }
 
+    protected void File1_UploadedComplete(object sender, AjaxControlToolkit.AsyncFileUploadEventArgs e)
+    {
+        var uploadField = (AjaxControlToolkit.AsyncFileUpload)sender;
+
+        if (uploadField.HasFile)
+        {
+            string path = FilesHelper.MapPathWhenVirtual(this.DefaultResourceFolder);
+
+            //filename = ResourceSet_ResourceKey.extension
+            string filename = this.CurrentKey.Replace("|", "_") + "_" + uploadField.FileName;
+
+            string filePath = Path.Combine(path, filename);
+            string fileUrl = VirtualPathUtility.Combine(this.DefaultResourceFolder, filename);
+
+            PigeonCms.LogProvider.Write(
+                this.BaseModule,
+                "file upload completed --path:" + path + " -- filename:" + filename + " -- filepath:" + filePath + " -- fileurl: " + fileUrl,
+                PigeonCms.TracerItemType.Debug
+            );
+
+
+            DirectoryInfo dir = new DirectoryInfo(path);
+            if (!dir.Exists)
+                dir.Create();
+
+            uploadField.SaveAs(filePath);
+        }
+    }
+
     private void clearForm()
     {
         LitResourceSet.Text = "";
@@ -377,12 +430,9 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         TxtComment.Text = "";
         TxtResourceParams.Text = "";
 
-        //var panelCommentUI = new LabelsProvider.UI(false, PanelComment);
-
         foreach (KeyValuePair<string, string> item in Config.CultureList)
         {
             setTransArea("TxtValue", PanelValue, null, item);
-            //panelCommentUI.SetTransText("TxtComment", null, item);
         }
         Utility.SetDropByValue(DropTextMode, "2");
     }
@@ -406,7 +456,6 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         var filter = new LabelsFilter();
         var lman = new LabelsManager();
 
-
         LitResourceSet.Text = obj.ResourceSet;
         TxtResourceId.Text = obj.ResourceId;
         TxtResourceId.Enabled = true;
@@ -427,15 +476,11 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
                 var TxtValue = new Controls_ContentEditorControl();
                 TxtValue = (Controls_ContentEditorControl)PanelValue.FindControl("TxtValue" + item.Value);
 
-                //var TxtComment = new TextBox();
-                //TxtComment = (TextBox)PanelComment.FindControl("TxtComment" + item.Value);
-
                 filter.CultureName = item.Key;
                 labelsList = lman.GetByFilter(filter, "");
                 if (labelsList.Count > 0)
                     label = labelsList[0];
                 TxtValue.Text = label.Value;
-                //TxtComment.Text = label.Comment;
             }
         }
     }
@@ -450,7 +495,6 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         CurrentKey = resourceSet + "|" + resourceId;
         if (string.IsNullOrEmpty(resourceId))
         {
-            //initLangControls(obj.TextMode);
             obj.ResourceSet = resourceSet;
             obj.ResourceId = resourceId;
             obj2form(obj);
@@ -458,15 +502,12 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         else
         {
             obj = new LabelsManager().GetLabelTransByKey(resourceSet, resourceId);
-            //initLangControls(obj.TextMode);
             obj2form(obj);
         }
 
         string filename = this.CurrentKey.Replace("|", "_") + "_";
-        //string fileUrl = VirtualPathUtility.Combine(this.DefaultResourceFolder, filename);
         string fileUrl = this.DefaultResourceFolder + "/" + filename;
         TxtCurrentPath.Value = VirtualPathUtility.ToAbsolute(fileUrl);
-
 
         MultiView1.ActiveViewIndex = 1;
     }
@@ -512,18 +553,9 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
             {
                 var label = new ResLabel();
                 var labelList = new List<ResLabel>();
-
                 var TxtValue = new Controls_ContentEditorControl();
+                
                 TxtValue = (Controls_ContentEditorControl)PanelValue.FindControl("TxtValue" + item.Value);
-
-                //var file1 = new System.Web.UI.WebControls.FileUpload();
-                //file1 = (System.Web.UI.WebControls.FileUpload)PanelValue.FindControl("TxtValue" + item.Value + "File1");
-                //uploadFile(file1);
-
-                //TextBox TxtComment = new TextBox();
-                //TxtComment = (TextBox)PanelComment.FindControl("TxtComment" + item.Value);
-
-                //man.DeleteByResourceId(o1.ResourceSet, o1.ResourceId, item.Key);
 
                 lFilter.ResourceSet = o1.ResourceSet;
                 lFilter.ResourceId = o1.ResourceId;
@@ -665,7 +697,6 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
     }
 
 
-
     private string setTransArea(string panelPrefix, Panel panel,
         Dictionary<string, string> translations,
         KeyValuePair<string, string> cultureItem)
@@ -680,7 +711,6 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
 
         return res;
     }
-
 
     private void addTransArea(string panelPrefix, Panel panel,
         ContentEditorProvider.Configuration editorConfig,
@@ -764,43 +794,4 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         return resId;
     }
 
-    protected void File1_UploadedComplete(object sender, AjaxControlToolkit.AsyncFileUploadEventArgs e)
-    {
-        var uploadField = (AjaxControlToolkit.AsyncFileUpload)sender;
-
-        if (uploadField.HasFile)
-        {
-            string path = FilesHelper.MapPathWhenVirtual(this.DefaultResourceFolder);
-
-            //filename = ResourceSet_ResourceKey.extension
-            string filename = this.CurrentKey.Replace("|", "_") + "_" + uploadField.FileName;
-
-            string filePath = Path.Combine(path, filename);
-            string fileUrl = VirtualPathUtility.Combine(this.DefaultResourceFolder, filename);
-
-            PigeonCms.LogProvider.Write(
-                this.BaseModule,
-                "file upload completed --path:" + path + " -- filename:" + filename + " -- filepath:" + filePath + " -- fileurl: " + fileUrl,
-                PigeonCms.TracerItemType.Debug
-            );
-
-
-            DirectoryInfo dir = new DirectoryInfo(path);
-            if (!dir.Exists)
-                dir.Create();
-
-            uploadField.SaveAs(filePath);
-
-
-
-            //update input field path
-            //foreach (KeyValuePair<string, string> item in Config.CultureList)
-            //{
-            //    var TxtValue = new Controls_ContentEditorControl();
-            //    TxtValue = (Controls_ContentEditorControl)PanelValue.FindControl("TxtValue" + item.Value);
-            //    TxtValue.Text = fileUrl;
-            //}
-        }
-
-    }
 }
