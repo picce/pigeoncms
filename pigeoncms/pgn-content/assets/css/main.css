@@ -1,0 +1,16 @@
+body{
+	background-color: orange;
+}
+
+.menu
+{
+    height: 40px;
+    width: 100%;
+}    
+
+li
+{
+    float: left;   
+    display: block;
+    padding-right: 30px;    
+}

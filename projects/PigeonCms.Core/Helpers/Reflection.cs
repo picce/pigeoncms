@@ -51,6 +51,12 @@ namespace PigeonCms
             {
                 //Load the assembly and get it's information
                 type = BuildManager.GetType(className, false);
+
+                //TODO - manage classes with generics
+                //example: className = "MyClass`2"
+                //http://stackoverflow.com/questions/1151464/how-to-dynamically-create-generic-c-sharp-object-using-reflection
+                //http://www.codeproject.com/Articles/22088/Reflecting-on-Generics
+
                 //type = System.Reflection.Assembly.LoadFrom(AssemblyName + ".dll").GetType(AssemblyName + "." + className);
                 //Get the Passed parameter types to find the method type
                 if (parameterForTheMethod != null)

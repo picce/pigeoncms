@@ -117,7 +117,8 @@ namespace PigeonCms
                 labelsList,
                 resourceId, 
                 defaultValue, 
-                ContentEditorProvider.Configuration.EditorTypeEnum.Text);
+                ContentEditorProvider.Configuration.EditorTypeEnum.Text,
+                "");
 
             if (string.IsNullOrEmpty(res))
             {
@@ -176,6 +177,26 @@ namespace PigeonCms
 
 
         /// <summary>
+        /// use this this method to retrieve localized text in items
+        /// </summary>
+        /// <param name="dict">dictionary that contains translations</param>
+        /// <returns>the right value in current culture</returns>
+        public static string GetLocalizedTextFromDictionary(Dictionary<string, string> dict, string forcedCultureCode = "")
+        {
+            string res = "";
+
+            //20150512
+            if (string.IsNullOrEmpty(forcedCultureCode))
+                forcedCultureCode = Utility.GetCurrCultureName();
+
+            dict.TryGetValue(forcedCultureCode, out res);
+            if (Utility.IsEmptyFckField(res))
+                dict.TryGetValue(Config.CultureDefault, out res);
+
+            return res;
+        }
+
+        /// <summary>
         /// retrieve label result from cached list (in page or control var)
         /// try in order to retrieve:
         /// - current culture value
@@ -193,9 +214,14 @@ namespace PigeonCms
             List<ResLabel>labelsList, 
             string resourceId, 
             string defaultValue,
-            ContentEditorProvider.Configuration.EditorTypeEnum textMode)
+            ContentEditorProvider.Configuration.EditorTypeEnum textMode, 
+            string forcedCultureCode)
         {
             string res = "";
+
+            //20150512
+            if (string.IsNullOrEmpty(forcedCultureCode))
+                forcedCultureCode = Utility.GetCurrCultureName();
 
             if (labelsList != null)
             {
@@ -207,16 +233,36 @@ namespace PigeonCms
                         delegate(ResLabel labelToFind)
                         {
                             if (labelToFind.ResourceId.ToLower() == resourceId.ToLower() &&
-                                labelToFind.CultureName.ToLower() == Utility.GetCurrCultureName().ToLower())
+                                labelToFind.CultureName.ToLower() == forcedCultureCode.ToLower())
                                 return true;
                             else
                                 return false;
                         }).Value;
+
+                    //added 20150701
+                    //try default culture
+                    if (string.IsNullOrEmpty(res) && Config.CultureDefault.ToLower() != forcedCultureCode.ToLower())
+                    {
+                        try
+                        {
+                            res = labelsList.Find(
+                                delegate(ResLabel labelToFind)
+                                {
+                                    if (labelToFind.ResourceId.ToLower() == resourceId.ToLower() &&
+                                        labelToFind.CultureName.ToLower() == Config.CultureDefault.ToLower())
+                                        return true;
+                                    else
+                                        return false;
+                                }).Value;
+                        }
+                        catch (NullReferenceException)
+                        { res = ""; }
+                    }
                 }
                 catch (NullReferenceException)
                 {
                     //try default culture
-                    if (Config.CultureDefault.ToLower() != Utility.GetCurrCultureName().ToLower())
+                    if (Config.CultureDefault.ToLower() != forcedCultureCode.ToLower())
                     {
                         try
                         {
@@ -257,7 +303,8 @@ namespace PigeonCms
             if (varId.StartsWith("$"))
             {
                 string resourceId = varId.Substring(1);
-                res = GetLocalizedLabelFromList("", labelsList, resourceId, "", ContentEditorProvider.Configuration.EditorTypeEnum.Text);
+                res = GetLocalizedLabelFromList("", labelsList, resourceId, "", 
+                    ContentEditorProvider.Configuration.EditorTypeEnum.Text, "");
                 if (string.IsNullOrEmpty(res))
                     res = varId;
             }

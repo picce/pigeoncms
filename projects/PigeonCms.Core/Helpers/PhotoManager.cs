@@ -143,8 +143,10 @@ namespace PigeonCms
                 imagePath = HttpContext.Current.Server.MapPath(imageUrl);
             }
             catch { }
-            if (!System.IO.File.Exists(imagePath))
-                imageUrl = defaultImageUrl;
+            
+            //20150820 - no default image
+            //if (!System.IO.File.Exists(imagePath))
+            //    imageUrl = defaultImageUrl;
 
             res = imageUrl
                 + "?w=" + customWidth.ToString()

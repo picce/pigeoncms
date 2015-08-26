@@ -1,0 +1,80 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{9B7C9BBB-9618-4E2A-B6EB-E267CDD82F4F}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>PigeonCms.Shop</RootNamespace>
+    <AssemblyName>PigeonCms.Shop</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BLL\Coupon.cs" />
+    <Compile Include="BLL\Payment.cs" />
+    <Compile Include="BLL\Customer.cs" />
+    <Compile Include="BLL\OrderRow.cs" />
+    <Compile Include="BLL\Order.cs" />
+    <Compile Include="DAL\CouponsManager.cs" />
+    <Compile Include="DAL\CustomersManager.cs" />
+    <Compile Include="DAL\PaymentsManager.cs" />
+    <Compile Include="DAL\OrdersManager.cs" />
+    <Compile Include="Helpers\Settings.cs" />
+    <Compile Include="Items\PigeonCms.Shop.ProductItem\ProductItem.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Provider\Payments\PayPal.cs" />
+    <Compile Include="Provider\Payments\PaymentsProvider.cs" />
+    <Compile Include="Provider\OrdersProvider.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PigeonCms.Core\PigeonCms.Core.csproj">
+      <Project>{B5680C69-ADE4-4233-AF97-ED41E7C10E13}</Project>
+      <Name>PigeonCms.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\StackExchange.Dapper\StackExchange.Dapper.csproj">
+      <Project>{D0FCDB76-2116-49AD-9A31-ECF252A19829}</Project>
+      <Name>StackExchange.Dapper</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

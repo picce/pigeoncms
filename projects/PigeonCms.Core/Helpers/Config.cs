@@ -44,11 +44,44 @@ namespace PigeonCms
         }
 
         /// <summary>
+        /// from 2015 jul 29
+        /// true: pigeon is bundle inside its own folder; you can create your website using pigeon framework
+        /// false: old pigeon structure. The website is built only with pigeon
+        /// </summary>
+        public static bool IsPigeonBundle
+        {
+            get 
+            {
+                bool res = false;
+                string value = getConfigValue("IsPigeonBundle");
+                if (value.ToLower() == "true")
+                    res = true;
+                return res;
+            }
+        }
+
+        /// <summary>
+        /// pigeon backend path 
+        /// </summary>
+        public static string PigeonAdminPath
+        {
+            get { return "~/pgn-admin/"; }
+        }
+
+        /// <summary>
+        /// pigeon frontend content path 
+        /// </summary>
+        public static string PigeonContentPath
+        {
+            get { return "~/pgn-content/"; }
+        }
+
+        /// <summary>
         /// folder with installed modules
         /// </summary>
         public static string ModulesPath
         {
-            get { return ConfigurationManager.AppSettings["ModulesPath"].ToString(); }
+            get { return (IsPigeonBundle ? PigeonAdminPath + "modules/" : getConfigValue("ModulesPath")); }
         }
 
         /// <summary>
@@ -56,7 +89,7 @@ namespace PigeonCms
         /// </summary>
         public static string InstallationPath
         {
-            get { return ConfigurationManager.AppSettings["InstallationPath"].ToString(); }
+            get { return (IsPigeonBundle ? PigeonAdminPath + "installation/" : getConfigValue("InstallationPath")); }
         }
 
         /// <summary>
@@ -64,7 +97,7 @@ namespace PigeonCms
         /// </summary>
         public static string ItemsPath
         {
-            get { return ConfigurationManager.AppSettings["ItemsPath"].ToString(); }
+            get { return (IsPigeonBundle ? PigeonAdminPath + "items/" : getConfigValue("ItemsPath")); }
         }
 
         /// <summary>
@@ -72,32 +105,50 @@ namespace PigeonCms
         /// </summary>
         public static string MasterPagesPath
         {
-            get { return ConfigurationManager.AppSettings["MasterPagesPath"].ToString(); }
+            get { return (IsPigeonBundle ? PigeonAdminPath + "masterpages/" : getConfigValue("MasterPagesPath")); }
         }
+
+        /// <summary>
+        /// folder log files
+        /// </summary>
+        public static string LogsPath
+        {
+            get { return (IsPigeonBundle ? PigeonAdminPath + "logs/" : getConfigValue("LogsPath", "~/Logs/")); }
+        }
+
+        /// <summary>
+        /// folder for vendor plugins
+        /// </summary>
+        public static string VendorPath
+        {
+            get { return (IsPigeonBundle ? PigeonAdminPath + "vendor/" : getConfigValue("VendorPath", "~/Plugins/")); }
+        }
+
 
         public static string DocsPublicPath
         {
-            get { return ConfigurationManager.AppSettings["DocsPublicPath"].ToString(); }
+            get { return getConfigValue("DocsPublicPath"); }
         }
 
         public static string SessionTimeOutUrl
         {
-            get { return ConfigurationManager.AppSettings["SessionTimeOutUrl"].ToString(); }
+            get { return getConfigValue("SessionTimeOutUrl"); }
         }
 
         public static int DefaultCacheValue
         {
-            get { return int.Parse(ConfigurationManager.AppSettings["defaultCacheValue"]); }
+            get { return int.Parse(getConfigValue("defaultCacheValue")); }
         }
 
         public static string CultureDefault
         {
-            get { return ConfigurationManager.AppSettings["CultureDefault"].ToString(); }
+            get { return getConfigValue("CultureDefault"); }
         }
 
         /// <summary>
         /// used by fckeditr js plugin
         /// </summary>
+        [Obsolete("", true)]
         public static string FCKUserFilesPath
         {
             get { return VirtualPathUtility.ToAbsolute(ConfigurationManager.AppSettings["FCKeditor:UserFilesPath"].ToString()); }
@@ -130,16 +181,7 @@ namespace PigeonCms
         /// </summary>
         public static string CurrentMasterPage
         {
-            get
-            {
-                string res = "";
-                res = AppSettingsManager.GetValue("CurrentMasterPage");
-                if (string.IsNullOrEmpty(res))
-                {
-                    res = "default";
-                }
-                return res;
-            }
+            get { return AppSettingsManager.GetValue("CurrentMasterPage", "default"); }
         }
 
         /// <summary>
@@ -147,16 +189,25 @@ namespace PigeonCms
         /// </summary>
         public static string CurrentTheme
         {
-            get 
-            { 
-                string res = "";
-                res = AppSettingsManager.GetValue("CurrentTheme");
-                if (string.IsNullOrEmpty(res))
-                {
-                    res = "default";
-                }
-                return res;
-            }
+            get { return AppSettingsManager.GetValue("CurrentTheme", "default"); }
+        }
+
+        public static string GetConfigValue(string key, string defaultValue = "")
+        {
+            return getConfigValue(key, defaultValue);
+        }
+
+        private static string getConfigValue(string key, string defaultValue = "")
+        {
+            string res = "";
+
+            if (ConfigurationManager.AppSettings[key] != null)
+                res = ConfigurationManager.AppSettings[key].ToString();
+
+            if (string.IsNullOrEmpty(res))
+                res = defaultValue;
+
+            return res;
         }
     } 
 }

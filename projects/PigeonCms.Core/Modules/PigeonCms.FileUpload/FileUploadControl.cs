@@ -300,7 +300,9 @@ namespace PigeonCms
                             break;
                         case FileNameTypeEnum.KeepOriginalName:
                         default:
-                            fileName = uploadField.FileName;
+                            //see https://forums.iis.net/t/1226370.aspx?How+to+access+file+with+plus+sign+after+being+uploaded+to+IIS+
+                            //+ sign not allowed by default from iis
+                            fileName = uploadField.FileName.Replace("+", "-");
                             break;
                     }
 

@@ -1,0 +1,57 @@
+@watermark
+/***************************************************
+PigeonCms - Open source Content Management System 
+https://github.com/picce/pigeoncms
+Copyright © 2015 Nicola Ridolfi - picce@yahoo.it
+version: 2.9.1
+Licensed under the terms of "GNU General Public License v3"
+For the full license text see license.txt or
+visit "http://www.gnu.org/licenses/gpl.html"
+***************************************************/
+
+
+@entry
+@date: 20100101
+@version: 1.1.0
+@contributors: picce
+@wn: deploy on google code https://code.google.com/p/pigeoncms/
+
+
+@entry
+@date: 20130101
+@version: 1.3.0
+@contributors: picce
+@wn: deploy on codeplex http://pigeoncms.codeplex.com/
+
+
+@entry
+@date: 20150203
+@version: 2.0.0
+@contributors: picce
+@wn: deploy on github https://github.com/picce/pigeoncms
+-new admin theme SbAdmin2 for all admin modules
+-added lib PigeonCms.Core.Engine to use PigeonCms.Core inside classic asp.net website
+-class fields in items, categories and sections
+-sessionId in logs
+-more flexible labels admin (textmode) and auto insert default values on page load
+-start dev of PigeonCms.Shop
+-removed old app_code files
+-bugs fix
+-started test with Dapper as ORM
+
+@entry
+@date: 20150819
+@version: 2.9.1
+@contributors: 
+picce - Nicola Ridolfi
+liqueflies - Lorenzo Girardi
+@wn: deploy on github https://github.com/picce/pigeoncms
+-picce: PigeonCms.Shop assembly - 60%
+-picce: InBundle version. New folders structure. Use Pigeon as FrontEnd framework
+-picce: new script create.sql and bulk.sql
+-picce: starts working on new demo site
+-picce: working on UX
+-picce: working on WebMatrix template integration
+-picce: working on @Razor compatibility
+-picce: bugs fixing
+-liqueflies: working on shop 

@@ -8,15 +8,50 @@ using System.IO;
 using System.Data.Common;
 using PigeonCms;
 using System.Diagnostics;
+using StackExchange.Dapper;
 
 
 namespace PigeonCms.Shop
 {
+    public interface IOrdersManager<OT, OF, RT, RF>
+        where OT : PigeonCms.Shop.IOrder, new()
+        where OF : PigeonCms.Shop.IOrderFilter, new()
+        where RT : PigeonCms.Shop.OrderRow, new()
+        where RF : PigeonCms.Shop.OrderRowsFilter, new()
+    {
+        void CalculateSummary(int recordId);
+        decimal GetShipAmount(OT order);
+        decimal GetCouponAmount(OT order, decimal orderAmount);
+        void SetOrderAsConfirmed(int orderId);
+
+        List<OT> GetByFilter(OF filter, string sort);
+        OT GetByKey(int orderId);
+        OT GetByOrderRef(string orderRef);
+        OT Insert(OT newObj);
+        int Update(OT theObj);
+
+        List<RT> Rows_GetByFilter(RF filter, string sort);
+        RT Rows_GetByKey(int orderId);
+        int Rows_DeleteAllRows(int orderId);
+        int Rows_DeleteById(int recordId);
+        RT Rows_Insert(RT newObj);
+        int Rows_Update(RT theObj);
+
+    }
+
+
     /// <summary>
     /// DAL for Order obj (table #__shop_orderHeader)
     /// </summary>
-    public class OrdersManager : TableManager<Order, OrdersFilter, int>
+    public class OrdersManager<OT, OF, RT, RF>: 
+            TableManager<OT, OF, int>,
+            IOrdersManager<OT, OF, RT, RF>
+        where OT: PigeonCms.Shop.IOrder, new()
+        where OF: PigeonCms.Shop.IOrderFilter, new()
+        where RT : PigeonCms.Shop.OrderRow, new()
+        where RF : PigeonCms.Shop.OrderRowsFilter, new()
     {
+
         [DebuggerStepThrough()]
         public OrdersManager()
         {
@@ -24,14 +59,14 @@ namespace PigeonCms.Shop
             this.KeyFieldName = "Id";
         }
 
-        public override List<Order> GetByFilter(OrdersFilter filter, string sort)
+        public override List<OT> GetByFilter(OF filter, string sort)
         {
             DbProviderFactory myProv = Database.ProviderFactory;
             DbConnection myConn = myProv.CreateConnection();
             DbDataReader myRd = null;
             DbCommand myCmd = myConn.CreateCommand();
             string sSql;
-            var result = new List<Order>();
+            var result = new List<OT>();
 
             try
             {
@@ -42,10 +77,11 @@ namespace PigeonCms.Shop
                 sSql = "SELECT t.id, t.orderRef, t.ownerUser, t.customerId, t.orderDate, "
                 + " t.orderDateRequested, t.orderDateShipped, t.dateInserted, t.userInserted, "
                 + " t.dateUpdated, t.userUpdated, t.confirmed, t.paid, t.processed, t.invoiced, t.notes, "
-                + " t.qtyAmount, t.orderAmount, t.shipAmount, t.totalAmount, t.TotalPaid, t.currency, t.vatPercentage, "
+                + " t.qtyAmount, t.orderAmount, t.shipAmount, t.totalAmount, t.TotalPaid, t.Currency, "
                 + " t.invoiceId, t.invoiceRef, t.ordName, t.ordAddress, t.ordZipCode, t.ordCity, t.ordState, "
                 + " t.ordNation, t.ordPhone, t.ordEmail, t.couponCode, t.couponValue, "
-                + " t.paymentCode, t.shipCode "
+                + " t.paymentCode, t.shipCode, t.couponIsPercentage, "
+                + " t.JsData, t.Custom1, t.Custom2, t.Custom3 "
                 + " FROM [" + this.TableName + "] t "
                 + " WHERE 1=1 ";
 
@@ -118,7 +154,7 @@ namespace PigeonCms.Shop
                 myRd = myCmd.ExecuteReader();
                 while (myRd.Read())
                 {
-                    var item = new Order();
+                    var item = new OT();
                     FillObject(item, myRd);
                     result.Add(item);
                 }
@@ -131,11 +167,11 @@ namespace PigeonCms.Shop
             return result;
         }
 
-        public override Order GetByKey(int id)
+        public override OT GetByKey(int id)
         {
-            var result = new Order();
-            var list = new List<Order>();
-            var filter = new OrdersFilter();
+            var result = new OT();
+            var list = new List<OT>();
+            var filter = new OF();
             filter.Id = id == 0 ? -1 : id;
             list = GetByFilter(filter, "");
             if (list.Count > 0)
@@ -143,11 +179,11 @@ namespace PigeonCms.Shop
             return result;
         }
 
-        public Order GetByOrderRef(string orderRef)
+        public OT GetByOrderRef(string orderRef)
         {
-            var result = new Order();
-            var list = new List<Order>();
-            var filter = new OrdersFilter();
+            var result = new OT();
+            var list = new List<OT>();
+            var filter = new OF();
 
             if (string.IsNullOrEmpty(orderRef))
                 return result;
@@ -159,7 +195,7 @@ namespace PigeonCms.Shop
             return result;
         }
 
-        public override int Update(Order theObj)
+        public override int Update(OT theObj)
         {
             DbProviderFactory myProv = Database.ProviderFactory;
             DbConnection myConn = myProv.CreateConnection();
@@ -185,10 +221,12 @@ namespace PigeonCms.Shop
                 OrderDateRequested=@OrderDateRequested, OrderDateShipped=@OrderDateShipped, 
                 DateUpdated=@DateUpdated, UserUpdated=@UserUpdated, 
                 Confirmed=@Confirmed, Paid=@Paid, Processed=@Processed, Invoiced=@Invoiced, Notes=@Notes, 
-                QtyAmount=@QtyAmount, OrderAmount=@OrderAmount, ShipAmount=@ShipAmount, TotalAmount=@TotalAmount, TotalPaid=@TotalPaid, Currency=@Currency, VatPercentage=@VatPercentage, 
+                QtyAmount=@QtyAmount, OrderAmount=@OrderAmount, ShipAmount=@ShipAmount, TotalAmount=@TotalAmount, TotalPaid=@TotalPaid, Currency=@Currency, 
                 InvoiceId=@InvoiceId, InvoiceRef=@InvoiceRef, OrdName=@OrdName, OrdAddress=@OrdAddress, OrdZipCode=@OrdZipCode, 
                 OrdCity=@OrdCity, OrdState=@OrdState, OrdNation=@OrdNation, OrdPhone=@OrdPhone, OrdEmail=@OrdEmail, 
-                CouponCode=@CouponCode, CouponValue=@CouponValue, PaymentCode=@PaymentCode, ShipCode=@ShipCode 
+                CouponCode=@CouponCode, CouponValue=@CouponValue, 
+                PaymentCode=@PaymentCode, ShipCode=@ShipCode, CouponIsPercentage=@CouponIsPercentage, 
+                JsData=@JsData, Custom1=@Custom1, Custom2=@Custom2, Custom3=@Custom3 
                 WHERE Id = @Id ";
                 myCmd.CommandText = Database.ParseSql(sSql);
                 myCmd.Parameters.Clear();
@@ -221,7 +259,6 @@ namespace PigeonCms.Shop
                 myCmd.Parameters.Add(Database.Parameter(myProv, "TotalAmount", theObj.TotalAmount));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "TotalPaid", theObj.TotalPaid));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "Currency", theObj.Currency));
-                myCmd.Parameters.Add(Database.Parameter(myProv, "VatPercentage", theObj.VatPercentage));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "InvoiceId", theObj.InvoiceId));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "InvoiceRef", theObj.InvoiceRef));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "OrdName", theObj.OrdName));
@@ -236,7 +273,11 @@ namespace PigeonCms.Shop
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CouponValue", theObj.CouponValue));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "PaymentCode", theObj.PaymentCode));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "ShipCode", theObj.ShipCode));
-
+                myCmd.Parameters.Add(Database.Parameter(myProv, "CouponIsPercentage", theObj.CouponIsPercentage));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "JsData", theObj.JsData));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "Custom1", theObj.Custom1));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "Custom2", theObj.Custom2));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "Custom3", theObj.Custom3));
                 result = myCmd.ExecuteNonQuery();
             }
             catch (Exception e)
@@ -250,13 +291,13 @@ namespace PigeonCms.Shop
             return result;
         }
 
-        public override Order Insert(Order newObj)
+        public override OT Insert(OT newObj)
         {
             DbProviderFactory myProv = Database.ProviderFactory;
             DbConnection myConn = myProv.CreateConnection();
             DbCommand myCmd = myConn.CreateCommand();
             string sSql;
-            var theObj = new Order();
+            var theObj = new OT();
 
             try
             {
@@ -280,14 +321,18 @@ namespace PigeonCms.Shop
                 sSql = "INSERT INTO [" + this.TableName + @"] 
                     (orderRef, ownerUser, customerId, orderDate, orderDateRequested, orderDateShipped, 
                     dateInserted, userInserted, dateUpdated, userUpdated, confirmed, paid, processed, invoiced, 
-                    notes, QtyAmount, orderAmount, shipAmount, totalAmount, TotalPaid, currency, vatPercentage, 
+                    notes, QtyAmount, orderAmount, shipAmount, totalAmount, TotalPaid, Currency, 
                     invoiceId, invoiceRef, ordName, ordAddress, ordZipCode, ordCity, ordState, 
-                    ordNation, ordPhone, ordEmail, couponCode, couponValue, paymentCode, shipCode)
+                    ordNation, ordPhone, ordEmail, couponCode, couponValue, 
+                    paymentCode, shipCode, couponIsPercentage,
+                    JsData, Custom1, Custom2, Custom3)
                     VALUES(@orderRef, @ownerUser, @customerId, @orderDate, @orderDateRequested, @orderDateShipped, 
                     @dateInserted, @userInserted, @dateUpdated, @userUpdated, @confirmed, @paid, @processed, @invoiced, 
-                    @notes, @QtyAmount, @orderAmount, @shipAmount, @totalAmount, @TotalPaid, @currency, @vatPercentage, 
+                    @notes, @QtyAmount, @orderAmount, @shipAmount, @totalAmount, @TotalPaid, @Currency, 
                     @invoiceId, @invoiceRef, @ordName, @ordAddress, @ordZipCode, @ordCity, @ordState, 
-                    @ordNation, @ordPhone, @ordEmail, @couponCode, @couponValue, @paymentCode, @shipCode)
+                    @ordNation, @ordPhone, @ordEmail, @couponCode, @couponValue, 
+                    @paymentCode, @shipCode, @couponIsPercentage,
+                    @JsData, @Custom1, @Custom2, @Custom3)
                     SELECT SCOPE_IDENTITY()";
                 myCmd.CommandText = Database.ParseSql(sSql);
 
@@ -321,7 +366,6 @@ namespace PigeonCms.Shop
                 myCmd.Parameters.Add(Database.Parameter(myProv, "TotalAmount", theObj.TotalAmount));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "TotalPaid", theObj.TotalPaid));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "Currency", theObj.Currency));
-                myCmd.Parameters.Add(Database.Parameter(myProv, "VatPercentage", theObj.VatPercentage));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "InvoiceId", theObj.InvoiceId));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "InvoiceRef", theObj.InvoiceRef));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "OrdName", theObj.OrdName));
@@ -336,6 +380,12 @@ namespace PigeonCms.Shop
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CouponValue", theObj.CouponValue));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "PaymentCode", theObj.PaymentCode));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "ShipCode", theObj.ShipCode));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "CouponIsPercentage", theObj.CouponIsPercentage));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "JsData", theObj.JsData));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "Custom1", theObj.Custom1));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "Custom2", theObj.Custom2));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "Custom3", theObj.Custom3));
+
 
                 theObj.Id = (int)(decimal)myCmd.ExecuteScalar();
             }
@@ -353,9 +403,7 @@ namespace PigeonCms.Shop
         public override int DeleteById(int recordId)
         {
             int res = base.DeleteById(recordId);
-            var rowMan = new OrderRowsManager<OrdersManager>();
-            rowMan.DeleteAllRows(recordId);
-
+            Rows_DeleteAllRows(recordId);
             return res;
         }
 
@@ -374,14 +422,13 @@ namespace PigeonCms.Shop
             decimal qtyAmount = 0;
             decimal orderAmount = 0;
 
-            var rowMan = new OrderRowsManager<OrdersManager>();
-            var filter = new OrderRowsFilter();
+            var filter = new RF();
             filter.OrderId = recordId;
-            var list = rowMan.GetByFilter(filter, "");
+            var list = Rows_GetByFilter(filter, "");
             foreach (var row in list)
             {
                 qtyAmount += row.Qty;
-                orderAmount += row.RowPrice;
+                orderAmount += row.AmountWithTaxes;
             }
 
             var order = this.GetByKey(recordId);
@@ -389,33 +436,40 @@ namespace PigeonCms.Shop
             order.OrderAmount = orderAmount;
             decimal shipAmount = this.GetShipAmount(order);
             order.ShipAmount = shipAmount;
-            order.TotalAmount = orderAmount + shipAmount - order.CouponValue;
+
+            decimal couponValue = GetCouponAmount(order, orderAmount);
+            order.TotalAmount = orderAmount + shipAmount - couponValue;
+            
             this.Update(order);
         }
 
-        public virtual decimal GetShipAmount(Order order)
+        public virtual decimal GetShipAmount(OT order)
         {
             decimal res = order.ShipAmount;
             return res;
         }
 
-        public virtual decimal GetCouponValue(Order order)
+        public virtual decimal GetCouponAmount(OT order, decimal orderAmount)
         {
             decimal res = order.CouponValue;
+            if (order.CouponIsPercentage && res <= 1)
+            {
+                //from 20150608
+                res = orderAmount * res;
+            }
             return res;
         }
 
         public void SetOrderAsConfirmed(int orderId)
         {
-            var man = new OrdersManager();
-            var order = new Order();
-            order = man.GetByKey(orderId);
+            var order = new OT();
+            order = this.GetByKey(orderId);
             order.Confirmed = true;
-            man.Update(order);
+            this.Update(order);
         }
 
 
-        protected override void FillObject(Order result, DbDataReader myRd)
+        protected override void FillObject(OT result, DbDataReader myRd)
         {
             if (!Convert.IsDBNull(myRd["Id"]))
                 result.Id = (int)myRd["Id"];
@@ -461,8 +515,6 @@ namespace PigeonCms.Shop
                 result.TotalPaid = (decimal)myRd["TotalPaid"];
             if (!Convert.IsDBNull(myRd["Currency"]))
                 result.Currency = (string)myRd["Currency"];
-            if (!Convert.IsDBNull(myRd["VatPercentage"]))
-                result.VatPercentage = (int)myRd["VatPercentage"];
             if (!Convert.IsDBNull(myRd["InvoiceId"]))
                 result.InvoiceId = (int)myRd["InvoiceId"];
             if (!Convert.IsDBNull(myRd["InvoiceRef"]))
@@ -491,7 +543,229 @@ namespace PigeonCms.Shop
                 result.PaymentCode = (string)myRd["PaymentCode"];
             if (!Convert.IsDBNull(myRd["ShipCode"]))
                 result.ShipCode = (string)myRd["ShipCode"];
+            if (!Convert.IsDBNull(myRd["CouponIsPercentage"]))
+                result.CouponIsPercentage = (bool)myRd["CouponIsPercentage"];
+            if (!Convert.IsDBNull(myRd["JsData"]))
+                result.JsData = (string)myRd["JsData"];
+            if (!Convert.IsDBNull(myRd["Custom1"]))
+                result.Custom1 = (string)myRd["Custom1"];
+            if (!Convert.IsDBNull(myRd["Custom2"]))
+                result.Custom2 = (string)myRd["Custom2"];
+            if (!Convert.IsDBNull(myRd["Custom3"]))
+                result.Custom3 = (string)myRd["Custom3"];
         }
 
+
+        #region rows
+
+        const string Rows_TableName = "#__shop_orderRows";
+
+        public List<RT> Rows_GetByFilter(RF filter, string sort)
+        {
+            DbProviderFactory myProv = Database.ProviderFactory;
+            DbConnection myConn = myProv.CreateConnection();
+            var p = new DynamicParameters();
+            string sSql;
+            var result = new List<RT>();
+
+            try
+            {
+                myConn.ConnectionString = Database.ConnString;
+                myConn.Open();
+
+                sSql = "SELECT Id, OrderId, ProductCode, Qty, "
+                + " PriceNet, TaxPercentage, RowNotes "
+                + " FROM [" + Rows_TableName + "] t "
+                + " WHERE 1=1 ";
+                if (filter.Id > 0 || filter.Id == -1)
+                {
+                    sSql += " AND t.Id = @Id ";
+                    p.Add("Id", filter.Id, null, null, null);
+                }
+                if (filter.OrderId > 0 || filter.OrderId == -1)
+                {
+                    sSql += " AND t.OrderId = @OrderId ";
+                    p.Add("OrderId", filter.OrderId, null, null, null);
+                }
+                if (!string.IsNullOrEmpty(sort))
+                {
+                    sSql += " ORDER BY " + sort;
+                }
+                else
+                {
+                    sSql += " ORDER BY t.Id ";
+                }
+
+                result = (List<RT>)myConn.Query<RT>(Database.ParseSql(sSql), p);
+            }
+            finally
+            {
+                myConn.Dispose();
+            }
+            return result;
+        }
+
+        public RT Rows_GetByKey(int id)
+        {
+            var result = new RT();
+            var list = new List<RT>();
+            var filter = new RF();
+
+            filter.Id = id == 0 ? -1 : id;
+            list = Rows_GetByFilter(filter, "");
+            if (list.Count > 0)
+                result = list[0];
+
+            return result;
+        }
+
+        public int Rows_Update(RT theObj)
+        {
+            DbProviderFactory myProv = Database.ProviderFactory;
+            DbConnection myConn = myProv.CreateConnection();
+            var p = new DynamicParameters();
+            string sSql;
+            int result = 0;
+
+            try
+            {
+                myConn.ConnectionString = Database.ConnString;
+                myConn.Open();
+
+                sSql = "UPDATE [" + Rows_TableName + "] "
+                + " SET OrderId=@OrderId, ProductCode=@ProductCode, Qty=@Qty, "
+                + " PriceNet=@PriceNet, TaxPercentage=@TaxPercentage, "
+                + " RowNotes=@RowNotes "
+                + " WHERE Id = @Id";
+
+                p.Add("Id", theObj.Id, null, null, null);
+                p.Add("OrderId", theObj.OrderId, null, null, null);
+                p.Add("ProductCode", theObj.ProductCode, null, null, null);
+                p.Add("Qty", theObj.Qty, null, null, null);
+                p.Add("PriceNet", theObj.PriceNet, null, null, null);
+                p.Add("TaxPercentage", theObj.TaxPercentage, null, null, null);
+                p.Add("RowNotes", theObj.RowNotes, null, null, null);
+                result = myConn.Execute(Database.ParseSql(sSql), p);
+
+                CalculateSummary(theObj.OrderId);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+            finally
+            {
+                myConn.Dispose();
+            }
+            return result;
+        }
+
+        public RT Rows_Insert(RT newObj)
+        {
+            DbProviderFactory myProv = Database.ProviderFactory;
+            DbConnection myConn = myProv.CreateConnection();
+            var p = new DynamicParameters();
+            string sSql;
+            var theObj = new RT();
+
+            try
+            {
+                myConn.ConnectionString = Database.ConnString;
+                myConn.Open();
+
+                theObj = newObj;
+
+                sSql = "INSERT INTO [" + Rows_TableName + "] "
+                    + " (OrderId, ProductCode, Qty, PriceNet, TaxPercentage, RowNotes) "
+                    + " VALUES(@OrderId, @ProductCode, @Qty, @PriceNet, @TaxPercentage, @RowNotes)";
+
+                //p.Add("Id", theObj.Id, null, null, null);
+                p.Add("OrderId", theObj.OrderId, null, null, null);
+                p.Add("ProductCode", theObj.ProductCode, null, null, null);
+                p.Add("Qty", theObj.Qty, null, null, null);
+                p.Add("PriceNet", theObj.PriceNet, null, null, null);
+                p.Add("TaxPercentage", theObj.TaxPercentage, null, null, null);
+                p.Add("RowNotes", theObj.RowNotes, null, null, null);
+                myConn.Execute(Database.ParseSql(sSql), p);
+
+                CalculateSummary(theObj.OrderId);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+            finally
+            {
+                myConn.Dispose();
+            }
+            return theObj;
+        }
+
+        public int Rows_DeleteById(int recordId)
+        {
+            DbProviderFactory myProv = Database.ProviderFactory;
+            DbConnection myConn = myProv.CreateConnection();
+            var p = new DynamicParameters();
+            string sSql = "";
+            int res = 0;
+
+            try
+            {
+
+                int orderId = Rows_GetByKey(recordId).OrderId;
+                
+                myConn.ConnectionString = Database.ConnString;
+                myConn.Open();
+
+                sSql = "DELETE FROM [" + Rows_TableName + "] WHERE Id = @Id ";
+                p.Add("Id", recordId, null, null, null);
+                res = myConn.Execute(Database.ParseSql(sSql), p);
+
+                CalculateSummary(orderId);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+            finally
+            {
+                myConn.Dispose();
+            }
+            return res;
+        }
+
+        public int Rows_DeleteAllRows(int orderId)
+        {
+            DbProviderFactory myProv = Database.ProviderFactory;
+            DbConnection myConn = myProv.CreateConnection();
+            var p = new DynamicParameters();
+            string sSql = "";
+            int res = 0;
+
+            try
+            {
+                myConn.ConnectionString = Database.ConnString;
+                myConn.Open();
+
+                sSql = "DELETE FROM [" + Rows_TableName + "] WHERE OrderId = @OrderId ";
+                p.Add("OrderId", orderId, null, null, null);
+                res = myConn.Execute(Database.ParseSql(sSql), p);
+
+                CalculateSummary(orderId);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+            finally
+            {
+                myConn.Dispose();
+            }
+            return res;
+        }
+
+        #endregion
+
     }//class
+
 }//ns

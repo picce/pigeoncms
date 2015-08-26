@@ -84,6 +84,32 @@ namespace PigeonCms
 
         public Attribute() { }
 
+
+        public override bool Equals(System.Object obj)
+        {
+            // If parameter is null return false.
+            if (obj == null)
+            {
+                return false;
+            }
+
+            // If parameter cannot be cast to Point return false.
+            PigeonCms.Attribute p = obj as PigeonCms.Attribute;
+            if ((System.Object)p == null)
+            {
+                return false;
+            }
+
+            // Return true if the fields match:
+            return (this.Id.Equals(p.Id));
+        }
+
+        public override int GetHashCode()
+        {
+            return this.Id.GetHashCode();
+        }
+
+
         #endregion
 
     }

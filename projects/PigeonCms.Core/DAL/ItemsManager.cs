@@ -235,7 +235,7 @@ namespace PigeonCms
                     sSql += " AND t.CustomBool2 = @CustomBool2 ";
                     myCmd.Parameters.Add(Database.Parameter(myProv, "CustomBool2", filter.CustomBool2));
                 }
-                if (filter.CustomBool1 != Utility.TristateBool.NotSet)
+                if (filter.CustomBool3 != Utility.TristateBool.NotSet)
                 {
                     sSql += " AND t.CustomBool3 = @CustomBool3 ";
                     myCmd.Parameters.Add(Database.Parameter(myProv, "CustomBool3", filter.CustomBool3));
@@ -695,12 +695,6 @@ namespace PigeonCms
                 myConn.Open();
                 myCmd.Connection = myConn;
 
-                // delete all references in attributesValues 
-                new ItemAttributesValuesManager().DeleteByReferred(id);
-
-                // delete all references in related
-                deleteRelatedByKey(id);
-
                 foreach (var item in list)
                 {
                     deleteObj(item, myProv, myConn, myCmd);
@@ -727,26 +721,43 @@ namespace PigeonCms
             new PermissionProvider().RemovePermissionById(currObj.ReadPermissionId);
             new PermissionProvider().RemovePermissionById(currObj.WritePermissionId);
 
+            var iman = new ItemAttributesValuesManager();
+            iman.DeleteByItemId(currObj.Id);
+
+
             //myTrans = myConn.BeginTransaction();
             //myCmd.Transaction = myTrans;
 
+            //item
             sSql = "DELETE FROM [" + this.TableName + "] WHERE Id = @Id ";
             myCmd.CommandText = Database.ParseSql(sSql);
             myCmd.Parameters.Clear();
             myCmd.Parameters.Add(Database.Parameter(myProv, "Id", currObj.Id));
             myCmd.ExecuteNonQuery();
 
+            //culture
             sSql = "DELETE FROM [" + this.TableName + "_Culture] WHERE ItemId = @ItemId ";
             myCmd.CommandText = Database.ParseSql(sSql);
             myCmd.Parameters.Clear();
             myCmd.Parameters.Add(Database.Parameter(myProv, "ItemId", currObj.Id));
             myCmd.ExecuteNonQuery();
 
+            //optional fields
             sSql = "DELETE FROM [#__itemFieldValues] WHERE ItemId = @ItemId ";
             myCmd.CommandText = Database.ParseSql(sSql);
             myCmd.Parameters.Clear();
             myCmd.Parameters.Add(Database.Parameter(myProv, "ItemId", currObj.Id));
             myCmd.ExecuteNonQuery();
+
+            //related
+            sSql = @"DELETE FROM #__itemsRelated 
+            WHERE ItemId = @ItemId  OR RelatedId = @itemId ";
+            myCmd.CommandText = Database.ParseSql(sSql);
+            myCmd.Parameters.Clear();
+            myCmd.Parameters.Add(Database.Parameter(myProv, "ItemId", currObj.Id));
+            myCmd.ExecuteNonQuery();
+
+
         }
 
         private class SectionPredicate
@@ -1256,8 +1267,9 @@ namespace PigeonCms
             return res;
         }
 
-
-        public List<T> getRelatedByKey(int itemId)
+		//TOCHECK-LOLLO
+        //ottimizzare qry (magari includere in ItemsFilter) - includere prop Related (List<T>) in Item; renamed
+        public List<T> GetRelatedItems(int itemId)
         {
             DbProviderFactory myProv = Database.ProviderFactory;
             DbConnection myConn = myProv.CreateConnection();
@@ -1272,7 +1284,7 @@ namespace PigeonCms
 
             try {
                 sSql = "SELECT RelatedId "
-                  + " FROM #__items_Related r "
+                  + " FROM #__itemsRelated r "
                   + " WHERE ItemId = @ItemId ";
 
                 myCmd.CommandText = Database.ParseSql(sSql);
@@ -1295,18 +1307,18 @@ namespace PigeonCms
                 myConn.Dispose();
             }
 
+            //TODO add in filter List<int>
             var relatedItemList = new List<T>();
-
             foreach(var Id in relatedIdList) {
-
                 relatedItemList.Add(this.GetByKey(Id));
-
             }
 
             return relatedItemList;
         }
 
-        public void deleteRelatedByKey(int itemId)
+		//TOCHECK-LOLLO - edit picce (in SetRelated) TODO: check if exists
+        //TODO check if exists
+        public void SetRelated(int itemId, int RelatedId)
         {
             DbProviderFactory myProv = Database.ProviderFactory;
             DbConnection myConn = myProv.CreateConnection();
@@ -1319,37 +1331,7 @@ namespace PigeonCms
             try
             {
                 string sSql = "";
-                sSql = "DELETE"
-                  + " FROM #__items_Related "
-                  + " WHERE ItemId = @ItemId "
-                  + " OR RelatedId = @itemId ";
-
-                myCmd.CommandText = Database.ParseSql(sSql);
-                myCmd.Parameters.Clear();
-                myCmd.Parameters.Add(Database.Parameter(myProv, "ItemId", itemId));
-                myCmd.ExecuteNonQuery();
-            }
-            finally
-            {
-                myConn.Dispose();
-            }
-
-        }
-
-        public void setRelated(int itemId, int RelatedId)
-        {
-            DbProviderFactory myProv = Database.ProviderFactory;
-            DbConnection myConn = myProv.CreateConnection();
-            DbCommand myCmd = myConn.CreateCommand();
-
-            myConn.ConnectionString = Database.ConnString;
-            myConn.Open();
-            myCmd.Connection = myConn;
-
-            try
-            {
-                string sSql = "";
-                sSql = "INSERT INTO #__items_Related (ItemId, RelatedId) "
+                sSql = "INSERT INTO #__itemsRelated (ItemId, RelatedId) "
                       + " VALUES(@ItemId, @RelatedId) ";
                 myCmd.CommandText = Database.ParseSql(sSql);
                 myCmd.Parameters.Clear();
@@ -1364,8 +1346,9 @@ namespace PigeonCms
             }
             
         }
-
-        public void deleteRelated(int itemId, int relatedId)
+        
+        //TOCHECK-LOLLO - edit picce (in DeleteRelated) TODO: check if exists
+        public void DeleteRelated(int itemId, int relatedId)
         {
             DbProviderFactory myProv = Database.ProviderFactory;
             DbConnection myConn = myProv.CreateConnection();
@@ -1378,7 +1361,7 @@ namespace PigeonCms
             try
             {
                 string sSql = "";
-                sSql = "DELETE FROM #__items_Related "
+                sSql = "DELETE FROM #__itemsRelated "
                       + " WHERE ItemId=@ItemId AND RelatedId=@RelatedId ";
                 myCmd.CommandText = Database.ParseSql(sSql);
                 myCmd.Parameters.Clear();
@@ -1394,5 +1377,4 @@ namespace PigeonCms
         }
              
     }
-
 }

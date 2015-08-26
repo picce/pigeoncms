@@ -106,16 +106,21 @@ namespace PigeonCms
         {
             string extra = "";
             string editorTheme = "";
-            string editorCss = control.ResolveUrl("~/Css/common.css");
+            string contentCss = "";
+            string editorCss = ""; //control.ResolveUrl("~/Css/common.css");
             string initEditorText = "";
             var cssList = new DirectoryInfo(
                 HttpContext.Current.Server.MapPath("~/App_Themes/" + PigeonCms.Config.CurrentTheme)).GetFiles("*.css");
             foreach (var file in cssList)
             {
-                editorCss += ","
-                    + control.ResolveUrl(
-                    "~/App_Themes/" + PigeonCms.Config.CurrentTheme + "/" + file.Name);
+                editorCss += control.ResolveUrl(
+                    "~/App_Themes/" + PigeonCms.Config.CurrentTheme + "/" + file.Name) + ",";
             }
+            if (editorCss.EndsWith(","))
+                editorCss = editorCss.Substring(0, editorCss.Length - 1);
+            if (!string.IsNullOrEmpty(editorCss))
+                contentCss = "content_css: '" + editorCss + @"', ";
+
 
             switch (config.EditorType)
             {
@@ -153,39 +158,44 @@ namespace PigeonCms
                     stylesheets += $(this).attr('href') + ',';
                 });
                 function initEditor() {
-                    /*tinyMCE.init({
-                        mode: 'textareas',
-                        theme: '" + editorTheme + @"',
-                        relative_urls: false, 
-                        content_css: '" + editorCss + @"', 
-                        "+ extra + @"
-                        plugins: 'safari,pagebreak,style,layer,table,save,advhr,advimage,advlink,emotions,iespell,insertdatetime,preview,media,searchreplace,print,contextmenu,paste,directionality,fullscreen,noneditable,visualchars,nonbreaking,xhtmlxtras,template',
-                        theme_advanced_buttons1: 'bold,italic,underline,strikethrough,|,justifyleft,justifycenter,justifyright,justifyfull,|,styleselect,formatselect',
-                        theme_advanced_buttons2: 'search,replace,|,bullist,numlist,|,outdent,indent,|,undo,redo,|,link,unlink,anchor,image,cleanup,help,code',
-                        theme_advanced_buttons3: 'hr,removeformat,visualaid,|,sub,sup,|,charmap,|,fullscreen,|,template',
-                        theme_advanced_toolbar_location: 'top',
-                        theme_advanced_toolbar_align: 'left',
-                        theme_advanced_statusbar_location: 'bottom',
-                        theme_advanced_resizing: true,
-                        extended_valid_elements: 'iframe[class|src|frameborder=0|alt|title|width|height|align|name]'
-                    });*/
+                    tinymce.remove('textarea');
                     tinymce.init({
                         selector: 'textarea',
                         plugins: [
-                                 'advlist autolink link image lists charmap print preview hr anchor pagebreak spellchecker',
+                                 'advlist autolink link image lists charmap print preview hr anchor pagebreak ',
                                  'searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking',
                                  'save table contextmenu directionality emoticons template paste textcolor'
-                           ],
-                        image_advtab: true
+                           ],/*plugins-removed: spellchecker*/
+                        image_advtab: true,
+                        content_css: '" + editorCss + @"', 
+						extended_valid_elements: 'iframe[class|src|frameborder=0|alt|title|width|height|align|name]'/*picce 20150811*/
                     });
                 }
                 ";
+
+                //per version 3.x
+                /*tinyMCE.init({
+                    mode: 'textareas',
+                    theme: '" + editorTheme + @"',
+                    relative_urls: false, 
+                    "+ contentCss + @"
+                    "+ extra + @"
+                    plugins: 'safari,pagebreak,style,layer,table,save,advhr,advimage,advlink,emotions,iespell,insertdatetime,preview,media,searchreplace,print,contextmenu,paste,directionality,fullscreen,noneditable,visualchars,nonbreaking,xhtmlxtras,template',
+                    theme_advanced_buttons1: 'bold,italic,underline,strikethrough,|,justifyleft,justifycenter,justifyright,justifyfull,|,styleselect,formatselect',
+                    theme_advanced_buttons2: 'search,replace,|,bullist,numlist,|,outdent,indent,|,undo,redo,|,link,unlink,anchor,image,cleanup,help,code',
+                    theme_advanced_buttons3: 'hr,removeformat,visualaid,|,sub,sup,|,charmap,|,fullscreen,|,template',
+                    theme_advanced_toolbar_location: 'top',
+                    theme_advanced_toolbar_align: 'left',
+                    theme_advanced_statusbar_location: 'bottom',
+                    theme_advanced_resizing: true,
+                    extended_valid_elements: 'iframe[class|src|frameborder=0|alt|title|width|height|align|name]'
+                });*/
             }
 
 
             //tinyMce editor
-            //Utility.Script.RegisterClientScriptInclude(control, "tinymce", control.ResolveUrl("~/plugins/tiny_mce/tiny_mce.js"));
-            Utility.Script.RegisterClientScriptInclude(control, "tinymce", control.ResolveUrl("~/plugins/tiny_mce_new/tinymce.min.js"));
+            Utility.Script.RegisterClientScriptInclude(control, "tinymce", 
+                control.ResolveUrl(Config.VendorPath + "tiny_mce/tinymce.min.js"));
 
             Utility.Script.RegisterClientScriptBlock(control, "initEditorText", initEditorText);
 
@@ -217,7 +227,11 @@ namespace PigeonCms
             Utility.Script.RegisterClientScriptBlock(control, "insertFile()", @"
             function insertFile() {
                 $('<a href="""+ config.FilesUploadUrl + @"""></a>').fancybox({
-                    'width': '80%',                    'height': '80%',                    'type': 'iframe',                    'hideOnContentClick': false,                    onClosed: function () { }
+                    'width': '80%',
+                    'height': '80%',
+                    'type': 'iframe',
+                    'hideOnContentClick': false,
+                    onClosed: function () { }
                 }).click();
             }
             ");
@@ -231,7 +245,7 @@ namespace PigeonCms
             ");
 
             Utility.Script.RegisterStartupScript(upd1, "initEditor", @"
-            try{ setTimeout(function() { initEditor(); }, 1000); }
+            try{ setTimeout(function() { initEditor(); }, 200); }
             catch(err) {}
             ");
             control.Page.ClientScript.RegisterOnSubmitStatement(control.GetType(), "save", "tinyMCE.triggerSave();");            

@@ -159,10 +159,11 @@ namespace PigeonCms
                 Utility.Script.RegisterStartupScript(this, "PageMethods",
                     "if(typeof(PageMethods)!='undefined'){PageMethods.set_path('" + ResolveUrl("~/default.aspx") + "');}");
 
-                var css1 = new Literal();
-                css1.Text = "<link href='" + ResolveUrl("~") + "Js/fancybox/fancy.css' rel='stylesheet' type='text/css' media='screen' />"
-                    + "<link href='" + ResolveUrl("~") + "Css/common.css' rel='stylesheet' type='text/css' media='screen' />";
-                Page.Header.Controls.Add(css1);
+                //20150729 pgn-v3
+                //var css1 = new Literal();
+                //css1.Text = "<link href='" + ResolveUrl("~") + "Js/fancybox/fancy.css' rel='stylesheet' type='text/css' media='screen' />";
+                //css1.Text += "<link href='" + ResolveUrl("~") + "Css/common.css' rel='stylesheet' type='text/css' media='screen' />";
+                //Page.Header.Controls.Add(css1);
             }
         }
     }

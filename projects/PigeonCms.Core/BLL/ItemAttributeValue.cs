@@ -150,7 +150,7 @@ namespace PigeonCms
             }
 
             // Return true if the fields match:
-            return (this.Referred.Equals(p.Referred)) && (this.AttributeId.Equals(p.AttributeId)) && (this.AttributeValueId.Equals(p.AttributeValueId));
+            return (this.ItemId.Equals(p.ItemId)) && (this.AttributeId.Equals(p.AttributeId)) && (this.AttributeValueId.Equals(p.AttributeValueId));
         }
 
         public override int GetHashCode()

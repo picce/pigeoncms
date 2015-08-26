@@ -691,6 +691,10 @@ namespace PigeonCms
     {
     }
 
+    public interface ITableFilter
+    {
+    }
+
     public interface ITableWithOrdering: ITable
     {
         int Ordering { get; set; }
@@ -724,7 +728,7 @@ namespace PigeonCms
         //int DeleteById(int recordId);
         //int Update(ITableObject theObj);
         //ITableObject Insert(ITableObject newObj);
-        //List<ITableObject> GetByFilter();
+        //List<ITable> GetByFilter(F filter, string sort);
         //ITableObject GetById();
     }
 

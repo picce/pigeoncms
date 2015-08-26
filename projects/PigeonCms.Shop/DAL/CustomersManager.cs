@@ -76,7 +76,8 @@ namespace PigeonCms.Shop
                     + " t.DateInserted, t.UserInserted, t.DateUpdated, t.UserUpdated, "
                     + " t.CompanyName, t.FirstName, t.SecondName, t.Ssn, t.Vat, t.Address, " 
                     + " t.City, t.State, t.ZipCode, t.Nation, "
-                    + " t.Tel1, t.Mobile1, t.Website1, t.Email, t.Enabled, t.Notes "
+                    + " t.Tel1, t.Mobile1, t.Website1, t.Email, t.Enabled, t.Notes, "
+                    + " t.JsData, t.Custom1, t.Custom2, t.Custom3 "
                     + " FROM ["+ this.TableName +"] t "
                     + " WHERE t.Id > 0 ";
                 if (filter.Id > 0 || filter.Id == -1)
@@ -257,7 +258,11 @@ namespace PigeonCms.Shop
                 + " Website1=@Website1, "
                 + " Email=@Email, "
                 + " Enabled=@Enabled, "
-                + " Notes=@Notes "
+                + " Notes=@Notes, "
+                + " JsData=@JsData, "
+                + " Custom1=@Custom1, "
+                + " Custom2=@Custom2, "
+                + " Custom3=@Custom3 "
                 + " WHERE Id=@Id ";
                 if (this.checkUserContext)
                 {
@@ -283,6 +288,10 @@ namespace PigeonCms.Shop
                 myCmd.Parameters.Add(Database.Parameter(myProv, "Email", theObj.Email));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "Enabled", theObj.Enabled));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "Notes", theObj.Notes));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "JsData", theObj.JsData));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "Custom1", theObj.Custom1));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "Custom2", theObj.Custom2));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "Custom3", theObj.Custom3));
 
                 myCmd.CommandText = Database.ParseSql(sSql);
                 result = myCmd.ExecuteNonQuery();
@@ -344,12 +353,14 @@ namespace PigeonCms.Shop
                     + " DateInserted, UserInserted, DateUpdated, UserUpdated, "
                     + " CompanyName, FirstName, SecondName, Ssn, Vat, Address, "
                     + " City, State, ZipCode, Nation, "
-                    + " Tel1, Mobile1, Website1, Email, Enabled, Notes) "
+                    + " Tel1, Mobile1, Website1, Email, Enabled, Notes, "
+                    + " JsData, Custom1, Custom2, Custom3) "
                     + " VALUES(@Id, @OwnerUser, "
                     + " @DateInserted, @UserInserted, @DateUpdated, @UserUpdated, "
                     + " @CompanyName, @FirstName, @SecondName, @Ssn, @Vat, @Address, "
                     + " @City, @State, @ZipCode, @Nation, "
-                    + " @Tel1, @Mobile1, @Website1, @Email, @Enabled, @Notes) ";
+                    + " @Tel1, @Mobile1, @Website1, @Email, @Enabled, @Notes, "
+                    + " @JsData, @Custom1, @Custom2, @Custom3) ";
                 myCmd.CommandText = Database.ParseSql(sSql);
 
                 myCmd.Parameters.Add(Database.Parameter(myProv, "Id", result.Id));
@@ -374,6 +385,10 @@ namespace PigeonCms.Shop
                 myCmd.Parameters.Add(Database.Parameter(myProv, "Email", result.Email));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "Enabled", result.Enabled));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "Notes", result.Notes));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "JsData", result.JsData));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "Custom1", result.Custom1));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "Custom2", result.Custom2));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "Custom3", result.Custom3));
 
                 myCmd.ExecuteNonQuery();
             }
@@ -479,6 +494,14 @@ namespace PigeonCms.Shop
                 result.Enabled = (bool)myRd["Enabled"];
             if (!Convert.IsDBNull(myRd["Notes"]))
                 result.Notes = (string)myRd["Notes"];
+            if (!Convert.IsDBNull(myRd["JsData"]))
+                result.JsData = (string)myRd["JsData"];
+            if (!Convert.IsDBNull(myRd["Custom1"]))
+                result.Custom1 = (string)myRd["Custom1"];
+            if (!Convert.IsDBNull(myRd["Custom2"]))
+                result.Custom2 = (string)myRd["Custom2"];
+            if (!Convert.IsDBNull(myRd["Custom3"]))
+                result.Custom3 = (string)myRd["Custom3"];
         }
     }
 }

@@ -15,7 +15,7 @@ using PigeonCms;
 using System.Xml;
 using System.Reflection;
 using System.Web.Compilation;
-using FredCK.FCKeditorV2;
+//using FredCK.FCKeditorV2;
 
 
 namespace PigeonCms
@@ -46,6 +46,7 @@ namespace PigeonCms
             {
                 case FormFieldTypeEnum.Text:
                 case FormFieldTypeEnum.Numeric:
+                case FormFieldTypeEnum.Html://20150805 - TOCHECK
                     result = (Control)getTextControl(field, currentValue, defaultCssClass);
                     break;
                 case FormFieldTypeEnum.List:
@@ -76,9 +77,9 @@ namespace PigeonCms
                 case FormFieldTypeEnum.Error:
                     result = (Control)getHiddenControl(field, currentValue);    //todo
                     break;
-                case FormFieldTypeEnum.Html:
-                    result = (Control)getHtmlControl(field, currentValue, defaultCssClass);
-                    break;
+                //case FormFieldTypeEnum.Html:
+                //    result = (Control)getHtmlControl(field, currentValue, defaultCssClass);
+                //    break;
                 default:
                     break;
             }
@@ -414,10 +415,11 @@ namespace PigeonCms
 
                 case FormFieldTypeEnum.Html:
                 {
-                    var t1 = new FCKeditor();
-                    t1 = Utility.FindControlRecursive<FCKeditor>(container, t1.GetType().Name + currField.Name);
+                    //var t1 = new FCKeditor();
+                    var t1 = new TextBox();
+                    t1 = Utility.FindControlRecursive<TextBox /*FCKeditor*/>(container, t1.GetType().Name + currField.Name);
                     if (t1 != null)
-                        res = t1.Value;
+                        res = t1.Text;
                 }
                 break;
 
@@ -485,35 +487,35 @@ namespace PigeonCms
             return ctrl;
         }
 
-        private static FCKeditor getHtmlControl(FormField param, string currentValue)
-        {
-            return getHtmlControl(param, currentValue, "");
-        }
+        //private static FCKeditor getHtmlControl(FormField param, string currentValue)
+        //{
+        //    return getHtmlControl(param, currentValue, "");
+        //}
 
-        private static FCKeditor getHtmlControl(FormField param, string currentValue, string defaultCssClass)
-        {
-            FCKeditor ctrl = new FCKeditor();
-            ctrl.ID = ctrl.GetType().Name + param.Name;
-            ctrl.ToolbarStartExpanded = false;
-            ctrl.ToolbarSet = "Basic";
+        //private static FCKeditor getHtmlControl(FormField param, string currentValue, string defaultCssClass)
+        //{
+        //    FCKeditor ctrl = new FCKeditor();
+        //    ctrl.ID = ctrl.GetType().Name + param.Name;
+        //    ctrl.ToolbarStartExpanded = false;
+        //    ctrl.ToolbarSet = "Basic";
 
-            //if (!string.IsNullOrEmpty(param.CssClass))
-            //    ctrl.EditorAreaCSS = param.CssClass;
-            //else
-            //    ctrl.EditorAreaCSS = defaultCssClass;//"adminMediumText";
+        //    //if (!string.IsNullOrEmpty(param.CssClass))
+        //    //    ctrl.EditorAreaCSS = param.CssClass;
+        //    //else
+        //    //    ctrl.EditorAreaCSS = defaultCssClass;//"adminMediumText";
 
-            if (string.IsNullOrEmpty(currentValue))
-                ctrl.Value = param.DefaultValue;
-            else
-                ctrl.Value = currentValue;
+        //    if (string.IsNullOrEmpty(currentValue))
+        //        ctrl.Value = param.DefaultValue;
+        //    else
+        //        ctrl.Value = currentValue;
 
-            if (param.Rows > 0)
-                ctrl.Height = new Unit(100 * param.Rows);
-            if (param.Cols > 0)
-                ctrl.Width = new Unit(10 * param.Cols);
+        //    if (param.Rows > 0)
+        //        ctrl.Height = new Unit(100 * param.Rows);
+        //    if (param.Cols > 0)
+        //        ctrl.Width = new Unit(10 * param.Cols);
 
-            return ctrl;
-        }
+        //    return ctrl;
+        //}
 
         private static DropDownList getComboControl(FormField param, string currentValue)
         {
