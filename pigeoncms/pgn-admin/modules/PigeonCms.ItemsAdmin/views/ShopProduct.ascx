@@ -125,6 +125,10 @@ function onFailure(result) { }
                                 <asp:DropDownList ID="DropCategoriesFilter" runat="server" AutoPostBack="true" CssClass="form-control" 
                                 OnSelectedIndexChanged="DropCategoriesFilter_SelectedIndexChanged"></asp:DropDownList>
                             </div>
+                            <div class="form-group col-lg-3 col-md-6">
+                                <asp:DropDownList ID="DropProductTypeFilter" runat="server" AutoPostBack="true" CssClass="form-control" 
+                                OnSelectedIndexChanged="DropProductTypeFilter_SelectedIndexChanged"></asp:DropDownList>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -139,10 +143,11 @@ function onFailure(result) { }
                     <asp:GridView ID="Grid1" runat="server" AllowPaging="True" AllowSorting="true" Width="100%" AutoGenerateColumns="False"
                         DataSourceID="ObjDs1" DataKeyNames="Id" OnRowCommand="Grid1_RowCommand" OnRowCreated="Grid1_RowCreated" OnRowDataBound="Grid1_RowDataBound">
                         <Columns>
-                            <asp:TemplateField ItemStyle-Width="10" Visible="false">
+
+                            <asp:TemplateField>
                                 <ItemTemplate>
-                                <asp:ImageButton ID="ImgSel" CommandName="Select" CommandArgument='<%#Eval("Id") %>' 
-                                runat="server" SkinID="ImgEditFile" />
+                                    <asp:LinkButton ID="LnkShowVariants" runat="server" CausesValidation="false" CommandArgument='<%#Eval("Id") %>'>
+                                    </asp:LinkButton>
                                 </ItemTemplate>
                             </asp:TemplateField>
 
@@ -172,11 +177,11 @@ function onFailure(result) { }
                                 </ItemTemplate>
                             </asp:TemplateField>
 
-<%--                            <asp:TemplateField HeaderText="Variants Compiled" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
+                            <asp:TemplateField HeaderText="Variants Compiled" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
                                 <ItemTemplate>
-                                    <asp:Literal ID="variantsCompiled" runat="server" />
+                                    <asp:Literal ID="LitVariantsCompiled" runat="server" />
                                 </ItemTemplate>
-                            </asp:TemplateField>--%>
+                            </asp:TemplateField>
 
                             <asp:BoundField DataField="Ordering"  SortExpression="Ordering" ItemStyle-HorizontalAlign="Left" />
                             <asp:TemplateField HeaderText="<%$ Resources:PublicLabels, LblOrder %>" ItemStyle-HorizontalAlign="Left" SortExpression="Ordering">
@@ -198,6 +203,16 @@ function onFailure(result) { }
                                     <asp:LinkButton ID="ImgEnabledKo" runat="server" CommandName="ImgEnabledKo" Visible="false" CommandArgument='<%#Eval("Id") %>'>
                                         <i class='fa fa-pgn_unchecked fa-fw'></i>                            
                                     </asp:LinkButton>
+                                </ItemTemplate>
+                            </asp:TemplateField>
+
+                            <asp:TemplateField HeaderText="Img">
+                                <ItemTemplate>
+                                    <asp:HyperLink ID="LnkUploadImg" runat="server">
+                                        <i class='fa fa-pgn_image fa-fw'></i>
+                                    </asp:HyperLink>
+                                    <br />
+                                    <span><asp:Literal ID="LitImgCount" runat="server" Text=""></asp:Literal></span>
                                 </ItemTemplate>
                             </asp:TemplateField>
                     

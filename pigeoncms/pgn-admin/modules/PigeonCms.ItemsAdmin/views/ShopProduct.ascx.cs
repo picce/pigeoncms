@@ -221,6 +221,7 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
             }
             loadDropsItemTypes();
             loadDropSets();
+            loadDropProductType();
         }
         else
         {
@@ -310,6 +311,12 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         GridViewSimple.DataBind();
     }
 
+
+    protected void DropProductTypeFilter_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        Grid1.DataBind();
+    }
+
     protected void BtnNew_Click(object sender, EventArgs e)
     {
         try
@@ -361,7 +368,15 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
                 break;
         }
 
-        //filter.ShowOnlyRootItems = false;
+        int threadId = 0;
+        int.TryParse(base.CurrentKey, out threadId);
+
+        if (threadId > 0)
+        {
+            filter.ShowOnlyRootItems = false;
+            filter.ThreadId = threadId;
+        }
+            
 
         int secId = -1;
         int.TryParse(DropSectionsFilter.SelectedValue, out secId);
@@ -369,11 +384,17 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         int catId = -1;
         int.TryParse(DropCategoriesFilter.SelectedValue, out catId);
 
+        int prodType = -1;
+        int.TryParse(DropProductTypeFilter.SelectedValue, out prodType);
+
         if (base.SectionId > 0)
             filter.SectionId = base.SectionId;
         else
             filter.SectionId = secId;
         filter.CategoryId = catId;
+
+        if (prodType > 0)
+            filter.ProductType = prodType;
 
         e.InputParameters["filter"] = filter;
         e.InputParameters["sort"] = "";
@@ -401,13 +422,12 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
 
         filter.ShowOnlyRootItems = false;
 
-        
         var main = pman.GetByKey(base.CurrentId);
         int setDrop = 0;
         int.TryParse(DropSets.SelectedValue, out setDrop);
         int setId = (main.AttributeSet > 0) ? main.AttributeSet : setDrop;
 
-        filter.ProductType = 1;
+        filter.ProductType = (int)ProductItem.ProductTypeEnum.Simple;
         filter.AttributeSet = setId;
 
         e.InputParameters["filter"] = filter;
@@ -449,6 +469,16 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
                 editRow(int.Parse(e.CommandArgument.ToString()));
             }
             catch (Exception e1) { LblErr.Text = RenderError(e1.Message); }
+        }
+        if (e.CommandName == "ShowThreads")
+        {
+            showThreads(e.CommandArgument.ToString(), true);
+            Grid1.DataBind();
+        }
+        if (e.CommandName == "HideThreads")
+        {
+            showThreads(e.CommandArgument.ToString(), false);
+            Grid1.DataBind();
         }
         if (e.CommandName == "DeleteRow")
         {
@@ -503,13 +533,34 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
 
             LinkButton LnkTitle = (LinkButton)e.Row.FindControl("LnkTitle");
             LnkTitle.Text = "<i class='fa fa-pgn_edit fa-fw'></i>";
-            if (!item.IsThreadRoot)
-                LnkTitle.ForeColor = System.Drawing.Color.Brown;
             if (item.IsDraft)
-                LnkTitle.ForeColor = System.Drawing.Color.Red;
+                LnkTitle.ForeColor = System.Drawing.Color.Gray;
             LnkTitle.Text += Utility.Html.GetTextPreview(item.Title, 30, "");
             if (string.IsNullOrEmpty(item.Title))
                 LnkTitle.Text += Utility.GetLabel("NO_VALUE", "<no value>");
+
+            int threadId = 0;
+            int.TryParse(base.CurrentKey, out threadId);
+
+            LinkButton LnkShowVariants = (LinkButton)e.Row.FindControl("LnkShowVariants");
+            if (!item.IsDraft && item.ProductType == ProductItem.ProductTypeEnum.Configurable && item.IsThreadRoot)
+            {
+                if (threadId > 0)
+                {
+                    LnkShowVariants.Text = "<i class='fa fa-minus fa-fw'></i>";
+                    LnkShowVariants.CommandName = "HideThreads";
+                }
+                else
+                {
+                    LnkShowVariants.Text = "<i class='fa fa-plus fa-fw'></i>";
+                    LnkShowVariants.CommandName = "ShowThreads";
+                }
+            }
+            else
+            {
+                LnkShowVariants.Visible = false;
+            }
+                
 
             Literal LitProductType = (Literal)e.Row.FindControl("LitProductType");
             LitProductType.Text = item.ProductType.ToString();
@@ -537,6 +588,28 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
                 var img1 = e.Row.FindControl("ImgEnabledKo");
                 img1.Visible = true;
             }
+
+            //images upload
+            var LnkUploadImg = (HyperLink)e.Row.FindControl("LnkUploadImg");
+            LnkUploadImg.NavigateUrl = this.ImagesUploadUrl
+                + "?type=items&id=" + item.Id.ToString();
+            if (this.IsMobileDevice == false)
+                LnkUploadImg.CssClass = "fancyRefresh";
+            var LitImgCount = (Literal)e.Row.FindControl("LitImgCount");
+            int imgCount = item.Images.Count;
+            if (imgCount > 0)
+            {
+                LitImgCount.Text = imgCount.ToString();
+                LitImgCount.Text += imgCount == 1 ? " file" : " files";
+                LitImgCount.Text += "<br />(" + Utility.GetFileHumanLength(item.ImagesSize) + ")";
+            }
+
+            Literal LitVariantsCompiled = e.Row.FindControl("LitVariantsCompiled") as Literal;
+            var pfilter = new ProductItemFilter();
+            pfilter.ThreadId = item.Id;
+            pfilter.ShowOnlyRootItems = false;
+            var variants = pman.GetByFilter(pfilter, "");
+            LitVariantsCompiled.Text = variants.Count + " variants compiled";
 
         }
 
@@ -900,10 +973,10 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         // Attribute Set
         int attributeSetId = 0;
         int.TryParse(DropSets.SelectedValue, out attributeSetId);
-        if (attributeSetId > 0)
-        {
+        //if (attributeSetId > 0)
+        //{
             obj.AttributeSet = attributeSetId;
-        }
+        //}
         // Draft
         obj.IsDraft = false;
         // SKU
@@ -1193,14 +1266,17 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         this.ValidFrom = obj.ValidFrom;
         this.ValidTo = obj.ValidTo;
 
-        PlhConfigurableProductPane.Visible = false;
-        plhConfigurableProductTab.Visible = false;
         int itemType = 0;
         int.TryParse(DropNew.SelectedValue, out itemType);
         if ((ProductItem.ProductTypeEnum)itemType == ProductItem.ProductTypeEnum.Configurable || obj.ProductType == ProductItem.ProductTypeEnum.Configurable)
         {
             PlhConfigurableProductPane.Visible = true;
             plhConfigurableProductTab.Visible = true;
+        }
+        else
+        {
+            PlhConfigurableProductPane.Visible = false;
+            plhConfigurableProductTab.Visible = false;
         }
 
     }
@@ -1334,6 +1410,13 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         }
     }
 
+    private void loadDropProductType() {
+        DropProductTypeFilter.Items.Clear();
+        DropProductTypeFilter.Items.Add(new ListItem(GetLabel("LblProductType", "Product type"), "0"));
+        DropProductTypeFilter.Items.Add(new ListItem(GetLabel("LblSimpleProduct", "Simple Product"), ((int)ProductItem.ProductTypeEnum.Simple).ToString()));
+        DropProductTypeFilter.Items.Add(new ListItem(GetLabel("LblConfigurableProduct", "Configurable Product"), ((int)ProductItem.ProductTypeEnum.Configurable).ToString()));
+    }
+
     private void loadDropsItemTypes()
     {
 
@@ -1390,15 +1473,16 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
 
     private void hideAttributesDropDown(int setId, bool isQuick = false)
     {
+        if(setId > 0) {
+            // QUI nascondere le dropdown in più
+            var set = sman.GetByKey(setId);
 
-        // QUI nascondere le dropdown in più
-        var set = sman.GetByKey(setId);
-
-        attributes.Clear();
-        foreach (var attributeId in set.AttributesList)
-        {
-            var afilter = new AttributeFilter();
-            attributes.Add(aman.GetByKey(attributeId));
+            attributes.Clear();
+            foreach (var attributeId in set.AttributesList)
+            {
+                var afilter = new AttributeFilter();
+                attributes.Add(aman.GetByKey(attributeId));
+            }
         }
 
         string quick = (isQuick) ? "Quick" : "";
@@ -1465,6 +1549,14 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
             LblErr.Text = RenderError(Utility.GetLabel("RECORD_ERR_MSG") + "<br />" + e1.ToString());
         }
         finally { }
+    }
+
+    protected void showThreads(string recordId, bool show)
+    {
+        if (show)
+            base.CurrentKey = recordId;
+        else
+            base.CurrentKey = "";
     }
 
     Boolean checkAddNewFilters()
