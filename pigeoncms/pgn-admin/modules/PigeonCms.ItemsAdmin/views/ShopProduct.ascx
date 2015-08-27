@@ -426,7 +426,7 @@ function onFailure(result) { }
                         <div class="tab-pane fade" id="tab-related">
                             
                             <div class="row col-lg-12">
-                                 
+                                <%=base.GetLabel("LblAssociateRelated", "Associa Correlati", null, true) %>
                                 <div class="panel panel-default">
                                     <div class="table-responsive">
 
@@ -489,10 +489,13 @@ function onFailure(result) { }
                                             </asp:DropDownList>
                                         </div>
 
-                                        <div class="form-group col-lg-12">
+                                        <div class="col-lg-12">
                                             <%=base.GetLabel("LblWeight", "Weight", QuickTxtWeight, true)%>
                                             <asp:RequiredFieldValidator ID="ReqQuickWeight" ControlToValidate="QuickTxtWeight" runat="server" Text="*" validationgroup="QuickProduct"></asp:RequiredFieldValidator>
-                                            <asp:TextBox ID="QuickTxtWeight" runat="server" CssClass="form-control"></asp:TextBox>
+                                            <div class="form-group input-group">
+                                                <asp:TextBox ID="QuickTxtWeight" runat="server" CssClass="form-control"></asp:TextBox>
+                                                <span class='input-group-addon'><%=ShopSettings.ItemWeightUnit %></span>
+                                            </div>
                                         </div>
 
                                         <div class="form-group col-lg-12">
@@ -500,15 +503,21 @@ function onFailure(result) { }
                                             <asp:Panel runat="server" ID="QuickAttributes"></asp:Panel>
                                         </div>
 
-                                        <div class="form-group col-md-6">
+                                        <div class="col-md-6">
                                             <%=base.GetLabel("LblRegularPrice", "Regular Price", QuickTxtRegularPrice, true)%>
                                             <asp:RequiredFieldValidator ID="ReqQuickRegPrice" ControlToValidate="QuickTxtRegularPrice" runat="server" Text="*" validationgroup="QuickProduct"></asp:RequiredFieldValidator>
-                                            <asp:TextBox ID="QuickTxtRegularPrice" runat="server" CssClass="form-control"></asp:TextBox>
+                                            <div class="form-group input-group">
+                                                <asp:TextBox ID="QuickTxtRegularPrice" runat="server" CssClass="form-control"></asp:TextBox>
+                                                <span class='input-group-addon'><%=ShopSettings.ShopCurrency %></span>
+                                            </div>
                                         </div>
 
-                                        <div class="form-group col-md-6">
+                                        <div class="col-md-6">
                                             <%=base.GetLabel("LblSalePrice", "Sale Price", QuickTxtSalePrice, true)%>
-                                            <asp:TextBox ID="QuickTxtSalePrice" runat="server" CssClass="form-control"></asp:TextBox>
+                                            <div class="form-group input-group">
+                                                <asp:TextBox ID="QuickTxtSalePrice" runat="server" CssClass="form-control"></asp:TextBox>
+                                                <span class='input-group-addon'><%=ShopSettings.ShopCurrency %></span>
+                                            </div>
                                         </div>
 
                                         <div class="form-group col-md-6">

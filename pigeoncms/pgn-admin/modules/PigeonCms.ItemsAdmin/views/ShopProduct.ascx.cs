@@ -161,7 +161,9 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
                 attributes = aman.GetByFilter(afilter, "");
             }
             PanelAttributes.Controls.Add(generateAttributesDropDown());
+            PanelAttributes.Controls.Add(generateAttributesTextBox());
             QuickAttributes.Controls.Add(generateAttributesDropDown(true));
+            QuickAttributes.Controls.Add(generateAttributesTextBox(true));
         }
 
         if (this.BaseModule.DirectEditMode)
@@ -306,8 +308,8 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         int id = 0;
         int.TryParse(strIdSet, out id);
 
-        hideAttributesDropDown(id);
-        hideAttributesDropDown(id, true);
+        hideAttributes(id);
+        hideAttributes(id, true);
         GridViewSimple.DataBind();
     }
 
@@ -543,7 +545,7 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
             int.TryParse(base.CurrentKey, out threadId);
 
             LinkButton LnkShowVariants = (LinkButton)e.Row.FindControl("LnkShowVariants");
-            if (!item.IsDraft && item.ProductType == ProductItem.ProductTypeEnum.Configurable && item.IsThreadRoot)
+            if (!item.IsDraft && item.ProductType == ProductItem.ProductTypeEnum.Configurable && item.IsThreadRoot && (bool)item.HasThreads)
             {
                 if (threadId > 0)
                 {
@@ -605,11 +607,12 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
             }
 
             Literal LitVariantsCompiled = e.Row.FindControl("LitVariantsCompiled") as Literal;
-            var pfilter = new ProductItemFilter();
-            pfilter.ThreadId = item.Id;
-            pfilter.ShowOnlyRootItems = false;
-            var variants = pman.GetByFilter(pfilter, "");
-            LitVariantsCompiled.Text = variants.Count + " variants compiled";
+            LitVariantsCompiled.Text = item.ThreadItems.Count + " variants compiled";
+
+            if (!item.IsThreadRoot)
+            {
+                LitVariantsCompiled.Visible = false;
+            }
 
         }
 
@@ -646,17 +649,17 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
             var item = new ProductItem();
             item = (ProductItem)e.Row.DataItem;
 
-            //if (item.Id == base.CurrentId)
-            //{
-            //    e.Row.Visible = false;
-            //}
-
             if (item.IsThreadRoot)
                 lastRowDataboundRoot = e.Row;
             else
             {
                 if (lastRowDataboundRoot != null)
                     e.Row.RowState = lastRowDataboundRoot.RowState; //keeps same style of thread root
+            }
+
+            if (item.Id == base.CurrentId)
+            {
+                e.Row.Visible = false;
             }
 
             var pman = new ProductItemsManager();
@@ -776,17 +779,20 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
 
             foreach (var attribute in attributes)
             {
-                DropDownList d1 = new DropDownList();
-                d1 = (DropDownList)PanelAttributes.FindControl("DropAttributeValuesQuick" + attribute.Name);
-                int attributeValueId = 0;
-                int.TryParse(d1.SelectedValue, out attributeValueId);
-                if (attributeValueId > 0)
+                if (!attribute.AllowCustomValue)
                 {
-                    presentAttributes++;
-                    var exist = values.Exists(x => x.AttributeId == attribute.Id && x.AttributeValueId == attributeValueId);
-                    if (exist)
+                    DropDownList d1 = new DropDownList();
+                    d1 = (DropDownList)PanelAttributes.FindControl("DropAttributeValuesQuick" + attribute.Name);
+                    int attributeValueId = 0;
+                    int.TryParse(d1.SelectedValue, out attributeValueId);
+                    if (attributeValueId > 0)
                     {
-                        foundIn++;
+                        presentAttributes++;
+                        var exist = values.Exists(x => x.AttributeId == attribute.Id && x.AttributeValueId == attributeValueId);
+                        if (exist)
+                        {
+                            foundIn++;
+                        }
                     }
                 }
             }
@@ -919,9 +925,18 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
 
         foreach (var attribute in attributes)
         {
-            DropDownList d1 = new DropDownList();
-            d1 = (DropDownList)QuickAttributes.FindControl("DropAttributeValues" + attribute.Name);
-            d1.SelectedValue = "0";
+            if (!attribute.AllowCustomValue)
+            {
+                DropDownList d1 = new DropDownList();
+                d1 = (DropDownList)PanelAttributes.FindControl("DropAttributeValues" + attribute.Name);
+                d1.SelectedValue = "0";
+            }
+            else
+            {
+                TextBox t1 = new TextBox();
+                t1 = (TextBox)PanelAttributes.FindControl("TxtCustomField" + attribute.Name);
+                t1.Text = "";
+            }
         }
 
         PermissionsControl1.ClearForm();
@@ -941,9 +956,19 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
            
         foreach (var attribute in attributes)
         {
-            DropDownList d1 = new DropDownList();
-            d1 = (DropDownList)QuickAttributes.FindControl("DropAttributeValuesQuick" + attribute.Name);
-            d1.SelectedValue = "0";
+            if (!attribute.AllowCustomValue)
+            {
+                DropDownList d1 = new DropDownList();
+                d1 = (DropDownList)QuickAttributes.FindControl("DropAttributeValuesQuick" + attribute.Name);
+                d1.SelectedValue = "0";
+            }
+            else
+            {
+                TextBox t1 = new TextBox();
+                t1 = (TextBox)PanelAttributes.FindControl("TxtCustomFieldQuick" + attribute.Name);
+                t1.Text = "";
+            }
+
         }
 
     }
@@ -1095,15 +1120,32 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
 
         foreach (var attribute in attributes)
         {
-            DropDownList d1 = new DropDownList();
-            d1 = (DropDownList)PanelAttributes.FindControl("DropAttributeValues" + attribute.Name);
-            int attributeValueId = 0;
-            int.TryParse(d1.SelectedValue, out attributeValueId);
-            var record = new ItemAttributeValue();
-            record.AttributeId = attribute.Id;
-            record.AttributeValueId = attributeValueId;
-            record.ItemId = CurrentId;
-            atts.Add(record);
+            if (!attribute.AllowCustomValue)
+            {
+                DropDownList d1 = new DropDownList();
+                d1 = (DropDownList)PanelAttributes.FindControl("DropAttributeValues" + attribute.Name);
+                int attributeValueId = 0;
+                int.TryParse(d1.SelectedValue, out attributeValueId);
+                var record = new ItemAttributeValue();
+                record.AttributeId = attribute.Id;
+                record.AttributeValueId = attributeValueId;
+                record.ItemId = CurrentId;
+                atts.Add(record);
+            }
+            else
+            {
+                TextBox t1 = new TextBox();
+                t1 = (TextBox)QuickAttributes.FindControl("TxtCustomField" + attribute.Name);
+                if (!string.IsNullOrEmpty(t1.Text))
+                {
+                    var record = new ItemAttributeValue();
+                    record.AttributeId = attribute.Id;
+                    record.AttributeValueId = 0;
+                    record.CustomValueString = t1.Text;
+                    record.ItemId = CurrentId;
+                    atts.Add(record);
+                }
+            }
         }
 
         obj.ItemParams = FormBuilder.GetParamsString(obj.ItemType.Params, ItemParams1);
@@ -1158,19 +1200,34 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         string endofname = "";
         foreach (var attribute in attributes)
         {
-            DropDownList d1 = new DropDownList();
-            d1 = (DropDownList)QuickAttributes.FindControl("DropAttributeValuesQuick" + attribute.Name);
-            int attributeValueId = 0;
-            int.TryParse(d1.SelectedValue, out attributeValueId);
-            if (attributeValueId > 0)
+            if (!attribute.AllowCustomValue)
             {
-                endofname += "-" + d1.SelectedItem.Text;
-                var record = new ItemAttributeValue();
-                record.AttributeId = attribute.Id;
-                record.AttributeValueId = attributeValueId;
-                atts.Add(record);
+                DropDownList d1 = new DropDownList();
+                d1 = (DropDownList)QuickAttributes.FindControl("DropAttributeValuesQuick" + attribute.Name);
+                int attributeValueId = 0;
+                int.TryParse(d1.SelectedValue, out attributeValueId);
+                if (attributeValueId > 0)
+                {
+                    endofname += "-" + d1.SelectedItem.Text;
+                    var record = new ItemAttributeValue();
+                    record.AttributeId = attribute.Id;
+                    record.AttributeValueId = attributeValueId;
+                    atts.Add(record);
+                }
             }
-
+            else
+            {
+                TextBox t1 = new TextBox();
+                t1 = (TextBox)QuickAttributes.FindControl("TxtCustomFieldQuick" + attribute.Name);
+                if (!string.IsNullOrEmpty(t1.Text))
+                {
+                    var record = new ItemAttributeValue();
+                    record.AttributeId = attribute.Id;
+                    record.AttributeValueId = 0;
+                    record.CustomValueString = t1.Text;
+                    atts.Add(record);
+                }
+            }
         }
 
         foreach (KeyValuePair<string, string> item in Config.CultureList)
@@ -1230,18 +1287,37 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
 
         foreach (var attribute in attributes)
         {
-            DropDownList d1 = new DropDownList();
-            ItemAttributeValue record = null; ;
-            d1 = (DropDownList)PanelAttributes.FindControl("DropAttributeValues" + attribute.Name);
+            if (!attribute.AllowCustomValue)
+            {
+                DropDownList d1 = new DropDownList();
+                ItemAttributeValue record = null;
+                d1 = (DropDownList)PanelAttributes.FindControl("DropAttributeValues" + attribute.Name);
 
-            filter.AttributeId = attribute.Id;
-            filter.ItemId = obj.Id;
-            var result = man.GetByFilter(filter, "");
+                filter.AttributeId = attribute.Id;
+                filter.ItemId = obj.Id;
+                var result = man.GetByFilter(filter, "");
 
-            if(result != null && result.Count > 0) {
-                record = result[0];
-                Utility.SetDropByValue(d1, record.AttributeValueId.ToString());
-            }   
+                if (result != null && result.Count > 0)
+                {
+                    record = result[0];
+                    Utility.SetDropByValue(d1, record.AttributeValueId.ToString());
+                }
+            }
+            else
+            {
+                TextBox t1 = new TextBox();
+                ItemAttributeValue record = null;
+                t1 = (TextBox)PanelAttributes.FindControl("TxtCustomField" + attribute.Name);
+                filter.AttributeId = attribute.Id;
+                filter.ItemId = obj.Id;
+                var result = man.GetByFilter(filter, "");
+
+                if (result != null && result.Count > 0)
+                {
+                    record = result[0];
+                    t1.Text = record.CustomValueString;
+                }
+            }
         }
 
         //product fields
@@ -1252,7 +1328,14 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         TxtQty.Text = obj.Availability.ToString();
         DropStock.SelectedValue = (obj.InStock) ? "1" : "0";
         if (obj.AttributeSet > 0)
+        {
             DropSets.SelectedValue = (obj.AttributeSet.ToString());
+            DropSets.Enabled = false;
+        }
+        else
+        {
+            DropSets.Enabled = true;
+        }
 
         ItemParams1.ClearParams();
         ItemFields1.ClearParams();
@@ -1304,6 +1387,7 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
             int defaultCategoryId = 0;
             int.TryParse(DropCategoriesFilter.SelectedValue, out defaultCategoryId);
             obj.CategoryId = defaultCategoryId;
+            obj.AttributeSet = 0;
             obj2form(obj);
             LitItemType.Text = obj.ItemTypeName;
             obj.IsDraft = true;
@@ -1317,8 +1401,8 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
 
             // QUI nascondere le dropdown in più
 
-            hideAttributesDropDown(obj.AttributeSet);
-            hideAttributesDropDown(obj.AttributeSet, true);
+            hideAttributes(obj.AttributeSet);
+            hideAttributes(obj.AttributeSet, true);
 
             obj2form(obj);
         }
@@ -1449,29 +1533,59 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         foreach (var attribute in attributes)
         {
 
-            
-            var valueFilter = new AttributeValueFilter();
-            valueFilter.AttributeId = attribute.Id;
-            var values = vman.GetByFilter(valueFilter, "");
-            string quick = (isQuick) ? "Quick" : "";
-
-            DropDownList drop = new DropDownList();
-            drop.ID = "DropAttributeValues" + quick + attribute.Name;
-            drop.CssClass = "form-control form-group";
-            drop.Items.Add(new ListItem("-- " + attribute.Name + " --", "0"));
-
-            foreach (var value in values)
+            if (!attribute.AllowCustomValue)
             {
-                drop.Items.Add(new ListItem(value.Value, value.Id.ToString()));
-            }
+                var valueFilter = new AttributeValueFilter();
+                valueFilter.AttributeId = attribute.Id;
+                var values = vman.GetByFilter(valueFilter, "");
+                string quick = (isQuick) ? "Quick" : "";
 
-            pan1.Controls.Add(drop);
+                DropDownList drop = new DropDownList();
+                drop.ID = "DropAttributeValues" + quick + attribute.Name;
+                drop.CssClass = "form-control form-group";
+                drop.Items.Add(new ListItem("-- " + attribute.Name + " --", "0"));
+
+                foreach (var value in values)
+                {
+                    drop.Items.Add(new ListItem(value.Value, value.Id.ToString()));
+                }
+                Literal lit = new Literal();
+                lit.Text = "<span><i>" + attribute.Name + "</i></span>";
+                lit.ID = "LitAttributeName" + quick + attribute.Name;
+                pan1.Controls.Add(lit);
+                pan1.Controls.Add(drop);
+            }
         }
 
         return pan1;
     }
 
-    private void hideAttributesDropDown(int setId, bool isQuick = false)
+    private Panel generateAttributesTextBox(bool isQuick = false)
+    {
+        Panel pan1 = new Panel();
+        pan1.CssClass = "form-group";
+        foreach (var attribute in attributes)
+        {
+
+            if (attribute.AllowCustomValue)
+            {
+                string quick = (isQuick) ? "Quick" : "";
+
+                TextBox txt = new TextBox();
+                txt.ID = "TxtCustomField" + quick + attribute.Name;
+                txt.CssClass = "form-control form-group";
+                Literal lit = new Literal();
+                lit.Text = "<span><i> Custom - " + attribute.Name + "</i></span>";
+                lit.ID = "LitAttributeName" + quick + attribute.Name;
+                pan1.Controls.Add(lit);
+                pan1.Controls.Add(txt);
+            }
+        }
+
+        return pan1;
+    }
+
+    private void hideAttributes(int setId, bool isQuick = false)
     {
         if(setId > 0) {
             // QUI nascondere le dropdown in più
@@ -1487,20 +1601,79 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
 
         string quick = (isQuick) ? "Quick" : "";
         DropDownList d1 = new DropDownList();
+        TextBox t1 = new TextBox();
+        Literal l1 = new Literal();
 
         var allAttributes = aman.GetByFilter(new AttributeFilter(), "");
+        var present = attributes;
         var exclude = attributes = allAttributes.Except(attributes).ToList();
 
         foreach (var attribute in exclude)
         {
-            if(!isQuick) {
-                d1 = (DropDownList)PanelAttributes.FindControl("DropAttributeValues" + attribute.Name);
-            } else {
-                d1 = (DropDownList)QuickAttributes.FindControl("DropAttributeValues" + quick + attribute.Name);
+            if (!attribute.AllowCustomValue)
+            {
+                if (!isQuick)
+                {
+                    d1 = (DropDownList)PanelAttributes.FindControl("DropAttributeValues" + attribute.Name);
+                    l1 = (Literal)PanelAttributes.FindControl("LitAttributeName" + attribute.Name);
+                }
+                else
+                {
+                    d1 = (DropDownList)QuickAttributes.FindControl("DropAttributeValues" + quick + attribute.Name);
+                    l1 = (Literal)PanelAttributes.FindControl("LitAttributeName" + quick + attribute.Name);
+                }
+                d1.Visible = false;
+                l1.Visible = false;
             }
-            d1.Visible = false;
+            else
+            {
+                if (!isQuick)
+                {
+                    t1 = (TextBox)PanelAttributes.FindControl("TxtCustomField" + attribute.Name);
+                    l1 = (Literal)PanelAttributes.FindControl("LitAttributeName" + attribute.Name);
+                }
+                else
+                {
+                    t1 = (TextBox)QuickAttributes.FindControl("TxtCustomField" + quick + attribute.Name);
+                    l1 = (Literal)PanelAttributes.FindControl("LitAttributeName" + quick + attribute.Name);
+                }
+                t1.Visible = false;
+                l1.Visible = false;
+            }
         }
-        
+        foreach (var attribute in present)
+        {
+            if (!attribute.AllowCustomValue)
+            {
+                if (!isQuick)
+                {
+                    d1 = (DropDownList)PanelAttributes.FindControl("DropAttributeValues" + attribute.Name);
+                    l1 = (Literal)PanelAttributes.FindControl("LitAttributeName" + attribute.Name);
+                }
+                else
+                {
+                    d1 = (DropDownList)QuickAttributes.FindControl("DropAttributeValues" + quick + attribute.Name);
+                    l1 = (Literal)PanelAttributes.FindControl("LitAttributeName" + quick + attribute.Name);
+                }
+                d1.Visible = true;
+                l1.Visible = true;
+            }
+            else
+            {
+                if (!isQuick)
+                {
+                    t1 = (TextBox)PanelAttributes.FindControl("TxtCustomField" + attribute.Name);
+                    l1 = (Literal)PanelAttributes.FindControl("LitAttributeName" + attribute.Name);
+                }
+                else
+                {
+                    t1 = (TextBox)QuickAttributes.FindControl("TxtCustomField" + quick + attribute.Name);
+                    l1 = (Literal)PanelAttributes.FindControl("LitAttributeName" + quick + attribute.Name);
+                }
+                t1.Visible = true;
+                l1.Visible = true;
+            }
+        }
     }
 
     private void setFlag(int recordId, bool value, string flagName)

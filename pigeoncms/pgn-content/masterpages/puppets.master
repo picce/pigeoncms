@@ -34,6 +34,9 @@
             <li>
                 <%=MenuLogout %>
             </li>
+            <li>
+                <a href="/contents/products"><%=CurrPage.GetLabel("AQ_menu", "Products", "Product items") %></a>
+            </li>
         </ul>
     </div>
 

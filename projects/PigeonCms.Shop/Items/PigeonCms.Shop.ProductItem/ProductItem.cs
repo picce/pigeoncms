@@ -120,6 +120,79 @@ namespace PigeonCms.Shop
             set { base.CustomBool2 = value; }
         }
 
+        List<ProductItem> threadItems = null;
+        public List<ProductItem> ThreadItems
+        {
+            get
+            {
+                if (threadItems == null)
+                {
+                    var man = new ProductItemsManager();
+                    var filter = new ProductItemFilter();
+                    filter.ThreadId = this.Id;
+                    filter.ShowOnlyRootItems = false;
+                    threadItems = man.GetByFilter(filter, "");
+                }
+                return threadItems;
+            }
+        }
+
+        bool? hasThreads = null;
+        public bool? HasThreads
+        {
+            get
+            {
+                if (hasThreads == null)
+                {
+                    hasThreads = (this.ThreadItems.Count > 1);
+                }
+                return hasThreads;
+            }
+        }
+
+        List<Attribute> attributes = null;
+        public List<Attribute> Attributes
+        {
+            get
+            {
+                if (attributes == null)
+                {
+                    var man = new AttributeSetsManager();
+                    var aman = new AttributesManager();
+                    var set = man.GetByKey(this.AttributeSet);
+                    foreach (int attributeId in set.AttributesList)
+                    {
+                        attributes.Add(aman.GetByKey(attributeId));
+                    }
+                }
+                return attributes;
+            }
+        }
+
+        List<AttributeValue> attributeValues = null;
+        public List<AttributeValue> AttributeValues
+        {
+            get
+            {
+                if (attributeValues == null)
+                {
+                    var man = new ItemAttributesValuesManager();
+                    var vman = new AttributeValuesManager();
+                    var items = man.GetByItemId(this.Id);
+                    attributeValues = new List<AttributeValue>();
+                    foreach (var item in items)
+                    {
+                        if (item.AttributeValueId > 0)
+                        {
+                            attributeValues.Add(vman.GetByKey(item.AttributeValueId));
+                        }
+                        
+                    }
+                }
+                return attributeValues;
+            }
+        }
+
     }
 
     [Serializable]

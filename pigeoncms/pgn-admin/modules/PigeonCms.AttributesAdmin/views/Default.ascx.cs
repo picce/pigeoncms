@@ -163,10 +163,10 @@ public partial class Controls_AttributesAdmin : PigeonCms.BaseModuleControl
                 LnkEditValues.Enabled = false;
             }
 
-            Literal LnkItemType = (Literal)e.Row.FindControl("LnkItemType");
-            LnkItemType.Text += Utility.Html.GetTextPreview(item.ItemType, 50, "");
-            if (string.IsNullOrEmpty(LnkItemType.Text))
-                LnkItemType.Text += Utility.GetLabel("NO_VALUE", "<no value>");
+            //Literal LnkItemType = (Literal)e.Row.FindControl("LnkItemType");
+            //LnkItemType.Text += Utility.Html.GetTextPreview(item.ItemType, 50, "");
+            //if (string.IsNullOrEmpty(LnkItemType.Text))
+            //    LnkItemType.Text += Utility.GetLabel("NO_VALUE", "<no value>");
 
             Literal LnkCustomValue = (Literal)e.Row.FindControl("LnkCustomValue");
             LnkCustomValue.Text += item.AllowCustomValue.ToString();
@@ -341,7 +341,7 @@ public partial class Controls_AttributesAdmin : PigeonCms.BaseModuleControl
     {
         TxtName.Text = "";
         TxtMeasureUnit.Text = "";
-        DropItemType.SelectedValue = null;
+        //DropItemType.SelectedValue = null;
         ChkCustomValue.Checked = false;
         ChkInLang.Checked = true;
         foreach (KeyValuePair<string, string> item in Config.CultureList)
@@ -358,7 +358,7 @@ public partial class Controls_AttributesAdmin : PigeonCms.BaseModuleControl
         obj.AllowCustomValue = ChkCustomValue.Checked;
         obj.Name = TxtName.Text;
         obj.AttributeType = 0;
-        obj.ItemType = DropItemType.SelectedValue;
+        //obj.ItemType = DropItemType.SelectedValue;
         obj.MeasureUnit = TxtMeasureUnit.Text;
     }
 
@@ -366,7 +366,7 @@ public partial class Controls_AttributesAdmin : PigeonCms.BaseModuleControl
     {
         TxtName.Text = obj.Name;
         ChkCustomValue.Checked = obj.AllowCustomValue;
-        DropItemType.SelectedValue = obj.ItemType;
+        //DropItemType.SelectedValue = obj.ItemType;
         TxtMeasureUnit.Text = obj.MeasureUnit;
     }
 
@@ -406,7 +406,7 @@ public partial class Controls_AttributesAdmin : PigeonCms.BaseModuleControl
 
         clearForm();
         base.CurrentId = recordId;
-        loadDropsItemTypes();
+        //loadDropsItemTypes();
         if (base.CurrentId > 0)
         {
             PigeonCms.Attribute obj = new PigeonCms.Attribute();
@@ -487,21 +487,21 @@ public partial class Controls_AttributesAdmin : PigeonCms.BaseModuleControl
         GridValues.DataBind();
     }
 
-    private void loadDropsItemTypes()
-    {
+    //private void loadDropsItemTypes()
+    //{
 
-        DropItemType.Items.Clear();
-        DropItemType.Items.Add(new ListItem(Utility.GetLabel("LblSelectItem", "Select item"), ""));
+    //    DropItemType.Items.Clear();
+    //    DropItemType.Items.Add(new ListItem(Utility.GetLabel("LblSelectItem", "Select item"), ""));
 
-        var filter = new ItemTypeFilter();
-        List<ItemType> recordList = new ItemTypeManager().GetByFilter(filter, "FullName");
-        foreach (ItemType record1 in recordList)
-        {
-            DropItemType.Items.Add(
-                new ListItem(record1.FullName, record1.FullName));
-        }
+    //    var filter = new ItemTypeFilter();
+    //    List<ItemType> recordList = new ItemTypeManager().GetByFilter(filter, "FullName");
+    //    foreach (ItemType record1 in recordList)
+    //    {
+    //        DropItemType.Items.Add(
+    //            new ListItem(record1.FullName, record1.FullName));
+    //    }
 
-    }
+    //}
 
     #endregion
 
