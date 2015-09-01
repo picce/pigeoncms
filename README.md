@@ -13,7 +13,7 @@ ASP.NET opensource cms
 * [Use and extend items](wiki/dev/items.md)
 * [Create new modules](wiki/dev/modules.md)
 
-###Api and Core reference dor developers
+###Api and Core reference for developers
 
 ###Backend management for webmaster
 * [Users and roles](wiki/web/users-and-roles.md)
