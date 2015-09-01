@@ -4,7 +4,7 @@
 Before upgrading you need to backup you website files and database. If something go wrong you will be able to restore the previous version.
 
 ###Manual files upgrade
-Download thw updated version from [download area](http://www.pigeoncms.com). 
+Download thw updated version from [download area](http://www.pigeoncms.com). If any , apply specific instructions version upgrade.
 
 **Website folder update**  
 Copy and overwrite the following folders in your site:
