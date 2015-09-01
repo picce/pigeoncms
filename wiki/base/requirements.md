@@ -10,6 +10,7 @@
 ### Development
 **Simple - only frontend**
 * [Webmatrix](http://www.microsoft.com/web/webmatrix/)
+* [Visual Studio](https://www.visualstudio.com/) 2010 and higher
 
 **Hardcore - backend custom modules or items**
 * [Visual Studio](https://www.visualstudio.com/) 2010 and higher
