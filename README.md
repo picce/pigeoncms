@@ -1,5 +1,5 @@
-# pigeoncms
-ASP.NET opensource cms
+![](wiki/assets/img/logo-small.png)
+ASP.NET OpenSource cms
 ---
 ###Get started
 * [Requirements](wiki/base/requirements.md)
