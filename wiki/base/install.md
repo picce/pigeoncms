@@ -5,7 +5,7 @@ For developers or deployment.
 
 ####Download source or binaries
 
-Download the stable **website only** version from [download area](www.pigeoncms.com). 
+Download the stable **website only** version from [download area](http://www.pigeoncms.com). 
 This is the best and easiest way to start with Pigeon to create your modern website or intranet solution.
 
 You can also download **full solution** from GitHub repository.
