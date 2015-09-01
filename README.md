@@ -5,8 +5,10 @@ ASP.NET OpenSource cms
 * [Requirements](wiki/base/requirements.md)
 * [Installation and server setup](wiki/base/install.md)
 * [Upgrade](wiki/base/upgrade.md)
-* [Your first contents](wiki/base/first-contents.md)
-* [Labels and items](wiki/base/labels-and-items.md)
+* Your first contents
+  * [Labels and images](wiki/base/labels-and-images.md)
+  * [List of items](wiki/base/items-list.md)
+  * [Item detail](wiki/base/item-detail.md)
 
 ###Backend and modules for developers
 * [Labels](wiki/dev/labels.md)
