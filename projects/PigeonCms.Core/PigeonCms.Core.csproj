@@ -39,6 +39,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\pigeoncms\Bin\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="StackExchange.Dapper, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\pigeoncms\Bin\StackExchange.Dapper.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core">
@@ -232,10 +236,6 @@
     <ProjectReference Include="..\PigeonCms.Core.OfflineProvider\PigeonCms.Core.Offline.csproj">
       <Project>{6CE8F051-18B4-44E0-ADE8-D39EBADB9D71}</Project>
       <Name>PigeonCms.Core.Offline</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\StackExchange.Dapper\StackExchange.Dapper.csproj">
-      <Project>{D0FCDB76-2116-49AD-9A31-ECF252A19829}</Project>
-      <Name>StackExchange.Dapper</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />
