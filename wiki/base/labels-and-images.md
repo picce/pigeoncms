@@ -1,14 +1,15 @@
 #Labels and images
+Add dynamic resources in your page. Resources are automatically cached.
+On first method call, if not present, the resources are created in backend **labels admin** area. 
+
+###Labels
+
 You can show dynamic and localized texts in your page using the following ways.
 Each method has the following parameters: 
 - `string resourceSet` used to group resources of the same type (example: page name) 
 - `string resourceId` the resource identifies
 - `string defaultValue` the default value of the label
 - `EditorTypeEnum textMode` optional parameters. The editor type shown in backend area
- 
-On first method call, if not present, it will be automatically created in backend **labels admin** area. All resources are automatically cached.
-
-###Labels
 
 **Sample 1:** 
 Using `GetLabel` method.
@@ -54,6 +55,9 @@ LitSample5.Text = GetLabel("Page1", "Sample5", "Label value calling method in co
 ```
 
 ###Images
+
+You can add localized image resourcesin your page using the following ways.
+All resources are then available in backed to be edited.
 
 **Sample image 1:**
 Using `<pgn:Image>` user control with a simple `<img>` tag.
