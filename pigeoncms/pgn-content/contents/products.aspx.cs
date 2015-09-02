@@ -19,6 +19,7 @@ public partial class _products : Acme.BasePage
                 var man = new ProductItemsManager();
                 var filter = new ProductItemFilter();
                 filter.ShowOnlyRootItems = true;
+                filter.Enabled = PigeonCms.Utility.TristateBool.True;
                 products = man.GetByFilter(filter, "");
             }
             return products;

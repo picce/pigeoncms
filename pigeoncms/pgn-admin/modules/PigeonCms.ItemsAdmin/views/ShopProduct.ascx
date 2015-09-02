@@ -31,14 +31,7 @@
                 }
             });
 
-            $('td.key').each(function () {
-                var hide = true;
-                var html = $(this).html();
-                if ($.trim(html) != '')
-                    hide = false;
-                if (hide)
-                    $(this).parent('tr').hide();
-            });
+            //changeTab('tab-associated');
 
         });
     }
@@ -49,6 +42,10 @@ var upd1 = '<%=Upd1.ClientID%>';
         if (upd1 != null) {
             __doPostBack(upd1, 'items');
         }
+    }
+
+    function changeTab(tabId) {
+        $('.nav-pills a[href="#' + tabId + '"]').tab('show');
     }
 
     var deleteQuestion = '<%=PigeonCms.Utility.GetLabel("RECORD_DELETE_QUESTION") %>';

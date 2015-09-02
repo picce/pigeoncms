@@ -689,7 +689,10 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         if (checkQuickAdd())
         {
             if (saveQuickAdd())
+            {
                 MultiView1.ActiveViewIndex = VIEW_INSERT;
+                Utility.Script.RegisterStartupScript(Upd1, "changeTab", @"changeTab('tab-associated');");
+            }
         }
     }
 
@@ -1768,34 +1771,6 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
     {
         //return ClientScript.GetPostBackEventReference(this, null);
         //__doPostBack('__Page', 'MyCustomArgument')
-    }
-
-    /// <summary>
-    /// Convert a json string into Dictionary<string, string>
-    /// </summary>
-    /// <param name="json"></param>
-    /// <returns></returns>
-    protected static Dictionary<int, string> toDictionary(string json)
-    {
-        var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
-        return serializer.Deserialize<Dictionary<int, string>>(json);
-    }
-
-    /// <summary>
-    /// Convert a Dictionary<string,string> into Json string
-    /// </summary>
-    /// <param name="dictionary"></param>
-    /// <returns></returns>
-    protected static string toJson(Dictionary<int, string> dictionary)
-    {
-        var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
-        return serializer.Serialize(dictionary);
-    }
-
-    protected static string toJson(Object result)
-    {
-        var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
-        return serializer.Serialize(result);
     }
 
     #endregion

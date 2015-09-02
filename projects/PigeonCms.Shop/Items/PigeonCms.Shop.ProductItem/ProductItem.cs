@@ -155,17 +155,18 @@ namespace PigeonCms.Shop
         {
             get
             {
-                if (attributes == null)
+                if (this.attributes == null)
                 {
                     var man = new AttributeSetsManager();
                     var aman = new AttributesManager();
+                    this.attributes = new List<Attribute>();
                     var set = man.GetByKey(this.AttributeSet);
                     foreach (int attributeId in set.AttributesList)
                     {
-                        attributes.Add(aman.GetByKey(attributeId));
+                        this.attributes.Add(aman.GetByKey(attributeId));
                     }
                 }
-                return attributes;
+                return this.attributes;
             }
         }
 
@@ -174,22 +175,22 @@ namespace PigeonCms.Shop
         {
             get
             {
-                if (attributeValues == null)
+                if (this.attributeValues == null)
                 {
                     var man = new ItemAttributesValuesManager();
                     var vman = new AttributeValuesManager();
                     var items = man.GetByItemId(this.Id);
-                    attributeValues = new List<AttributeValue>();
+                    this.attributeValues = new List<AttributeValue>();
                     foreach (var item in items)
                     {
                         if (item.AttributeValueId > 0)
                         {
-                            attributeValues.Add(vman.GetByKey(item.AttributeValueId));
+                            this.attributeValues.Add(vman.GetByKey(item.AttributeValueId));
                         }
                         
                     }
                 }
-                return attributeValues;
+                return this.attributeValues;
             }
         }
 
