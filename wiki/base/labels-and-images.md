@@ -5,8 +5,8 @@ Each method has the following parameters:
 - `string resourceId` the resource identifies
 - `string defaultValue` the default value of the label
 - `EditorTypeEnum textMode` optional parameters. The editor type shown in backend area
-
-On first method call, if not present, it will be automatically created in backend **labels admin** area.
+ 
+On first method call, if not present, it will be automatically created in backend **labels admin** area. All resources are automatically cached.
 
 ###Labels
 
@@ -16,7 +16,7 @@ Using `GetLabel` method.
 <%=GetLabel("Page1", "Sample1", "Using GetLabel method")%>
 ```
 
-** Sample 2:** 
+**Sample 2:** 
 Using `<pgn:Label>` user control with `TextMode="Text"`. This is useful to include big data in plain text.
 ```ASP
 <pgn:Label runat="server" ResourceSet="Page1" Id="Sample2" TextMode="Text">
@@ -24,7 +24,7 @@ Using `<pgn:Label>` user control with `TextMode="Text"`. This is useful to inclu
 </pgn:Label>
 ```
 
-** Sample 3:** 
+**Sample 3:** 
 Using `<pgn:Label>` user control with `TextMode="BasicHtml"`. This is useful to include big data with basic html content. In the backend the user could change the content with a basic WYSIWYG editor.
 ```ASP
 <pgn:Label runat="server" ResourceSet="Page1" Id="Sample3" TextMode="BasicHtml">
@@ -32,7 +32,7 @@ Using `<pgn:Label>` user control with `TextMode="BasicHtml"`. This is useful to 
 </pgn:Label>
 ```
 
-** Sample 4:** 
+**Sample 4:** 
 Using `<pgn:Label>` user control with `TextMode="Html"`. This is useful to include big data with complex html content. In the backend the user could change the content with a full WYSIWYG editor.
 ```ASP
 <pgn:Label runat="server" ResourceSet="AQ_default" Id="Sample4" TextMode="Html">
@@ -43,7 +43,8 @@ Using `<pgn:Label>` user control with `TextMode="Html"`. This is useful to inclu
 </pgn:Label>
 ```
 
-** Sample 5:** 
+**Sample 5:** 
+Using `GetLabel` method in code behind.
 ```ASP
 <asp:Literal runat="server" ID="LitSample5"></asp:Literal>
 ```
