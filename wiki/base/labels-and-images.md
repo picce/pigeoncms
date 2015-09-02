@@ -55,8 +55,11 @@ LitSample5.Text = GetLabel("Page1", "Sample5", "Label value calling method in co
 
 ###Images
 
-**Sample image 1:** 
+**Sample image 1:**
 Using `<pgn:Image>` user control with a simple `<img>` tag.
+
+![](../assets/img/samples/roadrunner.gif)
+
 ```ASP
 <pgn:Image runat="server" ResourceSet="Page1" ResourceId="Image1" Allowed="jpg|png|gif" MaxSize="1024" Width="640" Height="480" AutoResize="true">
    <img src="/assets/img/roadrunner.gif"  alt='' />
@@ -65,6 +68,9 @@ Using `<pgn:Image>` user control with a simple `<img>` tag.
 
 **Sample image 2:** 
 Use the resource as `div` background.
+
+![](/wiki/assets/img/samples/coyote.jpg)
+
 ```ASP
 <pgn:Image runat="server" ResourceSet="Page1" ResourceId="Image2" SrcAttr="url" >
   <div style="width:320px; height:320px; background-image:url(/assets/img/coyote.jpg);"></div>
@@ -73,6 +79,9 @@ Use the resource as `div` background.
 
 **Sample image 3:** 
 Use the resource in a html `data-` attribute.
+
+![](/wiki/assets/img/samples/tnt.png)
+
 ```ASP
 <pgn:Image runat="server" ResourceSet="Page1" ResourceId="Image3" SrcAttr="data-image" >
   <span data-image='/assets/img/tnt.png'></span>
