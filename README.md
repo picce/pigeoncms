@@ -9,6 +9,7 @@ ASP.NET OpenSource cms
   * [Labels and images](wiki/base/labels-and-images.md)
   * [List of items](wiki/base/items-list.md)
   * [Item detail](wiki/base/item-detail.md)
+  * [Cached contents](wiki/base/cache.md)
 
 ###Backend and modules for developers
 * [Labels](wiki/dev/labels.md)
