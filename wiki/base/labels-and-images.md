@@ -58,7 +58,7 @@ LitSample5.Text = GetLabel("Page1", "Sample5", "Label value calling method in co
 **Sample image 1:**
 Using `<pgn:Image>` user control with a simple `<img>` tag.
 
-![](../assets/img/samples/roadrunner.gif)
+![](/wiki/assets/img/samples/roadrunner.gif)
 
 ```ASP
 <pgn:Image runat="server" ResourceSet="Page1" ResourceId="Image1" Allowed="jpg|png|gif" MaxSize="1024" Width="640" Height="480" AutoResize="true">
