@@ -1,5 +1,5 @@
 ![](wiki/assets/img/logo-small.png)
-ASP.NET OpenSource cms
+ASP.NET OpenSource cms for developers
 ---
 ###Get started
 * [Requirements](wiki/base/requirements.md)
