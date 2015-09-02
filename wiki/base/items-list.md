@@ -43,7 +43,7 @@ Example using *<asp:Repeater>*
   private void loadList()
   {
       //first parameter means to check userContext
-      var man = new PigeonCms.ItemsManager<Item, ItemsFilter>(true, false);
+      var man = new PigeonCms.ItemsManager<Item, ItemsFilter>(/*checkUserContext*/true, /*writeMode*/false);
       var filter = new PigeonCms.ItemsFilter();
       filter.CategoryId = Acme.Settings.SampleCatId;
       var list = man.GetByFilter(filter, "");
