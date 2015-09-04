@@ -212,6 +212,11 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
                 throw new ArgumentException();
         }
 
+        QuickTxtWeight.Attributes.Add("onclick", "autosuggest(" + TxtWeight.ClientID + ", this )");
+        QuickTxtRegularPrice.Attributes.Add("onclick", "autosuggest(" + TxtRegularPrice.ClientID + ", this )");
+        QuickTxtSalePrice.Attributes.Add("onclick", "autosuggest(" + TxtSalePrice.ClientID + ", this )");
+        QuickTxtQty.Attributes.Add("onclick", "autosuggest(" + TxtQty.ClientID + ", this )");
+
         if (!Page.IsPostBack)
         {
             loadDropEnabledFilter();
@@ -910,6 +915,13 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         ChkEnabled.Checked = true;
         TxtAlias.Text = "";
         TxtCssClass.Text = "";
+        TxtRegularPrice.Text = "";
+        TxtSalePrice.Text = "";
+        TxtSKU.Text = "";
+        TxtRegularPrice.Text = "";
+        TxtSalePrice.Text = "";
+        TxtWeight.Text = "";
+        TxtQty.Text = "";
         //DropSets.SelectedValue = "-1";
 
         this.ItemDate = DateTime.MinValue;
@@ -932,7 +944,7 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
             {
                 DropDownList d1 = new DropDownList();
                 d1 = (DropDownList)PanelAttributes.FindControl("DropAttributeValues" + attribute.Name);
-                d1.SelectedValue = "0";
+                d1.SelectedValue = "";
             }
             else
             {
@@ -963,7 +975,7 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
             {
                 DropDownList d1 = new DropDownList();
                 d1 = (DropDownList)QuickAttributes.FindControl("DropAttributeValuesQuick" + attribute.Name);
-                d1.SelectedValue = "0";
+                d1.SelectedValue = "";
             }
             else
             {
@@ -1001,10 +1013,9 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         // Attribute Set
         int attributeSetId = 0;
         int.TryParse(DropSets.SelectedValue, out attributeSetId);
-        //if (attributeSetId > 0)
-        //{
-            obj.AttributeSet = attributeSetId;
-        //}
+
+        obj.AttributeSet = attributeSetId;
+
         // Draft
         obj.IsDraft = false;
         // SKU
@@ -1012,23 +1023,28 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         // Regular Price
         decimal regPrice = 0m;
         decimal.TryParse(TxtRegularPrice.Text, out regPrice);
-        obj.RegularPrice = regPrice;
+        if (regPrice > 0)
+            obj.RegularPrice = regPrice;
         // Sale Price
         decimal salePrice = 0m;
         decimal.TryParse(TxtSalePrice.Text, out salePrice);
-        obj.SalePrice = salePrice;
+        if(salePrice > 0)
+            obj.SalePrice = salePrice;
         // Weight
         decimal weight = 0m;
         decimal.TryParse(TxtWeight.Text, out weight);
-        obj.Weight = weight;
+        if(weight > 0)
+            obj.Weight = weight;
         // Qty
         int qty = 0;
         int.TryParse(TxtQty.Text, out qty);
-        obj.Availability = qty;
+        if (weight > 0)
+            obj.Availability = qty;
         // Stock
         int inStock = 0;
         int.TryParse(DropStock.SelectedValue, out inStock);
-        obj.InStock = (inStock == 1) ? true : false;
+        if (inStock > 0)
+            obj.InStock = (inStock == 1) ? true : false;
 
         if (CurrentId == 0)
             obj.ItemTypeName = LitItemType.Text;
@@ -1325,10 +1341,10 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
 
         //product fields
         TxtSKU.Text = obj.SKU;
-        TxtRegularPrice.Text = obj.RegularPrice.ToString();
-        TxtSalePrice.Text = obj.SalePrice.ToString();
-        TxtWeight.Text = obj.Weight.ToString();
-        TxtQty.Text = obj.Availability.ToString();
+        TxtRegularPrice.Text = (obj.RegularPrice > 0) ? obj.RegularPrice.ToString() : "" ;
+        TxtSalePrice.Text = (obj.SalePrice > 0) ? obj.SalePrice.ToString() : "";
+        TxtWeight.Text = (obj.Weight > 0) ? obj.Weight.ToString() : "";
+        TxtQty.Text = (obj.Availability > 0) ? obj.Availability.ToString() : "";
         DropStock.SelectedValue = (obj.InStock) ? "1" : "0";
         if (obj.AttributeSet > 0)
         {
@@ -1542,11 +1558,21 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
                 valueFilter.AttributeId = attribute.Id;
                 var values = vman.GetByFilter(valueFilter, "");
                 string quick = (isQuick) ? "Quick" : "";
+                string validationGroup = (isQuick) ? "QuickProduct" : "SaveProduct";
 
                 DropDownList drop = new DropDownList();
                 drop.ID = "DropAttributeValues" + quick + attribute.Name;
                 drop.CssClass = "form-control form-group";
-                drop.Items.Add(new ListItem("-- " + attribute.Name + " --", "0"));
+                drop.Items.Add(new ListItem("-- " + attribute.Name + " --", ""));
+
+                RequiredFieldValidator req = new RequiredFieldValidator();
+                req.ControlToValidate = drop.ClientID;
+                req.ValidationGroup = validationGroup;
+                req.EnableClientScript = true;
+                req.ErrorMessage = "";
+                req.Text = "*";
+                req.ForeColor = System.Drawing.Color.Red;
+                req.Display = ValidatorDisplay.Dynamic;;
 
                 foreach (var value in values)
                 {
@@ -1556,7 +1582,9 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
                 lit.Text = "<span><i>" + attribute.Name + "</i></span>";
                 lit.ID = "LitAttributeName" + quick + attribute.Name;
                 pan1.Controls.Add(lit);
+                pan1.Controls.Add(req);
                 pan1.Controls.Add(drop);
+                
             }
         }
 
@@ -1744,11 +1772,11 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
             res = false;
         }
 
-        if (DropCategoriesFilter.SelectedValue == "0" || DropCategoriesFilter.SelectedValue == "")
-        {
-            LblErr.Text = RenderError(base.GetLabel("ChooseCategory", "Choose a category before"));
-            res = false;
-        }
+        //if (DropCategoriesFilter.SelectedValue == "0" || DropCategoriesFilter.SelectedValue == "")
+        //{
+        //    LblErr.Text = RenderError(base.GetLabel("ChooseCategory", "Choose a category before"));
+        //    res = false;
+        //}
         return res;
     }
 
