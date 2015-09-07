@@ -2,7 +2,7 @@
 
 You can cache almost everything using `PigeonCms.Core.Helpers.CacheManager<T>` class.
 
-Here an example of how to use cache to store a list of items.
+Here an example of how to use cache to store a list of items:
 ```C#
 const string CACHE_KEY = "Rows_Items";
 var cachedList = new CacheManager<List<Item>>("ACME.CacheSample");
@@ -23,7 +23,7 @@ else
 //..do stuff with list..
 ```
 
-Here an example of how to clear or invalidate cache.
+Here an example of how to clear or invalidate cache:
 ```C#
 //clear cache
 cachedList.Remove(CACHE_KEY);
