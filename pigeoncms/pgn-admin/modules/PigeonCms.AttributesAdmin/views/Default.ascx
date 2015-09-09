@@ -71,32 +71,36 @@ var deleteQuestion = '<%=PigeonCms.Utility.GetLabel("RECORD_DELETE_QUESTION") %>
                                 </asp:TemplateField>
 
                                 <%--1--%>
-                                <asp:TemplateField HeaderText="Edit Values" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
+<%--                                <asp:TemplateField HeaderText="Edit Values" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
                                     <ItemTemplate>
                                         <asp:LinkButton ID="LnkEditValues" runat="server" CausesValidation="false" 
                                         CommandName="EditValues" CommandArgument='<%#Eval("Id") %>'><i class='fa fa-pgn_edit fa-fw'></i></asp:LinkButton>
                                         <asp:Literal ID="ValuesPreview" runat="server" />
                                     </ItemTemplate>
-                                </asp:TemplateField>
-
-                                <%--1--%>
-                                <%--<asp:TemplateField HeaderText="ItemType" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
-                                    <ItemTemplate>
-                                        <asp:Literal ID="LnkItemType" runat="server"></asp:Literal>
-                                    </ItemTemplate>
                                 </asp:TemplateField>--%>
 
                                 <%--2--%>
-                                <asp:TemplateField HeaderText="Custom Value" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
+                                <asp:BoundField DataField="Ordering"  SortExpression="Ordering" ItemStyle-HorizontalAlign="Right" />
+                                <asp:TemplateField HeaderText="<%$ Resources:PublicLabels, LblOrder %>" ItemStyle-HorizontalAlign="Left" SortExpression="Ordering">
                                     <ItemTemplate>
-                                        <asp:Literal ID="LnkCustomValue" runat="server"></asp:Literal>
+                                        <asp:LinkButton ID="ImgMoveUp" runat="server" CommandName="MoveUp" CommandArgument='<%#Eval("Id") %>'>
+                                            <i class='fa fa-pgn_up fa-fw'></i>                            
+                                        </asp:LinkButton>
+                                        <asp:LinkButton ID="ImgMoveDown" runat="server" CommandName="MoveDown" CommandArgument='<%#Eval("Id") %>'>
+                                            <i class='fa fa-pgn_down fa-fw'></i>                            
+                                        </asp:LinkButton>
                                     </ItemTemplate>
                                 </asp:TemplateField>
 
                                 <%--3--%>
-                                <asp:TemplateField HeaderText="Unit of Measure" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
+                                <asp:TemplateField HeaderText="Custom" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left" >
                                     <ItemTemplate>
-                                        <asp:Literal ID="LnkMeasureUnit" runat="server"></asp:Literal>
+                                        <asp:LinkButton ID="ImgEnabledOk" runat="server" CommandName="CustomEnabled" Visible="false" CommandArgument='<%#Eval("Id") %>'>
+                                            <i class='fa fa-pgn_checked fa-fw'></i>
+                                        </asp:LinkButton>
+                                        <asp:LinkButton ID="ImgEnabledKo" runat="server" CommandName="CustomDisabled" Visible="false" CommandArgument='<%#Eval("Id") %>'>
+                                            <i class='fa fa-pgn_unchecked fa-fw'></i>                            
+                                        </asp:LinkButton>
                                     </ItemTemplate>
                                 </asp:TemplateField>
                     
@@ -162,16 +166,6 @@ var deleteQuestion = '<%=PigeonCms.Utility.GetLabel("RECORD_DELETE_QUESTION") %>
                     <div class="form-group col-sm-6 col-md-6">
                         <%=base.GetLabel("LblAllowCustomValue", "Use Custom Values", ChkCustomValue, true)%>
                         <asp:CheckBox ID="ChkCustomValue" runat="server" CssClass="form-control" Enabled="true" />
-                    </div>
-
-                    <%-- <div class="form-group col-sm-6 col-md-3">
-                        <%=base.GetLabel("LblItemType", "Select ItemType", null, true)%>
-                        <asp:DropDownList runat="server" ID="DropItemType"  AutoPostBack="true" CssClass="form-control"></asp:DropDownList>
-                    </div>--%>
-
-                    <div class="form-group col-sm-6 col-md-6">
-                        <%=base.GetLabel("LblMeasureUnit", "Unit of Measure", null, true)%>  <span><i>[<%= GetLabel("LblIfAny", "if any") %>]</i></span>
-                         <asp:TextBox ID="TxtMeasureUnit" runat="server" MaxLength="50" CssClass="form-control"></asp:TextBox>
                     </div>
 
                 </div>

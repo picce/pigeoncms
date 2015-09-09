@@ -4,6 +4,7 @@ using System.Data.Common;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using StackExchange.Dapper;
 
 namespace PigeonCms
 {
@@ -20,22 +21,26 @@ namespace PigeonCms
         {
             DbProviderFactory myProv = Database.ProviderFactory;
             DbConnection myConn = myProv.CreateConnection();
-            DbDataReader myRd = null;
-            DbCommand myCmd = myConn.CreateCommand();
+            var p = new DynamicParameters();
             string sSql;
-            List<PigeonCms.Attribute> result = new List<PigeonCms.Attribute>();
+            var result = new List<PigeonCms.Attribute>();
 
             try
             {
                 myConn.ConnectionString = Database.ConnString;
                 myConn.Open();
-                myCmd.Connection = myConn;
 
-                sSql = "SELECT Id, ItemType, Name, AttributeType, AllowCustomValue, MeasureUnit FROM " + this.TableName + " WHERE 1=1 ";
+                sSql = "SELECT Id, Name, AllowCustomValue, Ordering FROM " + this.TableName + " WHERE 1=1 ";
+
                 if (filter.Id > 0)
                 {
                     sSql += " AND Id = @Id ";
-                    myCmd.Parameters.Add(Database.Parameter(myProv, "Id", filter.Id));
+                    p.Add("Id", filter.Id, null, null, null);
+                }
+                if (filter.AllowCustomValue != Utility.TristateBool.NotSet)
+                {
+                    sSql += " AND AllowCustomValue = @AllowCustomValue ";
+                    p.Add("AllowCustomValue", filter.AllowCustomValue, null, null, null);
                 }
                 if (!string.IsNullOrEmpty(sort))
                 {
@@ -45,15 +50,8 @@ namespace PigeonCms
                 {
                     sSql += " ORDER BY [" + this.KeyFieldName + "] ";
                 }
-                myCmd.CommandText = Database.ParseSql(sSql);
-                myRd = myCmd.ExecuteReader();
-                while (myRd.Read())
-                {
-                    PigeonCms.Attribute item = new PigeonCms.Attribute();
-                    FillObject(item, myRd);
-                    result.Add(item);
-                }
-                myRd.Close();
+
+                result = (List<PigeonCms.Attribute>)myConn.Query<PigeonCms.Attribute>(Database.ParseSql(sSql), p);
             }
             finally
             {
@@ -77,46 +75,32 @@ namespace PigeonCms
             return result;
         }
 
-        protected override void FillObject(PigeonCms.Attribute result, DbDataReader myRd)
-        {
-            if (!Convert.IsDBNull(myRd["Id"]))
-                result.Id = (int)myRd["Id"];
-            if (!Convert.IsDBNull(myRd["ItemType"]))
-                result.ItemType = (string)myRd["ItemType"];
-            if (!Convert.IsDBNull(myRd["Name"]))
-                result.Name = (string)myRd["Name"];
-            if (!Convert.IsDBNull(myRd["AttributeType"]))
-                result.AttributeType = (int)myRd["AttributeType"];
-            if (!Convert.IsDBNull(myRd["AllowCustomValue"]))
-                result.AllowCustomValue = (bool)myRd["AllowCustomValue"];
-            if (!Convert.IsDBNull(myRd["MeasureUnit"]))
-                result.MeasureUnit = (string)myRd["MeasureUnit"];
-        }
-
         public override int Update(Attribute theObj)
         {
             DbProviderFactory myProv = Database.ProviderFactory;
             DbConnection myConn = myProv.CreateConnection();
-            DbCommand myCmd = myConn.CreateCommand();
+            var p = new DynamicParameters();
             string sSql;
             int result = 0;
+
+            if (theObj.Ordering == 0)
+            {
+                theObj.Ordering = this.GetNextOrdering();
+            }
 
             try
             {
                 myConn.ConnectionString = Database.ConnString;
                 myConn.Open();
-                myCmd.Connection = myConn;
 
-                sSql = "UPDATE " + this.TableName + " SET ItemType=@ItemType, Name=@Name, AttributeType=@AttributeType, AllowCustomValue=@AllowCustomValue, MeasureUnit=@MeasureUnit "
+                sSql = "UPDATE " + this.TableName + " SET Name=@Name, AllowCustomValue=@AllowCustomValue, Ordering=@Ordering"
                 + " WHERE " + this.KeyFieldName + " = @Id";
-                myCmd.CommandText = Database.ParseSql(sSql);
-                myCmd.Parameters.Add(Database.Parameter(myProv, "Id", theObj.Id));
-                myCmd.Parameters.Add(Database.Parameter(myProv, "ItemType", theObj.ItemType));
-                myCmd.Parameters.Add(Database.Parameter(myProv, "Name", theObj.Name));
-                myCmd.Parameters.Add(Database.Parameter(myProv, "AttributeType", theObj.AttributeType));
-                myCmd.Parameters.Add(Database.Parameter(myProv, "AllowCustomValue", theObj.AllowCustomValue));
-                myCmd.Parameters.Add(Database.Parameter(myProv, "MeasureUnit", theObj.MeasureUnit));
-                result = myCmd.ExecuteNonQuery();
+                p.Add("Id", theObj.Id, null, null, null);
+                p.Add("Name", theObj.Name, null, null, null);
+                p.Add("AllowCustomValue", theObj.AllowCustomValue, null, null, null);
+                p.Add("Ordering", theObj.Ordering, null, null, null);
+
+                result = myConn.Execute(Database.ParseSql(sSql), p);
             }
             finally
             {
@@ -129,7 +113,7 @@ namespace PigeonCms
         {
             DbProviderFactory myProv = Database.ProviderFactory;
             DbConnection myConn = myProv.CreateConnection();
-            DbCommand myCmd = myConn.CreateCommand();
+            var p = new DynamicParameters();
             string sSql;
             Attribute result = new Attribute();
 
@@ -137,22 +121,19 @@ namespace PigeonCms
             {
                 myConn.ConnectionString = Database.ConnString;
                 myConn.Open();
-                myCmd.Connection = myConn;
 
-                result.ItemType = newObj.ItemType; 
                 result.Name = newObj.Name;
-                result.AttributeType = newObj.AttributeType;
                 result.AllowCustomValue = newObj.AllowCustomValue;
+                result.Ordering = base.GetNextOrdering();
 
-                sSql = "INSERT INTO " + this.TableName + "(ItemType, Name, AttributeType, AllowCustomValue, MeasureUnit) "
-                + "VALUES(@ItemType, @Name, @AttributeType, @AllowCustomValue, @MeasureUnit) ";
-                myCmd.CommandText = Database.ParseSql(sSql);
-                myCmd.Parameters.Add(Database.Parameter(myProv, "ItemType", result.ItemType));
-                myCmd.Parameters.Add(Database.Parameter(myProv, "Name", result.Name));
-                myCmd.Parameters.Add(Database.Parameter(myProv, "AttributeType", result.AttributeType));
-                myCmd.Parameters.Add(Database.Parameter(myProv, "AllowCustomValue", result.AllowCustomValue));
-                myCmd.Parameters.Add(Database.Parameter(myProv, "MeasureUnit", result.MeasureUnit));
-                myCmd.ExecuteNonQuery();
+                sSql = "INSERT INTO " + this.TableName + "(Name, AllowCustomValue, Ordering) "
+                + "VALUES(@Name, @AllowCustomValue, @Ordering) ";
+
+                p.Add("Name", result.Name, null, null, null);
+                p.Add("AllowCustomValue", result.AllowCustomValue, null, null, null);
+                p.Add("Ordering", result.Ordering, null, null, null);
+
+                myConn.Execute(Database.ParseSql(sSql), p);
             }
             finally
             {
@@ -176,7 +157,7 @@ namespace PigeonCms
         {
             DbProviderFactory myProv = Database.ProviderFactory;
             DbConnection myConn = myProv.CreateConnection();
-            DbCommand myCmd = myProv.CreateCommand();
+            var p = new DynamicParameters();
 
             string sSql;
             int res = 0;
@@ -188,29 +169,15 @@ namespace PigeonCms
 
             try
             {
-
                 var currObj = this.GetByKey(id);
-                if (deleteRelated && id > 0)
-                {
-                    //delete all the attributeValues with AttributeId
-                    var attributeValuesManager = new AttributeValuesManager();
-                    var attributeValuesFilter = new AttributeValueFilter();
-                    attributeValuesFilter.AttributeId = id;
-                    var attributeValuesList = attributeValuesManager.GetByFilter(attributeValuesFilter, "");
-                    foreach (var attributeValue in attributeValuesList)
-                    {
-                        attributeValuesManager.DeleteById(attributeValue.Id);
-                    }
-                }
 
                 myConn.ConnectionString = Database.ConnString;
                 myConn.Open();
-                myCmd.Connection = myConn;
 
                 sSql = "DELETE FROM " + this.TableName + " WHERE " + this.KeyFieldName + " = @Id ";
-                myCmd.CommandText = Database.ParseSql(sSql);
-                myCmd.Parameters.Add(Database.Parameter(myProv, "Id", id));
-                res = myCmd.ExecuteNonQuery();
+                p.Add("Id", id, null, null, null);
+
+                myConn.Execute(Database.ParseSql(sSql), p);
             }
             finally
             {
