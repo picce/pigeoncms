@@ -7,11 +7,11 @@
     namespace="PigeonCms"
     name="CategoriesAdmin"
     author="p-ice"
-    creationDate="2009-11-12"
-    copyright="Copyright(C) 2009 Nicola Ridolfi. All rights reserved."
+    creationDate="2015-09-07"
+    copyright="Copyright(C) 2015 Nicola Ridolfi. All rights reserved."
     license=""
     authorEmail="picce@yahoo.it"
-    authorUrl="www.pigeoncms.com"
+    authorUrl="https://github.com/picce"
     description="Categories admin area">
     <files>
     </files>
@@ -33,10 +33,6 @@
 			<option value="0" label="No section"></option>
 			<datasource SelectMethod="GetList" TypeName="PigeonCms.SectionsManager" />
 		</param>
-		<param name="MandatorySectionFilter" type="combo" default="0" label="Mandatory section filter">
-			<option value="1" label="Yes"></option>
-			<option value="0" label="No"></option>
-		</param>
 	</params>
 
 	<params group="restrictions">
@@ -48,7 +44,7 @@
 			<option value="1" label="Yes"></option>
 			<option value="0" label="No"></option>
 		</param>
-		<param name="ShowEnabledFilter" type="combo" default="1" label="Show enabled filter">
+		<param name="ShowItemsCount" type="combo" default="1" label="Show items count">
 			<option value="1" label="Yes"></option>
 			<option value="0" label="No"></option>
 		</param>
@@ -56,5 +52,21 @@
 			<option value="1" label="Yes"></option>
 			<option value="0" label="No"></option>
 		</param>
+    <param name="AllowEdit" type="combo" default="1" label="Allow edit">
+      <option value="1" label="Yes"></option>
+      <option value="0" label="No"></option>
+    </param>
+    <param name="AllowDelete" type="combo" default="1" label="Allow delete">
+      <option value="1" label="Yes"></option>
+      <option value="0" label="No"></option>
+    </param>
+    <param name="AllowNew" type="combo" default="1" label="Allow new">
+      <option value="1" label="Yes"></option>
+      <option value="0" label="No"></option>
+    </param>
+    <param name="AllowSelection" type="combo" default="1" label="Allow selection">
+      <option value="1" label="Yes"></option>
+      <option value="0" label="No"></option>
+    </param>    
 	</params>
 </install>

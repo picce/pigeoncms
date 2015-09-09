@@ -1461,8 +1461,6 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
     private void loadDropSectionsFilter(int sectionId)
     {
         DropSectionsFilter.Items.Clear();
-        if (!this.MandatorySectionFilter)
-            DropSectionsFilter.Items.Add(new ListItem(Utility.GetLabel("LblSelectSection", "Select section"), "0"));
 
         var secFilter = new SectionsFilter();
         secFilter.Id = sectionId;

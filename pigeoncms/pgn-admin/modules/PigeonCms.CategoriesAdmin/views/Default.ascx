@@ -1,21 +1,29 @@
 <%@ Control Language="C#" AutoEventWireup="true" CodeFile="Default.ascx.cs" Inherits="Controls_CategoriesAdmin" %>
 <%@ Register src="~/Controls/PermissionsControl.ascx" tagname="PermissionsControl" tagprefix="uc1" %>
+<%@ Register src="~/Controls/CategoriesTreeControl.ascx" tagname="CategoriesTreeControl" tagprefix="uc1" %>
+
 
 <script type="text/javascript">
 // <!CDATA[
 
-function pageLoad(sender, args) 
-{
-    $("a.fancyRefresh").fancybox({
-        'width': '80%',
-        'height': '80%',
-        'type': 'iframe',
-        'hideOnContentClick': false,
-        onClosed: function() { }
-    });
-}
+    function pageLoad(sender, args) 
+    {
+        $("a.fancyRefresh").fancybox({
+            'width': '80%',
+            'height': '80%',
+            'type': 'iframe',
+            'hideOnContentClick': false,
+            onClosed: function() { }
+        });
 
-var deleteQuestion = '<%=PigeonCms.Utility.GetLabel("RECORD_DELETE_QUESTION") %>';
+        Pgn_CategoriesAdmin.init('<%=Upd1.ClientID%>');
+
+    }
+
+    var deleteQuestion = '<%=PigeonCms.Utility.GetLabel("RECORD_DELETE_QUESTION") %>';
+
+    $(document).ready(function () {
+    })
 
 // ]]>
 </script>
@@ -67,12 +75,7 @@ var deleteQuestion = '<%=PigeonCms.Utility.GetLabel("RECORD_DELETE_QUESTION") %>
                     <div id="collapseOne" class="panel-collapse collapse in">
                         <div class="panel-body">
 
-                            <div class="form-group col-sm-6">
-                                <asp:DropDownList runat="server" ID="DropEnabledFilter" AutoPostBack="true" CssClass="form-control" OnSelectedIndexChanged="DropEnabledFilter_SelectedIndexChanged">
-                                </asp:DropDownList>
-                            </div>
-
-                            <div class="form-group col-sm-6">
+                            <div class="form-group col-sm-12">
                                 <asp:DropDownList ID="DropSectionsFilter" runat="server" AutoPostBack="true" CssClass="form-control" OnSelectedIndexChanged="DropSectionsFilter_SelectedIndexChanged">
                                 </asp:DropDownList>
                             </div>
@@ -87,116 +90,12 @@ var deleteQuestion = '<%=PigeonCms.Utility.GetLabel("RECORD_DELETE_QUESTION") %>
                 <div class="panel panel-default">
                     <div class="table-responsive">
 
-                        <asp:GridView ID="Grid1" runat="server" AllowPaging="True" AllowSorting="false" Width="100%" AutoGenerateColumns="False"
-                            DataSourceID="ObjDs1" DataKeyNames="Id" OnRowCommand="Grid1_RowCommand" OnRowCreated="Grid1_RowCreated" OnRowDataBound="Grid1_RowDataBound">
-                            <Columns>
-                                  
-                                <%--0--%>                      
-                                <asp:TemplateField HeaderText="<%$ Resources:PublicLabels, LblTitle %>" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
-                                    <ItemTemplate>
-                                        <asp:LinkButton ID="LnkTitle" runat="server" CausesValidation="false" 
-                                        CommandName="Select" CommandArgument='<%#Eval("Id") %>'></asp:LinkButton>
-                                    </ItemTemplate>
-                                </asp:TemplateField>
-
-                                <%--1--%>
-                                <asp:TemplateField HeaderText="<%$ Resources:PublicLabels, LblSection %>" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
-                                    <ItemTemplate>
-                                        <asp:Literal ID="LitSectionTitle" runat="server" />
-                                    </ItemTemplate>
-                                </asp:TemplateField>
-
-                                <%--2--%>
-                                <asp:BoundField DataField="CssClass" HeaderText="Css" SortExpression="CssClass" />
-                                
-                                <%--3--%>
-                                <asp:BoundField DataField="Ordering" SortExpression="Ordering" ItemStyle-HorizontalAlign="Right" />
-                                <%--4--%>
-                                <asp:TemplateField ItemStyle-HorizontalAlign="Left" HeaderText="<%$ Resources:PublicLabels, LblOrder %>" SortExpression="Ordering">
-                                    <ItemTemplate>
-                                        <asp:LinkButton ID="ImgMoveUp" runat="server" CommandName="MoveUp" CommandArgument='<%#Eval("Id") %>'>
-                                            <i class='fa fa-pgn_up fa-fw'></i>                            
-                                        </asp:LinkButton>
-                                        <asp:LinkButton ID="ImgMoveDown" runat="server" CommandName="MoveDown" CommandArgument='<%#Eval("Id") %>'>
-                                            <i class='fa fa-pgn_down fa-fw'></i>                            
-                                        </asp:LinkButton>
-                                    </ItemTemplate>
-                                </asp:TemplateField>
-                                
-                       
-                                <%--5--%>
-                                <asp:TemplateField HeaderText="<%$ Resources:PublicLabels, LblEnabled %>" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center">
-                                    <ItemTemplate>
-                                        <asp:LinkButton ID="ImgEnabledOk" runat="server" CommandName="ImgEnabledOk" Visible="false" CommandArgument='<%#Eval("Id") %>'>
-                                            <i class='fa fa-pgn_checked fa-fw'></i>
-                                        </asp:LinkButton>
-                                        <asp:LinkButton ID="ImgEnabledKo" runat="server" CommandName="ImgEnabledKo" Visible="false" CommandArgument='<%#Eval("Id") %>'>
-                                            <i class='fa fa-pgn_unchecked fa-fw'></i>                            
-                                        </asp:LinkButton>
-                                    </ItemTemplate>
-                                </asp:TemplateField>
-
-                                <%--6--%>
-                                <asp:TemplateField HeaderText="Access" SortExpression="AccessType">
-                                    <ItemTemplate>
-                                    <asp:Literal ID="LitAccessTypeDesc" runat="server" Text=""></asp:Literal>
-                                    </ItemTemplate>
-                                </asp:TemplateField>
+                        <uc1:CategoriesTreeControl runat="server" id="Tree1" />
                     
-                                <%--7--%>
-                                <asp:TemplateField HeaderText="Files">
-                                    <ItemTemplate>
-                                        <asp:HyperLink ID="LnkUploadFiles" runat="server">
-                                            <i class='fa fa-pgn_attach fa-fw'></i>
-                                        </asp:HyperLink>
-                                        <br />
-                                        <span><asp:Literal ID="LitFilesCount" runat="server" Text=""></asp:Literal></span>
-                                    </ItemTemplate>
-                                </asp:TemplateField>
-                    
-                                <%--8--%>
-                                <asp:TemplateField HeaderText="Img">
-                                    <ItemTemplate>
-                                        <asp:HyperLink ID="LnkUploadImg" runat="server">
-                                            <i class='fa fa-pgn_image fa-fw'></i>
-                                        </asp:HyperLink>
-                                        <br />
-                                        <span><asp:Literal ID="LitImgCount" runat="server" Text=""></asp:Literal></span>
-                                    </ItemTemplate>
-                                </asp:TemplateField>
-
-                                <%--9--%>
-                                <asp:TemplateField HeaderText="" ItemStyle-HorizontalAlign="Center" ItemStyle-Width="10">
-                                    <ItemTemplate>
-                                        <asp:LinkButton ID="LnkDel" runat="server" CommandName="DeleteRow" 
-                                            CommandArgument='<%#Eval("Id") %>' OnClientClick="return confirm(deleteQuestion);">
-                                            <i class='fa fa-pgn_delete fa-fw'></i>
-                                        </asp:LinkButton>
-                                    </ItemTemplate>
-                                </asp:TemplateField>
-                    
-                                <%--10--%>
-                                <asp:BoundField DataField="Id" HeaderText="ID" ItemStyle-HorizontalAlign="Right" HeaderStyle-HorizontalAlign="Right" />
-                            </Columns>
-                        </asp:GridView>
-
                     </div>
                 </div>
 
             </div>
-            
-            <asp:ObjectDataSource ID="ObjDs1" runat="server" SortParameterName="sort"
-                SelectMethod="GetByFilter" TypeName="PigeonCms.CategoriesManager" 
-                OnObjectCreating="ObjDs1_ObjectCreating"                
-                OnSelecting="ObjDs1_Selecting">
-                <SelectParameters>
-                    <asp:Parameter Name="filter" Type="Object" />
-                    <asp:Parameter Name="sort" Type="String" DefaultValue="Ordering" />
-                </SelectParameters>
-                <DeleteParameters>
-                    <asp:Parameter Name="Id" Type="Int32" />
-                </DeleteParameters>
-            </asp:ObjectDataSource>
 
         </asp:View>
    
@@ -217,8 +116,8 @@ var deleteQuestion = '<%=PigeonCms.Utility.GetLabel("RECORD_DELETE_QUESTION") %>
 
                 <div class="panel-body">
                     <div class="form-group col-sm-12 col-md-4">
-                        <%=base.GetLabel("LblSection", "Section", DropSections, true)%>
-                        <asp:DropDownList ID="DropSections" runat="server" CssClass="form-control"></asp:DropDownList>
+                        <%=base.GetLabel("LblSection", "Section", LitSection, true)%>
+                        <asp:TextBox ID="LitSection" runat="server" Enabled="false" CssClass="form-control"></asp:TextBox>
                     </div>
 
                     <div class="form-group col-sm-6 col-md-4">
@@ -229,6 +128,11 @@ var deleteQuestion = '<%=PigeonCms.Utility.GetLabel("RECORD_DELETE_QUESTION") %>
                     <div class="form-group col-sm-6 col-md-4">
                         <%=base.GetLabel("LblEnabled", "Enabled", ChkEnabled, true)%>
                         <asp:CheckBox ID="ChkEnabled" runat="server" CssClass="form-control" Enabled="true" />
+                    </div>
+
+                    <div class="form-group col-sm-12">
+                        <%=base.GetLabel("LblParentItem", "Parent category", ListParentId, true)%>
+                        <asp:ListBox ID="ListParentId" SelectionMode="Single" Rows="10" runat="server" CssClass="form-control"></asp:ListBox>
                     </div>
 
                     <div class="form-group col-lg-12">

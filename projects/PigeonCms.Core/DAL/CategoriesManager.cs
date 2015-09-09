@@ -100,16 +100,11 @@ namespace PigeonCms
                     sSql += " AND t.SectionId = @SectionId ";
                     myCmd.Parameters.Add(Database.Parameter(myProv, "SectionId", filter.SectionId));
                 }
-                if (filter.ParentId > 0)
+                if (filter.ParentId != -1)
                 {
                     sSql += " AND t.ParentId = @ParentId ";
                     myCmd.Parameters.Add(Database.Parameter(myProv, "ParentId", filter.ParentId));
                 }
-                //if (!string.IsNullOrEmpty(filter.Title))
-                //{
-                //    sSql += " AND c.Title = @Title ";
-                //    myCmd.Parameters.Add(Database.Parameter(myProv, "Title", filter.Title));
-                //}
                 if (filter.Enabled != Utility.TristateBool.NotSet)
                 {
                     sSql += " AND t.Enabled = @Enabled ";
@@ -142,6 +137,14 @@ namespace PigeonCms
                     var item = new Category();
                     FillObject(item, myRd);
                     result.Add(item);
+
+                    if (filter.IdToExpand > 0 && filter.IdToExpand == item.Id)
+                    {
+                        var expandFilter = new CategoriesFilter();
+                        expandFilter.ParentId = filter.IdToExpand;
+                        var childs = this.GetByFilter(expandFilter, sort);
+                        result.AddRange(childs);
+                    }
 
                     var sec = new Section();
                     fillSection(sec, myRd);
@@ -210,10 +213,15 @@ namespace PigeonCms
             var result = new Category();
             var resultList = new List<Category>();
             var filter = new CategoriesFilter();
-            filter.Id = id == 0 ? -1 : id;
+
+            if (id <= 0)
+                return result;
+
+            filter.Id = id;
             resultList = GetByFilter(filter, "");
             if (resultList.Count > 0)
                 result = resultList[0];
+
             return result;
         }
 
@@ -371,9 +379,12 @@ namespace PigeonCms
             string sSql;
             int res = 0;
 
-            if (!deleteChilds && this.hasChilds(id))
+            if (!deleteChilds)
             {
-                throw new ArgumentException("current obj has childs");
+                if (this.hasItems(id))
+                    throw new ArgumentException("current obj has items");
+                if (this.hasChilds(id))
+                    throw new ArgumentException("current obj has childs");
             }
 
             try
@@ -652,6 +663,16 @@ namespace PigeonCms
         }
 
         private bool hasChilds(int categoryId)
+        {
+            bool res = false;
+            var filter = new CategoriesFilter();
+            filter.ParentId = categoryId;
+            if (this.GetByFilter(filter, "").Count > 0)
+                res = true;
+            return res;
+        }
+
+        private bool hasItems(int categoryId)
         {
             bool res = false;
             var man = new ItemsManager<Item, ItemsFilter>();

@@ -635,20 +635,6 @@ namespace PigeonCms
             set { titleTranslations = value; }
         }
 
-        ///hide on 20100305: not used
-        //public bool IsTitleTranslated
-        //{
-        //    get
-        //    {
-        //        bool res = true;
-        //        string val = "";
-        //        titleTranslations.TryGetValue(Thread.CurrentThread.CurrentCulture.Name, out val);
-        //        if (string.IsNullOrEmpty(val))
-        //            res = false;
-        //        return res;
-        //    }
-        //}
-
         /// <summary>
         /// Window or browser Title in current culture
         /// </summary>

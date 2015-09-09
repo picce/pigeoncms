@@ -1,5 +1,6 @@
 using System;
 using System.Data;
+using System.Linq;
 using System.Configuration;
 using System.Collections;
 using System.Web;
@@ -12,124 +13,24 @@ using System.Web.Caching;
 using System.Collections.Generic;
 using PigeonCms;
 using PigeonCms.Core.Helpers;
+using PigeonCms.Controls;
 
-public partial class Controls_CategoriesAdmin : PigeonCms.BaseModuleControl
+
+public partial class Controls_CategoriesAdmin : PigeonCms.Modules.CategoriesAdminControl
 {
-    const int COL_ORDERING_INDEX = 3;
-    const int COL_ORDER_ARROWS_INDEX = 4;
-    const int COL_ACCESS_INDEX = 6;
-    const int COL_FILES_INDEX = 7;
-    const int COL_IMAGES_INDEX = 8;
-    const int COL_ID_INDEX = 10;
 
-    private int sectionId = 0;
-    public int SectionId
-    {
-        get { return GetIntParam("SectionId", sectionId, "sectionid"); }
-        set { sectionId = value; }
-    }
-
-    private bool mandatorySectionFilter = false;
-    public bool MandatorySectionFilter
-    {
-        get { return GetBoolParam("MandatorySectionFilter", mandatorySectionFilter); }
-    }
-
-    int targetImagesUpload = 0;
-    protected int TargetImagesUpload
-    {
-        get { return GetIntParam("TargetImagesUpload", targetImagesUpload); }
-        set { targetImagesUpload = value; }
-    }
-
-    int targetFilesUpload = 0;
-    protected int TargetFilesUpload
-    {
-        get { return GetIntParam("TargetFilesUpload", targetFilesUpload); }
-        set { targetFilesUpload = value; }
-    }
-
-    string imagesUploadUrl = "";
-    protected string ImagesUploadUrl
+    protected int CurrentSectionId
     {
         get
         {
-            if (string.IsNullOrEmpty(imagesUploadUrl) && this.TargetImagesUpload > 0)
-            {
-                var menuMan = new MenuManager();
-                var menuTarget = new PigeonCms.Menu();
-                menuTarget = menuMan.GetByKey(this.TargetImagesUpload);
-                imagesUploadUrl = Utility.GetRoutedUrl(menuTarget);
-            }
-            return imagesUploadUrl;
-        }
-    }
-
-    string filesUploadUrl = "";
-    protected string FilesUploadUrl
-    {
-        get
-        {
-            if (string.IsNullOrEmpty(filesUploadUrl) && this.TargetFilesUpload > 0)
-            {
-                var menuMan = new MenuManager();
-                var menuTarget = new PigeonCms.Menu();
-                menuTarget = menuMan.GetByKey(this.TargetFilesUpload);
-                filesUploadUrl = Utility.GetRoutedUrl(menuTarget);
-            }
-            return filesUploadUrl;
-        }
-    }
-
-    //restrictions params
-    #region params restrictions
-
-    private bool showSecurity = true;
-    public bool ShowSecurity
-    {
-        get { return GetBoolParam("ShowSecurity", showSecurity); }
-    }
-
-    private bool showOnlyDefaultCulture = false;
-    public bool ShowOnlyDefaultCulture
-    {
-        get { return GetBoolParam("ShowOnlyDefaultCulture", showOnlyDefaultCulture); }
-    }
-
-    private bool showEnabledFilter = true;
-    public bool ShowEnabledFilter
-    {
-        get { return GetBoolParam("ShowEnabledFilter", showEnabledFilter); }
-    }
-
-    private bool allowOrdering = true;
-    public bool AllowOrdering
-    {
-        get { return GetBoolParam("AllowOrdering", allowOrdering); }
-    }
-
-    #endregion
-
-    /// <summary>
-    /// the same as ItemsAdminControl. keep synched selected section id
-    /// </summary>
-    protected int LastSelectedSectionId
-    {
-        get
-        {
-            var res = 0;
-            var session = new SessionManager<int>("PigeonCms.ItemsAdminControl");
-            if (!session.IsEmpty("LastSelectedSectionId"))
-                res = session.GetValue("LastSelectedSectionId");
+            int res = 0;
+            if (this.SectionId > 0)
+                res = this.SectionId;
+            else
+                int.TryParse(DropSectionsFilter.SelectedValue, out res);
             return res;
         }
-        set
-        {
-            var session = new SessionManager<int>("PigeonCms.ItemsAdminControl");
-            session.Insert("LastSelectedSectionId", value);
-        }
     }
-
 
     protected new void Page_Init(object sender, EventArgs e)
     {
@@ -171,16 +72,8 @@ public partial class Controls_CategoriesAdmin : PigeonCms.BaseModuleControl
         }
 
         //restrictions
-        Grid1.AllowSorting = false;  //this.AllowOrdering;
-        Grid1.Columns[COL_ORDER_ARROWS_INDEX].Visible = this.AllowOrdering;
-        Grid1.Columns[COL_ORDERING_INDEX].Visible = this.AllowOrdering;
-        Grid1.Columns[COL_ACCESS_INDEX].Visible = this.ShowSecurity;
-        Grid1.Columns[COL_ID_INDEX].Visible = this.ShowSecurity;
+        BtnNew.Visible = this.AllowNew;
         PermissionsControl1.Visible = this.ShowSecurity;
-        DropEnabledFilter.Visible = this.ShowEnabledFilter;
-
-        if (this.TargetFilesUpload == 0) Grid1.Columns[COL_FILES_INDEX].Visible = false;
-        if (this.TargetImagesUpload == 0) Grid1.Columns[COL_IMAGES_INDEX].Visible = false;
     }
 
     protected void Page_Load(object sender, EventArgs e)
@@ -188,16 +81,51 @@ public partial class Controls_CategoriesAdmin : PigeonCms.BaseModuleControl
         LblOk.Text = "";
         LblErr.Text = "";
 
+        Tree1.NodeClick += new NodeClickDelegate(Tree_NodeClick);
+        initTree();
         if (!Page.IsPostBack)
         {
-            loadDropEnabledFilter();
-            loadDropSectionsFilter(this.SectionId);
+            loadDropSectionsFilter(base.SectionId);
+            Tree1.BindTree(this.CurrentSectionId);
         }
     }
 
-    protected void DropEnabledFilter_SelectedIndexChanged(object sender, EventArgs e)
+    protected void Tree_NodeClick(object sender, NodeClickEventArgs e)
     {
-        Grid1.DataBind();
+        LblOk.Text = RenderSuccess(e.Command.ToString() + " " + e.CategoryId.ToString());
+
+        switch (e.Command)
+        {
+            case NodeClickCommandEnum.Select:
+            case NodeClickCommandEnum.Edit:
+                editRow(e.CategoryId);
+                break;
+
+            case NodeClickCommandEnum.Enabled:
+                bool enabledValue = bool.Parse(e.CustomCommand);
+                setFlag(e.CategoryId, enabledValue, "enabled");
+                Tree1.BindTree(this.CurrentSectionId);
+                break;
+
+            case NodeClickCommandEnum.MoveUp:
+                moveRecord(e.CategoryId, Database.MoveRecordDirection.Up);
+                break;
+            
+            case NodeClickCommandEnum.MoveDown:
+                moveRecord(e.CategoryId, Database.MoveRecordDirection.Down);
+                break;
+            
+            case NodeClickCommandEnum.Delete:
+                deleteRow(e.CategoryId);
+                break;
+
+            case NodeClickCommandEnum.Custom:
+                break;
+
+            default:
+                break;
+        }
+
     }
 
     protected void DropSectionsFilter_SelectedIndexChanged(object sender, EventArgs e)
@@ -205,190 +133,9 @@ public partial class Controls_CategoriesAdmin : PigeonCms.BaseModuleControl
         int secID = 0;
         int.TryParse(DropSectionsFilter.SelectedValue, out secID);
 
-        Grid1.DataBind();
+        Tree1.SectionId = secID;
+        Tree1.BindTree(secID);
         this.LastSelectedSectionId = secID;
-    }
-
-    protected void ObjDs1_ObjectCreating(object sender, ObjectDataSourceEventArgs e)
-    {
-        var typename = new CategoriesManager(true, true);
-        e.ObjectInstance = typename;
-    }
-
-    protected void ObjDs1_Selecting(object sender, ObjectDataSourceSelectingEventArgs e)
-    {
-        CategoriesFilter filter = new CategoriesFilter();
-
-        filter.Enabled = Utility.TristateBool.NotSet;
-        switch (DropEnabledFilter.SelectedValue)
-        {
-            case "1":
-                filter.Enabled = Utility.TristateBool.True;
-                break;
-            case "0":
-                filter.Enabled = Utility.TristateBool.False;
-                break;
-            default:
-                filter.Enabled = Utility.TristateBool.NotSet;
-                break;
-        }
-        if (this.SectionId > 0)
-            filter.SectionId = this.SectionId;
-        else
-        {
-            int secId = -1;
-            int.TryParse(DropSectionsFilter.SelectedValue, out secId);
-            filter.SectionId = secId;
-        }
-
-        e.InputParameters["filter"] = filter;
-    }
-
-    protected void Grid1_RowCommand(object sender, GridViewCommandEventArgs e)
-    {
-        if (e.CommandName == "Select")
-        {
-            editRow(int.Parse(e.CommandArgument.ToString()));
-        }
-        if (e.CommandName == "DeleteRow")
-        {
-            deleteRow(int.Parse(e.CommandArgument.ToString()));
-        }
-        //Enabled
-        if (e.CommandName == "ImgEnabledOk")
-        {
-            setFlag(Convert.ToInt32(e.CommandArgument), false, "enabled");
-            Grid1.DataBind();
-        }
-        if (e.CommandName == "ImgEnabledKo")
-        {
-            setFlag(Convert.ToInt32(e.CommandArgument), true, "enabled");
-            Grid1.DataBind();
-        }
-        //Ordering
-        if (e.CommandName == "MoveDown")
-        {
-            moveRecord(int.Parse(e.CommandArgument.ToString()), Database.MoveRecordDirection.Down);
-        }
-        if (e.CommandName == "MoveUp")
-        {
-            moveRecord(int.Parse(e.CommandArgument.ToString()), Database.MoveRecordDirection.Up);
-        }
-    }
-
-    protected void Grid1_RowCreated(object sender, GridViewRowEventArgs e)
-    {
-        if (e.Row.RowType == DataControlRowType.Header)
-            Utility.AddGlyph(Grid1, e.Row);
-    }
-
-    protected void Grid1_RowDataBound(object sender, GridViewRowEventArgs e)
-    {
-        if (e.Row.RowType == DataControlRowType.DataRow)
-        {
-            PigeonCms.Category item = new PigeonCms.Category();
-            item = (PigeonCms.Category)e.Row.DataItem;
-
-            if (item.SectionId > 0)
-            {
-                Literal LitSectionTitle = (Literal)e.Row.FindControl("LitSectionTitle");
-                LitSectionTitle.Text = new SectionsManager().GetByKey(item.SectionId).Title;
-            }
-
-            LinkButton LnkTitle = (LinkButton)e.Row.FindControl("LnkTitle");
-            LnkTitle.Text = "<i class='fa fa-pgn_edit fa-fw'></i>";
-            LnkTitle.Text += Utility.Html.GetTextPreview(item.Title, 50, "");
-            if (string.IsNullOrEmpty(LnkTitle.Text))
-                LnkTitle.Text += Utility.GetLabel("NO_VALUE", "<no value>");
-
-
-            //Published
-            if (item.Enabled)
-            {
-                var img1 = e.Row.FindControl("ImgEnabledOk");
-                img1.Visible = true;
-            }
-            else
-            {
-                var img1 = e.Row.FindControl("ImgEnabledKo");
-                img1.Visible = true;
-            }
-
-            //permissions
-            //read
-            string readAccessLevel = item.ReadAccessCode;
-            if (item.ReadAccessLevel > 0)
-                readAccessLevel += " " + item.ReadAccessLevel.ToString();
-            if (!string.IsNullOrEmpty(readAccessLevel))
-                readAccessLevel = " - " + readAccessLevel;
-
-            //write
-            string writeAccessLevel = item.WriteAccessCode;
-            if (item.WriteAccessLevel > 0)
-                writeAccessLevel += " " + item.WriteAccessLevel.ToString();
-            if (!string.IsNullOrEmpty(writeAccessLevel))
-                writeAccessLevel = " - " + writeAccessLevel;
-
-            Literal LitAccessTypeDesc = (Literal)e.Row.FindControl("LitAccessTypeDesc");
-            //read
-            LitAccessTypeDesc.Text = item.ReadAccessType.ToString();
-            if (item.ReadAccessType != MenuAccesstype.Public)
-            {
-                string roles = "";
-                foreach (string role in item.ReadRolenames)
-                {
-                    roles += role + ", ";
-                }
-                if (roles.EndsWith(", ")) roles = roles.Substring(0, roles.Length - 2);
-                if (roles.Length > 0)
-                    roles = " (" + roles + ")";
-                LitAccessTypeDesc.Text += Utility.Html.GetTextPreview(roles, 60, "");
-                LitAccessTypeDesc.Text += readAccessLevel;
-            }
-            if (LitAccessTypeDesc.Text != "") LitAccessTypeDesc.Text += "<br />";
-            //write
-            LitAccessTypeDesc.Text += item.WriteAccessType.ToString();
-            if (item.WriteAccessType != MenuAccesstype.Public)
-            {
-                string roles = "";
-                foreach (string role in item.WriteRolenames)
-                {
-                    roles += role + ", ";
-                }
-                if (roles.EndsWith(", ")) roles = roles.Substring(0, roles.Length - 2);
-                if (roles.Length > 0)
-                    roles = " (" + roles + ")";
-                LitAccessTypeDesc.Text += Utility.Html.GetTextPreview(roles, 60, "");
-                LitAccessTypeDesc.Text += writeAccessLevel;
-            }
-
-
-            //files upload
-            var LnkUploadFiles = (HyperLink)e.Row.FindControl("LnkUploadFiles");
-            LnkUploadFiles.NavigateUrl = this.FilesUploadUrl
-                + "?type=categories&id=" + item.Id.ToString();
-            LnkUploadFiles.CssClass = "fancyRefresh";
-            var LitFilesCount = (Literal)e.Row.FindControl("LitFilesCount");
-            int filesCount = item.Files.Count;
-            if (filesCount > 0)
-            {
-                LitFilesCount.Text = filesCount.ToString();
-                LitFilesCount.Text += filesCount == 1 ? " file" : " files";
-            }
-
-            //images upload
-            var LnkUploadImg = (HyperLink)e.Row.FindControl("LnkUploadImg");
-            LnkUploadImg.NavigateUrl = this.ImagesUploadUrl
-                + "?type=categories&id=" + item.Id.ToString();
-            LnkUploadImg.CssClass = "fancyRefresh";
-            var LitImgCount = (Literal)e.Row.FindControl("LitImgCount");
-            int imgCount = item.Images.Count;
-            if (imgCount > 0)
-            {
-                LitImgCount.Text = imgCount.ToString();
-                LitImgCount.Text += imgCount == 1 ? " file" : " files";
-            }
-        }
     }
 
     protected void BtnNew_Click(object sender, EventArgs e)
@@ -408,7 +155,7 @@ public partial class Controls_CategoriesAdmin : PigeonCms.BaseModuleControl
 
         try
         {
-            Category o1 = new Category();
+            var o1 = new Category();
             if (base.CurrentId == 0)
             {
                 form2obj(o1);
@@ -420,7 +167,8 @@ public partial class Controls_CategoriesAdmin : PigeonCms.BaseModuleControl
                 form2obj(o1);
                 new CategoriesManager().Update(o1);
             }
-            Grid1.DataBind();
+            Tree1.BindTree(this.CurrentSectionId);
+            
             LblOk.Text = RenderSuccess(Utility.GetLabel("RECORD_SAVED_MSG"));
             MultiView1.ActiveViewIndex = 0;
         }
@@ -454,7 +202,7 @@ public partial class Controls_CategoriesAdmin : PigeonCms.BaseModuleControl
         }
         TxtCssClass.Text = "";
         ChkEnabled.Checked = true;
-        Utility.SetDropByValue(DropSections, DropSectionsFilter.SelectedValue);
+        LitSection.Text = "";
         PermissionsControl1.ClearForm();
     }
 
@@ -464,8 +212,20 @@ public partial class Controls_CategoriesAdmin : PigeonCms.BaseModuleControl
         obj.Enabled = ChkEnabled.Checked;
         obj.TitleTranslations.Clear();
         obj.DescriptionTranslations.Clear();
-        obj.SectionId = int.Parse(DropSections.SelectedValue);
+        obj.SectionId = int.Parse(DropSectionsFilter.SelectedValue);
         obj.CssClass = TxtCssClass.Text;
+
+        int parentId = 0;
+        foreach (ListItem item in ListParentId.Items)
+        {
+            if (item.Selected)
+            {
+                if (int.TryParse(item.Value, out parentId))
+                    obj.ParentId = parentId;
+            }
+        }
+        obj.ParentId = parentId;
+
         foreach (KeyValuePair<string, string> item in Config.CultureList)
         {
             TextBox t1 = new TextBox();
@@ -498,7 +258,10 @@ public partial class Controls_CategoriesAdmin : PigeonCms.BaseModuleControl
         }
         TxtCssClass.Text = obj.CssClass;
         ChkEnabled.Checked = obj.Enabled;
-        Utility.SetDropByValue(DropSections, obj.SectionId.ToString());
+        LitSection.Text = obj.Section.Title;
+        loadListParentId();
+        Utility.SetListBoxByValues(ListParentId, obj.ParentId);
+
         PermissionsControl1.Obj2form(obj);
     }
 
@@ -509,17 +272,19 @@ public partial class Controls_CategoriesAdmin : PigeonCms.BaseModuleControl
 
         clearForm();
         base.CurrentId = recordId;
+        var obj = new Category();
         if (base.CurrentId > 0)
-        {
-            Category obj = new Category();
             obj = new CategoriesManager().GetByKey(base.CurrentId);
-            obj2form(obj);
-        }
+
+        obj2form(obj);
         MultiView1.ActiveViewIndex = 1;
     }
 
     private void deleteRow(int recordId)
     {
+        if (!this.AllowDelete)
+            return;
+
         LblOk.Text = "";
         LblErr.Text = "";
 
@@ -531,16 +296,9 @@ public partial class Controls_CategoriesAdmin : PigeonCms.BaseModuleControl
         {
             LblErr.Text = RenderError(e.Message);
         }
-        Grid1.DataBind();
+        Tree1.BindTree(this.CurrentSectionId);
     }
 
-    private void loadDropEnabledFilter()
-    {
-        DropEnabledFilter.Items.Clear();
-        DropEnabledFilter.Items.Add(new ListItem(Utility.GetLabel("LblSelectState", "Select state"), ""));
-        DropEnabledFilter.Items.Add(new ListItem("On-line", "1"));
-        DropEnabledFilter.Items.Add(new ListItem("Off-line", "0"));
-    }
 
     /// <summary>
     /// loads sections filter and section drops
@@ -548,44 +306,90 @@ public partial class Controls_CategoriesAdmin : PigeonCms.BaseModuleControl
     private void loadDropSectionsFilter(int sectionId)
     {
         DropSectionsFilter.Items.Clear();
-        DropSections.Items.Clear();
 
-        if (this.SectionId == 0)
-        {
-            if (!this.MandatorySectionFilter)
-            {
-                DropSectionsFilter.Items.Add(new ListItem(Utility.GetLabel("LblSelectSection", "Select section"), "0"));
-                //DropSections.Items.Add(new ListItem("", "0"));  //mandatory
-            }
-        }
-
-        SectionsFilter filter = new SectionsFilter();
+        var filter = new SectionsFilter();
         filter.Id = sectionId;
         List<Section> recordList = new SectionsManager(true, true).GetByFilter(filter, "");
         foreach (Section record1 in recordList)
         {
             DropSectionsFilter.Items.Add(new ListItem(record1.Title, record1.Id.ToString()));
-            DropSections.Items.Add(new ListItem(record1.Title, record1.Id.ToString()));
         }
         if (this.LastSelectedSectionId > 0)
             Utility.SetDropByValue(DropSectionsFilter, this.LastSelectedSectionId.ToString());
     }
 
+    private void loadListParentId()
+    {
+        ListParentId.Items.Clear();
+
+        //root virtual item
+        var listItem = new ListItem();
+        listItem.Value = "0";
+        listItem.Text = "";
+        listItem.Enabled = true;
+        ListParentId.Items.Add(listItem);
+
+        var man = new CategoriesManager(true, true);
+        var filter = new CategoriesFilter();
+        filter.Enabled = Utility.TristateBool.NotSet;
+        if (this.SectionId > 0)
+            filter.SectionId = this.SectionId;
+        else
+        {
+            int secId = -1;
+            int.TryParse(DropSectionsFilter.SelectedValue, out secId);
+            filter.SectionId = secId;
+        }
+        var list = man.GetByFilter(filter, "");
+        loadListParentId(list, 0, 0, this.CurrentId);
+    }
+
+    private void loadListParentId(List<Category> list, int parentId, int level, int currentId)
+    {
+        var nodes = list.Where(x => x.ParentId == parentId);
+        foreach (var item in nodes)
+        {
+            string levelString = "";
+            for (int i = 0; i < level; i++)
+            {
+                levelString += ". . ";
+            }
+
+            var listItem = new ListItem();
+            listItem.Value = item.Id.ToString();
+            listItem.Text = levelString + item.Title;
+            listItem.Enabled = true;
+            if (item.Id == currentId)
+            {
+               listItem.Attributes.Add("disabled", "disabled");
+            }
+            ListParentId.Items.Add(listItem);
+
+            loadListParentId(list, item.Id, level + 1, currentId);
+        }
+    }
+
     private void setFlag(int recordId, bool value, string flagName)
     {
+        if (!this.AllowEdit)
+            return;
+
         try
         {
-            PigeonCms.Category o1 = new PigeonCms.Category();
-            o1 = new CategoriesManager().GetByKey(recordId);
-            switch (flagName.ToLower())
+            var man = new CategoriesManager(true, true);
+            var o1 = man.GetByKey(recordId);
+            if (o1.Id > 0)
             {
-                case "enabled":
-                    o1.Enabled = value;
-                    break;
-                default:
-                    break;
+                switch (flagName.ToLower())
+                {
+                    case "enabled":
+                        o1.Enabled = value;
+                        break;
+                    default:
+                        break;
+                }
+                man.Update(o1);
             }
-            new CategoriesManager().Update(o1);
         }
         catch (Exception e1)
         {
@@ -599,10 +403,14 @@ public partial class Controls_CategoriesAdmin : PigeonCms.BaseModuleControl
         LblErr.Text = "";
         LblOk.Text = "";
 
+        if (!this.AllowEdit)
+            return;
+
         try
         {
-            new CategoriesManager().MoveRecord(recordId, direction);
-            Grid1.DataBind();
+            new CategoriesManager(true, true).MoveRecord(recordId, direction);
+            Tree1.BindTree(this.CurrentSectionId);
+
             MultiView1.ActiveViewIndex = 0;
         }
         catch (Exception e1)
@@ -611,5 +419,23 @@ public partial class Controls_CategoriesAdmin : PigeonCms.BaseModuleControl
         }
         finally { }
     }
+
+    private void initTree()
+    {
+        Tree1.TargetImagesUpload = base.TargetImagesUpload;
+        Tree1.TargetFilesUpload = base.TargetFilesUpload;
+        Tree1.SectionId = base.SectionId;
+
+        Tree1.ShowSecurity = base.ShowSecurity;
+        Tree1.ShowOnlyDefaultCulture = base.ShowOnlyDefaultCulture;
+        Tree1.ShowItemsCount = base.ShowItemsCount;
+        Tree1.AllowOrdering = base.AllowOrdering;
+        Tree1.AllowEdit = base.AllowEdit;
+        Tree1.AllowDelete = base.AllowDelete;
+        Tree1.AllowNew = base.AllowNew;
+        Tree1.AllowSelection = base.AllowSelection;
+    }
+
     #endregion
+
 }

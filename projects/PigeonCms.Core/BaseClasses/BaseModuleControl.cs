@@ -440,6 +440,60 @@ namespace PigeonCms
             return res;
         }
 
+        protected string RenderAccessTypeSummary(ITableWithPermissions item, string readLabel = "", string writeLabel = "")
+        {
+            string res = "";
+
+            //permissions
+            //read
+            string readAccessLevel = item.ReadAccessCode;
+            if (item.ReadAccessLevel > 0)
+                readAccessLevel += " " + item.ReadAccessLevel.ToString();
+            if (!string.IsNullOrEmpty(readAccessLevel))
+                readAccessLevel = " - " + readAccessLevel;
+
+            //write
+            string writeAccessLevel = item.WriteAccessCode;
+            if (item.WriteAccessLevel > 0)
+                writeAccessLevel += " " + item.WriteAccessLevel.ToString();
+            if (!string.IsNullOrEmpty(writeAccessLevel))
+                writeAccessLevel = " - " + writeAccessLevel;
+
+            res += readLabel + item.ReadAccessType.ToString();
+            if (item.ReadAccessType != MenuAccesstype.Public)
+            {
+                string roles = "";
+                foreach (string role in item.ReadRolenames)
+                {
+                    roles += role + ", ";
+                }
+                if (roles.EndsWith(", ")) roles = roles.Substring(0, roles.Length - 2);
+                if (roles.Length > 0)
+                    roles = " (" + roles + ")";
+                res += Utility.Html.GetTextPreview(roles, 60, "");
+                res += readAccessLevel;
+            }
+            if (res != "") res += "<br />";
+
+            //write
+            res += writeLabel + item.WriteAccessType.ToString();
+            if (item.WriteAccessType != MenuAccesstype.Public)
+            {
+                string roles = "";
+                foreach (string role in item.WriteRolenames)
+                {
+                    roles += role + ", ";
+                }
+                if (roles.EndsWith(", ")) roles = roles.Substring(0, roles.Length - 2);
+                if (roles.Length > 0)
+                    roles = " (" + roles + ")";
+                res += Utility.Html.GetTextPreview(roles, 60, "");
+                res += writeAccessLevel;
+            }
+
+            return res;
+        }
+
         private BaseMasterPage currentMaster = null;
         protected BaseMasterPage CurrentMaster
         {

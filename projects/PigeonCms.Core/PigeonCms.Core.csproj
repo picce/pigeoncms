@@ -94,6 +94,7 @@
     <Compile Include="BLL\CustomDataType.cs" />
     <Compile Include="BLL\LogItem.cs" />
     <Compile Include="BLL\Label.cs" />
+    <Compile Include="Controls\TreeViewLinks.cs" />
     <Compile Include="Controls\Image.cs" />
     <Compile Include="Controls\Label.cs" />
     <Compile Include="DAL\AppSettingsManager.cs" />
@@ -159,6 +160,9 @@
     <Compile Include="Helpers\PageHelper.cs" />
     <Compile Include="Items\PigeonCms.News\NewsItem.cs" />
     <Compile Include="Items\PigeonCms.TicketItem\TicketItem.cs" />
+    <Compile Include="Modules\PigeonCms.CategoriesAdmin\CategoriesAdminControl.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
     <Compile Include="Modules\PigeonCms.Items\ItemsAdminControl.cs">
       <SubType>ASPXCodeBehind</SubType>
     </Compile>

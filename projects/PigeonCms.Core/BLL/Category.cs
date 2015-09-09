@@ -403,6 +403,36 @@ namespace PigeonCms
             }
         }
 
+        private Category parent = null;
+        /// <summary>
+        /// parent category
+        /// </summary>
+        public Category Parent(CategoriesManager man)
+        {
+            if (parent == null)
+            {
+                parent = new Category();
+                if (this.ParentId > 0)
+                    parent = man.GetByKey(this.ParentId);
+            }
+            return parent;
+        }
+
+        private List<Category> childs = null;
+        /// <summary>
+        /// parent category
+        /// </summary>
+        public List<Category> Childs(CategoriesManager man)
+        {
+            if (childs == null)
+            {
+                var filter = new CategoriesFilter();
+                filter.ParentId = this.Id;
+                childs = man.GetByFilter(filter, "");
+            }
+            return childs;
+        }
+
         #region public methods
         public Category(){}
 
@@ -436,11 +466,10 @@ namespace PigeonCms
 
         private int id = 0;
         private int sectionId = 0;
-        private int parentId = 0;
+        private int parentId = -1;
+        private int idToExpand = 0;
         private string alias = "";
         private Utility.TristateBool enabled = Utility.TristateBool.NotSet;
-        //private string title = "";
-        //private string description = "";
 
         [DataObjectField(true)]
         public int Id
@@ -460,12 +489,24 @@ namespace PigeonCms
             set { sectionId = value; }
         }
 
+        
         public int ParentId
         {
             [DebuggerStepThrough()]
             get { return parentId; }
             [DebuggerStepThrough()]
             set { parentId = value; }
+        }
+
+        /// <summary>
+        /// category id to expand
+        /// </summary>
+        public int IdToExpand
+        {
+            [DebuggerStepThrough()]
+            get { return idToExpand; }
+            [DebuggerStepThrough()]
+            set { idToExpand = value; }
         }
 
         [DataObjectField(false)]

@@ -3,6 +3,8 @@
 <%@ Register src="~/Controls/ItemParams.ascx" tagname="ItemParams" tagprefix="uc1" %>
 <%@ Register src="~/Controls/PermissionsControl.ascx" tagname="PermissionsControl" tagprefix="uc1" %>
 <%@ Register src="~/Controls/ContentEditorControl.ascx" tagname="ContentEditorControl" tagprefix="uc1" %>
+<%@ Register src="~/Controls/CategoriesTreeControl.ascx" tagname="CategoriesTreeControl" tagprefix="uc1" %>
+
 
 <script type="text/javascript">
 // <!CDATA[
@@ -18,6 +20,7 @@ function preloadAlias(sourceControlName, targetControl) {
 
 function pageLoad(sender, args) {
     $(document).ready(function () {
+
         $("a.fancyRefresh").fancybox({
             'width': '80%',
             'height': '80%',
@@ -29,27 +32,19 @@ function pageLoad(sender, args) {
             }
         });
 
-        $('td.key').each(function () {
-            var hide = true;
-            var html = $(this).html();
-            if ($.trim(html) != '')
-                hide = false;
-            if (hide)
-                $(this).parent('tr').hide();
-        });
+        <%--Pgn_CategoriesAdmin.init('<%=Upd1.ClientID%>');--%>
 
     });
 }
 
-var upd1 = '<%=Upd1.ClientID%>';
-
 function ReloadUpd1() {
+    var upd1 = '<%=Upd1.ClientID%>';
     if (upd1 != null) {
         __doPostBack(upd1, 'items');
     }
 }
 
-var deleteQuestion = '<%=PigeonCms.Utility.GetLabel("RECORD_DELETE_QUESTION") %>';
+var itemsDeleteQuestion = '<%=PigeonCms.Utility.GetLabel("RECORD_DELETE_QUESTION") %>';
 
 //use in popup version
 function closePopup() {
@@ -127,6 +122,7 @@ function onFailure(result) { }
                                 <asp:DropDownList ID="DropItemTypesFilter" runat="server" AutoPostBack="true" CssClass="form-control" 
                                 OnSelectedIndexChanged="DropItemTypesFilter_SelectedIndexChanged"></asp:DropDownList>
                             </div>
+
                         </div>
                     </div>
                 </div>
@@ -141,49 +137,45 @@ function onFailure(result) { }
                     <asp:GridView ID="Grid1" runat="server" AllowPaging="True" AllowSorting="true" Width="100%" AutoGenerateColumns="False"
                         DataSourceID="ObjDs1" DataKeyNames="Id" OnRowCommand="Grid1_RowCommand" OnRowCreated="Grid1_RowCreated" OnRowDataBound="Grid1_RowDataBound">
                         <Columns>
-                            <asp:TemplateField ItemStyle-Width="10" Visible="false">
-                                <ItemTemplate>
-                                <asp:ImageButton ID="ImgSel" CommandName="Select" CommandArgument='<%#Eval("Id") %>' 
-                                runat="server" SkinID="ImgEditFile" />
-                                </ItemTemplate>
-                            </asp:TemplateField>
 
+                            <%--0--%>
                             <asp:TemplateField HeaderText="<%$ Resources:PublicLabels, LblTitle %>" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
                                 <ItemTemplate>
                                     <asp:LinkButton ID="LnkTitle" runat="server" CausesValidation="false" CommandName="Select" CommandArgument='<%#Eval("Id") %>'></asp:LinkButton>
+                                    <br />
+                                    <span class="small text-muted">
+                                        <asp:Literal ID="LitItemInfo" runat="server" />
+                                    </span>
                                 </ItemTemplate>
                             </asp:TemplateField>
 
-                            <asp:BoundField DataField="Alias" HeaderText="Alias" SortExpression="Alias" />
-                            <asp:BoundField DataField="CssClass" HeaderText="Css" SortExpression="CssClass" />
+                            <%--1--%>
+                            <asp:BoundField DataField="Alias" HeaderText="Alias" 
+                                ItemStyle-CssClass="small text-muted" SortExpression="Alias" />
+                            
+                            <%--2--%>
+                            <asp:BoundField Visible="false" DataField="CssClass" HeaderText="Css" 
+                                ItemStyle-CssClass="small text-muted" SortExpression="CssClass" />
 
-                            <asp:TemplateField HeaderText="<%$ Resources:PublicLabels, LblSection %>" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
-                                <ItemTemplate>
-                                    <asp:Literal ID="LitSectionTitle" runat="server" />
-                                </ItemTemplate>
-                            </asp:TemplateField>
-
-                            <asp:TemplateField HeaderText="<%$ Resources:PublicLabels, LblCategory %>" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
+                            <%--3--%>
+                            <asp:TemplateField HeaderText="<%$ Resources:PublicLabels, LblCategory %>" 
+                                ItemStyle-CssClass="small text-muted" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
                                 <ItemTemplate>
                                     <asp:Literal ID="LitCategoryTitle" runat="server" />
                                 </ItemTemplate>
                             </asp:TemplateField>
 
-                            <asp:BoundField DataField="ItemTypeName" HeaderText="<%$ Resources:PublicLabels, LblType %>" />
-
-                            <asp:BoundField DataField="Ordering"  SortExpression="Ordering" ItemStyle-HorizontalAlign="Right" />
-                            <asp:TemplateField HeaderText="<%$ Resources:PublicLabels, LblOrder %>" ItemStyle-HorizontalAlign="Right" SortExpression="Ordering">
+                            <%--4--%>
+                            <asp:TemplateField HeaderText="Access" SortExpression="AccessType"
+                                ItemStyle-CssClass="small text-muted">
                                 <ItemTemplate>
-                                    <asp:LinkButton ID="ImgMoveUp" runat="server" CommandName="MoveUp" CommandArgument='<%#Eval("Id") %>'>
-                                        <i class='fa fa-pgn_up fa-fw'></i>                            
-                                    </asp:LinkButton>
-                                    <asp:LinkButton ID="ImgMoveDown" runat="server" CommandName="MoveDown" CommandArgument='<%#Eval("Id") %>'>
-                                        <i class='fa fa-pgn_down fa-fw'></i>                            
-                                    </asp:LinkButton>
+                                <asp:Literal ID="LitAccessTypeDesc" runat="server" Text=""></asp:Literal>
                                 </ItemTemplate>
                             </asp:TemplateField>
 
-                            <asp:TemplateField HeaderText="<%$ Resources:PublicLabels, LblEnabled %>" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center">
+
+                            <%--5--%>
+                            <asp:TemplateField HeaderText="" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center">
                                 <ItemTemplate>
                                     <asp:LinkButton ID="ImgEnabledOk" runat="server" CommandName="ImgEnabledOk" Visible="false" CommandArgument='<%#Eval("Id") %>'>
                                         <i class='fa fa-pgn_checked fa-fw'></i>
@@ -193,49 +185,53 @@ function onFailure(result) { }
                                     </asp:LinkButton>
                                 </ItemTemplate>
                             </asp:TemplateField>
-                    
-                            <asp:TemplateField HeaderText="Access" SortExpression="AccessType">
+
+                            <%--6--%>
+                            <asp:TemplateField HeaderText="" ItemStyle-HorizontalAlign="Right" SortExpression="Ordering">
                                 <ItemTemplate>
-                                <asp:Literal ID="LitAccessTypeDesc" runat="server" Text=""></asp:Literal>
-                                </ItemTemplate>
-                            </asp:TemplateField>
-                    
-                            <asp:TemplateField HeaderText="Access Level" SortExpression="AccessCode, AccessLevel" Visible="false">
-                                <ItemTemplate>
-                                <asp:Literal ID="LitAccessLevel" runat="server" Text=""></asp:Literal>
+                                    <div>
+                                        <asp:LinkButton ID="ImgMoveUp" runat="server" CommandName="MoveUp" CommandArgument='<%#Eval("Id") %>'>
+                                            <i class='fa fa-pgn_up fa-fw'></i>                            
+                                        </asp:LinkButton>
+                                        <asp:LinkButton ID="ImgMoveDown" runat="server" CommandName="MoveDown" CommandArgument='<%#Eval("Id") %>'>
+                                            <i class='fa fa-pgn_down fa-fw'></i>                            
+                                        </asp:LinkButton>
+                                    </div>
                                 </ItemTemplate>
                             </asp:TemplateField>
 
-                            <asp:TemplateField HeaderText="<%$ Resources:PublicLabels, LblFiles %>" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center">
+                            <%--7--%>
+                            <asp:TemplateField HeaderText="" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center">
                                 <ItemTemplate>
                                     <asp:HyperLink ID="LnkUploadFiles" runat="server">
                                         <i class='fa fa-pgn_attach fa-fw'></i>
                                     </asp:HyperLink>
                                     <br />
-                                    <span><asp:Literal ID="LitFilesCount" runat="server" Text=""></asp:Literal></span>
+                                    <span class="small text-muted"><asp:Literal ID="LitFilesCount" runat="server" Text=""></asp:Literal></span>
                                 </ItemTemplate>
                             </asp:TemplateField>
                     
-                            <asp:TemplateField HeaderText="Img">
+                            <%-- 8 --%>
+                            <asp:TemplateField HeaderText="">
                                 <ItemTemplate>
                                     <asp:HyperLink ID="LnkUploadImg" runat="server">
                                         <i class='fa fa-pgn_image fa-fw'></i>
                                     </asp:HyperLink>
                                     <br />
-                                    <span><asp:Literal ID="LitImgCount" runat="server" Text=""></asp:Literal></span>
+                                    <span class="small text-muted"><asp:Literal ID="LitImgCount" runat="server" Text=""></asp:Literal></span>
                                 </ItemTemplate>
                             </asp:TemplateField>
                     
+                            <%-- 9 --%>
                             <asp:TemplateField HeaderText="" ItemStyle-HorizontalAlign="Center" ItemStyle-Width="10">
                                 <ItemTemplate>
                                     <asp:LinkButton ID="LnkDel" runat="server" CommandName="DeleteRow" 
-                                        CommandArgument='<%#Eval("Id") %>' OnClientClick="return confirm(deleteQuestion);">
+                                        CommandArgument='<%#Eval("Id") %>' OnClientClick="return confirm(itemsDeleteQuestion);">
                                         <i class='fa fa-pgn_delete fa-fw'></i>
                                     </asp:LinkButton>
                                 </ItemTemplate>
                             </asp:TemplateField>
                     
-                            <asp:BoundField DataField="Id" HeaderText="ID" SortExpression="Id" ItemStyle-HorizontalAlign="Right" HeaderStyle-HorizontalAlign="Right" />
                         </Columns>
                     </asp:GridView>
                     </div>
@@ -285,13 +281,14 @@ function onFailure(result) { }
                         <div class="tab-pane fade in active" id="tab-main">
 
                             <div class="form-group col-md-4">
-                                <%=base.GetLabel("LblItemType", "Item type", LitItemType, true)%>
-                                <asp:TextBox ID="LitItemType" runat="server" Enabled="false" CssClass="form-control"></asp:TextBox>
+                                <%=base.GetLabel("LblSection", "Section", LitSection, true)%>
+                                <asp:TextBox ID="LitSection" runat="server" Enabled="false" CssClass="form-control"></asp:TextBox>
                             </div>
 
+
                             <div class="form-group col-md-4">
-                                <%=base.GetLabel("LblCategory", "Category", DropCategories, true)%>
-                                <asp:DropDownList ID="DropCategories" runat="server" CssClass="form-control"></asp:DropDownList>
+                                <%=base.GetLabel("LblItemType", "Item type", LitItemType, true)%>
+                                <asp:TextBox ID="LitItemType" runat="server" Enabled="false" CssClass="form-control"></asp:TextBox>
                             </div>
 
                             <div class="form-group col-md-4">
@@ -304,13 +301,18 @@ function onFailure(result) { }
                                 <asp:Panel runat="server" ID="PanelTitle"></asp:Panel>
                             </div>
 
-                            <div class="form-group col-md-6">
+                            <div class="form-group col-md-4">
+                                <%=base.GetLabel("LblCategory", "Category", DropCategories, true)%>
+                                <asp:DropDownList ID="DropCategories" runat="server" CssClass="form-control"></asp:DropDownList>
+                            </div>
+
+                            <div class="form-group col-md-4">
                                 <%=base.GetLabel("LblAlias", "Alias", TxtAlias, true)%>
                                 <asp:RequiredFieldValidator ID="ReqAlias" ControlToValidate="TxtAlias" runat="server" Text="*"></asp:RequiredFieldValidator>
                                 <asp:TextBox ID="TxtAlias" runat="server" CssClass="form-control"></asp:TextBox>
                             </div>
 
-                            <div class="form-group col-md-6">
+                            <div class="form-group col-md-4">
                                 <%=base.GetLabel("LblCssClass", "Css class", TxtCssClass, true)%>
                                 <asp:TextBox ID="TxtCssClass" runat="server" MaxLength="50" CssClass="form-control"></asp:TextBox>
                             </div>
