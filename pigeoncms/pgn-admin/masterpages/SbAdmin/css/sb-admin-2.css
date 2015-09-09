@@ -2,6 +2,12 @@
   display: block;
   visibility: visible;
 }
+.navbar-logo {
+  background-image: url(../img/logo-pigeon-small.png);
+  background-repeat: no-repeat;
+  background-position: 10px center;
+  padding-left: 160px;
+}
 .title {
   font-size: 36px;
   padding-top: 10px;
@@ -50,6 +56,33 @@ ul.menuBottom li {
 }
 ul.menuBottom li:last-child {
   border-right: none;
+}
+.treeview__links-control span {
+  font-weight: normal;
+}
+.treeview__links-control td {
+  vertical-align: text-top;
+}
+.treeview__node-text {
+  cursor: pointer;
+}
+.treeview__text-container {
+  padding: 3px;
+}
+.treeview__links-container {
+  margin-top: 0px;
+  padding-left: 20px;
+  float: right;
+  opacity: .4;
+}
+.treeview__links-container:hover {
+  opacity: 1;
+}
+.treeview__links-container a {
+  margin-right: 3px;
+}
+.treeview__links-container a:hover {
+  text-decoration: none;
 }
 body {
   background-color: #f8f8f8;

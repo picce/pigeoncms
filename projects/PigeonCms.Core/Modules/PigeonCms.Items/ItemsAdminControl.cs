@@ -141,10 +141,22 @@ namespace PigeonCms
             get { return GetBoolParam("ShowDates", showDates); }
         }
 
+        private bool showItemsCount = true;
+        public bool ShowItemsCount
+        {
+            get { return GetBoolParam("ShowItemsCount", showItemsCount); }
+        }
+
         private bool allowOrdering = true;
         public bool AllowOrdering
         {
             get { return GetBoolParam("AllowOrdering", allowOrdering); }
+        }
+
+        private bool allowDelete = true;
+        public bool AllowDelete
+        {
+            get { return GetBoolParam("AllowDelete", allowDelete); }
         }
 
         /*private bool showThread = false;
@@ -194,12 +206,6 @@ namespace PigeonCms
         #endregion
 
         #region filters
-
-        private bool mandatorySectionFilter = false;
-        public bool MandatorySectionFilter
-        {
-            get { return GetBoolParam("MandatorySectionFilter", mandatorySectionFilter); }
-        }
 
         private string itemType = "";
         public string ItemType

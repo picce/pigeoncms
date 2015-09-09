@@ -1,5 +1,6 @@
 using System;
 using System.Data;
+using System.Linq;
 using System.Configuration;
 using System.Collections;
 using System.Web;
@@ -13,19 +14,18 @@ using System.Collections.Generic;
 using System.Globalization;
 using PigeonCms;
 using PigeonCms.Core.Helpers;
+using PigeonCms.Controls;
+
 
 public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
 {
-    //const int CAT_START = 1000;
-    const int COL_ALIAS_INDEX = 2;
-    const int COL_SECTION_INDEX = 3;
-    const int COL_CATEGORY_INDEX = 4;
-    const int COL_TYPE_INDEX = 5;
+    const int COL_ALIAS_INDEX = 1;
+    const int COL_CATEGORY_INDEX = 3;
+    const int COL_ACCESSTYPE_INDEX = 4;
     const int COL_ORDER_ARROWS_INDEX = 6;
-    const int COL_ORDERING_INDEX = 7;
-    const int COL_ACCESSTYPE_INDEX = 9;
-    const int COL_ACCESSLEVEL_INDEX = 10;
-    const int COL_ID_INDEX = 14;
+    const int COL_UPLOADFILES_INDEX = 7;
+    const int COL_UPLOADIMAGES_INDEX = 8;
+    const int COL_DELETE_INDEX = 9;
 
     const int VIEW_GRID = 0;
     const int VIEW_INSERT = 1;
@@ -92,6 +92,18 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
         }
     }
 
+    protected int CurrentSectionId
+    {
+        get
+        {
+            int res = 0;
+            if (this.SectionId > 0)
+                res = this.SectionId;
+            else
+                int.TryParse(DropSectionsFilter.SelectedValue, out res);
+            return res;
+        }
+    }
 
     protected new void Page_Init(object sender, EventArgs e)
     {
@@ -141,20 +153,16 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
         TxtAlias.Attributes.Add("onfocus", "preloadAlias('" + titleId + "', this)");
 
         //restrictions
-        Grid1.AllowSorting = this.AllowOrdering;
+        Grid1.AllowSorting = false;
         Grid1.Columns[COL_ORDER_ARROWS_INDEX].Visible = this.AllowOrdering;
-        Grid1.Columns[COL_ORDERING_INDEX].Visible = this.AllowOrdering;
+        Grid1.Columns[COL_UPLOADFILES_INDEX].Visible = this.TargetFilesUpload > 0;
+        Grid1.Columns[COL_UPLOADIMAGES_INDEX].Visible = this.TargetImagesUpload > 0;
+        Grid1.Columns[COL_DELETE_INDEX].Visible = base.AllowDelete;
 
         Grid1.Columns[COL_ALIAS_INDEX].Visible = this.ShowAlias;
         TxtAlias.Visible = this.ShowAlias;
 
-        Grid1.Columns[COL_TYPE_INDEX].Visible = this.ShowType;
-        LitItemType.Visible = this.ShowType;
-
-        Grid1.Columns[COL_SECTION_INDEX].Visible = this.ShowSectionColumn;
         Grid1.Columns[COL_ACCESSTYPE_INDEX].Visible = this.ShowSecurity;
-        Grid1.Columns[COL_ACCESSLEVEL_INDEX].Visible = this.ShowSecurity;
-        Grid1.Columns[COL_ID_INDEX].Visible = this.ShowSecurity;
         PermissionsControl1.Visible = this.ShowSecurity;
 
         TxtItemDate.Visible = this.ShowDates;
@@ -174,6 +182,7 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
         LblOk.Text = RenderSuccess("");
         LblErr.Text = RenderError("");
 
+
         if (this.BaseModule.DirectEditMode)
         {
             if (base.CurrItem.Id == 0)
@@ -181,6 +190,9 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
             if (new ItemsManager<Item, ItemsFilter>(true, true).GetByKey(base.CurrItem.Id).Id == 0)
                 throw new ArgumentException();
         }
+
+        //Tree1.NodeClick += new PigeonCms.Modules.CategoriesAdminControl.NodeClickDelegate(Tree_NodeClick);
+        //initTree();
 
         if (!Page.IsPostBack)
         {
@@ -191,6 +203,7 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
                 int.TryParse(DropSectionsFilter.SelectedValue, out secId);
                 loadDropCategoriesFilter(secId);
             }
+            //Tree1.BindTree(this.CurrentSectionId);
             loadDropsItemTypes();
         }
         else
@@ -229,6 +242,19 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
         }
     }
 
+    //protected void Tree_NodeClick(object sender, PigeonCms.Modules.CategoriesAdminControl.NodeClickEventArgs e)
+    //{
+    //    LblOk.Text = RenderSuccess(e.Command.ToString() + " " + e.CategoryId.ToString());
+
+    //    switch (e.Command)
+    //    {
+    //        case PigeonCms.Modules.CategoriesAdminControl.NodeClickCommandEnum.Select:
+    //            LblOk.Text = RenderSuccess(e.Command.ToString() + " " + e.CategoryId.ToString());
+    //            break;
+    //    }
+
+    //}
+
     protected void DropEnabledFilter_SelectedIndexChanged(object sender, EventArgs e)
     {
         Grid1.DataBind();
@@ -241,6 +267,7 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
 
         loadDropCategoriesFilter(secID);
         loadDropCategories(secID);
+        //Tree1.BindTree(secID);
         Grid1.DataBind();
         base.LastSelectedSectionId = secID;
     }
@@ -379,8 +406,7 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
     {
         if (e.Row.RowType == DataControlRowType.DataRow)
         {
-            PigeonCms.Item item = new PigeonCms.Item();
-            item = (PigeonCms.Item)e.Row.DataItem;
+            var item = (PigeonCms.Item)e.Row.DataItem;
 
             if (item.IsThreadRoot)
                 lastRowDataboundRoot = e.Row;
@@ -390,25 +416,30 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
                     e.Row.RowState = lastRowDataboundRoot.RowState; //keeps same style of thread root
             }
 
-            LinkButton LnkTitle = (LinkButton)e.Row.FindControl("LnkTitle");
+            var LnkTitle = (LinkButton)e.Row.FindControl("LnkTitle");
             LnkTitle.Text = "<i class='fa fa-pgn_edit fa-fw'></i>";
             if (!item.IsThreadRoot)
                 LnkTitle.Text += "--";
-            LnkTitle.Text += Utility.Html.GetTextPreview(item.Title, 30, "");
+            LnkTitle.Text += Utility.Html.GetTextPreview(item.Title, 50, "");
             if (string.IsNullOrEmpty(item.Title))
                 LnkTitle.Text += Utility.GetLabel("NO_VALUE", "<no value>");
 
+            if (base.ShowSecurity && Roles.IsUserInRole("debug"))
+                LnkTitle.Text += " ["+ item.Id.ToString() +"]";
+
+            var LitItemInfo = (Literal)e.Row.FindControl("LitItemInfo");
+            if (this.ShowType)
+                LitItemInfo.Text += item.ItemTypeName + "<br>";
+            if (!string.IsNullOrEmpty(item.CssClass))
+                LitItemInfo.Text += "class: " + item.CssClass;
+
+
             if (item.CategoryId > 0)
             {
-                CategoriesManager mgr = new CategoriesManager();
-                Category cat = mgr.GetByKey(item.CategoryId);
-                Literal LitCategoryTitle = (Literal)e.Row.FindControl("LitCategoryTitle");
+                var mgr = new CategoriesManager();
+                var cat = mgr.GetByKey(item.CategoryId);
+                var LitCategoryTitle = (Literal)e.Row.FindControl("LitCategoryTitle");
                 LitCategoryTitle.Text = cat.Title;
-                if (cat.SectionId > 0)
-                {
-                    Literal LitSectionTitle = (Literal)e.Row.FindControl("LitSectionTitle");
-                    LitSectionTitle.Text = new SectionsManager().GetByKey(cat.SectionId).Title;
-                }
             }
 
             if (item.Enabled)
@@ -423,58 +454,14 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
             }
 
             //permissions
-            //read
-            string readAccessLevel = item.ReadAccessCode;
-            if (item.ReadAccessLevel > 0)
-                readAccessLevel += " " + item.ReadAccessLevel.ToString();
-            if (!string.IsNullOrEmpty(readAccessLevel))
-                readAccessLevel = " - " + readAccessLevel;
-
-            //write
-            string writeAccessLevel = item.WriteAccessCode;
-            if (item.WriteAccessLevel > 0)
-                writeAccessLevel += " " + item.WriteAccessLevel.ToString();
-            if (!string.IsNullOrEmpty(writeAccessLevel))
-                writeAccessLevel = " - " + writeAccessLevel;
-
-            Literal LitAccessTypeDesc = (Literal)e.Row.FindControl("LitAccessTypeDesc");
-            //read
-            LitAccessTypeDesc.Text = item.ReadAccessType.ToString();
-            if (item.ReadAccessType != MenuAccesstype.Public)
-            {
-                string roles = "";
-                foreach (string role in item.ReadRolenames)
-                {
-                    roles += role + ", ";
-                }
-                if (roles.EndsWith(", ")) roles = roles.Substring(0, roles.Length - 2);
-                if (roles.Length > 0)
-                    roles = " (" + roles + ")";
-                LitAccessTypeDesc.Text += Utility.Html.GetTextPreview(roles, 60, "");
-                LitAccessTypeDesc.Text += readAccessLevel;
-            }
-            if (LitAccessTypeDesc.Text != "") LitAccessTypeDesc.Text += "<br />";
-            //write
-            LitAccessTypeDesc.Text += item.WriteAccessType.ToString();
-            if (item.WriteAccessType != MenuAccesstype.Public)
-            {
-                string roles = "";
-                foreach (string role in item.WriteRolenames)
-                {
-                    roles += role + ", ";
-                }
-                if (roles.EndsWith(", ")) roles = roles.Substring(0, roles.Length - 2);
-                if (roles.Length > 0)
-                    roles = " (" + roles + ")";
-                LitAccessTypeDesc.Text += Utility.Html.GetTextPreview(roles, 60, "");
-                LitAccessTypeDesc.Text += writeAccessLevel;
-            }
-
+            var LitAccessTypeDesc = (Literal)e.Row.FindControl("LitAccessTypeDesc");
+            LitAccessTypeDesc.Text = RenderAccessTypeSummary(item);
 
             //files upload
             var LnkUploadFiles = (HyperLink)e.Row.FindControl("LnkUploadFiles");
             LnkUploadFiles.NavigateUrl = this.FilesUploadUrl
                 + "?type=items&id=" + item.Id.ToString();
+            LnkUploadFiles.Visible = this.TargetFilesUpload > 0;
             if (this.IsMobileDevice == false)
                 LnkUploadFiles.CssClass = "fancyRefresh";
             var LitFilesCount = (Literal)e.Row.FindControl("LitFilesCount");
@@ -490,6 +477,7 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
             var LnkUploadImg = (HyperLink)e.Row.FindControl("LnkUploadImg");
             LnkUploadImg.NavigateUrl = this.ImagesUploadUrl
                 + "?type=items&id=" + item.Id.ToString();
+            LnkUploadImg.Visible = this.TargetImagesUpload > 0;
             if (this.IsMobileDevice == false)
                 LnkUploadImg.CssClass = "fancyRefresh";
             var LitImgCount = (Literal)e.Row.FindControl("LitImgCount");
@@ -542,6 +530,14 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
         LblOk.Text = RenderSuccess("");
         bool res = true;
         string err = "";
+
+        int catId = 0;
+        int.TryParse(DropCategories.SelectedValue, out catId);
+        if (catId <= 0)
+        {
+            res = false;
+            err += base.GetLabel("ChooseCategory", "alias in use") + "<br>";
+        }
 
         if (!string.IsNullOrEmpty(TxtAlias.Text))
         {
@@ -619,6 +615,7 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
     {
         LblId.Text = "";
         LblOrderId.Text = "";
+        LitSection.Text = "";
         LitItemType.Text = "";
         LblCreated.Text = "";
         LblUpdated.Text = "";
@@ -670,10 +667,6 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
             var txt2 = new Controls_ContentEditorControl();
             txt2 = Utility.FindControlRecursive<Controls_ContentEditorControl>(this, "TxtDescription" + item.Value);
             obj.DescriptionTranslations.Add(item.Key, txt2.Text);
-
-            //FCKeditor t2 = new FCKeditor();
-            //t2 = (FCKeditor)PanelDescription.FindControl("TxtDescription" + item.Value);
-            //obj.DescriptionTranslations.Add(item.Key, t2.Value);
         }
         obj.ItemParams = FormBuilder.GetParamsString(obj.ItemType.Params, ItemParams1);
         string fieldsString = FormBuilder.GetParamsString(obj.ItemType.Fields, ItemFields1);
@@ -717,6 +710,7 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
         ItemParams1.LoadParams(obj);
         ItemFields1.LoadFields(obj);
         PermissionsControl1.Obj2form(obj);
+        LitSection.Text = obj.Category.Section.Title;
         LitItemType.Text = obj.ItemTypeName;
         
         this.ItemDate = obj.ItemDate;
@@ -788,12 +782,10 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
     private void loadDropSectionsFilter(int sectionId)
     {
         DropSectionsFilter.Items.Clear();
-        if (!this.MandatorySectionFilter)
-            DropSectionsFilter.Items.Add(new ListItem(Utility.GetLabel("LblSelectSection", "Select section"), "0"));
 
         var secFilter = new SectionsFilter();
         secFilter.Id = sectionId;
-        var secList = new SectionsManager(true, false).GetByFilter(secFilter, "");
+        var secList = new SectionsManager(true, true).GetByFilter(secFilter, "");
 
         foreach (var sec in secList)
         {
@@ -809,16 +801,13 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
         DropCategoriesFilter.Items.Add(new ListItem(Utility.GetLabel("LblSelectCategory", "Select category"), "0"));
 
         var catFilter = new CategoriesFilter();
-        var catList = new List<Category>();
-
-        catFilter = new CategoriesFilter();
         catFilter.SectionId = sectionId;
-        if (catFilter.SectionId == 0) catFilter.Id = -1;
-        catList = new CategoriesManager(true, false).GetByFilter(catFilter, "");
-        foreach (var cat in catList)
-        {
-            DropCategoriesFilter.Items.Add(new ListItem(cat.Title, cat.Id.ToString()));
-        }
+        if (catFilter.SectionId == 0) 
+            catFilter.Id = -1;
+        
+        var list = new CategoriesManager(true, true).GetByFilter(catFilter, "");
+        loadListCategories(DropCategoriesFilter, list, 0, 0, base.ShowItemsCount);
+
         if (base.LastSelectedCategoryId > 0)
             Utility.SetDropByValue(DropCategoriesFilter, base.LastSelectedCategoryId.ToString());
     }
@@ -826,18 +815,42 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
     private void loadDropCategories(int sectionId)
     {
         DropCategories.Items.Clear();
-        //DropCategories.Items.Add(new ListItem("", "0"));  //mandatory category
 
         var catFilter = new CategoriesFilter();
-        var catList = new List<Category>();
-
-        catFilter = new CategoriesFilter();
         catFilter.SectionId = sectionId;
-        if (catFilter.SectionId == 0) catFilter.Id = -1;
-        catList = new CategoriesManager().GetByFilter(catFilter, "");
-        foreach (var cat in catList)
+        if (catFilter.SectionId == 0) 
+            catFilter.Id = -1;
+        var list = new CategoriesManager().GetByFilter(catFilter, "");
+        loadListCategories(DropCategories, list, 0, 0);
+    }
+
+    private void loadListCategories(DropDownList drop, 
+        List<Category> list, int parentId, int level, bool showItemsCount = false)
+    {
+        var nodes = list.Where(x => x.ParentId == parentId);
+        foreach (var item in nodes)
         {
-            DropCategories.Items.Add(new ListItem(cat.Section.Title + " > " + cat.Title, cat.Id.ToString()));
+            string levelString = "";
+            for (int i = 0; i < level; i++)
+            {
+                levelString += ". . ";
+            }
+
+            var listItem = new ListItem();
+            listItem.Value = item.Id.ToString();
+            listItem.Text = levelString + item.Title;
+            if (showItemsCount)
+            {
+                var iman = new ItemsManager<Item, ItemsFilter>();
+                var ifilter = new ItemsFilter();
+                ifilter.CategoryId = item.Id;
+                int count = iman.GetByFilter(ifilter, "").Count;
+                if (count > 0)
+                    listItem.Text += " ("+ count.ToString() +")";
+            }
+            drop.Items.Add(listItem);
+
+            loadListCategories(drop, list, item.Id, level + 1, showItemsCount);
         }
     }
 
@@ -925,20 +938,31 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
         finally { }
     }
 
-    Boolean checkAddNewFilters()
+    //private void initTree()
+    //{
+    //    Tree1.TargetImagesUpload = 0;
+    //    Tree1.TargetFilesUpload = 0;
+    //    Tree1.SectionId = base.SectionId;
+
+    //    Tree1.ShowSecurity = base.ShowSecurity;
+    //    Tree1.ShowOnlyDefaultCulture = base.ShowOnlyDefaultCulture;
+    //    Tree1.ShowItemsCount = true;
+    //    Tree1.AllowOrdering = false;
+    //    Tree1.AllowEdit = false;
+    //    Tree1.AllowDelete = false;
+    //    Tree1.AllowNew = false;
+    //    Tree1.AllowSelection = true;
+    //}
+
+    private bool checkAddNewFilters()
     {
-        Boolean res = true;
+        bool res = true;
         if (DropSectionsFilter.SelectedValue == "0" || DropSectionsFilter.SelectedValue == "")
         {
             LblErr.Text = RenderError(base.GetLabel("ChooseSection", "Choose a section before"));
             res = false;
         }
 
-        if (DropCategoriesFilter.SelectedValue == "0" || DropCategoriesFilter.SelectedValue == "")
-        {
-            LblErr.Text = RenderError(base.GetLabel("ChooseCategory", "Choose a category before"));
-            res = false;
-        }
         return res;
     }
 

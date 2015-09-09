@@ -312,12 +312,12 @@ namespace PigeonCms
             return result;
         }
 
-        public List<Menu> GetTree(MenuFilter filter, int level)
-        {
-            return GetTree(filter, level, ". . ");
-        }
+        //public List<Menu> GetTree(MenuFilter filter, int level)
+        //{
+        //    return GetTree(filter, level, ". . ");
+        //}
 
-        public List<Menu> GetTree(MenuFilter filter, int level, string separatorText)
+        public List<Menu> GetTree(MenuFilter filter, int level, string separatorText = ". . ")
         {
             List<PigeonCms.Menu> result = new List<Menu>();
             loadTree(result, filter, level, separatorText);

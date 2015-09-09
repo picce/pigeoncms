@@ -281,34 +281,8 @@ public partial class Controls_MenuAdmin : PigeonCms.BaseModuleControl
                 }
             }
 
-            Literal LitAccessTypeDesc = (Literal)e.Row.FindControl("LitAccessTypeDesc");
-            LitAccessTypeDesc.Text = item.ReadAccessType.ToString();
-            if (item.ReadAccessType != MenuAccesstype.Public)
-            {
-                string roles = "";
-                foreach (string role in item.ReadRolenames)
-                {
-                    roles += role + ", ";
-                }
-                if (roles.EndsWith(", ")) roles = roles.Substring(0, roles.Length - 2);
-                if (roles.Length > 0)
-                    roles = " (" + roles + ")";
-                LitAccessTypeDesc.Text += Utility.Html.GetTextPreview(roles, 30, "");
-
-                //render access level
-                if (!string.IsNullOrEmpty(item.ReadAccessCode))
-                    LitAccessTypeDesc.Text += item.ReadAccessCode;
-                if (item.ReadAccessLevel > 0)
-                    LitAccessTypeDesc.Text += " (" + item.ReadAccessLevel.ToString() + ")";
-            }
-
-            //hide on 20140117
-            //Literal LitAccessLevel = (Literal)e.Row.FindControl("LitAccessLevel");
-            //LitAccessLevel.Text = item.ReadAccessCode;
-            //if (item.ReadAccessLevel > 0)
-            //{
-            //    LitAccessLevel.Text += item.ReadAccessLevel.ToString();
-            //}
+            var LitAccessTypeDesc = (Literal)e.Row.FindControl("LitAccessTypeDesc");
+            LitAccessTypeDesc.Text = RenderAccessTypeSummary(item);
 
             //Visible
             if (item.Visible)

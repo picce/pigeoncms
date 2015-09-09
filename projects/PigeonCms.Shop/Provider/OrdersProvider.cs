@@ -183,6 +183,7 @@ namespace PigeonCms.Shop.OrdersProvider
         {
             int res = ordMan.Update(this.Order);
             ordMan.CalculateSummary(this.OrderId);
+            this.order = new OT();//20150908 cause Order cache refresh
             return res;
         }
 

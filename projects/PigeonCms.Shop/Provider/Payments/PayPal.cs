@@ -13,6 +13,7 @@ using System.Net;
 using PigeonCms;
 using PigeonCms.Core.Helpers;
 using System.Text;
+using System.Globalization;
 
 
 namespace PigeonCms.Shop.PaymentsProvider
@@ -125,8 +126,11 @@ namespace PigeonCms.Shop.PaymentsProvider
 
                 args.TotalPaid = 0;
                 Decimal.TryParse(
-                    HttpContext.Current.Request.Form["mc_gross"].Replace('.', ','), 
+                    HttpContext.Current.Request.Form["mc_gross"].Replace(',', '.'),
+                    NumberStyles.Any,
+                    new CultureInfo("en-US"),
                     out args.TotalPaid);
+
 
                 string payment_status = HttpContext.Current.Request.Form["payment_status"].ToString();
                 string receiver_email = HttpContext.Current.Request.Form["receiver_email"].ToString();

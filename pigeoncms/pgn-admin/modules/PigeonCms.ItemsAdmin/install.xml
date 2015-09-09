@@ -41,10 +41,6 @@
 			<option value="0" label="No category"></option>
 			<datasource SelectMethod="GetList" TypeName="PigeonCms.CategoriesManager" />
 		</param>
-		<param name="MandatorySectionFilter" type="combo" default="0" label="Mandatory section filter">
-			<option value="1" label="Yes"></option>
-			<option value="0" label="No"></option>
-		</param>
 		<param name="ItemType" type="combo" default="0" label="Item type" description="Item type filter">
 			<option value="" label="All"></option>
 			<datasource SelectMethod="GetList" TypeName="PigeonCms.ItemTypeManager" />
@@ -84,10 +80,18 @@
 			<option value="1" label="Yes"></option>
 			<option value="0" label="No"></option>
 		</param>
+    <param name="ShowItemsCount" type="combo" default="1" label="Show items count">
+      <option value="1" label="Yes"></option>
+      <option value="0" label="No"></option>
+    </param>    
 		<param name="AllowOrdering" type="combo" default="1" label="Allow ordering">
 			<option value="1" label="Yes"></option>
 			<option value="0" label="No"></option>
 		</param>
+    <param name="AllowDelete" type="combo" default="1" label="Allow delete">
+      <option value="1" label="Yes"></option>
+      <option value="0" label="No"></option>
+    </param>
 	</params>
 
 	<params group="editor">

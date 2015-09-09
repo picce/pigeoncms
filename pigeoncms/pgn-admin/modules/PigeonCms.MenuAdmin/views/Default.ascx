@@ -128,20 +128,26 @@ function pageLoad(sender, args) {
                                 <ItemTemplate>
                                     <asp:LinkButton ID="LnkSel" runat="server" CommandName="Select" CommandArgument='<%#Eval("Id") %>'></asp:LinkButton>
                                     <br />
-                                    <asp:Literal ID="LitAlias" runat="server" Text=""></asp:Literal>
+                                    <span class="small text-muted">
+                                        <asp:Literal ID="LitAlias" runat="server" Text=""></asp:Literal>
+                                    </span>
                                 </ItemTemplate>
                             </asp:TemplateField>
 
                             <%--1--%>
                             <asp:TemplateField HeaderText="Css/Theme/Master">
                                 <ItemTemplate>
-                                <asp:Literal ID="LitStyle" runat="server" Text=""></asp:Literal>
+                                <span class="small text-muted">
+                                    <asp:Literal ID="LitStyle" runat="server" Text=""></asp:Literal>
+                                </span>
                                 </ItemTemplate>
                             </asp:TemplateField>
                     
                             <asp:TemplateField HeaderText="Module name">
                                 <ItemTemplate>
-                                <asp:Literal ID="LitModuleNameDesc" runat="server" Text=""></asp:Literal>
+                                <span class="small text-muted">
+                                    <asp:Literal ID="LitModuleNameDesc" runat="server" Text=""></asp:Literal>
+                                </span>
                                 </ItemTemplate>
                             </asp:TemplateField>
                     
@@ -182,7 +188,9 @@ function pageLoad(sender, args) {
 
                             <asp:TemplateField HeaderText="Access">
                                 <ItemTemplate>
-                                <asp:Literal ID="LitAccessTypeDesc" runat="server" Text=""></asp:Literal>
+                                <span class="small text-muted">
+                                    <asp:Literal ID="LitAccessTypeDesc" runat="server" Text=""></asp:Literal>
+                                </span>
                                 </ItemTemplate>
                             </asp:TemplateField>
                     
@@ -202,9 +210,9 @@ function pageLoad(sender, args) {
                                     </asp:LinkButton>
                                 </ItemTemplate>
                             </asp:TemplateField>
-                            <asp:BoundField DataField="Ordering" HeaderText="Order" SortExpression="Ordering" ItemStyle-HorizontalAlign="Right" />
+                            <asp:BoundField DataField="Ordering" Visible="false" HeaderText="" SortExpression="Ordering" ItemStyle-HorizontalAlign="Right" />
 
-                            <asp:TemplateField HeaderText="Copy" Visible="true" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" HeaderStyle-Width="25">
+                            <asp:TemplateField HeaderText="" Visible="true" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" HeaderStyle-Width="25">
                                 <ItemTemplate>
                                     <asp:LinkButton ID="LnkCopy" runat="server" CommandName="CopyRow" CommandArgument='<%#Eval("Id") %>'>
                                         <i class='fa fa-pgn_copy fa-fw'></i>
@@ -225,7 +233,7 @@ function pageLoad(sender, args) {
                                 </ItemTemplate>
                             </asp:TemplateField>                    
                     
-                            <asp:TemplateField HeaderText="Del" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" HeaderStyle-Width="25">
+                            <asp:TemplateField HeaderText="" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" HeaderStyle-Width="25">
                                 <ItemTemplate>
                                     <asp:LinkButton ID="LnkDel" runat="server" CommandName="DeleteRow" 
                                         CommandArgument='<%#Eval("Id") %>' OnClientClick="return confirm(deleteQuestion);">
@@ -234,7 +242,7 @@ function pageLoad(sender, args) {
                                 </ItemTemplate>
                             </asp:TemplateField>
                     
-                            <asp:BoundField DataField="Id" HeaderText="ID" SortExpression="Id" />
+                            <asp:BoundField DataField="Id" Visible="false" HeaderText="ID" SortExpression="Id" />
                         </Columns>
                     </asp:GridView>
                 

@@ -220,6 +220,7 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         }
         else
         {
+            //TOCHECK - remove?
             if (!ScriptManager.GetCurrent(Page).IsInAsyncPostBack)
             {
                 string eventArg = HttpContext.Current.Request["__EVENTARGUMENT"];
