@@ -80,11 +80,11 @@ var deleteQuestion = '<%=PigeonCms.Utility.GetLabel("RECORD_DELETE_QUESTION") %>
                                 </asp:TemplateField>
 
                                 <%--1--%>
-                                <asp:TemplateField HeaderText="ItemType" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
+                                <%--<asp:TemplateField HeaderText="ItemType" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
                                     <ItemTemplate>
                                         <asp:Literal ID="LnkItemType" runat="server"></asp:Literal>
                                     </ItemTemplate>
-                                </asp:TemplateField>
+                                </asp:TemplateField>--%>
 
                                 <%--2--%>
                                 <asp:TemplateField HeaderText="Custom Value" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
@@ -153,24 +153,24 @@ var deleteQuestion = '<%=PigeonCms.Utility.GetLabel("RECORD_DELETE_QUESTION") %>
 
                 <div class="panel-body">
 
-                    <div class="form-group col-sm-6 col-md-3">
+                    <div class="form-group col-lg-12">
+                        <%=base.GetLabel("LblName", "Name *", null, true)%>
+                        <asp:RequiredFieldValidator ID="ReqTxtName" ControlToValidate="TxtName" runat="server" Text="*" ForeColor="Red"></asp:RequiredFieldValidator>
+                         <asp:TextBox ID="TxtName" runat="server" MaxLength="50" CssClass="form-control"></asp:TextBox>
+                    </div>
+
+                    <div class="form-group col-sm-6 col-md-6">
                         <%=base.GetLabel("LblAllowCustomValue", "Use Custom Values", ChkCustomValue, true)%>
                         <asp:CheckBox ID="ChkCustomValue" runat="server" CssClass="form-control" Enabled="true" />
                     </div>
 
-                    <div class="form-group col-sm-6 col-md-3">
+                    <%-- <div class="form-group col-sm-6 col-md-3">
                         <%=base.GetLabel("LblItemType", "Select ItemType", null, true)%>
-                        <asp:DropDownList runat="server" ID="DropItemType"  AutoPostBack="true" CssClass="form-control" 
-                                    ></asp:DropDownList>
-                    </div>
+                        <asp:DropDownList runat="server" ID="DropItemType"  AutoPostBack="true" CssClass="form-control"></asp:DropDownList>
+                    </div>--%>
 
-                    <div class="form-group col-sm-6 col-md-4">
-                        <%=base.GetLabel("LblName", "Name", null, true)%>
-                         <asp:TextBox ID="TxtName" runat="server" MaxLength="50" CssClass="form-control"></asp:TextBox>
-                    </div>
-
-                    <div class="form-group col-sm-6 col-md-2">
-                        <%=base.GetLabel("LblMeasureUnit", "Unit of Measure", null, true)%>
+                    <div class="form-group col-sm-6 col-md-6">
+                        <%=base.GetLabel("LblMeasureUnit", "Unit of Measure", null, true)%>  <span><i>[<%= GetLabel("LblIfAny", "if any") %>]</i></span>
                          <asp:TextBox ID="TxtMeasureUnit" runat="server" MaxLength="50" CssClass="form-control"></asp:TextBox>
                     </div>
 
@@ -188,27 +188,32 @@ var deleteQuestion = '<%=PigeonCms.Utility.GetLabel("RECORD_DELETE_QUESTION") %>
                     <asp:Literal ID="editValueName" runat="server"></asp:Literal>
                     <div class="pull-right">
                         <div class="btn-group">
-                            <asp:Button ID="BtnNewValue" runat="server" Text="New" CssClass="btn btn-warning btn-xs" OnClick="BtnNewValue_Click" />
                             <asp:Button ID="BtnSaveValues" runat="server" Text="<%$ Resources:PublicLabels, CmdSave %>" CssClass="btn btn-primary btn-xs" OnClick="BtnSaveValues_Click" />
-                            <asp:Button ID="BtnCancelValues" runat="server" Text="<%$ Resources:PublicLabels, CmdCancel %>" CssClass="btn btn-default btn-xs" CausesValidation="false" OnClick="BtnCancel_Click" />
+                            <asp:Button ID="BtnCancelValues" runat="server" Text="Indietro" CssClass="btn btn-default btn-xs" CausesValidation="false" OnClick="BtnCancel_Click" />
                         </div>
                     </div>
                 </div>
 
                 <div class="panel-body">
 
-                    <div class="form-group col-lg-12">
-                        <%=base.GetLabel("LblInLang", "Valori in lingua", ChkInLang, true)%>
-                        <asp:CheckBox ID="ChkInLang" runat="server" CssClass="form-control" Checked="true" AutoPostBack="true" OnCheckedChanged="ChkInLang_CheckedChanged" />
+                    <div class="row col-sm-12 col-md-6">
+                        <div class="form-group col-lg-12">
+                            <%=base.GetLabel("LblInLang", "Valori in lingua", ChkInLang, true)%>
+                            <asp:CheckBox ID="ChkInLang" runat="server" CssClass="form-control" Checked="true" AutoPostBack="true" OnCheckedChanged="ChkInLang_CheckedChanged" />
+                        </div>
+
+                        <div class="form-group col-lg-12">
+                            <%=base.GetLabel("LblAttributeValue", "Valore Attributo", null, true)%>
+                            <asp:Panel runat="server" ID="PanelTitle"></asp:Panel>
+                        </div>
+
+                        <div class="form-group col-lg-12">
+                            <asp:Button ID="BtnNewValue" runat="server" Text="Clear Value" CssClass="btn btn-warning btn-xs" OnClick="BtnNewValue_Click" />
+                        </div>
                     </div>
 
-                    <div class="form-group col-sm-12 col-md-6">
-                        <%=base.GetLabel("LblAttributeValue", "Valore Attributo", null, true)%>
-                        <asp:Panel runat="server" ID="PanelTitle"></asp:Panel>
-                    </div>
-
-                    <div class="col-sm-12 col-md-6">
-
+                    <div class="row col-sm-12 col-md-6">
+                        <%=base.GetLabel("LblInsertedRecords", "Valori Inseriti", GridValues, true)%>
                         <div class="panel panel-default">
                             <div class="table-responsive">
 

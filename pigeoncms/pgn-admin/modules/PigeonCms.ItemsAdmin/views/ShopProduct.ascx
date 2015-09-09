@@ -8,13 +8,19 @@
     // <!CDATA[
 
     function preloadAlias(sourceControlName, targetControl) {
-        console.log(sourceControlName);
-        console.log(targetControl);
         var res = document.getElementById(sourceControlName).value;
         if (targetControl.value == "") {
             res = res.toLowerCase();
             res = res.replace(/\ /g, '-');    //replace all occurs
             targetControl.value = res;
+        }
+    }
+
+    function autosuggest(sourceControl, targetControl) {
+        var res = sourceControl.value;
+        if (targetControl.value == "") {
+            targetControl.value = res;
+            $(targetControl).focus().select();
         }
     }
 
@@ -30,16 +36,6 @@
                     ReloadUpd1();
                 }
             });
-
-            $('td.key').each(function () {
-                var hide = true;
-                var html = $(this).html();
-                if ($.trim(html) != '')
-                    hide = false;
-                if (hide)
-                    $(this).parent('tr').hide();
-            });
-
         });
     }
 
@@ -49,6 +45,10 @@ var upd1 = '<%=Upd1.ClientID%>';
         if (upd1 != null) {
             __doPostBack(upd1, 'items');
         }
+    }
+
+    function changeTab(tabId) {
+        $('.nav-pills a[href="#' + tabId + '"]').tab('show');
     }
 
     var deleteQuestion = '<%=PigeonCms.Utility.GetLabel("RECORD_DELETE_QUESTION") %>';
@@ -125,6 +125,10 @@ function onFailure(result) { }
                                 <asp:DropDownList ID="DropCategoriesFilter" runat="server" AutoPostBack="true" CssClass="form-control" 
                                 OnSelectedIndexChanged="DropCategoriesFilter_SelectedIndexChanged"></asp:DropDownList>
                             </div>
+                            <div class="form-group col-lg-3 col-md-6">
+                                <asp:DropDownList ID="DropProductTypeFilter" runat="server" AutoPostBack="true" CssClass="form-control" 
+                                OnSelectedIndexChanged="DropProductTypeFilter_SelectedIndexChanged"></asp:DropDownList>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -139,10 +143,11 @@ function onFailure(result) { }
                     <asp:GridView ID="Grid1" runat="server" AllowPaging="True" AllowSorting="true" Width="100%" AutoGenerateColumns="False"
                         DataSourceID="ObjDs1" DataKeyNames="Id" OnRowCommand="Grid1_RowCommand" OnRowCreated="Grid1_RowCreated" OnRowDataBound="Grid1_RowDataBound">
                         <Columns>
-                            <asp:TemplateField ItemStyle-Width="10" Visible="false">
+
+                            <asp:TemplateField>
                                 <ItemTemplate>
-                                <asp:ImageButton ID="ImgSel" CommandName="Select" CommandArgument='<%#Eval("Id") %>' 
-                                runat="server" SkinID="ImgEditFile" />
+                                    <asp:LinkButton ID="LnkShowVariants" runat="server" CausesValidation="false" CommandArgument='<%#Eval("Id") %>'>
+                                    </asp:LinkButton>
                                 </ItemTemplate>
                             </asp:TemplateField>
 
@@ -172,11 +177,11 @@ function onFailure(result) { }
                                 </ItemTemplate>
                             </asp:TemplateField>
 
-<%--                            <asp:TemplateField HeaderText="Variants Compiled" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
+                            <asp:TemplateField HeaderText="Variants Compiled" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
                                 <ItemTemplate>
-                                    <asp:Literal ID="variantsCompiled" runat="server" />
+                                    <asp:Literal ID="LitVariantsCompiled" runat="server" />
                                 </ItemTemplate>
-                            </asp:TemplateField>--%>
+                            </asp:TemplateField>
 
                             <asp:BoundField DataField="Ordering"  SortExpression="Ordering" ItemStyle-HorizontalAlign="Left" />
                             <asp:TemplateField HeaderText="<%$ Resources:PublicLabels, LblOrder %>" ItemStyle-HorizontalAlign="Left" SortExpression="Ordering">
@@ -198,6 +203,16 @@ function onFailure(result) { }
                                     <asp:LinkButton ID="ImgEnabledKo" runat="server" CommandName="ImgEnabledKo" Visible="false" CommandArgument='<%#Eval("Id") %>'>
                                         <i class='fa fa-pgn_unchecked fa-fw'></i>                            
                                     </asp:LinkButton>
+                                </ItemTemplate>
+                            </asp:TemplateField>
+
+                            <asp:TemplateField HeaderText="Img">
+                                <ItemTemplate>
+                                    <asp:HyperLink ID="LnkUploadImg" runat="server">
+                                        <i class='fa fa-pgn_image fa-fw'></i>
+                                    </asp:HyperLink>
+                                    <br />
+                                    <span><asp:Literal ID="LitImgCount" runat="server" Text=""></asp:Literal></span>
                                 </ItemTemplate>
                             </asp:TemplateField>
                     
@@ -279,7 +294,7 @@ function onFailure(result) { }
                             </div>
 
                             <div class="form-group col-md-3">
-                                <%=base.GetLabel("LblSet", "Select Attribute Set", DropSets, true)%>
+                                <%=base.GetLabel("LblProductGroup", "Gruppo Prodotto", DropSets, true)%>
                                 <asp:DropDownList ID="DropSets" runat="server" AutoPostBack="true" CssClass="form-control" OnSelectedIndexChanged="DropSets_SelectedIndexChanged"></asp:DropDownList>
                             </div>
                                               
@@ -290,13 +305,13 @@ function onFailure(result) { }
 
                             <div class="form-group col-md-6">
                                 <%=base.GetLabel("LblSKU", "SKU", TxtSKU, true)%>
-                                <asp:RequiredFieldValidator ID="ReqSKU" ControlToValidate="TxtSKU" runat="server" Text="*" validationgroup="SaveProduct"></asp:RequiredFieldValidator>
+                                <asp:RequiredFieldValidator ID="ReqSKU" ControlToValidate="TxtSKU" runat="server" Text="*" ForeColor="Red" validationgroup="SaveProduct"></asp:RequiredFieldValidator>
                                 <asp:TextBox ID="TxtSKU" runat="server" CssClass="form-control"></asp:TextBox>
                             </div>
 
                             <div class="col-md-6">
                                 <%=base.GetLabel("LblWeight", "Weight", TxtWeight, true)%>
-                                <asp:RequiredFieldValidator ID="ReqWeight" ControlToValidate="TxtWeight" runat="server" Text="*" validationgroup="SaveProduct"></asp:RequiredFieldValidator>
+                                <asp:RequiredFieldValidator ID="ReqWeight" ControlToValidate="TxtWeight" runat="server" Text="*" ForeColor="Red" validationgroup="SaveProduct"></asp:RequiredFieldValidator>
                                 <div class="form-group input-group">
                                     <asp:TextBox ID="TxtWeight" runat="server" CssClass="form-control"></asp:TextBox>
                                     <span class='input-group-addon'><%=ShopSettings.ItemWeightUnit %></span>
@@ -310,7 +325,7 @@ function onFailure(result) { }
 
                             <div class="col-md-6">
                                 <%=base.GetLabel("LblRegularPrice", "Regular Price", TxtRegularPrice, true)%>
-                                <asp:RequiredFieldValidator ID="ReqRegularPrice" ControlToValidate="TxtRegularPrice" runat="server" Text="*" validationgroup="SaveProduct"></asp:RequiredFieldValidator>
+                                <asp:RequiredFieldValidator ID="ReqRegularPrice" ControlToValidate="TxtRegularPrice" runat="server" Text="*" ForeColor="Red" validationgroup="SaveProduct"></asp:RequiredFieldValidator>
                                 <div class="form-group input-group">
                                     <asp:TextBox ID="TxtRegularPrice" runat="server" CssClass="form-control"></asp:TextBox>
                                     <span class='input-group-addon'><%=ShopSettings.ShopCurrency %></span>
@@ -332,19 +347,19 @@ function onFailure(result) { }
                                         <asp:ListItem Value="1" Text="In Stock"></asp:ListItem>
                                         <asp:ListItem Value="0" Text="Out Of Stock"></asp:ListItem>
                                     </asp:DropDownList>
-                                    <asp:RequiredFieldValidator ID="ReqDropStock" ControlToValidate="DropStock" runat="server" Text="*" validationgroup="SaveProduct"></asp:RequiredFieldValidator>
+                                    <asp:RequiredFieldValidator ID="ReqDropStock" ControlToValidate="DropStock" runat="server" Text="*" ForeColor="Red" validationgroup="SaveProduct"></asp:RequiredFieldValidator>
                                 </div>
 
                                 <div class="form-group col-md-6" style="padding-right:0">
                                     <%=base.GetLabel("LblAvailability", "Qty", TxtQty, true)%>
-                                    <asp:RequiredFieldValidator ID="ReqTxtQty" ControlToValidate="TxtQty" runat="server" Text="*" validationgroup="SaveProduct"></asp:RequiredFieldValidator>
+                                    <asp:RequiredFieldValidator ID="ReqTxtQty" ControlToValidate="TxtQty" runat="server" Text="*" ForeColor="Red" validationgroup="SaveProduct"></asp:RequiredFieldValidator>
                                     <asp:TextBox ID="TxtQty" runat="server" CssClass="form-control"></asp:TextBox>
                                 </div>
                             </div>
 
                             <div class="form-group col-md-6">
                                 <%=base.GetLabel("LblAlias", "Alias", TxtAlias, true)%>
-                                <asp:RequiredFieldValidator ID="ReqAlias" ControlToValidate="TxtAlias" runat="server" Text="*"></asp:RequiredFieldValidator>
+                                <asp:RequiredFieldValidator ID="ReqAlias" ControlToValidate="TxtAlias" runat="server" Text="*" ForeColor="Red" ValidationGroup="SaveProduct"></asp:RequiredFieldValidator>
                                 <asp:TextBox ID="TxtAlias" runat="server" CssClass="form-control"></asp:TextBox>
                             </div>
 
@@ -411,7 +426,7 @@ function onFailure(result) { }
                         <div class="tab-pane fade" id="tab-related">
                             
                             <div class="row col-lg-12">
-                                 
+                                <%=base.GetLabel("LblAssociateRelated", "Associa Correlati", null, true) %>
                                 <div class="panel panel-default">
                                     <div class="table-responsive">
 
@@ -474,10 +489,13 @@ function onFailure(result) { }
                                             </asp:DropDownList>
                                         </div>
 
-                                        <div class="form-group col-lg-12">
+                                        <div class="col-lg-12">
                                             <%=base.GetLabel("LblWeight", "Weight", QuickTxtWeight, true)%>
-                                            <asp:RequiredFieldValidator ID="ReqQuickWeight" ControlToValidate="QuickTxtWeight" runat="server" Text="*" validationgroup="QuickProduct"></asp:RequiredFieldValidator>
-                                            <asp:TextBox ID="QuickTxtWeight" runat="server" CssClass="form-control"></asp:TextBox>
+                                            <asp:RequiredFieldValidator ID="ReqQuickWeight" ControlToValidate="QuickTxtWeight" runat="server" Text="*" ForeColor="Red" validationgroup="QuickProduct"></asp:RequiredFieldValidator>
+                                            <div class="form-group input-group">
+                                                <asp:TextBox ID="QuickTxtWeight" runat="server" CssClass="form-control"></asp:TextBox>
+                                                <span class='input-group-addon'><%=ShopSettings.ItemWeightUnit %></span>
+                                            </div>
                                         </div>
 
                                         <div class="form-group col-lg-12">
@@ -485,15 +503,21 @@ function onFailure(result) { }
                                             <asp:Panel runat="server" ID="QuickAttributes"></asp:Panel>
                                         </div>
 
-                                        <div class="form-group col-md-6">
+                                        <div class="col-md-6">
                                             <%=base.GetLabel("LblRegularPrice", "Regular Price", QuickTxtRegularPrice, true)%>
-                                            <asp:RequiredFieldValidator ID="ReqQuickRegPrice" ControlToValidate="QuickTxtRegularPrice" runat="server" Text="*" validationgroup="QuickProduct"></asp:RequiredFieldValidator>
-                                            <asp:TextBox ID="QuickTxtRegularPrice" runat="server" CssClass="form-control"></asp:TextBox>
+                                            <asp:RequiredFieldValidator ID="ReqQuickRegPrice" ControlToValidate="QuickTxtRegularPrice" runat="server" Text="*" ForeColor="Red" validationgroup="QuickProduct"></asp:RequiredFieldValidator>
+                                            <div class="form-group input-group">
+                                                <asp:TextBox ID="QuickTxtRegularPrice" runat="server" CssClass="form-control"></asp:TextBox>
+                                                <span class='input-group-addon'><%=ShopSettings.ShopCurrency %></span>
+                                            </div>
                                         </div>
 
-                                        <div class="form-group col-md-6">
+                                        <div class="col-md-6">
                                             <%=base.GetLabel("LblSalePrice", "Sale Price", QuickTxtSalePrice, true)%>
-                                            <asp:TextBox ID="QuickTxtSalePrice" runat="server" CssClass="form-control"></asp:TextBox>
+                                            <div class="form-group input-group">
+                                                <asp:TextBox ID="QuickTxtSalePrice" runat="server" CssClass="form-control"></asp:TextBox>
+                                                <span class='input-group-addon'><%=ShopSettings.ShopCurrency %></span>
+                                            </div>
                                         </div>
 
                                         <div class="form-group col-md-6">
@@ -502,12 +526,12 @@ function onFailure(result) { }
                                                 <asp:ListItem Value="1" Text="In Stock"></asp:ListItem>
                                                 <asp:ListItem Value="0" Text="Out Of Stock"></asp:ListItem>
                                             </asp:DropDownList>
-                                            <asp:RequiredFieldValidator ID="ReqQuickStock" ControlToValidate="QuickDropStock" runat="server" Text="*" validationgroup="QuickProduct"></asp:RequiredFieldValidator>
+                                            <asp:RequiredFieldValidator ID="ReqQuickStock" ControlToValidate="QuickDropStock" runat="server" Text="*" ForeColor="Red" validationgroup="QuickProduct"></asp:RequiredFieldValidator>
                                         </div>
 
                                         <div class="form-group col-md-6">
                                             <%=base.GetLabel("LblAvailability", "Qty", QuickTxtQty, true)%>
-                                            <asp:RequiredFieldValidator ID="ReqQuickQty" ControlToValidate="QuickTxtQty" runat="server" Text="*" validationgroup="QuickProduct"></asp:RequiredFieldValidator>
+                                            <asp:RequiredFieldValidator ID="ReqQuickQty" ControlToValidate="QuickTxtQty" runat="server" Text="*" ForeColor="Red" validationgroup="QuickProduct"></asp:RequiredFieldValidator>
                                             <asp:TextBox ID="QuickTxtQty" runat="server" CssClass="form-control"></asp:TextBox>
                                         </div>
 
