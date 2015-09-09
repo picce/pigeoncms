@@ -214,3 +214,9 @@ pip-log.txt
 
 #Mr Developer
 .mr.developer.cfg
+projects/pigeoncms.sln
+projects/pigeoncms.sln
+pigeoncms/Bin/PigeonCms.Core.dll
+projects/PigeonCms.Core/bin/Debug/PigeonCms.Core.dll
+projects/pigeoncms.sln
+*.dll
