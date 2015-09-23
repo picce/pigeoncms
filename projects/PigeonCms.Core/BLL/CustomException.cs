@@ -32,6 +32,7 @@ namespace PigeonCms
         private CustomExceptionSeverity severity = CustomExceptionSeverity.Warning;
         private CustomExceptionLogLevel logLevel = CustomExceptionLogLevel.Debug;
         private string customMessage = "";
+        private string exCode = "";
 
         public CustomExceptionSeverity Severity
         {
@@ -48,6 +49,11 @@ namespace PigeonCms
             get { return customMessage; }
         }
 
+        public string ExCode
+        {
+            get { return exCode; }
+        }
+
         public override string Message
         {
             get { return this.CustomMessage; }
@@ -62,11 +68,12 @@ namespace PigeonCms
             this.customMessage = customMessage;
         }
 
-        public CustomException(string customMessage, CustomExceptionSeverity severity, CustomExceptionLogLevel logLevel)
+        public CustomException(string customMessage, CustomExceptionSeverity severity, CustomExceptionLogLevel logLevel, string exCode = "")
         {
             this.customMessage = customMessage;
             this.severity = severity;
             this.logLevel = logLevel;
+            this.exCode = exCode;
             PigeonCms.Tracer.Log("CustomException: "+ this.ToString(), TracerItemType.Error, this);
             //PigeonCms.Debug.Write("CustomException", this);
         }
@@ -74,8 +81,9 @@ namespace PigeonCms
         public override string ToString()
         {
             //return base.ToString();
-            return "Message:" + this.CustomMessage + "; "+ 
-                "Severity:" + this.Severity.ToString()+ "; " +
+            return "Message:" + this.CustomMessage + "; "+
+                "ExCode:" + this.ExCode + "; " +
+                "Severity:" + this.Severity.ToString() + "; " +
                 "LogLevel:" + this.LogLevel.ToString() + "; ";
         }
 

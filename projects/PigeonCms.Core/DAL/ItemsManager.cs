@@ -21,6 +21,7 @@ namespace PigeonCms
         where F: ItemsFilter, new()
     {
         public const string MaxItemsException = "PigeonCms.MaxItemsException";
+        public const string ItemAliasInUseException = "PigeonCms.ItemAliasInUseException";
 
         private bool checkUserContext = false;
         private bool writeMode = false;
@@ -98,11 +99,11 @@ namespace PigeonCms
                     + " t.Enabled, t.Alias, t.Ordering, t.DefaultImageName, "
                     + " t.[DateInserted], t.[UserInserted], t.[DateUpdated], t.[UserUpdated], "
                     + " t.ItemDate, t.ValidFrom, t.ValidTo, "
-                    + " t.CustomBool1, t.CustomBool2, t.CustomBool3, "
-                    + " t.CustomDate1, t.CustomDate2, t.CustomDate3, "
-                    + " t.CustomDecimal1, t.CustomDecimal2, t.CustomDecimal3, "
-                    + " t.CustomInt1, t.CustomInt2, t.CustomInt3, "
-                    + " t.CustomString1, t.CustomString2, t.CustomString3, "
+                    + " t.CustomBool1, t.CustomBool2, t.CustomBool3, t.CustomBool4, "
+                    + " t.CustomDate1, t.CustomDate2, t.CustomDate3, t.CustomDate4, "
+                    + " t.CustomDecimal1, t.CustomDecimal2, t.CustomDecimal3, t.CustomDecimal4, "
+                    + " t.CustomInt1, t.CustomInt2, t.CustomInt3, t.CustomInt4, "
+                    + " t.CustomString1, t.CustomString2, t.CustomString3, t.CustomString4, "
                     + " t.ItemParams, t.AccessType, t.PermissionId, t.AccessCode, t.AccessLevel, "
                     + " t.CommentsGroupId, t.WriteAccessType, t.WritePermissionId, t.WriteAccessCode, t.WriteAccessLevel, "
                     + " t.ThreadId, t.CssClass, "
@@ -240,6 +241,11 @@ namespace PigeonCms
                     sSql += " AND t.CustomBool3 = @CustomBool3 ";
                     myCmd.Parameters.Add(Database.Parameter(myProv, "CustomBool3", filter.CustomBool3));
                 }
+                if (filter.CustomBool4 != Utility.TristateBool.NotSet)
+                {
+                    sSql += " AND t.CustomBool4 = @CustomBool4 ";
+                    myCmd.Parameters.Add(Database.Parameter(myProv, "CustomBool4", filter.CustomBool4));
+                }
                 if (filter.CustomInt1 > 0)
                 {
                     sSql += " AND t.CustomInt1 = @CustomInt1 ";
@@ -254,6 +260,11 @@ namespace PigeonCms
                 {
                     sSql += " AND t.CustomInt3 = @CustomInt3 ";
                     myCmd.Parameters.Add(Database.Parameter(myProv, "CustomInt3", filter.CustomInt3));
+                }
+                if (filter.CustomInt4 > 0)
+                {
+                    sSql += " AND t.CustomInt4 = @CustomInt4 ";
+                    myCmd.Parameters.Add(Database.Parameter(myProv, "CustomInt4", filter.CustomInt4));
                 }
                 if (!string.IsNullOrEmpty(filter.CustomString1))
                 {
@@ -270,16 +281,21 @@ namespace PigeonCms
                     sSql += " AND t.CustomString3 = @CustomString3 ";
                     myCmd.Parameters.Add(Database.Parameter(myProv, "CustomString3", filter.CustomString3));
                 }
+                if (!string.IsNullOrEmpty(filter.CustomString4))
+                {
+                    sSql += " AND t.CustomString4 = @CustomString4 ";
+                    myCmd.Parameters.Add(Database.Parameter(myProv, "CustomString4", filter.CustomString4));
+                }
 
                 sSql += " GROUP BY t.Id, t.ItemType, t.CategoryId, categ.SectionId, "
                     + " t.Enabled, t.Alias, t.Ordering, t.DefaultImageName, "
                     + " t.[DateInserted], t.[UserInserted], t.[DateUpdated], t.[UserUpdated], "
                     + " t.ItemDate, t.ValidFrom, t.ValidTo, "
-                    + " t.CustomBool1, t.CustomBool2, t.CustomBool3, "
-                    + " t.CustomDate1, t.CustomDate2, t.CustomDate3, "
-                    + " t.CustomDecimal1, t.CustomDecimal2, t.CustomDecimal3, "
-                    + " t.CustomInt1, t.CustomInt2, t.CustomInt3, "
-                    + " t.CustomString1, t.CustomString2, t.CustomString3, "
+                    + " t.CustomBool1, t.CustomBool2, t.CustomBool3, t.CustomBool4, "
+                    + " t.CustomDate1, t.CustomDate2, t.CustomDate3, t.CustomDate4, "
+                    + " t.CustomDecimal1, t.CustomDecimal2, t.CustomDecimal3, t.CustomDecimal4, "
+                    + " t.CustomInt1, t.CustomInt2, t.CustomInt3, t.CustomInt4, "
+                    + " t.CustomString1, t.CustomString2, t.CustomString3, t.CustomString4, "
                     + " t.ItemParams, t.AccessType, t.PermissionId, t.AccessCode, t.AccessLevel, "
                     + " t.CommentsGroupId, t.WriteAccessType, t.WritePermissionId, t.WriteAccessCode, t.WriteAccessLevel, "
                     + " t.ThreadId, t.CssClass, "
@@ -298,7 +314,6 @@ namespace PigeonCms
                 else
                 {
                     sSql += " ORDER BY categ.SectionId, t.CategoryId, t.Ordering ";
-                    //sSql += " ORDER BY categ.SectionId, t.CategoryId, t.ThreadId, t.Ordering ";
                 }
 
                 myCmd.CommandText = Database.ParseSql(sSql);
@@ -389,6 +404,34 @@ namespace PigeonCms
             return result;
         }
 
+        /// <summary>
+        /// default method to retrieve items
+        /// </summary>
+        /// <param name="categoryId"></param>
+        /// <param name="alias"></param>
+        /// <returns></returns>
+        public T GetByAlias(int categoryId, string alias)
+        {
+            T result = new T();
+            var resultList = new List<T>();
+            F filter = new F();
+
+            if (categoryId <= 0)
+                return result;
+
+            if (string.IsNullOrEmpty(alias))
+                return result;
+            
+            filter.CategoryId = categoryId;
+            filter.Alias = alias;
+            filter.ShowOnlyRootItems = false;
+            
+            resultList = GetByFilter(filter, "");
+            if (resultList.Count > 0)
+                result = resultList[0];
+            return result;
+        }
+
         public override int Update(T theObj)
         {
             DbProviderFactory myProv = Database.ProviderFactory;
@@ -397,6 +440,17 @@ namespace PigeonCms
             DbCommand myCmd = myConn.CreateCommand();
             string sSql;
             int result = 0;
+
+            //check alias in category
+            if (!string.IsNullOrEmpty(theObj.Alias))
+            {
+                int existingItemId = GetByAlias(theObj.CategoryId, theObj.Alias).Id;
+                if (existingItemId > 0 && existingItemId != theObj.Id)
+                    throw new CustomException(
+                        "Item alias in use", 
+                        CustomExceptionSeverity.Warning, CustomExceptionLogLevel.Log,
+                        ItemAliasInUseException);
+            }
 
             if (theObj.Ordering == 0)
             {
@@ -425,11 +479,11 @@ namespace PigeonCms
                 + " [DateInserted]=@DateInserted, [UserInserted]=@UserInserted, "
                 + " [DateUpdated]=@DateUpdated, [UserUpdated]=@UserUpdated, "
                 + " ItemDate=@ItemDate, ValidFrom=@ValidFrom, ValidTo=@ValidTo, "
-                + " CustomBool1=@CustomBool1, CustomBool2=@CustomBool2, CustomBool3=@CustomBool3, "
-                + " CustomDate1=@CustomDate1, CustomDate2=@CustomDate2, CustomDate3=@CustomDate3, "
-                + " CustomDecimal1=@CustomDecimal1, CustomDecimal2=@CustomDecimal2, CustomDecimal3=@CustomDecimal3, "
-                + " CustomInt1=@CustomInt1, CustomInt2=@CustomInt2, CustomInt3=@CustomInt3, "
-                + " CustomString1=@CustomString1, CustomString2=@CustomString2, CustomString3=@CustomString3, "
+                + " CustomBool1=@CustomBool1, CustomBool2=@CustomBool2, CustomBool3=@CustomBool3, CustomBool4=@CustomBool4, "
+                + " CustomDate1=@CustomDate1, CustomDate2=@CustomDate2, CustomDate3=@CustomDate3, CustomDate4=@CustomDate4, "
+                + " CustomDecimal1=@CustomDecimal1, CustomDecimal2=@CustomDecimal2, CustomDecimal3=@CustomDecimal3, CustomDecimal4=@CustomDecimal4, "
+                + " CustomInt1=@CustomInt1, CustomInt2=@CustomInt2, CustomInt3=@CustomInt3, CustomInt4=@CustomInt4, "
+                + " CustomString1=@CustomString1, CustomString2=@CustomString2, CustomString3=@CustomString3, CustomString4=@CustomString4, "
                 + " [ItemParams]=@ItemParams, AccessType=@AccessType, PermissionId=@PermissionId, "
                 + " [AccessCode]=@AccessCode, AccessLevel=@AccessLevel, CommentsGroupId=@CommentsGroupId, "
                 + " WriteAccessType=@WriteAccessType, WritePermissionId=@WritePermissionId, [WriteAccessCode]=@WriteAccessCode, "
@@ -465,27 +519,43 @@ namespace PigeonCms
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CustomBool1", theObj.CustomBool1));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CustomBool2", theObj.CustomBool2));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CustomBool3", theObj.CustomBool3));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "CustomBool4", theObj.CustomBool4));
+
                 if (theObj.CustomDate1 == DateTime.MinValue)
                     myCmd.Parameters.Add(Database.Parameter(myProv, "CustomDate1", DBNull.Value));
                 else
                     myCmd.Parameters.Add(Database.Parameter(myProv, "CustomDate1", theObj.CustomDate1));
+
                 if (theObj.CustomDate2 == DateTime.MinValue)
                     myCmd.Parameters.Add(Database.Parameter(myProv, "CustomDate2", DBNull.Value));
                 else
                     myCmd.Parameters.Add(Database.Parameter(myProv, "CustomDate2", theObj.CustomDate2));
+
                 if (theObj.CustomDate3 == DateTime.MinValue)
                     myCmd.Parameters.Add(Database.Parameter(myProv, "CustomDate3", DBNull.Value));
                 else
                     myCmd.Parameters.Add(Database.Parameter(myProv, "CustomDate3", theObj.CustomDate3));
+
+                if (theObj.CustomDate4 == DateTime.MinValue)
+                    myCmd.Parameters.Add(Database.Parameter(myProv, "CustomDate4", DBNull.Value));
+                else
+                    myCmd.Parameters.Add(Database.Parameter(myProv, "CustomDate4", theObj.CustomDate4));
+
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CustomDecimal1", theObj.CustomDecimal1));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CustomDecimal2", theObj.CustomDecimal2));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CustomDecimal3", theObj.CustomDecimal3));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "CustomDecimal4", theObj.CustomDecimal4));
+
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CustomInt1", theObj.CustomInt1));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CustomInt2", theObj.CustomInt2));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CustomInt3", theObj.CustomInt3));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "CustomInt4", theObj.CustomInt4));
+
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CustomString1", theObj.CustomString1));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CustomString2", theObj.CustomString2));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CustomString3", theObj.CustomString3));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "CustomString4", theObj.CustomString4));
+
                 myCmd.Parameters.Add(Database.Parameter(myProv, "ItemParams", theObj.ItemParams));
                 //read permissions
                 myCmd.Parameters.Add(Database.Parameter(myProv, "AccessType", theObj.ReadAccessType));
@@ -538,6 +608,16 @@ namespace PigeonCms
                 throw new CustomException(
                     MaxItemsException, CustomExceptionSeverity.Info, CustomExceptionLogLevel.Log);
 
+            //check alias in category
+            if (!string.IsNullOrEmpty(newObj.Alias))
+            {
+                if (GetByAlias(newObj.CategoryId, newObj.Alias).Id > 0)
+                    throw new CustomException(
+                        "Item alias in use",
+                        CustomExceptionSeverity.Warning, CustomExceptionLogLevel.Log,
+                        ItemAliasInUseException);
+            }
+
             try
             {
                 //create read/write permission
@@ -551,9 +631,12 @@ namespace PigeonCms
                 myCmd.Transaction = myTrans;
 
                 result = newObj;
-                result.Id = base.GetNextId();
-                if (result.ThreadId == 0)
-                    result.ThreadId = result.Id;
+
+                //20151910 IDENTITY
+                //result.Id = base.GetNextId();
+                //if (result.ThreadId == 0)
+                //    result.ThreadId = result.Id;
+
                 result.Ordering = base.GetNextOrdering();
                 result.DateInserted = DateTime.Now;
                 if (string.IsNullOrEmpty(result.UserInserted))
@@ -562,33 +645,34 @@ namespace PigeonCms
                 if (string.IsNullOrEmpty(result.UserUpdated))
                     result.UserUpdated = PgnUserCurrent.UserName;
 
-                sSql = "INSERT INTO [" + this.TableName + "](Id, ItemType, CategoryId, Enabled, "
+                sSql = "INSERT INTO [" + this.TableName + "](/*Id,*/ ItemType, CategoryId, Enabled, "
                 + " Alias, Ordering, DefaultImageName, "
                 + " DateInserted, UserInserted, DateUpdated, UserUpdated, "
                 + " ItemDate, ValidFrom, ValidTo, "
-                + " CustomBool1, CustomBool2, CustomBool3, "
-                + " CustomDate1, CustomDate2, CustomDate3, "
-                + " CustomDecimal1, CustomDecimal2, CustomDecimal3, "
-                + " CustomInt1, CustomInt2, CustomInt3, "
-                + " CustomString1, CustomString2, CustomString3, "
+                + " CustomBool1, CustomBool2, CustomBool3, CustomBool4, "
+                + " CustomDate1, CustomDate2, CustomDate3, CustomDate4, "
+                + " CustomDecimal1, CustomDecimal2, CustomDecimal3, CustomDecimal4, "
+                + " CustomInt1, CustomInt2, CustomInt3, CustomInt4, "
+                + " CustomString1, CustomString2, CustomString3, CustomString4, "
                 + " ItemParams, AccessType, PermissionId, AccessCode, AccessLevel, CommentsGroupId, "
                 + " WriteAccessType, WritePermissionId, WriteAccessCode, WriteAccessLevel, "
                 + " ThreadId, CssClass) "
-                + " VALUES(@Id, @ItemType, @CategoryId, @Enabled, "
+                + " VALUES(/*@Id,*/ @ItemType, @CategoryId, @Enabled, "
                 + " @Alias, @Ordering, @DefaultImageName, "
                 + " @DateInserted, @UserInserted, @DateUpdated, @UserUpdated, "
                 + " @ItemDate, @ValidFrom, @ValidTo, "
-                + " @CustomBool1, @CustomBool2, @CustomBool3, "
-                + " @CustomDate1, @CustomDate2, @CustomDate3, "
-                + " @CustomDecimal1, @CustomDecimal2, @CustomDecimal3, "
-                + " @CustomInt1, @CustomInt2, @CustomInt3, "
-                + " @CustomString1, @CustomString2, @CustomString3, "
+                + " @CustomBool1, @CustomBool2, @CustomBool3, @CustomBool4, "
+                + " @CustomDate1, @CustomDate2, @CustomDate3, @CustomDate4, "
+                + " @CustomDecimal1, @CustomDecimal2, @CustomDecimal3, @CustomDecimal4, "
+                + " @CustomInt1, @CustomInt2, @CustomInt3, @CustomInt4, "
+                + " @CustomString1, @CustomString2, @CustomString3, @CustomString4, "
                 + " @ItemParams, @AccessType, @PermissionId, @AccessCode, @AccessLevel, @CommentsGroupId, "
                 + " @WriteAccessType, @WritePermissionId, @WriteAccessCode, @WriteAccessLevel, "
-                + " @ThreadId, @CssClass)";
+                + " @ThreadId, @CssClass) "
+                + " SELECT SCOPE_IDENTITY()";
                 myCmd.CommandText = Database.ParseSql(sSql);
 
-                myCmd.Parameters.Add(Database.Parameter(myProv, "Id", result.Id));
+                //myCmd.Parameters.Add(Database.Parameter(myProv, "Id", result.Id));//IDENTITY
                 myCmd.Parameters.Add(Database.Parameter(myProv, "ItemType", result.ItemTypeName));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CategoryId", result.CategoryId));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "Enabled", result.Enabled));
@@ -618,27 +702,43 @@ namespace PigeonCms
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CustomBool1", result.CustomBool1));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CustomBool2", result.CustomBool2));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CustomBool3", result.CustomBool3));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "CustomBool4", result.CustomBool4));
+
                 if (result.CustomDate1 == DateTime.MinValue)
                     myCmd.Parameters.Add(Database.Parameter(myProv, "CustomDate1", DBNull.Value));
                 else
                     myCmd.Parameters.Add(Database.Parameter(myProv, "CustomDate1", result.CustomDate1));
+
                 if (result.CustomDate2 == DateTime.MinValue)
                     myCmd.Parameters.Add(Database.Parameter(myProv, "CustomDate2", DBNull.Value));
                 else
                     myCmd.Parameters.Add(Database.Parameter(myProv, "CustomDate2", result.CustomDate2));
+
                 if (result.CustomDate3 == DateTime.MinValue)
                     myCmd.Parameters.Add(Database.Parameter(myProv, "CustomDate3", DBNull.Value));
                 else
                     myCmd.Parameters.Add(Database.Parameter(myProv, "CustomDate3", result.CustomDate3));
+
+                if (result.CustomDate4 == DateTime.MinValue)
+                    myCmd.Parameters.Add(Database.Parameter(myProv, "CustomDate4", DBNull.Value));
+                else
+                    myCmd.Parameters.Add(Database.Parameter(myProv, "CustomDate4", result.CustomDate4));
+
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CustomDecimal1", result.CustomDecimal1));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CustomDecimal2", result.CustomDecimal2));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CustomDecimal3", result.CustomDecimal3));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "CustomDecimal4", result.CustomDecimal4));
+
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CustomInt1", result.CustomInt1));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CustomInt2", result.CustomInt2));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CustomInt3", result.CustomInt3));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "CustomInt4", result.CustomInt4));
+
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CustomString1", result.CustomString1));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CustomString2", result.CustomString2));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CustomString3", result.CustomString3));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "CustomString4", result.CustomString4));
+
                 myCmd.Parameters.Add(Database.Parameter(myProv, "ItemParams", result.ItemParams));
                 //read permissions
                 myCmd.Parameters.Add(Database.Parameter(myProv, "AccessType", (int)result.ReadAccessType));
@@ -655,7 +755,22 @@ namespace PigeonCms
                 myCmd.Parameters.Add(Database.Parameter(myProv, "ThreadId", result.ThreadId));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CssClass", result.CssClass));
 
-                myCmd.ExecuteNonQuery();
+                result.Id = (int)(decimal)myCmd.ExecuteScalar();
+
+                if (result.ThreadId == 0)
+                {
+                    //20150910 set item as thread root
+                    result.ThreadId = result.Id;
+
+                    sSql = "UPDATE [" + this.TableName + "] SET ThreadId=@ThreadId WHERE Id=@Id ";
+                    myCmd.CommandText = Database.ParseSql(sSql);
+                    myCmd.Parameters.Clear();
+                    myCmd.Parameters.Add(Database.Parameter(myProv, "Id", result.Id));
+                    myCmd.Parameters.Add(Database.Parameter(myProv, "ThreadId", result.ThreadId));
+                    myCmd.ExecuteNonQuery();
+                }
+
+
                 updateCultureText(result, myCmd, myProv);
                 updateFormFields(result, myCmd, myProv);
                 myTrans.Commit();
@@ -725,9 +840,6 @@ namespace PigeonCms
             iman.DeleteByItemId(currObj.Id);
 
 
-            //myTrans = myConn.BeginTransaction();
-            //myCmd.Transaction = myTrans;
-
             //item
             sSql = "DELETE FROM [" + this.TableName + "] WHERE Id = @Id ";
             myCmd.CommandText = Database.ParseSql(sSql);
@@ -756,8 +868,6 @@ namespace PigeonCms
             myCmd.Parameters.Clear();
             myCmd.Parameters.Add(Database.Parameter(myProv, "ItemId", currObj.Id));
             myCmd.ExecuteNonQuery();
-
-
         }
 
         private class SectionPredicate
@@ -822,6 +932,7 @@ namespace PigeonCms
         {
             if (!Convert.IsDBNull(myRd["SectionId"]))
                 result.Id = (int)myRd["SectionId"];
+
             //read permissions
             if (!Convert.IsDBNull(myRd["SectAccessType"]))
                 result.ReadAccessType = (MenuAccesstype)int.Parse(myRd["SectAccessType"].ToString());
@@ -831,6 +942,7 @@ namespace PigeonCms
                 result.ReadAccessCode = (string)myRd["SectAccessCode"];
             if (!Convert.IsDBNull(myRd["SectAccessLevel"]))
                 result.ReadAccessLevel = (int)myRd["SectAccessLevel"];
+
             //write permissions
             if (!Convert.IsDBNull(myRd["SectWriteAccessType"]))
                 result.WriteAccessType = (MenuAccesstype)int.Parse(myRd["SectWriteAccessType"].ToString());
@@ -846,6 +958,7 @@ namespace PigeonCms
         {
             if (!Convert.IsDBNull(myRd["CategoryId"]))
                 result.Id = (int)myRd["CategoryId"];
+
             //read permissions
             if (!Convert.IsDBNull(myRd["CategAccessType"]))
                 result.ReadAccessType = (MenuAccesstype)int.Parse(myRd["CategAccessType"].ToString());
@@ -855,6 +968,7 @@ namespace PigeonCms
                 result.ReadAccessCode = (string)myRd["CategAccessCode"];
             if (!Convert.IsDBNull(myRd["CategAccessLevel"]))
                 result.ReadAccessLevel = (int)myRd["CategAccessLevel"];
+
             //write permissions
             if (!Convert.IsDBNull(myRd["CategWriteAccessType"]))
                 result.WriteAccessType = (MenuAccesstype)int.Parse(myRd["CategWriteAccessType"].ToString());
@@ -906,30 +1020,45 @@ namespace PigeonCms
                 result.CustomBool2 = (bool)myRd["CustomBool2"];
             if (!Convert.IsDBNull(myRd["CustomBool3"]))
                 result.CustomBool3 = (bool)myRd["CustomBool3"];
+            if (!Convert.IsDBNull(myRd["CustomBool4"]))
+                result.CustomBool4 = (bool)myRd["CustomBool4"];
+
             if (!Convert.IsDBNull(myRd["CustomDate1"]))
                 result.CustomDate1 = (DateTime)myRd["CustomDate1"];
             if (!Convert.IsDBNull(myRd["CustomDate2"]))
                 result.CustomDate2 = (DateTime)myRd["CustomDate2"];
             if (!Convert.IsDBNull(myRd["CustomDate3"]))
                 result.CustomDate3 = (DateTime)myRd["CustomDate3"];
+            if (!Convert.IsDBNull(myRd["CustomDate4"]))
+                result.CustomDate4 = (DateTime)myRd["CustomDate4"];
+
             if (!Convert.IsDBNull(myRd["CustomDecimal1"]))
                 result.CustomDecimal1 = (decimal)myRd["CustomDecimal1"];
             if (!Convert.IsDBNull(myRd["CustomDecimal2"]))
                 result.CustomDecimal2 = (decimal)myRd["CustomDecimal2"];
             if (!Convert.IsDBNull(myRd["CustomDecimal3"]))
                 result.CustomDecimal3 = (decimal)myRd["CustomDecimal3"];
+            if (!Convert.IsDBNull(myRd["CustomDecimal4"]))
+                result.CustomDecimal4 = (decimal)myRd["CustomDecimal4"];
+
             if (!Convert.IsDBNull(myRd["CustomInt1"]))
                 result.CustomInt1 = (int)myRd["CustomInt1"];
             if (!Convert.IsDBNull(myRd["CustomInt2"]))
                 result.CustomInt2 = (int)myRd["CustomInt2"];
             if (!Convert.IsDBNull(myRd["CustomInt3"]))
                 result.CustomInt3 = (int)myRd["CustomInt3"];
+            if (!Convert.IsDBNull(myRd["CustomInt4"]))
+                result.CustomInt4 = (int)myRd["CustomInt4"];
+
             if (!Convert.IsDBNull(myRd["CustomString1"]))
                 result.CustomString1 = (string)myRd["CustomString1"];
             if (!Convert.IsDBNull(myRd["CustomString2"]))
                 result.CustomString2 = (string)myRd["CustomString2"];
             if (!Convert.IsDBNull(myRd["CustomString3"]))
                 result.CustomString3 = (string)myRd["CustomString3"];
+            if (!Convert.IsDBNull(myRd["CustomString4"]))
+                result.CustomString4 = (string)myRd["CustomString4"];
+
             if (!Convert.IsDBNull(myRd["ItemParams"]))
                 result.ItemParams = (string)myRd["ItemParams"];
             //read permissions

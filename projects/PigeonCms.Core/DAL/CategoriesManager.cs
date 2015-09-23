@@ -321,20 +321,20 @@ namespace PigeonCms
                 myCmd.Transaction = myTrans;
 
                 result = newObj;
-                result.Id = base.GetNextId();
                 result.Ordering = base.GetNextOrdering();
 
-                sSql = "INSERT INTO [" + this.TableName + "](Id, SectionId, ParentId, Enabled, Ordering, DefaultImageName, "
+                sSql = "INSERT INTO [" + this.TableName + "](/*Id,*/ SectionId, ParentId, Enabled, Ordering, DefaultImageName, "
                 + " AccessType, PermissionId, AccessCode, AccessLevel, "
                 + " WriteAccessType, WritePermissionId, WriteAccessCode, WriteAccessLevel, "
                 + " CssClass) "
-                + " VALUES(@Id, @SectionId, @ParentId, @Enabled, @Ordering, @DefaultImageName, "
+                + " VALUES(/*@Id,*/ @SectionId, @ParentId, @Enabled, @Ordering, @DefaultImageName, "
                 + " @AccessType, @PermissionId, @AccessCode, @AccessLevel, "
                 + " @WriteAccessType, @WritePermissionId, @WriteAccessCode, @WriteAccessLevel, "
-                + " @CssClass) ";
+                + " @CssClass) "
+                + " SELECT SCOPE_IDENTITY()";
                 myCmd.CommandText = Database.ParseSql(sSql);
 
-                myCmd.Parameters.Add(Database.Parameter(myProv, "Id", result.Id));
+                //myCmd.Parameters.Add(Database.Parameter(myProv, "Id", result.Id));//identity
                 myCmd.Parameters.Add(Database.Parameter(myProv, "SectionId", result.SectionId));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "ParentId", result.ParentId));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "Enabled", result.Enabled));
@@ -353,7 +353,7 @@ namespace PigeonCms
 
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CssClass", result.CssClass));
 
-                myCmd.ExecuteNonQuery();
+                result.Id = (int)(decimal)myCmd.ExecuteScalar();
                 updateCultureText(result, myCmd, myProv);
                 myTrans.Commit();
             }

@@ -384,7 +384,6 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
             filter.ThreadId = threadId;
         }
             
-
         int secId = -1;
         int.TryParse(DropSectionsFilter.SelectedValue, out secId);
 

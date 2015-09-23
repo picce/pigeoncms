@@ -219,7 +219,7 @@ namespace PigeonCms
             DbConnection myConn = myProv.CreateConnection();
             DbCommand myCmd = myConn.CreateCommand();
             string sSql;
-            Section result = new Section();
+            //Section result = new Section();
 
             try
             {
@@ -233,38 +233,39 @@ namespace PigeonCms
                 myTrans = myConn.BeginTransaction();
                 myCmd.Transaction = myTrans;
 
-                result = newObj;
-                result.Id = base.GetNextId();
+                //result = newObj;
+                //result.Id = base.GetNextId();
 
-                sSql = "INSERT INTO [" + this.TableName + "](Id, Enabled, "
+                sSql = "INSERT INTO [" + this.TableName + "](/*Id,*/ Enabled, "
                 + " AccessType, PermissionId, AccessCode, AccessLevel, "
                 + " WriteAccessType, WritePermissionId, WriteAccessCode, WriteAccessLevel, "
                 + " MaxItems, MaxAttachSizeKB, CssClass) "
-                + " VALUES(@Id, @Enabled, "
+                + " VALUES(/*@Id,*/ @Enabled, "
                 + " @AccessType, @PermissionId, @AccessCode, @AccessLevel, "
                 + " @WriteAccessType, @WritePermissionId, @WriteAccessCode, @WriteAccessLevel, "
-                + " @MaxItems, @MaxAttachSizeKB, @CssClass) ";
+                + " @MaxItems, @MaxAttachSizeKB, @CssClass) "
+                + " SELECT SCOPE_IDENTITY()";
                 myCmd.CommandText = Database.ParseSql(sSql);
 
-                myCmd.Parameters.Add(Database.Parameter(myProv, "Id", result.Id));
-                myCmd.Parameters.Add(Database.Parameter(myProv, "Enabled", result.Enabled));
+                //myCmd.Parameters.Add(Database.Parameter(myProv, "Id", result.Id));//identity
+                myCmd.Parameters.Add(Database.Parameter(myProv, "Enabled", newObj.Enabled));
                 //read permissions
-                myCmd.Parameters.Add(Database.Parameter(myProv, "AccessType", (int)result.ReadAccessType));
-                myCmd.Parameters.Add(Database.Parameter(myProv, "PermissionId", result.ReadPermissionId));
-                myCmd.Parameters.Add(Database.Parameter(myProv, "AccessCode", (string)result.ReadAccessCode));
-                myCmd.Parameters.Add(Database.Parameter(myProv, "AccessLevel", (int)result.ReadAccessLevel));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "AccessType", (int)newObj.ReadAccessType));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "PermissionId", newObj.ReadPermissionId));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "AccessCode", (string)newObj.ReadAccessCode));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "AccessLevel", (int)newObj.ReadAccessLevel));
                 //write permissions
-                myCmd.Parameters.Add(Database.Parameter(myProv, "WriteAccessType", (int)result.WriteAccessType));
-                myCmd.Parameters.Add(Database.Parameter(myProv, "WritePermissionId", result.WritePermissionId));
-                myCmd.Parameters.Add(Database.Parameter(myProv, "WriteAccessCode", (string)result.WriteAccessCode));
-                myCmd.Parameters.Add(Database.Parameter(myProv, "WriteAccessLevel", (int)result.WriteAccessLevel));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "WriteAccessType", (int)newObj.WriteAccessType));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "WritePermissionId", newObj.WritePermissionId));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "WriteAccessCode", (string)newObj.WriteAccessCode));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "WriteAccessLevel", (int)newObj.WriteAccessLevel));
                 //limits
-                myCmd.Parameters.Add(Database.Parameter(myProv, "MaxItems", (int)result.MaxItems));
-                myCmd.Parameters.Add(Database.Parameter(myProv, "MaxAttachSizeKB", (int)result.MaxAttachSizeKB));
-                myCmd.Parameters.Add(Database.Parameter(myProv, "CssClass", result.CssClass));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "MaxItems", (int)newObj.MaxItems));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "MaxAttachSizeKB", (int)newObj.MaxAttachSizeKB));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "CssClass", newObj.CssClass));
 
-                myCmd.ExecuteNonQuery();
-                updateCultureText(result, myCmd, myProv);
+                newObj.Id = (int)(decimal)myCmd.ExecuteScalar();
+                updateCultureText(newObj, myCmd, myProv);
                 myTrans.Commit();
             }
             catch (Exception e)
@@ -277,7 +278,7 @@ namespace PigeonCms
                 myTrans.Dispose();
                 myConn.Dispose();
             }
-            return result;
+            return newObj;
         }
 
         public int DeleteById(int id, bool deleteChilds)

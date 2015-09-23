@@ -69,6 +69,11 @@ namespace PigeonCms
 
         #region public methods
         public Culture() { }
+
+        public KeyValuePair<string, string> ToKeyValuePay()
+        {
+            return new KeyValuePair<string, string>(this.CultureCode, this.DisplayName);
+        }
         #endregion
     }
 

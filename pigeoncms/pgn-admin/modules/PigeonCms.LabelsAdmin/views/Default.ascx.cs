@@ -24,7 +24,25 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
     const int COL_VALUES = 4;
     const int COL_DELETE = 5;
 
-    private List<PigeonCms.Culture> culturesList = new List<PigeonCms.Culture>();
+    private List<PigeonCms.Culture> culturesList = null;
+    private List<PigeonCms.Culture> CultureList
+    {
+        get
+        {
+            if (culturesList == null)
+            {
+                culturesList = new List<PigeonCms.Culture>();
+                var cultMan = new PigeonCms.CulturesManager();
+                var cultFilter = new PigeonCms.CulturesFilter();
+                cultFilter.Enabled = Utility.TristateBool.NotSet;
+                if (this.ShowOnlyEnabledCultures)
+                    cultFilter.Enabled = Utility.TristateBool.True;
+
+                culturesList = cultMan.GetByFilter(cultFilter, "");
+            }
+            return culturesList;
+        }
+    }
 
     protected string ModuleFullName
     {
@@ -127,6 +145,15 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         get { return GetBoolParam("AllowAdminMode", true); }
     }
 
+    /// <summary>
+    /// true: show only enabled cultures
+    /// false: show all inserted cultures
+    /// </summary>
+    public bool ShowOnlyEnabledCultures
+    {
+        get { return GetBoolParam("ShowOnlyEnabledCultures", false); }
+    }
+
     string imagesUploadUrl = "";
     protected string ImagesUploadUrl
     {
@@ -201,10 +228,6 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
     {
         LblOk.Text = RenderSuccess("");
         LblErr.Text = RenderError("");
-
-        var cultMan = new PigeonCms.CulturesManager();
-        var cultFilter = new PigeonCms.CulturesFilter();
-        culturesList = cultMan.GetByFilter(cultFilter, "");
 
 
         if (!Page.IsPostBack)
@@ -294,7 +317,7 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
             labelList = man.GetByFilter(lfilter, "");
             
             const string ROW = "<span class='[[rowClass]]'><i>[[rowCulture]]</i>: [[rowLabel]]</span><br>";
-            foreach(var culture in culturesList)
+            foreach (var culture in this.CultureList)
             {
                 ResLabel label = labelList.FirstOrDefault(
                     s => s.CultureName == culture.CultureCode);
@@ -431,9 +454,9 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         TxtComment.Text = "";
         TxtResourceParams.Text = "";
 
-        foreach (KeyValuePair<string, string> item in Config.CultureList)
+        foreach (var item in this.CultureList)
         {
-            setTransArea("TxtValue", PanelValue, null, item);
+            setTransArea("TxtValue", PanelValue, null, item.ToKeyValuePay());
         }
         Utility.SetDropByValue(DropTextMode, "2");
     }
@@ -471,13 +494,14 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         if (!string.IsNullOrEmpty(obj.ResourceId))
         {
             TxtResourceId.Enabled = false;
-            foreach (KeyValuePair<string, string> item in Config.CultureList)
+            foreach (var item in this.CultureList)
             {
+                var culture = item.ToKeyValuePay();
                 label = new ResLabel();
                 var TxtValue = new Controls_ContentEditorControl();
-                TxtValue = (Controls_ContentEditorControl)PanelValue.FindControl("TxtValue" + item.Value);
+                TxtValue = (Controls_ContentEditorControl)PanelValue.FindControl("TxtValue" + culture.Value);
 
-                filter.CultureName = item.Key;
+                filter.CultureName = culture.Key;
                 labelsList = lman.GetByFilter(filter, "");
                 if (labelsList.Count > 0)
                     label = labelsList[0];
@@ -550,17 +574,17 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
             var o1 = new ResLabelTrans();
             o1 = man.GetLabelTransByKey(getResSet(CurrentKey), getResId(CurrentKey));
             form2obj(o1);
-            foreach (KeyValuePair<string, string> item in Config.CultureList)
+            foreach (var item in this.CultureList)
             {
                 var label = new ResLabel();
                 var labelList = new List<ResLabel>();
                 var TxtValue = new Controls_ContentEditorControl();
                 
-                TxtValue = (Controls_ContentEditorControl)PanelValue.FindControl("TxtValue" + item.Value);
+                TxtValue = (Controls_ContentEditorControl)PanelValue.FindControl("TxtValue" + item.ToKeyValuePay().Value);
 
                 lFilter.ResourceSet = o1.ResourceSet;
                 lFilter.ResourceId = o1.ResourceId;
-                lFilter.CultureName = item.Key;
+                lFilter.CultureName = item.CultureCode;
                 labelList = man.GetByFilter(lFilter, "");
                 if (labelList.Count > 0)
                 {
@@ -575,7 +599,7 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
                 {
                     label.ResourceSet = o1.ResourceSet;
                     label.ResourceId = o1.ResourceId;
-                    label.CultureName = item.Key;
+                    label.CultureName = item.CultureCode;
                     label.Value = TxtValue.Text;
                     label.Comment = TxtComment.Text;
                     label.TextMode = o1.TextMode;
@@ -759,13 +783,10 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         ContentEditorProvider.InitEditor(this, Upd1, editorConfig);
 
         PanelValue.Controls.Clear();
-        //PanelComment.Controls.Clear();
 
-        //var panelCommentUI = new LabelsProvider.UI(false, PanelComment);
-        foreach (KeyValuePair<string, string> item in Config.CultureList)
+        foreach (var item in this.CultureList)
         {
-            addTransArea("TxtValue", PanelValue, editorConfig, item);
-            //panelCommentUI.AddTransText("TxtComment", item, 0, "form-control");
+            addTransArea("TxtValue", PanelValue, editorConfig, item.ToKeyValuePay());
         }
     }
 

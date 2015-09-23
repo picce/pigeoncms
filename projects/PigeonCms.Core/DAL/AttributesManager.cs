@@ -8,7 +8,7 @@ using StackExchange.Dapper;
 
 namespace PigeonCms
 {
-    public class AttributesManager : TableManager<Attribute, AttributeFilter, int>, ITableManager
+    public class AttributesManager : TableManagerWithOrdering<Attribute, AttributeFilter, int>, ITableManager
     {
         [DebuggerStepThrough()]
         public AttributesManager()
@@ -48,7 +48,7 @@ namespace PigeonCms
                 }
                 else
                 {
-                    sSql += " ORDER BY [" + this.KeyFieldName + "] ";
+                    sSql += " ORDER BY [Id] ";
                 }
 
                 result = (List<PigeonCms.Attribute>)myConn.Query<PigeonCms.Attribute>(Database.ParseSql(sSql), p);
@@ -127,13 +127,14 @@ namespace PigeonCms
                 result.Ordering = base.GetNextOrdering();
 
                 sSql = "INSERT INTO " + this.TableName + "(Name, AllowCustomValue, Ordering) "
-                + "VALUES(@Name, @AllowCustomValue, @Ordering) ";
+                + " VALUES(@Name, @AllowCustomValue, @Ordering) "
+                + " SELECT SCOPE_IDENTITY() ";
 
                 p.Add("Name", result.Name, null, null, null);
                 p.Add("AllowCustomValue", result.AllowCustomValue, null, null, null);
                 p.Add("Ordering", result.Ordering, null, null, null);
 
-                myConn.Execute(Database.ParseSql(sSql), p);
+                result.Id = (int)myConn.ExecuteScalar<decimal>(Database.ParseSql(sSql), p, null, null, null);
             }
             finally
             {

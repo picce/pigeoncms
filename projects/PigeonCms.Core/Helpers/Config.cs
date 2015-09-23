@@ -85,6 +85,14 @@ namespace PigeonCms
         }
 
         /// <summary>
+        /// folder with settings meta info
+        /// </summary>
+        public static string SettingsPath
+        {
+            get { return (IsPigeonBundle ? PigeonAdminPath + "settings/" : ""); }
+        }
+
+        /// <summary>
         /// path for installation wizard
         /// </summary>
         public static string InstallationPath

@@ -262,6 +262,7 @@ namespace PigeonCms
                 myCmd.Parameters.Add(Database.Parameter(myProv, "ResourceParams", theObj.ResourceParams));
 
                 result = myCmd.ExecuteNonQuery();
+                updateGroupedData(theObj);
             }
             finally
             {
@@ -304,6 +305,7 @@ namespace PigeonCms
                 myCmd.Parameters.Add(Database.Parameter(myProv, "ResourceParams", result.ResourceParams));
 
                 myCmd.ExecuteNonQuery();
+                updateGroupedData(result);
             }
             finally
             {
@@ -371,5 +373,42 @@ namespace PigeonCms
             }
             return res;
         }
+
+        private int updateGroupedData(ResLabel theObj)
+        {
+            DbProviderFactory myProv = Database.ProviderFactory;
+            DbConnection myConn = myProv.CreateConnection();
+            DbCommand myCmd = myConn.CreateCommand();
+            string sSql;
+            int result = 0;
+
+            try
+            {
+                myConn.ConnectionString = Database.ConnString;
+                myConn.Open();
+                myCmd.Connection = myConn;
+
+                sSql = "UPDATE [" + this.TableName + "] "
+                + " SET  Comment=@Comment, TextMode=@TextMode, "
+                + " IsLocalized=@IsLocalized, ResourceParams=@ResourceParams "
+                + " WHERE ResourceSet=@ResourceSet AND ResourceId=@ResourceId ";
+                myCmd.CommandText = Database.ParseSql(sSql);
+                myCmd.Parameters.Add(Database.Parameter(myProv, "ResourceSet", theObj.ResourceSet));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "ResourceId", theObj.ResourceId));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "Comment", theObj.Comment));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "TextMode", (int)theObj.TextMode));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "IsLocalized", theObj.IsLocalized));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "ResourceParams", theObj.ResourceParams));
+
+                result = myCmd.ExecuteNonQuery();
+            }
+            finally
+            {
+                myConn.Dispose();
+            }
+            return result;
+        }
+
+
     }
 }

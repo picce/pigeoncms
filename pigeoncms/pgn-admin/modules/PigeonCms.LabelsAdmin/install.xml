@@ -53,6 +53,10 @@
             <option value="1" label="Yes"></option>
             <option value="0" label="No"></option>
         </param>
+        <param name="ShowOnlyEnabledCultures" type="combo" default="0" label="Show only enabled cultures" description="">
+          <option value="1" label="Yes"></option>
+          <option value="0" label="No"></option>
+        </param>      
     </params>
     
 </install>

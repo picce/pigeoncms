@@ -1,14 +1,4 @@
-﻿/***************************************************
-PigeonCms - Open source Content Management System 
-https://github.com/picce/pigeoncms
-Copyright © 2015 Nicola Ridolfi - picce@yahoo.it
-version: 2.0.0
-Licensed under the terms of "GNU General Public License v3"
-For the full license text see license.txt or
-visit "http://www.gnu.org/licenses/gpl.html"
-***************************************************/
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,7 +9,7 @@ using System.Collections;
 
 namespace PigeonCms.Core.Helpers
 {
-    public class SessionManager<T>
+    public class ApplicationManager<T>
     {
         private string keyPrefix = "";
         public string KeyPrefix
@@ -28,7 +18,7 @@ namespace PigeonCms.Core.Helpers
             get { return keyPrefix; }
         }
 
-        public SessionManager(string keyPrefix)
+        public ApplicationManager(string keyPrefix)
         {
             this.keyPrefix = keyPrefix;
         }
@@ -51,7 +41,7 @@ namespace PigeonCms.Core.Helpers
         public bool IsEmpty(string key)
         {
             bool res = false;
-            if (HttpContext.Current.Session[this.KeyPrefix + "_" + key] == null)
+            if (HttpContext.Current.Application[this.KeyPrefix + "_" + key] == null)
                 res = true;
             return res;
         }
@@ -65,13 +55,13 @@ namespace PigeonCms.Core.Helpers
         {
             if (obj != null)
             {
-                HttpContext.Current.Session[this.KeyPrefix + "_" + key] = obj;
-                Tracer.Log("SessionManager.Insert: key=" + this.KeyPrefix + "_" + key + "; Time=" + DateTime.Now, TracerItemType.Info);
+                HttpContext.Current.Application[this.KeyPrefix + "_" + key] = obj;
+                Tracer.Log("ApplicationManager.Insert: key=" + this.KeyPrefix + "_" + key + "; Time=" + DateTime.Now, TracerItemType.Info);
             }
         }
 
         /// <summary>
-        /// remove Session entry with current key (and keyprefix)
+        /// remove Application entry with current key (and keyprefix)
         /// </summary>
         /// <param name="key">cache entry key</param>
         public void Remove(string key)
@@ -80,18 +70,18 @@ namespace PigeonCms.Core.Helpers
         }
 
         /// <summary>
-        /// remove all Session vars with current keyprefix
+        /// remove all Application vars with current keyprefix
         /// </summary>
         public void Clear()
         {
-            foreach (DictionaryEntry d in HttpContext.Current.Session)
+            foreach (DictionaryEntry d in HttpContext.Current.Application)
             {
                 if (d.Key.ToString().StartsWith(this.KeyPrefix + "_"))
                 {
                     this.remove(d.Key.ToString(), true);
                 }
             }
-            Tracer.Log("SessionManager.Clear: key=" + this.KeyPrefix + "; Time=" + DateTime.Now, TracerItemType.Info);
+            Tracer.Log("ApplicationManager.Clear: key=" + this.KeyPrefix + "; Time=" + DateTime.Now, TracerItemType.Info);
         }
 
         private void remove(string key, bool isFullKey)
@@ -101,15 +91,15 @@ namespace PigeonCms.Core.Helpers
                 fullKey = this.KeyPrefix + "_" + key;
             else
                 fullKey = key;
-            HttpContext.Current.Session.Remove(fullKey);
-            Tracer.Log("SessionManager.Remove: key=" + fullKey, TracerItemType.Info);
+            HttpContext.Current.Application.Remove(fullKey);
+            Tracer.Log("ApplicationManager.Remove: key=" + fullKey, TracerItemType.Info);
         }
 
         private T getValue(string key, bool writeLog)
         {
             if (writeLog)
-                Tracer.Log("SessionManager.GetValue: key=" + this.KeyPrefix + "_" + key, TracerItemType.Info);
-            var res = (T)HttpContext.Current.Session[this.KeyPrefix + "_" + key];
+                Tracer.Log("ApplicationManager.GetValue: key=" + this.KeyPrefix + "_" + key, TracerItemType.Info);
+            var res = (T)HttpContext.Current.Application[this.KeyPrefix + "_" + key];
             return res;
         }
     }

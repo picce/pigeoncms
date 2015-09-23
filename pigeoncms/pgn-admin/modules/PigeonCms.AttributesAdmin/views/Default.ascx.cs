@@ -16,7 +16,6 @@ using PigeonCms.Core.Helpers;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 
-//TOCHECK-LOLLO
 public partial class Controls_AttributesAdmin : PigeonCms.BaseModuleControl
 {
     const int COL_ORDERING_INDEX = 3;
@@ -75,11 +74,6 @@ public partial class Controls_AttributesAdmin : PigeonCms.BaseModuleControl
         LblErr.Text = "";
     }
 
-    protected void DropEnabledFilter_SelectedIndexChanged(object sender, EventArgs e)
-    {
-        Grid1.DataBind();
-    }
-
     protected void ObjDs1_ObjectCreating(object sender, ObjectDataSourceEventArgs e)
     {
         var typename = new PigeonCms.AttributesManager();
@@ -88,8 +82,10 @@ public partial class Controls_AttributesAdmin : PigeonCms.BaseModuleControl
 
     protected void ObjDs1_Selecting(object sender, ObjectDataSourceSelectingEventArgs e)
     {
-        PigeonCms.AttributeFilter filter = new PigeonCms.AttributeFilter();
+        var filter = new PigeonCms.AttributeFilter();
         e.InputParameters["filter"] = filter;
+        e.Arguments.SortExpression = "Ordering";
+
     }
 
     protected void Grid1_RowCommand(object sender, GridViewCommandEventArgs e)
@@ -101,11 +97,6 @@ public partial class Controls_AttributesAdmin : PigeonCms.BaseModuleControl
         if (e.CommandName == "DeleteRow")
         {
             deleteRow(int.Parse(e.CommandArgument.ToString()));
-        }
-        if (e.CommandName == "EditValues")
-        {
-            // the 0 will leave blank the value field
-            editValues(int.Parse(e.CommandArgument.ToString()), 0);
         }
         //Custom
         if (e.CommandName == "CustomEnabled")
@@ -148,35 +139,26 @@ public partial class Controls_AttributesAdmin : PigeonCms.BaseModuleControl
             if (string.IsNullOrEmpty(LnkTitle.Text))
                 LnkTitle.Text += Utility.GetLabel("NO_VALUE", "<no value>");
 
-            //if(item.AllowCustomValue == false) {
+            if (Roles.IsUserInRole("debug") || Roles.IsUserInRole("admin"))
+                LnkTitle.Text += " [" + item.Id.ToString() + "]";
 
-            //    var filter = new AttributeValueFilter();
-            //    filter.AttributeId = item.Id;
-            //    filter.NumOfRecords = 3;
-            //    var values = new AttributeValuesManager().GetByFilter(filter, "");
+            if (!item.AllowCustomValue)
+            {
+                var filter = new AttributeValueFilter();
+                filter.AttributeId = item.Id;
+                filter.NumOfRecords = 10;
+                var values = new AttributeValuesManager().GetByFilter(filter, "");
 
-            //    LinkButton LnkEditValues = (LinkButton)e.Row.FindControl("LnkEditValues");
-            //    LnkEditValues.Text = "<i class='fa fa-pgn_edit fa-fw'></i> Edit Records <br>";
-            //    Literal ValuesPreview = (Literal)e.Row.FindControl("ValuesPreview");
-            //    string records = "";
-            //    foreach (var value in values)
-            //    {
-            //        records +=  " - " + Utility.Html.GetTextPreview(value.Value, 50, "");
-            //    }
+                Literal ValuesPreview = (Literal)e.Row.FindControl("ValuesPreview");
+                string records = "";
+                foreach (var value in values)
+                {
+                    records += " - " + Utility.Html.GetTextPreview(value.Value, 50, "");
+                }
 
-            //    if(records.Length > 2)
-            //        ValuesPreview.Text = records.Substring(2);
-
-            //    if (string.IsNullOrEmpty(LnkTitle.Text))
-            //        LnkEditValues.Text += Utility.GetLabel("NO_VALUE", "<no value>");
-
-            //}
-            //else
-            //{
-            //    LinkButton LnkEditValues = (LinkButton)e.Row.FindControl("LnkEditValues");
-            //    LnkEditValues.Text = "";
-            //    LnkEditValues.Enabled = false;
-            //}
+                if (records.Length > 2)
+                    ValuesPreview.Text = "[" + records.Substring(2) + " ]";
+            }
 
             if (item.AllowCustomValue)
             {
@@ -200,9 +182,10 @@ public partial class Controls_AttributesAdmin : PigeonCms.BaseModuleControl
 
     protected void ObjValueSource_Selecting(object sender, ObjectDataSourceSelectingEventArgs e)
     {
-        PigeonCms.AttributeValueFilter filter = new PigeonCms.AttributeValueFilter();
-        filter.AttributeId = base.CurrentId;
+        var filter = new PigeonCms.AttributeValueFilter();
+        filter.AttributeId = (base.CurrentId > 0) ? base.CurrentId : -1;
         e.InputParameters["filter"] = filter;
+        e.Arguments.SortExpression = "Ordering";
     }
 
     protected void GridValues_RowCommand(object sender, GridViewCommandEventArgs e)
@@ -216,7 +199,15 @@ public partial class Controls_AttributesAdmin : PigeonCms.BaseModuleControl
         {
             deleteValue(int.Parse(e.CommandArgument.ToString()));
         }
-
+        //Ordering
+        if (e.CommandName == "MoveDown")
+        {
+            moveValue(int.Parse(e.CommandArgument.ToString()), Database.MoveRecordDirection.Down);
+        }
+        if (e.CommandName == "MoveUp")
+        {
+            moveValue(int.Parse(e.CommandArgument.ToString()), Database.MoveRecordDirection.Up);
+        }
     }
 
     protected void GridValues_RowCreated(object sender, GridViewRowEventArgs e)
@@ -237,6 +228,9 @@ public partial class Controls_AttributesAdmin : PigeonCms.BaseModuleControl
             LnkTitle.Text += Utility.Html.GetTextPreview(item.Value, 50, "");
             if (string.IsNullOrEmpty(LnkTitle.Text))
                 LnkTitle.Text += Utility.GetLabel("NO_VALUE", "<no value>");
+
+            if (Roles.IsUserInRole("debug") || Roles.IsUserInRole("admin"))
+                LnkTitle.Text += " [" + item.Id.ToString() + "]";
 
         }
     }
@@ -278,7 +272,7 @@ public partial class Controls_AttributesAdmin : PigeonCms.BaseModuleControl
         }
     }
 
-    protected void BtnSaveValues_Click(object sender, EventArgs e)
+    protected void BtnAddValue_Click(object sender, EventArgs e)
     {
         LblErr.Text = "";
         LblOk.Text = "";
@@ -304,8 +298,8 @@ public partial class Controls_AttributesAdmin : PigeonCms.BaseModuleControl
 
         try
         {
-            PigeonCms.AttributeValue o1 = new PigeonCms.AttributeValue();
-            if (Convert.ToInt32(base.CurrentKey) == 0)
+            var o1 = new AttributeValue();
+            if (string.IsNullOrEmpty(base.CurrentKey))
             {
                 values2obj(o1);
                 o1 = new AttributeValuesManager().Insert(o1);
@@ -317,8 +311,7 @@ public partial class Controls_AttributesAdmin : PigeonCms.BaseModuleControl
                 values2obj(o1);
                 new AttributeValuesManager().Update(o1);
             }
-            base.CurrentKey = "0";
-            clearForm();
+            clearValues();
             Grid1.DataBind();
             GridValues.DataBind();
             LblOk.Text = RenderSuccess(Utility.GetLabel("RECORD_SAVED_MSG"));
@@ -335,14 +328,15 @@ public partial class Controls_AttributesAdmin : PigeonCms.BaseModuleControl
 
     protected void BtnNewValue_Click(object sender, EventArgs e)
     {
-        base.CurrentKey = "0";
-        clearForm();
-        Grid1.DataBind();
+        base.CurrentKey = "";
+        clearValues();
         GridValues.DataBind();
     }
 
     protected void BtnCancel_Click(object sender, EventArgs e)
     {
+        base.CurrentKey = "";
+        Grid1.DataBind();
         MultiView1.ActiveViewIndex = 0;
     }
 
@@ -353,6 +347,27 @@ public partial class Controls_AttributesAdmin : PigeonCms.BaseModuleControl
         TxtName.Text = "";
         ChkCustomValue.Checked = false;
         ChkInLang.Checked = true;
+        foreach (KeyValuePair<string, string> item in Config.CultureList)
+        {
+            TextBox t1 = new TextBox();
+            t1 = (TextBox)PanelTitle.FindControl("TxtTitle" + item.Value);
+            t1.Text = "";
+
+            Panel pan1 = new Panel();
+            pan1 = (Panel)PanelTitle.FindControl("PnlTitle" + item.Value);
+
+            if (!ChkInLang.Checked)
+                LabelsProvider.SetLocalizedControlVisibility(true, item.Key, pan1);
+            else
+            {
+                pan1.Visible = true;
+            }
+
+        }
+    }
+
+    private void clearValues()
+    {
         foreach (KeyValuePair<string, string> item in Config.CultureList)
         {
             TextBox t1 = new TextBox();
@@ -376,15 +391,42 @@ public partial class Controls_AttributesAdmin : PigeonCms.BaseModuleControl
 
     private void values2obj(PigeonCms.AttributeValue obj)
     {
+        var valueTranslation = new Dictionary<string, string>();
 
-        foreach (KeyValuePair<string, string> item in Config.CultureList)
+        if (ChkInLang.Checked)
+        {
+            foreach (KeyValuePair<string, string> item in Config.CultureList)
+            {
+                TextBox t1 = new TextBox();
+                t1 = (TextBox)PanelTitle.FindControl("TxtTitle" + item.Value);
+                valueTranslation.Add(item.Key, t1.Text);
+            }
+        }
+        else
         {
             TextBox t1 = new TextBox();
-            t1 = (TextBox)PanelTitle.FindControl("TxtTitle" + item.Value);
-            obj.ValueTranslations.Add(item.Key, t1.Text);
+            string defaultLang = Config.CultureList.FirstOrDefault(x => x.Key == Config.CultureDefault).Value;
+            t1 = (TextBox)PanelTitle.FindControl("TxtTitle" + defaultLang);
+            foreach (KeyValuePair<string, string> item in Config.CultureList)
+            {
+                valueTranslation.Add(item.Key, t1.Text);
+            }
+        }
+
+        obj.ValueString = toJson(valueTranslation);
+
+        if (base.CurrentId == 0)
+        {
+            // have to save attribute before
+            var a = new PigeonCms.Attribute();
+            a.AllowCustomValue = ChkCustomValue.Checked;
+            a.Name = TxtName.Text;
+            a = new AttributesManager().Insert(a);
+            base.CurrentId = a.Id;
         }
 
         obj.AttributeId = base.CurrentId;
+        
     }
 
     private void values2form(PigeonCms.AttributeValue obj)
@@ -416,6 +458,7 @@ public partial class Controls_AttributesAdmin : PigeonCms.BaseModuleControl
             obj = new PigeonCms.AttributesManager().GetByKey(base.CurrentId);
             obj2form(obj);
         }
+        GridValues.DataBind();
         MultiView1.ActiveViewIndex = 1;
     }
 
@@ -424,8 +467,6 @@ public partial class Controls_AttributesAdmin : PigeonCms.BaseModuleControl
         LblOk.Text = "";
         LblErr.Text = "";
 
-        clearForm();
-
         base.CurrentKey = attrValId.ToString();
         base.CurrentId = recordId;
 
@@ -433,7 +474,6 @@ public partial class Controls_AttributesAdmin : PigeonCms.BaseModuleControl
         {
             PigeonCms.Attribute obj = new PigeonCms.Attribute();
             obj = new PigeonCms.AttributesManager().GetByKey(base.CurrentId);
-            editValueName.Text = "Edit: " +  obj.Name;
         }
         if (attrValId > 0)
         {
@@ -442,7 +482,6 @@ public partial class Controls_AttributesAdmin : PigeonCms.BaseModuleControl
             values2form(obj);
         }
         GridValues.DataBind();
-        MultiView1.ActiveViewIndex = 2;
     }
 
     private void deleteRow(int recordId)
@@ -469,19 +508,19 @@ public partial class Controls_AttributesAdmin : PigeonCms.BaseModuleControl
         try
         {
             // have to check if is used by some products 
-            var iavfilter = new ItemAttributeValueFilter();
-            iavfilter.AttributeValueId = recordId;
-            iavfilter.OnlyPopulatedFields = true;
-            bool isUsed = (new ItemAttributesValuesManager().GetByFilter(iavfilter, "").Count > 0);
+            var ifilter = new ItemAttributeValueFilter();
+            var iman = new ItemAttributesValuesManager();
+            var vman = new AttributeValuesManager();
+            ifilter.AttributeValueId = recordId;
+            bool isUsed = (iman.GetByFilter(ifilter, "").Count > 0);
             if (!isUsed)
             {
-                new PigeonCms.AttributeValuesManager().DeleteById(recordId);
+                vman.DeleteById(recordId);
             }
             else
             {
                 LblErr.Text = RenderError("value assigned to a product. delete the product before the attribute.");
             }
-            
         }
         catch (Exception e)
         {
@@ -515,6 +554,17 @@ public partial class Controls_AttributesAdmin : PigeonCms.BaseModuleControl
         finally { }
     }
 
+    /// <summary>
+    /// Convert a Dictionary<string,string> into Json string
+    /// </summary>
+    /// <param name="dictionary"></param>
+    /// <returns></returns>
+    private string toJson(Dictionary<string, string> dictionary)
+    {
+        var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+        return serializer.Serialize(dictionary);
+    }
+
     protected void moveRecord(int recordId, Database.MoveRecordDirection direction)
     {
         LblErr.Text = RenderError("");
@@ -525,8 +575,29 @@ public partial class Controls_AttributesAdmin : PigeonCms.BaseModuleControl
             if (!PgnUserCurrent.IsAuthenticated)
                 throw new Exception("user not authenticated");
 
-            //new PigeonCms.AttributesManager().MoveRecord(recordId, direction);
+            new PigeonCms.AttributesManager().MoveRecord(recordId, direction);
             Grid1.DataBind();
+            MultiView1.ActiveViewIndex = 0;
+        }
+        catch (Exception e1)
+        {
+            LblErr.Text = RenderError(Utility.GetLabel("RECORD_ERR_MSG") + "<br />" + e1.ToString());
+        }
+        finally { }
+    }
+
+    protected void moveValue(int recordId, Database.MoveRecordDirection direction)
+    {
+        LblErr.Text = RenderError("");
+        LblOk.Text = RenderSuccess("");
+
+        try
+        {
+            if (!PgnUserCurrent.IsAuthenticated)
+                throw new Exception("user not authenticated");
+
+            new AttributeValuesManager().MoveRecord(recordId, direction);
+            GridValues.DataBind();
             MultiView1.ActiveViewIndex = 1;
         }
         catch (Exception e1)

@@ -2,6 +2,7 @@
 
 
 <div class="Controls_LoginSbAdmin <%=base.BaseModule.CssClass %> col-md-4 col-md-offset-4">
+    <div class="login-logo"></div>
     <div class="login-panel panel panel-default">
         <div class="panel-heading">
             <h3 class="panel-title"><%=this.SiteTitle %> <%=this.BaseModule.Title %></h3>

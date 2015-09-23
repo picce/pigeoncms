@@ -48,11 +48,11 @@ namespace PigeonCms
                     sSql += " AND AttributeValueId = @AttributeValueId ";
                     myCmd.Parameters.Add(Database.Parameter(myProv, "AttributeValueId", filter.AttributeValueId));
                 }
-                if (filter.OnlyWithValues)
+                if (filter.ValuesFields)
                 {
                     sSql += " AND AttributeValueId > 0 ";
                 }
-                if (filter.OnlyCustomFields)
+                if (filter.CustomFields)
                 {
                     sSql += " AND AttributeValueId = 0 ";
                 }

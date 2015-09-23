@@ -273,6 +273,14 @@ namespace PigeonCms
             {
                 result.Description = nodeInstall.Attributes["description"].Value;
             }
+            if (nodeInstall.Attributes["iconClass"] != null)
+            {
+                result.IconClass = nodeInstall.Attributes["iconClass"].Value;
+            }
+            if (nodeInstall.Attributes["panelClass"] != null)
+            {
+                result.PanelClass = nodeInstall.Attributes["panelClass"].Value;
+            }
             if (nodeInstall.Attributes["allowDirectEditMode"] != null)
             {
                 bool allowDirectEditMode = false;

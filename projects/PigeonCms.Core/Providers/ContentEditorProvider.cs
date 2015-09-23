@@ -161,6 +161,7 @@ namespace PigeonCms
                     tinymce.remove('textarea');
                     tinymce.init({
                         selector: 'textarea',
+                        relative_urls: false,
                         plugins: [
                                  'advlist autolink link image lists charmap print preview hr anchor pagebreak ',
                                  'searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking',

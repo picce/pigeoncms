@@ -30,18 +30,23 @@ namespace PigeonCms
             CustomBool1,
             CustomBool2,
             CustomBool3,
+            CustomBool4,
             CustomDate1,
             CustomDate2,
             CustomDate3,
+            CustomDate4,
             CustomDecimal1,
             CustomDecimal2,
             CustomDecimal3,
+            CustomDecimal4,
             CustomInt1,
             CustomInt2,
             CustomInt3,
+            CustomInt4,
             CustomString1,
             CustomString2,
-            CustomString3
+            CustomString3,
+            CustomString4
             /*CustomTextTranslations1,
             CustomTextTranslations2,
             CustomTextTranslations3*/
@@ -79,18 +84,23 @@ namespace PigeonCms
         private bool customBool1 = false;
         private bool customBool2 = false;
         private bool customBool3 = false;
+        private bool customBool4 = false;
         private DateTime customDate1;
         private DateTime customDate2;
         private DateTime customDate3;
+        private DateTime customDate4;
         private decimal customDecimal1 = 0.0m;
         private decimal customDecimal2 = 0.0m;
         private decimal customDecimal3 = 0.0m;
+        private decimal customDecimal4 = 0.0m;
         private int customInt1 = 0;
         private int customInt2 = 0;
         private int customInt3 = 0;
+        private int customInt4 = 0;
         private string customString1 = "";
         private string customString2 = "";
         private string customString3 = "";
+        private string customString4 = "";
         //private Dictionary<string, string> customTextTranslations1 = new Dictionary<string, string>();
         //private Dictionary<string, string> customTextTranslations2 = new Dictionary<string, string>();
         //private Dictionary<string, string> customTextTranslations3 = new Dictionary<string, string>();
@@ -733,6 +743,14 @@ namespace PigeonCms
             set { customBool3 = value; }
         }
 
+        public bool CustomBool4
+        {
+            [DebuggerStepThrough()]
+            get { return customBool4; }
+            [DebuggerStepThrough()]
+            set { customBool4 = value; }
+        }
+
         public DateTime CustomDate1
         {
             [DebuggerStepThrough()]
@@ -755,6 +773,14 @@ namespace PigeonCms
             get { return customDate3; }
             [DebuggerStepThrough()]
             set { customDate3 = value; }
+        }
+
+        public DateTime CustomDate4
+        {
+            [DebuggerStepThrough()]
+            get { return customDate4; }
+            [DebuggerStepThrough()]
+            set { customDate4 = value; }
         }
 
         public decimal CustomDecimal1
@@ -781,6 +807,14 @@ namespace PigeonCms
             set { customDecimal3 = value; }
         }
 
+        public decimal CustomDecimal4
+        {
+            [DebuggerStepThrough()]
+            get { return customDecimal4; }
+            [DebuggerStepThrough()]
+            set { customDecimal4 = value; }
+        }
+
         public int CustomInt1
         {
             [DebuggerStepThrough()]
@@ -803,6 +837,14 @@ namespace PigeonCms
             get { return customInt3; }
             [DebuggerStepThrough()]
             set { customInt3 = value; }
+        }
+
+        public int CustomInt4
+        {
+            [DebuggerStepThrough()]
+            get { return customInt4; }
+            [DebuggerStepThrough()]
+            set { customInt4 = value; }
         }
 
         public string CustomString1
@@ -840,17 +882,17 @@ namespace PigeonCms
         public string CustomString3
         {
             [DebuggerStepThrough()]
-            get
-            {
-                return customString3;
-                //string res = "";
-                //customString3Translations.TryGetValue(Thread.CurrentThread.CurrentCulture.Name, out res);
-                //if (Utility.IsEmptyFckField(res))
-                //    customString3Translations.TryGetValue(Config.CultureDefault, out res);
-                //return res;
-            }
+            get { return customString3; }
             [DebuggerStepThrough()]
             set { customString3 = value; }
+        }
+
+        public string CustomString4
+        {
+            [DebuggerStepThrough()]
+            get { return customString4; }
+            [DebuggerStepThrough()]
+            set { customString4 = value; }
         }
 
         //public Dictionary<string, string> CustomTextTranslations1
@@ -1095,12 +1137,15 @@ namespace PigeonCms
         private Utility.TristateBool customBool1 = Utility.TristateBool.NotSet;
         private Utility.TristateBool customBool2 = Utility.TristateBool.NotSet;
         private Utility.TristateBool customBool3 = Utility.TristateBool.NotSet;
+        private Utility.TristateBool customBool4 = Utility.TristateBool.NotSet;
         private int customInt1 = 0;
         private int customInt2 = 0;
         private int customInt3 = 0;
+        private int customInt4 = 0;
         private string customString1 = "";
         private string customString2 = "";
         private string customString3 = "";
+        private string customString4 = "";
 
 
         [DataObjectField(true)]
@@ -1301,6 +1346,14 @@ namespace PigeonCms
             set { customBool3 = value; }
         }
 
+        public Utility.TristateBool CustomBool4
+        {
+            [DebuggerStepThrough()]
+            get { return customBool4; }
+            [DebuggerStepThrough()]
+            set { customBool4 = value; }
+        }
+
         public int CustomInt1
         {
             [DebuggerStepThrough()]
@@ -1325,6 +1378,14 @@ namespace PigeonCms
             set { customInt3 = value; }
         }
 
+        public int CustomInt4
+        {
+            [DebuggerStepThrough()]
+            get { return customInt4; }
+            [DebuggerStepThrough()]
+            set { customInt4 = value; }
+        }
+
         public string CustomString1
         {
             [DebuggerStepThrough()]
@@ -1347,6 +1408,14 @@ namespace PigeonCms
             get { return customString3; }
             [DebuggerStepThrough()]
             set { customString3 = value; }
+        }
+
+        public string CustomString4
+        {
+            [DebuggerStepThrough()]
+            get { return customString4; }
+            [DebuggerStepThrough()]
+            set { customString4 = value; }
         }
 
         #endregion

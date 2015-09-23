@@ -76,6 +76,7 @@
                         <div class="panel-body">
 
                             <div class="form-group col-sm-12">
+                                <%=GetLabel("Section", "Section", DropSectionsFilter, true) %>
                                 <asp:DropDownList ID="DropSectionsFilter" runat="server" AutoPostBack="true" CssClass="form-control" OnSelectedIndexChanged="DropSectionsFilter_SelectedIndexChanged">
                                 </asp:DropDownList>
                             </div>

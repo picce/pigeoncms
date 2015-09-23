@@ -9,12 +9,14 @@ using System.Threading;
 
 namespace PigeonCms
 {
-    public class AttributeValue : ITable
+    public class AttributeValue : ITable, ITableWithOrdering
     {
         private int attributeId = 0;
         private string valueString = "";
 
         private Dictionary<string, string> valueTranslations = new Dictionary<string, string>();
+
+        public int Ordering { get; set; }
 
         #region fields
 
@@ -68,9 +70,7 @@ namespace PigeonCms
         public Dictionary<string, string> ValueTranslations
         {
             [DebuggerStepThrough()]
-            get { return valueTranslations; }
-            [DebuggerStepThrough()]
-            set { valueTranslations = value; }
+            get { return toDictionary(ValueString); }
         }
 
         public bool IsValueTranslated
@@ -91,6 +91,24 @@ namespace PigeonCms
         #region methods
 
         public AttributeValue() { }
+
+        /// <summary>
+        /// Convert a json string into Dictionary<string, string>
+        /// </summary>
+        /// <param name="json"></param>
+        /// <returns></returns>
+        private Dictionary<string, string> toDictionary(string json)
+        {
+            if (!string.IsNullOrEmpty(json))
+            {
+                var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+                return serializer.Deserialize<Dictionary<string, string>>(json);
+            }
+            else
+            {
+                return new Dictionary<string, string>();
+            }
+        }
 
         public override bool Equals(System.Object obj)
         {
