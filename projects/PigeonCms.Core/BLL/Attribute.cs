@@ -9,14 +9,13 @@ using System.Threading;
 
 namespace PigeonCms
 {
-    public class Attribute: ITable
+    public class Attribute : ITable, ITableWithOrdering
     {
         private int id = 0;
-        private string itemType = "";
         private string name = "";
-        private string measureUnit = "";
-        private int attributeType = 0;
         private bool allowCustomValue;
+
+        public int Ordering { get; set; }
 
         #region fields
 
@@ -25,18 +24,6 @@ namespace PigeonCms
         /// </summary>
         [DataObjectField(true)]
         public int Id { get; set; }
-
-        /// <summary>
-        /// Item specific type name. Ex. PigeonCms.CustomItem
-        /// </summary>
-        [DataObjectField(false)]
-        public string ItemType
-        {
-            [DebuggerStepThrough()]
-            get { return itemType; }
-            [DebuggerStepThrough()]
-            set { itemType = value; }
-        }
 
         /// <summary>
         /// Name of attribute.
@@ -49,16 +36,6 @@ namespace PigeonCms
         }
 
         /// <summary>
-        /// Type of Attribute.
-        /// </summary>
-        [DataObjectField(false)]
-        public int AttributeType
-        {
-            get { return attributeType; }
-            set { attributeType = value; }
-        }
-
-        /// <summary>
         /// Allow Custom Value, for value non in list.
         /// </summary>
         [DataObjectField(false)]
@@ -66,16 +43,6 @@ namespace PigeonCms
         {
             get { return allowCustomValue; }
             set { allowCustomValue = value; }
-        }
-
-        /// <summary>
-        /// Unit of measure of Attribute (if any).
-        /// </summary>
-        [DataObjectField(false)]
-        public string MeasureUnit
-        {
-            get { return measureUnit; }
-            set { measureUnit = value; }
         }
 
         #endregion
@@ -92,14 +59,12 @@ namespace PigeonCms
             {
                 return false;
             }
-
             // If parameter cannot be cast to Point return false.
             PigeonCms.Attribute p = obj as PigeonCms.Attribute;
             if ((System.Object)p == null)
             {
                 return false;
             }
-
             // Return true if the fields match:
             return (this.Id.Equals(p.Id));
         }
@@ -124,7 +89,7 @@ namespace PigeonCms
         #region fields definition
 
         private int id = 0;
-        private int attributeType = 0;
+        private Utility.TristateBool allowCustomValue = Utility.TristateBool.NotSet;
 
         public int Id
         {
@@ -134,12 +99,12 @@ namespace PigeonCms
             set { id = value; }
         }
 
-        public int AttributeType
+        public Utility.TristateBool AllowCustomValue
         {
             [DebuggerStepThrough()]
-            get { return attributeType; }
+            get { return allowCustomValue; }
             [DebuggerStepThrough()]
-            set { attributeType = value; }
+            set { allowCustomValue = value; }
         }
 
         #endregion

@@ -2591,3 +2591,16 @@ ALTER TABLE dbo.#__appSettings ADD CONSTRAINT
 
 GO
 
+--20150923
+ALTER TABLE dbo.#__attributes ADD
+	ordering int NULL
+GO
+ALTER TABLE dbo.#__attributes
+	DROP COLUMN itemType, attributeType, measureUnit
+GO
+ALTER TABLE dbo.#__attributes SET (LOCK_ESCALATION = TABLE)
+GO
+
+ALTER TABLE dbo.#__attributesValues ADD
+	ordering int NULL
+GO
