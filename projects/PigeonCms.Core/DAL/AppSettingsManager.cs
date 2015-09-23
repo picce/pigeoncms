@@ -20,8 +20,12 @@ namespace PigeonCms
     /// Data Access Layer for AppSetting class
     /// </summary>
     [DataObject()]
+    [Obsolete("don't use static class. Use new AppSettingsManager by resourceSet")]
     public static class AppSettingsManager
     {
+        const string KEYSET = "PigeonCms.Core";
+
+
         [DataObjectMethod(DataObjectMethodType.Select, true)]
         public static List<AppSetting> GetSettings()
         {
@@ -105,14 +109,17 @@ namespace PigeonCms
                 myConn.Open();
                 myCmd.Connection = myConn;
 
-                sSql = "SELECT KeyName, KeyTitle, KeyValue, KeyInfo "
+                sSql = "SELECT KeySet, KeyName, KeyTitle, KeyValue, KeyInfo "
                 + " FROM #__appSettings m "
-                + " WHERE KeyName = @KeyName ";
+                + " WHERE KeySet = @KeySet AND KeyName = @KeyName ";
                 myCmd.CommandText = Database.ParseSql(sSql);
+                myCmd.Parameters.Add(Database.Parameter(myProv, "KeySet", KEYSET));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "KeyName", keyName));
                 myRd = myCmd.ExecuteReader();
                 if (myRd.Read())
                 {
+                    if (!Convert.IsDBNull(myRd["KeySet"]))
+                        result.KeySet = (string)myRd["KeySet"];
                     if (!Convert.IsDBNull(myRd["KeyName"]))
                         result.KeyName = (string)myRd["KeyName"];
                     if (!Convert.IsDBNull(myRd["KeyTitle"]))
@@ -152,8 +159,9 @@ namespace PigeonCms
                 myCmd.Connection = myConn;
 
                 sSql = "UPDATE #__appSettings SET KeyTitle=@KeyTitle, KeyValue=@KeyValue, KeyInfo=@KeyInfo "
-                + " WHERE  KeyName=@KeyName ";
+                + " WHERE KeySet=@KeySet AND KeyName=@KeyName ";
                 myCmd.CommandText = Database.ParseSql(sSql);
+                myCmd.Parameters.Add(Database.Parameter(myProv, "KeySet", theObj.KeySet));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "KeyName", theObj.KeyName));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "KeyTitle", theObj.KeyTitle));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "KeyValue", theObj.KeyValue));
@@ -194,9 +202,10 @@ namespace PigeonCms
                 result.KeyValue = newObj.KeyValue;
                 result.KeyInfo = newObj.KeyInfo;
 
-                sSql = "INSERT INTO #__AppSettings(KeyName, KeyTitle, KeyValue, KeyInfo) "
-                + "VALUES(@KeyName, @KeyTitle, @KeyValue, @KeyInfo) ";
+                sSql = "INSERT INTO #__AppSettings(KeySet, KeyName, KeyTitle, KeyValue, KeyInfo) "
+                + "VALUES(@KeySet, @KeyName, @KeyTitle, @KeyValue, @KeyInfo) ";
                 myCmd.CommandText = Database.ParseSql(sSql);
+                myCmd.Parameters.Add(Database.Parameter(myProv, "KeySet", result.KeySet));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "KeyName", result.KeyName));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "KeyTitle", result.KeyTitle));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "KeyValue", result.KeyValue));
@@ -227,8 +236,10 @@ namespace PigeonCms
                 myConn.Open();
                 myCmd.Connection = myConn;
 
-                sSql = "DELETE FROM #__AppSettings WHERE KeyName = @KeyName ";
+
+                sSql = "DELETE FROM #__AppSettings WHERE @KeySet = KeySet AND KeyName = @KeyName ";
                 myCmd.CommandText = Database.ParseSql(sSql);
+                myCmd.Parameters.Add(Database.Parameter(myProv, "KeySet", KEYSET));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "KeyName", keyName));
                 res = myCmd.ExecuteNonQuery();
 
@@ -246,8 +257,7 @@ namespace PigeonCms
         /// </summary>
         public static void RefreshApplicationVars()
         {
-            List<PigeonCms.AppSetting> settings = new List<PigeonCms.AppSetting>();
-            settings = AppSettingsManager.GetSettings();
+            var settings = AppSettingsManager.GetSettings();
             foreach (AppSetting setting in settings)
             {
                 refreshApplicationVar(setting.KeyName, setting.KeyValue);

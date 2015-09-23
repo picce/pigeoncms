@@ -97,6 +97,7 @@
     <Compile Include="Controls\TreeViewLinks.cs" />
     <Compile Include="Controls\Image.cs" />
     <Compile Include="Controls\Label.cs" />
+    <Compile Include="DAL\AppSettingsManager2.cs" />
     <Compile Include="DAL\AppSettingsManager.cs" />
     <Compile Include="BaseClasses\BaseMasterPage.cs">
       <SubType>ASPXCodeBehind</SubType>
@@ -135,6 +136,7 @@
     <Compile Include="Helpers\CookiesManager.cs" />
     <Compile Include="Helpers\RedirHelper.cs" />
     <Compile Include="Helpers\FilesHelper.cs" />
+    <Compile Include="Helpers\ApplicationManager.cs" />
     <Compile Include="Helpers\SessionManager.cs" />
     <Compile Include="Helpers\Database.cs" />
     <Compile Include="BLL\Event.cs" />
@@ -206,6 +208,7 @@
     <Compile Include="PageRouteHandler.cs" />
     <Compile Include="PagesUrlRewrite.cs" />
     <Compile Include="Providers\ContentEditorProvider.cs" />
+    <Compile Include="Providers\AppSettingsProvider.cs" />
     <Compile Include="Providers\MessageProvider.cs" />
     <Compile Include="Providers\LogProvider.cs" />
     <Compile Include="Providers\LabelsProvider.cs" />

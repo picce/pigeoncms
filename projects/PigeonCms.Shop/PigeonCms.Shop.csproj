@@ -61,6 +61,7 @@
     <Compile Include="Provider\Payments\PayPal.cs" />
     <Compile Include="Provider\Payments\PaymentsProvider.cs" />
     <Compile Include="Provider\OrdersProvider.cs" />
+    <Compile Include="Provider\ProductsProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PigeonCms.Core\PigeonCms.Core.csproj">

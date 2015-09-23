@@ -29,6 +29,8 @@ namespace PigeonCms
         private string authorEmail = "";
         private string authorUrl = "";
         private string description = "";
+        private string iconClass = "";
+        private string panelClass = "";
         //private List<FormField> commonParams = new List<FormField>();
         private List<FormField> _params = new List<FormField>();
         private bool isCore = false;
@@ -228,6 +230,22 @@ namespace PigeonCms
             get { return description; }
             [DebuggerStepThrough()]
             set { description = value; }
+        }
+
+        public string IconClass
+        {
+            [DebuggerStepThrough()]
+            get { return iconClass; }
+            [DebuggerStepThrough()]
+            set { iconClass = value; }
+        }
+
+        public string PanelClass
+        {
+            [DebuggerStepThrough()]
+            get { return panelClass; }
+            [DebuggerStepThrough()]
+            set { panelClass = value; }
         }
 
         public List<string> InstallQueries

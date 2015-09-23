@@ -2382,3 +2382,212 @@ CREATE TABLE [#__itemsAttributesValues](
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
 
+--20150909
+--table pgn_sections add IDENTITY to ID 
+CREATE TABLE dbo.Tmp_#__sections
+	(
+	id int NOT NULL IDENTITY (1, 1),
+	enabled bit NULL,
+	accessType int NULL,
+	permissionId int NULL,
+	accessCode varchar(255) NULL,
+	accessLevel int NULL,
+	writeAccessType int NULL,
+	writePermissionId int NULL,
+	writeAccessCode varchar(255) NULL,
+	writeAccessLevel int NULL,
+	maxItems int NULL,
+	maxAttachSizeKB int NULL,
+	cssClass varchar(50) NULL
+	)  ON [PRIMARY]
+GO
+ALTER TABLE dbo.Tmp_#__sections SET (LOCK_ESCALATION = TABLE)
+GO
+SET IDENTITY_INSERT dbo.Tmp_#__sections ON
+GO
+IF EXISTS(SELECT * FROM dbo.#__sections)
+	 EXEC('INSERT INTO dbo.Tmp_#__sections (id, enabled, accessType, permissionId, accessCode, accessLevel, writeAccessType, writePermissionId, writeAccessCode, writeAccessLevel, maxItems, maxAttachSizeKB, cssClass)
+		SELECT id, enabled, accessType, permissionId, accessCode, accessLevel, writeAccessType, writePermissionId, writeAccessCode, writeAccessLevel, maxItems, maxAttachSizeKB, cssClass FROM dbo.#__sections WITH (HOLDLOCK TABLOCKX)')
+GO
+SET IDENTITY_INSERT dbo.Tmp_#__sections OFF
+GO
+DROP TABLE dbo.#__sections
+GO
+EXECUTE sp_rename N'dbo.Tmp_#__sections', N'#__sections', 'OBJECT' 
+GO
+ALTER TABLE dbo.#__sections ADD CONSTRAINT
+	PK_#__sections PRIMARY KEY CLUSTERED 
+	(
+	id
+	) WITH( STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+
+GO
+
+
+--20150909
+--table pgn_categories add IDENTITY to ID 
+CREATE TABLE dbo.Tmp_#__categories
+	(
+	id int NOT NULL IDENTITY (1, 1),
+	sectionId int NULL,
+	parentId int NULL,
+	enabled bit NULL,
+	ordering int NULL,
+	defaultImageName varchar(50) NULL,
+	accessType int NULL,
+	permissionId int NULL,
+	accessCode varchar(255) NULL,
+	accessLevel int NULL,
+	writeAccessType int NULL,
+	writePermissionId int NULL,
+	writeAccessCode varchar(255) NULL,
+	writeAccessLevel int NULL,
+	cssClass varchar(50) NULL
+	)  ON [PRIMARY]
+GO
+ALTER TABLE dbo.Tmp_#__categories SET (LOCK_ESCALATION = TABLE)
+GO
+SET IDENTITY_INSERT dbo.Tmp_#__categories ON
+GO
+IF EXISTS(SELECT * FROM dbo.#__categories)
+	 EXEC('INSERT INTO dbo.Tmp_#__categories (id, sectionId, parentId, enabled, ordering, defaultImageName, accessType, permissionId, accessCode, accessLevel, writeAccessType, writePermissionId, writeAccessCode, writeAccessLevel, cssClass)
+		SELECT id, sectionId, parentId, enabled, ordering, defaultImageName, accessType, permissionId, accessCode, accessLevel, writeAccessType, writePermissionId, writeAccessCode, writeAccessLevel, cssClass FROM dbo.#__categories WITH (HOLDLOCK TABLOCKX)')
+GO
+SET IDENTITY_INSERT dbo.Tmp_#__categories OFF
+GO
+DROP TABLE dbo.#__categories
+GO
+EXECUTE sp_rename N'dbo.Tmp_#__categories', N'#__categories', 'OBJECT' 
+GO
+ALTER TABLE dbo.#__categories ADD CONSTRAINT
+	PK_#__categories PRIMARY KEY CLUSTERED 
+	(
+	id
+	) WITH( STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+
+GO
+
+--20150910
+--table pgn_items add IDENTITY to ID 
+CREATE TABLE dbo.Tmp_#__items
+	(
+	id int NOT NULL IDENTITY (1, 1),
+	itemType varchar(255) NULL,
+	categoryId int NULL,
+	enabled bit NULL,
+	ordering int NULL,
+	defaultImageName varchar(50) NULL,
+	dateInserted datetime NULL,
+	userInserted varchar(50) NULL,
+	dateUpdated datetime NULL,
+	userUpdated varchar(50) NULL,
+	CustomBool1 bit NULL,
+	CustomBool2 bit NULL,
+	CustomBool3 bit NULL,
+	CustomDate1 datetime NULL,
+	CustomDate2 datetime NULL,
+	CustomDate3 datetime NULL,
+	CustomDecimal1 decimal(18, 2) NULL,
+	CustomDecimal2 decimal(18, 2) NULL,
+	CustomDecimal3 decimal(18, 2) NULL,
+	CustomInt1 int NULL,
+	CustomInt2 int NULL,
+	CustomInt3 int NULL,
+	CustomString1 varchar(MAX) NULL,
+	CustomString2 varchar(MAX) NULL,
+	CustomString3 varchar(MAX) NULL,
+	ItemParams varchar(MAX) NULL,
+	accessType int NULL,
+	permissionId int NULL,
+	accessCode varchar(255) NULL,
+	accessLevel int NULL,
+	itemDate datetime NULL,
+	validFrom datetime NULL,
+	validTo datetime NULL,
+	alias varchar(200) NULL,
+	commentsGroupId int NULL,
+	writeAccessType int NULL,
+	writePermissionId int NULL,
+	writeAccessCode varchar(255) NULL,
+	writeAccessLevel int NULL,
+	threadId int NULL,
+	cssClass varchar(50) NULL
+	)  ON [PRIMARY]
+	 TEXTIMAGE_ON [PRIMARY]
+GO
+ALTER TABLE dbo.Tmp_#__items SET (LOCK_ESCALATION = TABLE)
+GO
+SET IDENTITY_INSERT dbo.Tmp_#__items ON
+GO
+IF EXISTS(SELECT * FROM dbo.#__items)
+	 EXEC('INSERT INTO dbo.Tmp_#__items (id, itemType, categoryId, enabled, ordering, defaultImageName, dateInserted, userInserted, dateUpdated, userUpdated, CustomBool1, CustomBool2, CustomBool3, CustomDate1, CustomDate2, CustomDate3, CustomDecimal1, CustomDecimal2, CustomDecimal3, CustomInt1, CustomInt2, CustomInt3, CustomString1, CustomString2, CustomString3, ItemParams, accessType, permissionId, accessCode, accessLevel, itemDate, validFrom, validTo, alias, commentsGroupId, writeAccessType, writePermissionId, writeAccessCode, writeAccessLevel, threadId, cssClass)
+		SELECT id, itemType, categoryId, enabled, ordering, defaultImageName, dateInserted, userInserted, dateUpdated, userUpdated, CustomBool1, CustomBool2, CustomBool3, CustomDate1, CustomDate2, CustomDate3, CustomDecimal1, CustomDecimal2, CustomDecimal3, CustomInt1, CustomInt2, CustomInt3, CustomString1, CustomString2, CustomString3, ItemParams, accessType, permissionId, accessCode, accessLevel, itemDate, validFrom, validTo, alias, commentsGroupId, writeAccessType, writePermissionId, writeAccessCode, writeAccessLevel, threadId, cssClass FROM dbo.#__items WITH (HOLDLOCK TABLOCKX)')
+GO
+SET IDENTITY_INSERT dbo.Tmp_#__items OFF
+GO
+DROP TABLE dbo.#__items
+GO
+EXECUTE sp_rename N'dbo.Tmp_#__items', N'#__items', 'OBJECT' 
+GO
+ALTER TABLE dbo.#__items ADD CONSTRAINT
+	PK_#__items PRIMARY KEY CLUSTERED 
+	(
+	id
+	) WITH( STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+
+GO
+
+--20150910
+--new custom fields
+ALTER TABLE #__items ADD
+	CustomBool4 bit NULL,
+	CustomDate4 datetime NULL,
+	CustomDecimal4 decimal(18, 2) NULL,
+	CustomInt4 int NULL,
+	CustomString4 varchar(MAX) NULL
+GO
+UPDATE #__items set CustomBool4=0 where CustomBool4 is null
+GO
+UPDATE #__items set CustomDecimal4=0 where CustomDecimal4 is null
+GO
+UPDATE #__items set CustomInt4=0 where CustomInt4 is null
+GO
+UPDATE #__items set CustomString4='' where CustomString4 is null
+GO
+
+--20150915
+--keyset in appSettings
+ALTER TABLE #__appSettings ADD
+	keySet nvarchar(50) NULL
+GO
+update #__appSettings set keySet='PigeonCms.Core' WHERE keySet is null
+GO
+
+CREATE TABLE dbo.Tmp_#__appSettings
+	(
+	keySet nvarchar(50) NOT NULL,
+	keyName nvarchar(50) NOT NULL,
+	keyTitle nvarchar(500) NULL,
+	keyValue nvarchar(500) NULL,
+	keyInfo nvarchar(500) NULL
+	)  ON [PRIMARY]
+GO
+ALTER TABLE dbo.Tmp_#__appSettings SET (LOCK_ESCALATION = TABLE)
+GO
+IF EXISTS(SELECT * FROM dbo.#__appSettings)
+	 EXEC('INSERT INTO dbo.Tmp_#__appSettings (keySet, keyName, keyTitle, keyValue, keyInfo)
+		SELECT keySet, keyName, keyTitle, keyValue, keyInfo FROM dbo.#__appSettings WITH (HOLDLOCK TABLOCKX)')
+GO
+DROP TABLE dbo.#__appSettings
+GO
+EXECUTE sp_rename N'dbo.Tmp_#__appSettings', N'#__appSettings', 'OBJECT' 
+GO
+ALTER TABLE dbo.#__appSettings ADD CONSTRAINT
+	PK_#__appSettings PRIMARY KEY CLUSTERED 
+	(
+	keySet,
+	keyName
+	) WITH( STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+
+GO
+

@@ -12,10 +12,12 @@ using System.ComponentModel;
 using System.Collections.Generic;
 using System.Threading;
 
+
 namespace PigeonCms
 {
-    public class AppSetting
+    public class AppSetting: ITable
     {
+        private string keySet = "";
         private string keyName = "";
         private string keyTitle = "";
         private string keyValue = "";
@@ -26,7 +28,19 @@ namespace PigeonCms
         }
 
         /// <summary>
-        /// setting key used as primary key
+        /// setting resource set PKey
+        /// </summary>
+        [DataObjectField(true)]
+        public string KeySet
+        {
+            [DebuggerStepThrough()]
+            get { return keySet; }
+            [DebuggerStepThrough()]
+            set { keySet = value; }
+        }
+
+        /// <summary>
+        /// setting key PKey
         /// </summary>
         [DataObjectField(true)]
         public string KeyName
@@ -66,5 +80,29 @@ namespace PigeonCms
             [DebuggerStepThrough()]
             set { keyInfo = value; }
         }
+    }
+
+    [Serializable]
+    public class AppSettingsFilter
+    {
+        private string keySet = "";
+        private string keyName = "";
+
+        public string KeySet
+        {
+            [DebuggerStepThrough()]
+            get { return keySet; }
+            [DebuggerStepThrough()]
+            set { keySet = value; }
+        }
+
+        public string KeyName
+        {
+            [DebuggerStepThrough()]
+            get { return keyName; }
+            [DebuggerStepThrough()]
+            set { keyName = value; }
+        }
+
     }
 }
