@@ -109,23 +109,18 @@ function onFailure(result) { }
                             <%=PigeonCms.Utility.GetLabel("LblFilters")%>
                             </a>
                         </h4>
-
                     </div>
                     <div id="collapseOne" class="panel-collapse collapse in">
                         <div class="panel-body">
-                            <div class="form-group col-lg-3 col-md-6">
+                            <div class="form-group col-lg-4 col-md-6">
                                 <asp:DropDownList ID="DropEnabledFilter" runat="server" AutoPostBack="true" CssClass="form-control" 
                                 OnSelectedIndexChanged="DropEnabledFilter_SelectedIndexChanged"></asp:DropDownList>
                             </div>
-                            <div class="form-group col-lg-3 col-md-6">
-                                <asp:DropDownList ID="DropSectionsFilter" runat="server" AutoPostBack="true" CssClass="form-control" 
-                                OnSelectedIndexChanged="DropSectionsFilter_SelectedIndexChanged"></asp:DropDownList>
-                            </div>
-                            <div class="form-group col-lg-3 col-md-6">
+                            <div class="form-group col-lg-4 col-md-6">
                                 <asp:DropDownList ID="DropCategoriesFilter" runat="server" AutoPostBack="true" CssClass="form-control" 
                                 OnSelectedIndexChanged="DropCategoriesFilter_SelectedIndexChanged"></asp:DropDownList>
                             </div>
-                            <div class="form-group col-lg-3 col-md-6">
+                            <div class="form-group col-lg-4 col-md-6">
                                 <asp:DropDownList ID="DropProductTypeFilter" runat="server" AutoPostBack="true" CssClass="form-control" 
                                 OnSelectedIndexChanged="DropProductTypeFilter_SelectedIndexChanged"></asp:DropDownList>
                             </div>
@@ -139,95 +134,113 @@ function onFailure(result) { }
 
                 <div class="panel panel-default">
                     <div class="table-responsive">
+                        <asp:GridView ID="Grid1" runat="server" AllowPaging="True" AllowSorting="true" Width="100%" AutoGenerateColumns="False"
+                            DataSourceID="ObjDs1" DataKeyNames="Id" OnRowCommand="Grid1_RowCommand" OnRowCreated="Grid1_RowCreated" OnRowDataBound="Grid1_RowDataBound">
+                            <Columns>
+                                <%--0--%>
+                                <asp:TemplateField>
+                                    <ItemTemplate>
+                                        <asp:LinkButton ID="LnkShowVariants" runat="server" CausesValidation="false" CommandArgument='<%#Eval("Id") %>'>
+                                        </asp:LinkButton>
+                                    </ItemTemplate>
+                                </asp:TemplateField>
 
-                    <asp:GridView ID="Grid1" runat="server" AllowPaging="True" AllowSorting="true" Width="100%" AutoGenerateColumns="False"
-                        DataSourceID="ObjDs1" DataKeyNames="Id" OnRowCommand="Grid1_RowCommand" OnRowCreated="Grid1_RowCreated" OnRowDataBound="Grid1_RowDataBound">
-                        <Columns>
+                                <%--1--%>
+                                <asp:TemplateField HeaderText="<%$ Resources:PublicLabels, LblTitle %>" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
+                                    <ItemTemplate>
+                                        <asp:LinkButton ID="LnkTitle" runat="server" CausesValidation="false" CommandName="Select" CommandArgument='<%#Eval("Id") %>'></asp:LinkButton>
+                                        <br />
+                                        <span class="small text-muted">
+                                            <asp:Literal ID="LitItemInfo" runat="server" />
+                                        </span>
+                                    </ItemTemplate>
+                                </asp:TemplateField>
 
-                            <asp:TemplateField>
-                                <ItemTemplate>
-                                    <asp:LinkButton ID="LnkShowVariants" runat="server" CausesValidation="false" CommandArgument='<%#Eval("Id") %>'>
-                                    </asp:LinkButton>
-                                </ItemTemplate>
-                            </asp:TemplateField>
+                                <%--2--%>
+                                <asp:BoundField DataField="Alias" HeaderText="Alias" 
+                                    ItemStyle-CssClass="small text-muted" SortExpression="Alias" />
+                            
+                                <%--3--%>
+                                <asp:BoundField Visible="false" DataField="CssClass" HeaderText="Css" 
+                                    ItemStyle-CssClass="small text-muted" SortExpression="CssClass" />
 
-                            <asp:TemplateField HeaderText="<%$ Resources:PublicLabels, LblTitle %>" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
-                                <ItemTemplate>
-                                    <asp:LinkButton ID="LnkTitle" runat="server" CausesValidation="false" CommandName="Select" CommandArgument='<%#Eval("Id") %>'></asp:LinkButton>
-                                </ItemTemplate>
-                            </asp:TemplateField>
+                                <%--4--%>
+                                <asp:TemplateField HeaderText="<%$ Resources:PublicLabels, LblCategory %>" 
+                                    ItemStyle-CssClass="small text-muted" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
+                                    <ItemTemplate>
+                                        <asp:Literal ID="LitCategoryTitle" runat="server" />
+                                    </ItemTemplate>
+                                </asp:TemplateField>
 
-                            <asp:TemplateField HeaderText="Product Type" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
-                                <ItemTemplate>
-                                    <asp:Literal ID="LitProductType" runat="server" />
-                                </ItemTemplate>
-                            </asp:TemplateField>
+                                <%--5--%>
+                                <asp:TemplateField HeaderText="Access" SortExpression="AccessType"
+                                    ItemStyle-CssClass="small text-muted">
+                                    <ItemTemplate>
+                                    <asp:Literal ID="LitAccessTypeDesc" runat="server" Text=""></asp:Literal>
+                                    </ItemTemplate>
+                                </asp:TemplateField>
 
-                            <asp:BoundField DataField="Alias" HeaderText="Alias" SortExpression="Alias" />
 
-                            <asp:TemplateField HeaderText="<%$ Resources:PublicLabels, LblSection %>" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
-                                <ItemTemplate>
-                                    <asp:Literal ID="LitSectionTitle" runat="server" />
-                                </ItemTemplate>
-                            </asp:TemplateField>
+                                 <%--6--%>
+                                <asp:TemplateField HeaderText="" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center">
+                                    <ItemTemplate>
+                                        <asp:LinkButton ID="ImgEnabledOk" runat="server" CommandName="ImgEnabledOk" Visible="false" CommandArgument='<%#Eval("Id") %>'>
+                                            <i class='fa fa-pgn_checked fa-fw'></i>
+                                        </asp:LinkButton>
+                                        <asp:LinkButton ID="ImgEnabledKo" runat="server" CommandName="ImgEnabledKo" Visible="false" CommandArgument='<%#Eval("Id") %>'>
+                                            <i class='fa fa-pgn_unchecked fa-fw'></i>                            
+                                        </asp:LinkButton>
+                                    </ItemTemplate>
+                                </asp:TemplateField>
 
-                            <asp:TemplateField HeaderText="<%$ Resources:PublicLabels, LblCategory %>" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
-                                <ItemTemplate>
-                                    <asp:Literal ID="LitCategoryTitle" runat="server" />
-                                </ItemTemplate>
-                            </asp:TemplateField>
+                               <%--7--%>
+                                <asp:TemplateField HeaderText="" ItemStyle-HorizontalAlign="Right" SortExpression="Ordering">
+                                    <ItemTemplate>
+                                        <div>
+                                            <asp:LinkButton ID="ImgMoveUp" runat="server" CommandName="MoveUp" CommandArgument='<%#Eval("Id") %>'>
+                                                <i class='fa fa-pgn_up fa-fw'></i>                            
+                                            </asp:LinkButton>
+                                            <asp:LinkButton ID="ImgMoveDown" runat="server" CommandName="MoveDown" CommandArgument='<%#Eval("Id") %>'>
+                                                <i class='fa fa-pgn_down fa-fw'></i>                            
+                                            </asp:LinkButton>
+                                        </div>
+                                    </ItemTemplate>
+                                </asp:TemplateField>
 
-                            <asp:TemplateField HeaderText="Variants Compiled" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
-                                <ItemTemplate>
-                                    <asp:Literal ID="LitVariantsCompiled" runat="server" />
-                                </ItemTemplate>
-                            </asp:TemplateField>
-
-                            <asp:BoundField DataField="Ordering"  SortExpression="Ordering" ItemStyle-HorizontalAlign="Left" />
-                            <asp:TemplateField HeaderText="<%$ Resources:PublicLabels, LblOrder %>" ItemStyle-HorizontalAlign="Left" SortExpression="Ordering">
-                                <ItemTemplate>
-                                    <asp:LinkButton ID="ImgMoveUp" runat="server" CommandName="MoveUp" CommandArgument='<%#Eval("Id") %>'>
-                                        <i class='fa fa-pgn_up fa-fw'></i>                            
-                                    </asp:LinkButton>
-                                    <asp:LinkButton ID="ImgMoveDown" runat="server" CommandName="MoveDown" CommandArgument='<%#Eval("Id") %>'>
-                                        <i class='fa fa-pgn_down fa-fw'></i>                            
-                                    </asp:LinkButton>
-                                </ItemTemplate>
-                            </asp:TemplateField>
-
-                            <asp:TemplateField HeaderText="<%$ Resources:PublicLabels, LblEnabled %>" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
-                                <ItemTemplate>
-                                    <asp:LinkButton ID="ImgEnabledOk" runat="server" CommandName="ImgEnabledOk" Visible="false" CommandArgument='<%#Eval("Id") %>'>
-                                        <i class='fa fa-pgn_checked fa-fw'></i>
-                                    </asp:LinkButton>
-                                    <asp:LinkButton ID="ImgEnabledKo" runat="server" CommandName="ImgEnabledKo" Visible="false" CommandArgument='<%#Eval("Id") %>'>
-                                        <i class='fa fa-pgn_unchecked fa-fw'></i>                            
-                                    </asp:LinkButton>
-                                </ItemTemplate>
-                            </asp:TemplateField>
-
-                            <asp:TemplateField HeaderText="Img">
-                                <ItemTemplate>
-                                    <asp:HyperLink ID="LnkUploadImg" runat="server">
-                                        <i class='fa fa-pgn_image fa-fw'></i>
-                                    </asp:HyperLink>
-                                    <br />
-                                    <span><asp:Literal ID="LitImgCount" runat="server" Text=""></asp:Literal></span>
-                                </ItemTemplate>
-                            </asp:TemplateField>
+                                <%-- 8 --%>
+                                <asp:TemplateField HeaderText="" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center">
+                                    <ItemTemplate>
+                                        <asp:HyperLink ID="LnkUploadFiles" runat="server">
+                                            <i class='fa fa-pgn_attach fa-fw'></i>
+                                        </asp:HyperLink>
+                                        <br />
+                                        <span class="small text-muted"><asp:Literal ID="LitFilesCount" runat="server" Text=""></asp:Literal></span>
+                                    </ItemTemplate>
+                                </asp:TemplateField>
                     
-                            <asp:TemplateField HeaderText="" ItemStyle-HorizontalAlign="Left" ItemStyle-Width="10">
-                                <ItemTemplate>
-                                    <asp:LinkButton ID="LnkDel" runat="server" CommandName="DeleteRow" 
-                                        CommandArgument='<%#Eval("Id") %>' OnClientClick="return confirm(deleteQuestion);">
-                                        <i class='fa fa-pgn_delete fa-fw'></i>
-                                    </asp:LinkButton>
-                                </ItemTemplate>
-                            </asp:TemplateField>
+                                <%-- 9 --%>
+                                <asp:TemplateField HeaderText="">
+                                    <ItemTemplate>
+                                        <asp:HyperLink ID="LnkUploadImg" runat="server">
+                                            <i class='fa fa-pgn_image fa-fw'></i>
+                                        </asp:HyperLink>
+                                        <br />
+                                        <span class="small text-muted"><asp:Literal ID="LitImgCount" runat="server" Text=""></asp:Literal></span>
+                                    </ItemTemplate>
+                                </asp:TemplateField>
                     
-                            <asp:BoundField DataField="Id" HeaderText="ID" SortExpression="Id" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left" />
-                        </Columns>
-                    </asp:GridView>
+                                <%-- 10--%>
+                                <asp:TemplateField HeaderText="" ItemStyle-HorizontalAlign="Center" ItemStyle-Width="10">
+                                    <ItemTemplate>
+                                        <asp:LinkButton ID="LnkDel" runat="server" CommandName="DeleteRow" 
+                                            CommandArgument='<%#Eval("Id") %>' OnClientClick="return confirm(itemsDeleteQuestion);">
+                                            <i class='fa fa-pgn_delete fa-fw'></i>
+                                        </asp:LinkButton>
+                                    </ItemTemplate>
+                                </asp:TemplateField>
+                    
+                            </Columns>
+                        </asp:GridView>
                     </div>
                 </div>
             </div>

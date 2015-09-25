@@ -156,7 +156,7 @@ namespace PigeonCms.Shop
                 myCmd.Connection = myConn;
 
                 sSql = "UPDATE [" + this.TableName + "] "
-                + " SET Code=@Code, DateInserted=@DateInserted, UserInserted=@UserInserted, DateUpdated=@DateUpdated, UserUpdated=@UserUpdated, "
+                + " SET Code=@Code, DateUpdated=@DateUpdated, UserUpdated=@UserUpdated, "
                     + " ValidFrom=@ValidFrom, ValidTo=@ValidTo, Enabled=@Enabled, Amount=@Amount, IsPercentage=@IsPercentage, MinOrderAmount=@MinOrderAmount, ItemType=@ItemType, "
                     + " MaxUses=@MaxUses, UsesCounter=@UsesCounter "
                 + " WHERE Id = @Id";

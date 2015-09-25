@@ -37,7 +37,6 @@ var deleteQuestion = '<%=PigeonCms.Utility.GetLabel("RECORD_DELETE_QUESTION") %>
     </div>
 
     <asp:MultiView ID="MultiView1" runat="server" ActiveViewIndex="0">
-
         <asp:View ID="ViewSee" runat="server">
             <div class="row">
 
@@ -54,10 +53,8 @@ var deleteQuestion = '<%=PigeonCms.Utility.GetLabel("RECORD_DELETE_QUESTION") %>
                 </div>
 
                 <div class="col-lg-12">
-
                     <div class="panel panel-default">
                         <div class="table-responsive">
-
                             <asp:GridView ID="Grid1" runat="server" AllowPaging="True" AllowSorting="false" Width="100%" AutoGenerateColumns="False"
                                 DataSourceID="ObjDs1" DataKeyNames="Id" OnRowCommand="Grid1_RowCommand" OnRowCreated="Grid1_RowCreated" OnRowDataBound="Grid1_RowDataBound">
                                 <Columns>
@@ -117,7 +114,6 @@ var deleteQuestion = '<%=PigeonCms.Utility.GetLabel("RECORD_DELETE_QUESTION") %>
 
                         </div>
                     </div>
-
                 </div>
             
                 <asp:ObjectDataSource ID="ObjDs1" runat="server" SortParameterName="sort" 
@@ -136,9 +132,7 @@ var deleteQuestion = '<%=PigeonCms.Utility.GetLabel("RECORD_DELETE_QUESTION") %>
             </div>
         </asp:View>
    
-
         <asp:View ID="ViewInsert" runat="server">
-
             <div class="panel panel-default">
 
                 <div class="panel-heading">
@@ -160,7 +154,7 @@ var deleteQuestion = '<%=PigeonCms.Utility.GetLabel("RECORD_DELETE_QUESTION") %>
                         </div>
                         <div class="form-group col-md-6 col-sm-12">
                             <%=base.GetLabel("LblAllowCustomValue", "Use Custom Values", ChkCustomValue, true)%>
-                            <asp:CheckBox ID="ChkCustomValue" runat="server" CssClass="form-control" Enabled="true" />
+                            <asp:CheckBox ID="ChkCustomValue" runat="server" CssClass="form-control" Enabled="true" AutoPostBack="true" OnCheckedChanged="ChkCustomValue_CheckedChanged" />
                         </div>
                     </div>
 
@@ -241,13 +235,10 @@ var deleteQuestion = '<%=PigeonCms.Utility.GetLabel("RECORD_DELETE_QUESTION") %>
                             </DeleteParameters>
                         </asp:ObjectDataSource>
                     </div>
-
                 </div>
-
             </div>
 
         </asp:View>
-
     </asp:MultiView>
 
 </ContentTemplate>

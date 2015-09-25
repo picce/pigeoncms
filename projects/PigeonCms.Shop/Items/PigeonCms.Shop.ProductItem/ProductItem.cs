@@ -127,11 +127,10 @@ namespace PigeonCms.Shop
             {
                 if (threadItems == null)
                 {
-                    var man = new ProductItemsManager();
                     var filter = new ProductItemFilter();
                     filter.ThreadId = this.Id;
                     filter.ShowOnlyRootItems = false;
-                    threadItems = man.GetByFilter(filter, "");
+                    threadItems = new ProductItemsManager().GetByFilter(filter, "");
                 }
                 return threadItems;
             }
@@ -163,7 +162,9 @@ namespace PigeonCms.Shop
                     var set = man.GetByKey(this.AttributeSet);
                     foreach (int attributeId in set.AttributesList)
                     {
-                        this.attributes.Add(aman.GetByKey(attributeId));
+                        var a = aman.GetByKey(attributeId);
+                        if (!a.AllowCustomValue)
+                            this.attributes.Add(a);
                     }
                 }
                 return this.attributes;
@@ -191,6 +192,51 @@ namespace PigeonCms.Shop
                     }
                 }
                 return this.attributeValues;
+            }
+        }
+
+        List<Attribute> customAttributes = null;
+        public List<Attribute> CustomAttributes
+        {
+            get
+            {
+                if (this.customAttributes == null)
+                {
+                    var man = new AttributeSetsManager();
+                    var aman = new AttributesManager();
+                    this.customAttributes = new List<Attribute>();
+                    var set = man.GetByKey(this.AttributeSet);
+                    foreach (int attributeId in set.AttributesList)
+                    {
+                        var a = aman.GetByKey(attributeId);
+                        if (a.AllowCustomValue)
+                            this.customAttributes.Add(a);
+                    }
+                }
+                return this.customAttributes;
+            }
+        }
+
+        List<string> customAttributeValues = null;
+        public List<string> CustomAttributeValues
+        {
+            get
+            {
+                if (this.customAttributeValues == null)
+                {
+                    var man = new ItemAttributesValuesManager();
+                    var items = man.GetByItemId(this.Id);
+                    this.customAttributeValues = new List<string>();
+                    foreach (var item in items)
+                    {
+                        if (item.AttributeValueId == 0)
+                        {
+                            this.customAttributeValues.Add(item.CustomValueString);
+                        }
+
+                    }
+                }
+                return this.customAttributeValues;
             }
         }
 
@@ -269,8 +315,17 @@ namespace PigeonCms.Shop
 
     public class ProductItemsManager : ItemsManager<ProductItem, ProductItemFilter>
     {
+        /// <summary>
+        /// CheckUserContext=false
+        /// WriteMode=false
+        /// </summary>
+        [DebuggerStepThrough()]
         public ProductItemsManager()
-            : base()
+            : this(false, false)
+        { }
+
+        public ProductItemsManager(bool checkUserContext, bool writeMode)
+            : base(checkUserContext, writeMode)
         { }
 
     }
