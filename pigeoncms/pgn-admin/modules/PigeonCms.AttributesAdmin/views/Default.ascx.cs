@@ -18,13 +18,6 @@ using Newtonsoft.Json;
 
 public partial class Controls_AttributesAdmin : PigeonCms.BaseModuleControl
 {
-    const int COL_ORDERING_INDEX = 3;
-    const int COL_ORDER_ARROWS_INDEX = 4;
-    const int COL_ACCESS_INDEX = 6;
-    const int COL_FILES_INDEX = 7;
-    const int COL_IMAGES_INDEX = 8;
-    const int COL_ID_INDEX = 10;
-
     protected new void Page_Init(object sender, EventArgs e)
     {
         base.Page_Init(sender, e);
@@ -66,6 +59,33 @@ public partial class Controls_AttributesAdmin : PigeonCms.BaseModuleControl
                 pan1.Visible = true;
             }
         }
+    }
+
+    protected void ChkCustomValue_CheckedChanged(object sender, EventArgs e)
+    {
+        // disable insert and edit if we have custom value, but allow to view values inserted.
+        if (ChkCustomValue.Checked)
+        {
+            foreach (KeyValuePair<string, string> item in Config.CultureList)
+            {
+                TextBox t1 = (TextBox)PanelTitle.FindControl("TxtTitle" + item.Value);
+                t1.Enabled = false;
+            }
+            BtnAddValue.Enabled = false;
+            BtnNewValue.Enabled = false;
+        }
+        // enable insert and edit if we have custom value unchecked
+        else
+        {
+            foreach (KeyValuePair<string, string> item in Config.CultureList)
+            {
+                TextBox t1 = (TextBox)PanelTitle.FindControl("TxtTitle" + item.Value);
+                t1.Enabled = true;
+            }
+            BtnAddValue.Enabled = true;
+            BtnNewValue.Enabled = true;
+        }
+
     }
 
     protected void Page_Load(object sender, EventArgs e)
@@ -387,6 +407,18 @@ public partial class Controls_AttributesAdmin : PigeonCms.BaseModuleControl
     {
         TxtName.Text = obj.Name;
         ChkCustomValue.Checked = obj.AllowCustomValue;
+
+        // disable insert and edit if we have custom value, but allow to view values inserted.
+        if (obj.AllowCustomValue)
+        {
+            foreach (KeyValuePair<string, string> item in Config.CultureList)
+            {
+                TextBox t1 = (TextBox)PanelTitle.FindControl("TxtTitle" + item.Value);
+                t1.Enabled = false;
+            }
+            BtnAddValue.Enabled = false;
+            BtnNewValue.Enabled = false;
+        }
     }
 
     private void values2obj(PigeonCms.AttributeValue obj)

@@ -19,23 +19,22 @@ using PigeonCms.Shop;
 public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
 {
     const int COL_ALIAS_INDEX = 2;
-    const int COL_SECTION_INDEX = 3;
     const int COL_CATEGORY_INDEX = 4;
-    const int COL_TYPE_INDEX = 5;
-    const int COL_ORDER_ARROWS_INDEX = 6;
-    const int COL_ORDERING_INDEX = 7;
-    const int COL_ACCESSTYPE_INDEX = 9;
-    const int COL_ACCESSLEVEL_INDEX = 10;
-    const int COL_ID_INDEX = 14;
+    const int COL_ACCESSTYPE_INDEX = 5;
+    const int COL_ORDER_ARROWS_INDEX = 7;
+    const int COL_UPLOADFILES_INDEX = 8;
+    const int COL_UPLOADIMAGES_INDEX = 9;
+    const int COL_DELETE_INDEX = 10;
 
     const int VIEW_GRID = 0;
     const int VIEW_INSERT = 1;
+
+    const int PRODUCT_SECTION = 6;
 
     protected PigeonCms.Shop.Settings ShopSettings = new PigeonCms.Shop.Settings();
 
     ItemAttributesValuesManager man = new ItemAttributesValuesManager();
     AttributeValuesManager vman = new AttributeValuesManager();
-    ProductItemsManager pman = new ProductItemsManager();
     AttributesManager aman = new AttributesManager();
     AttributeSetsManager sman = new AttributeSetsManager();
     List<PigeonCms.Attribute> attributes = new List<PigeonCms.Attribute>();
@@ -173,17 +172,16 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         TxtAlias.Attributes.Add("onfocus", "preloadAlias('" + titleId + "', this)");
 
         //restrictions
-        Grid1.AllowSorting = this.AllowOrdering;
+        Grid1.AllowSorting = false;
         Grid1.Columns[COL_ORDER_ARROWS_INDEX].Visible = this.AllowOrdering;
-        Grid1.Columns[COL_ORDERING_INDEX].Visible = this.AllowOrdering;
+        Grid1.Columns[COL_UPLOADFILES_INDEX].Visible = this.TargetFilesUpload > 0;
+        Grid1.Columns[COL_UPLOADIMAGES_INDEX].Visible = this.TargetImagesUpload > 0;
+        Grid1.Columns[COL_DELETE_INDEX].Visible = base.AllowDelete;
 
         Grid1.Columns[COL_ALIAS_INDEX].Visible = this.ShowAlias;
         TxtAlias.Visible = this.ShowAlias;
 
-        Grid1.Columns[COL_TYPE_INDEX].Visible = this.ShowType;
-        LitItemType.Visible = this.ShowType;
-
-        Grid1.Columns[COL_SECTION_INDEX].Visible = this.ShowSectionColumn;
+        Grid1.Columns[COL_ACCESSTYPE_INDEX].Visible = this.ShowSecurity;
         PermissionsControl1.Visible = this.ShowSecurity;
 
         TxtItemDate.Visible = this.ShowDates;
@@ -208,7 +206,7 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         {
             if (base.CurrItem.Id == 0)
                 throw new ArgumentException();
-            if (pman.GetByKey(base.CurrItem.Id).Id == 0)
+            if (new ProductItemsManager(true, true).GetByKey(base.CurrItem.Id).Id == 0)
                 throw new ArgumentException();
         }
 
@@ -220,12 +218,7 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         if (!Page.IsPostBack)
         {
             loadDropEnabledFilter();
-            loadDropSectionsFilter(base.SectionId);
-            {
-                int secId = -1;
-                int.TryParse(DropSectionsFilter.SelectedValue, out secId);
-                loadDropCategoriesFilter(secId);
-            }
+            loadDropCategoriesFilter(PRODUCT_SECTION); // TOTO with settings
             loadDropsItemTypes();
             loadDropSets();
             loadDropProductType();
@@ -240,7 +233,7 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
             var currentItem = new ProductItem();
             if (CurrentId > 0)
             {
-                currentItem = pman.GetByKey(CurrentId);
+                currentItem = new ProductItemsManager(true, true).GetByKey(CurrentId);
                 ItemParams1.LoadParams(currentItem);
                 ItemFields1.LoadFields(currentItem);
             }
@@ -271,17 +264,6 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         Grid1.DataBind();
     }
 
-    protected void DropSectionsFilter_SelectedIndexChanged(object sender, EventArgs e)
-    {
-        int secID = 0;
-        int.TryParse(DropSectionsFilter.SelectedValue, out secID);
-
-        loadDropCategoriesFilter(secID);
-        loadDropCategories(secID);
-        Grid1.DataBind();
-        base.LastSelectedSectionId = secID;
-    }
-
     protected void DropCategoriesFilter_SelectedIndexChanged(object sender, EventArgs e)
     {
         int catID = 0;
@@ -298,13 +280,8 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
 
     protected void DropNew_SelectedIndexChanged(object sender, EventArgs e)
     {
-        if (!checkAddNewFilters())
-            Utility.SetDropByValue(DropNew, "");
-        else
-        {
-            try { editRow(0); }
-            catch (Exception e1) { LblErr.Text = RenderError(e1.Message); }
-        }
+        try { editRow(0); }
+        catch (Exception e1) { LblErr.Text = RenderError(e1.Message); }
     }
 
     protected void DropSets_SelectedIndexChanged(object sender, EventArgs e)
@@ -328,24 +305,21 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
     {
         try
         {
-            if (checkAddNewFilters())
-            {
-                Utility.SetDropByValue(DropNew, this.CurrItem.CustomInt2.ToString());
-                editRow(0);
-            }
+            Utility.SetDropByValue(DropNew, this.CurrItem.CustomInt2.ToString());
+            editRow(0);
         }
         catch (Exception e1) { LblErr.Text = RenderError(e1.Message); }
     }
 
     protected void ObjDs1_ObjectCreating(object sender, ObjectDataSourceEventArgs e)
     {
-        var typename = new ProductItemsManager();
+        var typename = new ProductItemsManager(true, true);
         e.ObjectInstance = typename;
     }
 
     protected void ObjDs2_ObjectCreating(object sender, ObjectDataSourceEventArgs e)
     {
-        var typename = new ProductItemsManager();
+        var typename = new ProductItemsManager(true, true);
         e.ObjectInstance = typename;
     }
 
@@ -383,9 +357,6 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
             filter.ShowOnlyRootItems = false;
             filter.ThreadId = threadId;
         }
-            
-        int secId = -1;
-        int.TryParse(DropSectionsFilter.SelectedValue, out secId);
 
         int catId = -1;
         int.TryParse(DropCategoriesFilter.SelectedValue, out catId);
@@ -396,7 +367,7 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         if (base.SectionId > 0)
             filter.SectionId = base.SectionId;
         else
-            filter.SectionId = secId;
+            filter.SectionId = PRODUCT_SECTION; //TODO with settings;
         filter.CategoryId = catId;
 
         if (prodType > 0)
@@ -428,7 +399,7 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
 
         filter.ShowOnlyRootItems = false;
 
-        var main = pman.GetByKey(base.CurrentId);
+        var main = new ProductItemsManager(true, true).GetByKey(base.CurrentId);
         int setDrop = 0;
         int.TryParse(DropSets.SelectedValue, out setDrop);
         int setId = (main.AttributeSet > 0) ? main.AttributeSet : setDrop;
@@ -537,14 +508,6 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
                     e.Row.RowState = lastRowDataboundRoot.RowState; //keeps same style of thread root
             }
 
-            LinkButton LnkTitle = (LinkButton)e.Row.FindControl("LnkTitle");
-            LnkTitle.Text = "<i class='fa fa-pgn_edit fa-fw'></i>";
-            if (item.IsDraft)
-                LnkTitle.ForeColor = System.Drawing.Color.Gray;
-            LnkTitle.Text += Utility.Html.GetTextPreview(item.Title, 30, "");
-            if (string.IsNullOrEmpty(item.Title))
-                LnkTitle.Text += Utility.GetLabel("NO_VALUE", "<no value>");
-
             int threadId = 0;
             int.TryParse(base.CurrentKey, out threadId);
 
@@ -566,22 +529,33 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
             {
                 LnkShowVariants.Visible = false;
             }
-                
 
-            Literal LitProductType = (Literal)e.Row.FindControl("LitProductType");
-            LitProductType.Text = item.ProductType.ToString();
+            var LnkTitle = (LinkButton)e.Row.FindControl("LnkTitle");
+            LnkTitle.Text = "<i class='fa fa-pgn_edit fa-fw'></i>";
+            if (!item.IsThreadRoot)
+                LnkTitle.Text += "--";
+            LnkTitle.Text += Utility.Html.GetTextPreview(item.Title, 50, "");
+            if (string.IsNullOrEmpty(item.Title))
+                LnkTitle.Text += Utility.GetLabel("NO_VALUE", "<no value>");
+
+            if (base.ShowSecurity && Roles.IsUserInRole("debug"))
+                LnkTitle.Text += " [" + item.Id.ToString() + "]";
+
+            var LitItemInfo = (Literal)e.Row.FindControl("LitItemInfo");
+            if (this.ShowType)
+                LitItemInfo.Text += item.ProductType.ToString() +"<br>";
+            if (!string.IsNullOrEmpty(item.CssClass))
+                LitItemInfo.Text += "class: " + item.CssClass +"<br>";
+            if (item.ThreadItems.Count > 0)
+                LitItemInfo.Text += "variants compiled: " + item.ThreadItems.Count;
+
 
             if (item.CategoryId > 0)
             {
-                CategoriesManager mgr = new CategoriesManager();
-                Category cat = mgr.GetByKey(item.CategoryId);
-                Literal LitCategoryTitle = (Literal)e.Row.FindControl("LitCategoryTitle");
+                var mgr = new CategoriesManager();
+                var cat = mgr.GetByKey(item.CategoryId);
+                var LitCategoryTitle = (Literal)e.Row.FindControl("LitCategoryTitle");
                 LitCategoryTitle.Text = cat.Title;
-                if (cat.SectionId > 0)
-                {
-                    Literal LitSectionTitle = (Literal)e.Row.FindControl("LitSectionTitle");
-                    LitSectionTitle.Text = new SectionsManager().GetByKey(cat.SectionId).Title;
-                }
             }
 
             if (item.Enabled)
@@ -595,10 +569,31 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
                 img1.Visible = true;
             }
 
+            //permissions
+            var LitAccessTypeDesc = (Literal)e.Row.FindControl("LitAccessTypeDesc");
+            LitAccessTypeDesc.Text = RenderAccessTypeSummary(item);
+
+            //files upload
+            var LnkUploadFiles = (HyperLink)e.Row.FindControl("LnkUploadFiles");
+            LnkUploadFiles.NavigateUrl = this.FilesUploadUrl
+                + "?type=items&id=" + item.Id.ToString();
+            LnkUploadFiles.Visible = this.TargetFilesUpload > 0;
+            if (this.IsMobileDevice == false)
+                LnkUploadFiles.CssClass = "fancyRefresh";
+            var LitFilesCount = (Literal)e.Row.FindControl("LitFilesCount");
+            int filesCount = item.Files.Count;
+            if (filesCount > 0)
+            {
+                LitFilesCount.Text = filesCount.ToString();
+                LitFilesCount.Text += filesCount == 1 ? " file" : " files";
+                LitFilesCount.Text += "<br />(" + Utility.GetFileHumanLength(item.FilesSize) + ")";
+            }
+
             //images upload
             var LnkUploadImg = (HyperLink)e.Row.FindControl("LnkUploadImg");
             LnkUploadImg.NavigateUrl = this.ImagesUploadUrl
                 + "?type=items&id=" + item.Id.ToString();
+            LnkUploadImg.Visible = this.TargetImagesUpload > 0;
             if (this.IsMobileDevice == false)
                 LnkUploadImg.CssClass = "fancyRefresh";
             var LitImgCount = (Literal)e.Row.FindControl("LitImgCount");
@@ -608,14 +603,6 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
                 LitImgCount.Text = imgCount.ToString();
                 LitImgCount.Text += imgCount == 1 ? " file" : " files";
                 LitImgCount.Text += "<br />(" + Utility.GetFileHumanLength(item.ImagesSize) + ")";
-            }
-
-            Literal LitVariantsCompiled = e.Row.FindControl("LitVariantsCompiled") as Literal;
-            LitVariantsCompiled.Text = item.ThreadItems.Count + " variants compiled";
-
-            if (!item.IsThreadRoot)
-            {
-                LitVariantsCompiled.Visible = false;
             }
 
         }
@@ -702,9 +689,9 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
 
     protected void BtnCancel_Click(object sender, EventArgs e)
     {
-        if (pman.GetByKey(this.CurrentId).IsDraft)
+        if (new ProductItemsManager(true, true).GetByKey(this.CurrentId).IsDraft)
         {
-            pman.DeleteById(this.CurrentId);
+            new ProductItemsManager(true, true).DeleteById(this.CurrentId);
         }
         LblErr.Text = RenderError("");
         LblOk.Text = RenderSuccess("");
@@ -741,7 +728,7 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
             var list = new List<PigeonCms.Shop.ProductItem>();
 
             filter.Alias = TxtAlias.Text;
-            list = pman.GetByFilter(filter, "");
+            list = new ProductItemsManager().GetByFilter(filter, "");
             if (list.Count > 0)
             {
                 if (this.CurrentId == 0)
@@ -773,7 +760,7 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         var filter = new ItemAttributeValueFilter();
         pfilter.ThreadId = CurrentId;
         pfilter.ShowOnlyRootItems = false;
-        var pChilds = pman.GetByFilter(pfilter, "");
+        var pChilds = new ProductItemsManager(true, true).GetByFilter(pfilter, "");
         foreach (var pChild in pChilds)
         {
             int pId = pChild.Id;
@@ -821,11 +808,11 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
 
         try
         {
-            var o1 = pman.GetByKey(CurrentId);  //precarico i campi esistenti e nn gestiti dal form
+            var o1 = new ProductItemsManager().GetByKey(CurrentId);  //precarico i campi esistenti e nn gestiti dal form
             List<ItemAttributeValue> a1 = null;
 
             a1 = form2obj(o1);
-            pman.Update(o1);
+            new ProductItemsManager().Update(o1);
 
             man.DeleteByItemId(CurrentId);
 
@@ -869,7 +856,7 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
             var o1 = new ProductItem();  //precarico i campi esistenti e nn gestiti dal form
             var a1 = quickform2obj(o1);
 
-            var prod = pman.Insert(o1);
+            var prod = new ProductItemsManager().Insert(o1);
 
             // cancello tutti i record con questo itemID
             man.DeleteByItemId(prod.Id);
@@ -1066,7 +1053,7 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
 
             int Id = 0;
             int.TryParse(IdString, out Id);
-            var p = pman.GetByKey(Id);
+            var p = new ProductItemsManager().GetByKey(Id);
 
             if (cb.Checked)
             {
@@ -1080,7 +1067,7 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
 
             try
             {
-                pman.Update(p);
+                new ProductItemsManager().Update(p);
             }
             catch (Exception e1)
             {
@@ -1095,13 +1082,13 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
             string IdString = r.Cells[5].Text;
             int Id = 0;
             int.TryParse(IdString, out Id);
-            var p = pman.GetByKey(Id);
+            var p = new ProductItemsManager().GetByKey(Id);
 
             if (cb.Checked)
             {
                 try
                 {
-                    pman.SetRelated(CurrentId, p.Id);
+                    new ProductItemsManager().SetRelated(CurrentId, p.Id);
                 }
                 catch (Exception e1)
                 {
@@ -1112,7 +1099,7 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
             {
                 try
                 {
-                    pman.DeleteRelated(CurrentId, p.Id);
+                    new ProductItemsManager().DeleteRelated(CurrentId, p.Id);
                 }
                 catch (Exception e1)
                 {
@@ -1154,15 +1141,14 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
             {
                 TextBox t1 = new TextBox();
                 t1 = (TextBox)QuickAttributes.FindControl("TxtCustomField" + attribute.Name);
-                if (!string.IsNullOrEmpty(t1.Text))
-                {
-                    var record = new ItemAttributeValue();
-                    record.AttributeId = attribute.Id;
-                    record.AttributeValueId = 0;
-                    record.CustomValueString = t1.Text;
-                    record.ItemId = CurrentId;
-                    atts.Add(record);
-                }
+
+                var record = new ItemAttributeValue();
+                record.AttributeId = attribute.Id;
+                record.AttributeValueId = 0;
+                record.CustomValueString = t1.Text;
+                record.ItemId = CurrentId;
+                atts.Add(record);
+
             }
         }
 
@@ -1237,14 +1223,11 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
             {
                 TextBox t1 = new TextBox();
                 t1 = (TextBox)QuickAttributes.FindControl("TxtCustomFieldQuick" + attribute.Name);
-                if (!string.IsNullOrEmpty(t1.Text))
-                {
-                    var record = new ItemAttributeValue();
-                    record.AttributeId = attribute.Id;
-                    record.AttributeValueId = 0;
-                    record.CustomValueString = t1.Text;
-                    atts.Add(record);
-                }
+                var record = new ItemAttributeValue();
+                record.AttributeId = attribute.Id;
+                record.AttributeValueId = 0;
+                record.CustomValueString = t1.Text;
+                atts.Add(record);
             }
         }
 
@@ -1292,50 +1275,20 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
 
         // QUI popolo le varianti se son già salvate
 
-        var set = sman.GetByKey(obj.AttributeSet);
-        var filter = new ItemAttributeValueFilter();
-
         attributes.Clear();
 
-        foreach (var attributeId in set.AttributesList)
+        for (int i = 0; i < obj.Attributes.Count; i++)
         {
-            var attribute = aman.GetByKey(attributeId);
-            attributes.Add(attribute);
+            DropDownList d1 = new DropDownList();
+            d1 = (DropDownList)PanelAttributes.FindControl("DropAttributeValues" + obj.Attributes[i].Name);
+            Utility.SetDropByValue(d1, obj.AttributeValues[i].Id.ToString());
         }
 
-        foreach (var attribute in attributes)
+        for (int i = 0; i < obj.CustomAttributes.Count; i++)
         {
-            if (!attribute.AllowCustomValue)
-            {
-                DropDownList d1 = new DropDownList();
-                ItemAttributeValue record = null;
-                d1 = (DropDownList)PanelAttributes.FindControl("DropAttributeValues" + attribute.Name);
-
-                filter.AttributeId = attribute.Id;
-                filter.ItemId = obj.Id;
-                var result = man.GetByFilter(filter, "");
-
-                if (result != null && result.Count > 0)
-                {
-                    record = result[0];
-                    Utility.SetDropByValue(d1, record.AttributeValueId.ToString());
-                }
-            }
-            else
-            {
-                TextBox t1 = new TextBox();
-                ItemAttributeValue record = null;
-                t1 = (TextBox)PanelAttributes.FindControl("TxtCustomField" + attribute.Name);
-                filter.AttributeId = attribute.Id;
-                filter.ItemId = obj.Id;
-                var result = man.GetByFilter(filter, "");
-
-                if (result != null && result.Count > 0)
-                {
-                    record = result[0];
-                    t1.Text = record.CustomValueString;
-                }
-            }
+            TextBox t1 = new TextBox();
+            t1 = (TextBox)PanelAttributes.FindControl("TxtCustomField" + obj.CustomAttributes[i].Name);
+            t1.Text = obj.CustomAttributeValues[i];
         }
 
         //product fields
@@ -1398,7 +1351,7 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         CurrentId = recordId;
         if (CurrentId == 0)
         {
-            loadDropCategories(int.Parse(DropSectionsFilter.SelectedValue));
+            loadDropCategories(PRODUCT_SECTION); //TODO with settings.
             obj.ItemDate = DateTime.Now;
             obj.ValidFrom = DateTime.Now;
             obj.ValidTo = DateTime.MinValue;
@@ -1409,16 +1362,15 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
             obj2form(obj);
             LitItemType.Text = obj.ItemTypeName;
             obj.IsDraft = true;
-            var currentProd = pman.Insert(obj);
+            var currentProd = new ProductItemsManager().Insert(obj);
             this.CurrentId = currentProd.Id;
         }
         else
         {
-            obj = pman.GetByKey(CurrentId);
+            obj = new ProductItemsManager(true, true).GetByKey(CurrentId);
             loadDropCategories(obj.SectionId);
 
             // QUI nascondere le dropdown in più
-
             hideAttributes(obj.AttributeSet);
             hideAttributes(obj.AttributeSet, true);
 
@@ -1439,7 +1391,7 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
             if (!PgnUserCurrent.IsAuthenticated)
                 throw new Exception("user not authenticated");
 
-            pman.DeleteById(recordId);
+            new ProductItemsManager().DeleteById(recordId);
             removeFromCache();
         }
         catch (Exception e)
@@ -1455,22 +1407,6 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
         DropEnabledFilter.Items.Add(new ListItem(Utility.GetLabel("LblSelectState", "Select state"), ""));
         DropEnabledFilter.Items.Add(new ListItem("On-line", "1"));
         DropEnabledFilter.Items.Add(new ListItem("Off-line", "0"));
-    }
-
-    private void loadDropSectionsFilter(int sectionId)
-    {
-        DropSectionsFilter.Items.Clear();
-
-        var secFilter = new SectionsFilter();
-        secFilter.Id = sectionId;
-        var secList = new SectionsManager(true, false).GetByFilter(secFilter, "");
-
-        foreach (var sec in secList)
-        {
-            DropSectionsFilter.Items.Add(new ListItem(sec.Title, sec.Id.ToString()));
-        }
-        if (base.LastSelectedSectionId > 0)
-            Utility.SetDropByValue(DropSectionsFilter, base.LastSelectedSectionId.ToString());
     }
 
     private void loadDropCategoriesFilter(int sectionId)
@@ -1720,7 +1656,7 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
                 default:
                     break;
             }
-            pman.Update(o1);
+            new ProductItemsManager().Update(o1);
             removeFromCache();
         }
         catch (Exception e1)
@@ -1740,7 +1676,7 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
             if (!PgnUserCurrent.IsAuthenticated)
                 throw new Exception("user not authenticated");
 
-            pman.MoveRecord(recordId, direction);
+            new ProductItemsManager(true, true).MoveRecord(recordId, direction);
             removeFromCache();
             Grid1.DataBind();
             MultiView1.ActiveViewIndex = VIEW_GRID;
@@ -1758,23 +1694,6 @@ public partial class Controls_ShopProduct : PigeonCms.ItemsAdminControl
             base.CurrentKey = recordId;
         else
             base.CurrentKey = "";
-    }
-
-    Boolean checkAddNewFilters()
-    {
-        Boolean res = true;
-        if (DropSectionsFilter.SelectedValue == "0" || DropSectionsFilter.SelectedValue == "")
-        {
-            LblErr.Text = RenderError(base.GetLabel("ChooseSection", "Choose a section before"));
-            res = false;
-        }
-
-        //if (DropCategoriesFilter.SelectedValue == "0" || DropCategoriesFilter.SelectedValue == "")
-        //{
-        //    LblErr.Text = RenderError(base.GetLabel("ChooseCategory", "Choose a category before"));
-        //    res = false;
-        //}
-        return res;
     }
 
     /// <summary>
