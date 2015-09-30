@@ -2595,12 +2595,25 @@ GO
 ALTER TABLE dbo.#__attributes ADD
 	ordering int NULL
 GO
+UPDATE dbo.#__attributes SET ordering = 0 WHERE ordering is null
+GO
 ALTER TABLE dbo.#__attributes
 	DROP COLUMN itemType, attributeType, measureUnit
 GO
-ALTER TABLE dbo.#__attributes SET (LOCK_ESCALATION = TABLE)
-GO
-
 ALTER TABLE dbo.#__attributesValues ADD
 	ordering int NULL
+GO
+UPDATE dbo.#__attributesValues SET ordering = 0 WHERE ordering is null
+GO
+
+--20150924
+ALTER TABLE #__sections ADD
+	itemType varchar(255) NULL
+GO
+UPDATE #__sections SET itemType = '' WHERE itemType is null
+GO
+
+--20150925
+ALTER TABLE [#__shop_coupons] ADD
+	[itemsIdList] [varchar](max) NULL
 GO

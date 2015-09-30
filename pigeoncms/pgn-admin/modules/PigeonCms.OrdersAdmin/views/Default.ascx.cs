@@ -1,4 +1,3 @@
-//TOCHECK-LOLLO
 using System;
 using System.Data;
 using System.Configuration;
@@ -14,9 +13,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using PigeonCms;
 using PigeonCms.Core.Helpers;
-//using FredCK.FCKeditorV2;
 
-public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
+
+public partial class Controls_PigeonCms_Shop_OrdersAdmin : PigeonCms.ItemsAdminControl
 {
     //const int CAT_START = 1000;
     const int COL_ALIAS_INDEX = 2;

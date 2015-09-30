@@ -41,12 +41,13 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
                 if (!string.IsNullOrEmpty(xmlType.Name))
                 {
                     var firstMatch = xmlType.Params.Where(
-                        o => o.Name.Equals(keyName)).First();
+                        o => o.Name.Equals(keyName)).FirstOrDefault();
                     if (firstMatch != null)
                         currentXmlType = firstMatch;
                 }
-                if (string.IsNullOrEmpty(currentXmlType.Name))
+                if (currentXmlType == null || string.IsNullOrEmpty(currentXmlType.Name))
                 {
+                    currentXmlType = new FormField();
                     currentXmlType.Name = keyName;
                     currentXmlType.Type = FormFieldTypeEnum.Text;
                 }
@@ -282,23 +283,25 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         LblOk.Text = "";
         LblErr.Text = "";
 
+        var man = new AppSettingsManager2();
+        var obj = new AppSetting();
+
         clearForm();
         this.currentXmlType = null;
         this.CurrentKey = keySet + "|" + keyName;
         if (keyName != string.Empty)
         {
-            var man = new AppSettingsManager2();
-            var obj = new AppSetting();
             obj = man.GetByKey(keySet, keyName);
             DropKeySet.Enabled = false;
             TxtKeyName.Enabled = false;
-            obj2form(obj);
         }
         else
         {
             DropKeySet.Enabled = true;
             TxtKeyName.Enabled = true;
         }
+        obj2form(obj);
+
         MultiView1.ActiveViewIndex = 1;
     }
 

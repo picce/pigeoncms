@@ -108,6 +108,7 @@ public partial class Controls_SectionsAdmin : PigeonCms.BaseModuleControl
         if (!Page.IsPostBack)
         {
             loadDropEnabledFilter();
+            loadDropItemType();
         }
     }
 
@@ -176,7 +177,7 @@ public partial class Controls_SectionsAdmin : PigeonCms.BaseModuleControl
     {
         if (e.Row.RowType == DataControlRowType.DataRow)
         {
-            PigeonCms.Section item = new PigeonCms.Section();
+            var item = new PigeonCms.Section();
             item = (PigeonCms.Section)e.Row.DataItem;
 
             LinkButton LnkTitle = (LinkButton)e.Row.FindControl("LnkTitle");
@@ -184,6 +185,9 @@ public partial class Controls_SectionsAdmin : PigeonCms.BaseModuleControl
             LnkTitle.Text += Utility.Html.GetTextPreview(item.Title, 30, "");
             if (string.IsNullOrEmpty(LnkTitle.Text))
                 LnkTitle.Text += Utility.GetLabel("NO_VALUE", "<no value>");
+
+            var LitItemType = (Literal)e.Row.FindControl("LitItemType");
+            LitItemType.Text = item.ItemType;
 
             if (item.Enabled)
             {
@@ -358,6 +362,7 @@ public partial class Controls_SectionsAdmin : PigeonCms.BaseModuleControl
             t2 = (TextBox)PanelDescription.FindControl("TxtDescription" + item.Value);
             t2.Text = "";
         }
+        DropItemType.SelectedValue = "";
         TxtCssClass.Text = "";
         ChkEnabled.Checked = true;
         TxtMaxItems.Text = "";
@@ -389,6 +394,7 @@ public partial class Controls_SectionsAdmin : PigeonCms.BaseModuleControl
         int.TryParse(TxtMaxAttachSizeKB.Text, out maxAttachSizeKB);
         obj.MaxAttachSizeKB  = maxAttachSizeKB;
 
+        obj.ItemType = DropItemType.SelectedValue;
         obj.CssClass = TxtCssClass.Text;
 
         PermissionsControl1.Form2obj(obj);
@@ -414,9 +420,12 @@ public partial class Controls_SectionsAdmin : PigeonCms.BaseModuleControl
         TxtMaxItems.Text = obj.MaxItems.ToString();
         TxtMaxAttachSizeKB.Text = obj.MaxAttachSizeKB.ToString();
         TxtCssClass.Text = obj.CssClass;
+        Utility.SetDropByValue(DropItemType, obj.ItemType);
 
         ChkEnabled.Checked = obj.Enabled;
         PermissionsControl1.Obj2form(obj);
+
+        DropItemType.Enabled = (this.CurrentId == 0);
     }
 
     private void editRow(int recordId)
@@ -470,6 +479,20 @@ public partial class Controls_SectionsAdmin : PigeonCms.BaseModuleControl
         DropEnabledFilter.Items.Add(new ListItem(Utility.GetLabel("LblSelectState", "Select state"), ""));
         DropEnabledFilter.Items.Add(new ListItem("On-line", "1"));
         DropEnabledFilter.Items.Add(new ListItem("Off-line", "0"));
+    }
+
+    private void loadDropItemType()
+    {
+        DropItemType.Items.Clear();
+        DropItemType.Items.Add(new ListItem("", ""));
+
+        var filter = new ItemTypeFilter();
+        var list = new ItemTypeManager().GetByFilter(filter, "FullName");
+        foreach (ItemType type in list)
+        {
+            DropItemType.Items.Add(
+                new ListItem(type.FullName, type.FullName));
+        }
     }
 
     private void setFlag(int recordId, bool value, string flagName)
