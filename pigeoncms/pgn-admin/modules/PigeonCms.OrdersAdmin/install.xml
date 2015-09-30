@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<install 
+    installerVersion="1.0.0"
+    type="module" 
+    version="1.0.0"
+    core="true"
+    namespace="PigeonCms"
+    name="OrdersAdmin"
+    author="p-ice"
+    creationDate="2010-1-22"
+    copyright="Copyright(C) 2009 Nicola Ridolfi. All rights reserved."
+    license=""
+    authorEmail="picce@yahoo.it"
+    authorUrl="www.pigeoncms.com"
+    description="Manage orders shop">
+    <files>
+    </files>
+
+    <params>
+    </params>
+</install>

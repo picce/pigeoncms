@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<install
+    installerVersion="1.0.0"
+    type="plugin"
+    version="1.0.0"
+    core="true"
+    namespace="PigeonCms"
+    name="Shop"
+    author="p-ice"
+    creationDate="2015-09-22"
+    copyright="Copyright(C) 2015 Nicola Ridolfi. All rights reserved."
+    license=""
+    authorEmail="picce@yahoo.it"
+    authorUrl="https://github.com/picce/pigeoncms"
+    description="PigeonCms Shop plugin."
+    iconClass="fa-shopping-cart"
+    panelClass="panel-default"
+    >
+
+  <params group="">
+
+    <param name="CurrencyDefault" type="text" default="EUR, €, Euro" label="Default currency" description="Coma separated Code, Symbol and name. Example: EUR, €, Euro" />
+    
+  </params>
+
+</install>

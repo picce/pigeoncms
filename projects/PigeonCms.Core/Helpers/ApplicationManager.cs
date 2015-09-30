@@ -74,11 +74,11 @@ namespace PigeonCms.Core.Helpers
         /// </summary>
         public void Clear()
         {
-            foreach (DictionaryEntry d in HttpContext.Current.Application)
+            foreach (string key in HttpContext.Current.Application.AllKeys)
             {
-                if (d.Key.ToString().StartsWith(this.KeyPrefix + "_"))
+                if (key.StartsWith(this.KeyPrefix + "_"))
                 {
-                    this.remove(d.Key.ToString(), true);
+                    this.remove(key, true);
                 }
             }
             Tracer.Log("ApplicationManager.Clear: key=" + this.KeyPrefix + "; Time=" + DateTime.Now, TracerItemType.Info);

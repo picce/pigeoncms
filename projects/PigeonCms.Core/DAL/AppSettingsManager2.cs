@@ -1,6 +1,7 @@
 using System;
 using System.Data;
 using System.Configuration;
+using System.Linq;
 using System.Web;
 using System.Web.Security;
 using System.Web.UI;
@@ -12,6 +13,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Data.Common;
+using System.IO;
 
 
 namespace PigeonCms
@@ -31,42 +33,90 @@ namespace PigeonCms
             //this.KeyFieldName = "KeySet|KeyName";
         }
 
-        public List<string> GetKetSetGroups()
+        public List<string> GetKetSetGroupsInstalled()
         {
-            DbProviderFactory myProv = Database.ProviderFactory;
-            DbConnection myConn = myProv.CreateConnection();
-            DbDataReader myRd = null;
-            DbCommand myCmd = myConn.CreateCommand();
-            var res = new List<string>();
-
-            try
+            const string default_keyset = "PigeonCms.Core";
+            var result = new List<string>();
+            string path = HttpContext.Current.Request.MapPath(Config.SettingsPath);
+            if (!string.IsNullOrEmpty(path))
             {
-                myConn.ConnectionString = Database.ConnString;
-                myConn.Open();
-                myCmd.Connection = myConn;
-
-                string sSql = "SELECT KeySet FROM [" + this.TableName + "] "
-                    + "  GROUP BY KeySet ORDER BY KeySet";
-
-                myCmd.CommandText = Database.ParseSql(sSql);
-                myRd = myCmd.ExecuteReader();
-                while (myRd.Read())
+                DirectoryInfo dir = new DirectoryInfo(path);
+                DirectoryInfo[] dirs = dir.GetDirectories();
+                foreach (DirectoryInfo currDir in dirs)
                 {
-                    if (!Convert.IsDBNull(myRd["KeySet"]))
-                        res.Add((string)myRd["KeySet"]);
+                    if (currDir.Name.ToLower() != ".svn")
+                    {
+                        result.Add(currDir.Name);
+                    }
                 }
-                myRd.Close();
             }
-            finally
+
+            //for compatibility with old pigeon without settings folder
+            if (result.Count == 0)
+                result.Add(default_keyset);
+
+            return result;
+        }
+
+        public XmlType GetKeySetXmlType(string keySet, bool parseOnlyTagInstallAttributes)
+        {
+            var type = new XmlType();
+            if (!string.IsNullOrEmpty(Config.SettingsPath))
             {
-                myConn.Dispose();
+                type = new XmlTypeManager<XmlType, XmlTypeFilter>(
+                    Config.SettingsPath, parseOnlyTagInstallAttributes)
+                        .GetByFullName(keySet);
+            }
+            return type;
+        }
+
+        /// <summary>
+        /// add to AppSettings table missing settings from xml settings files
+        /// </summary>
+        /// <returns>count of settings added</returns>
+        public int MergeXmlSettings2Db(string keySet = "")
+        {
+            int res = 0;
+
+            var settingsGroups = new List<string>();
+            if (!string.IsNullOrEmpty(keySet))
+            {
+                settingsGroups.Add(keySet);
+            }
+            else
+            {
+                var filter = new AppSettingsFilter();
+                settingsGroups = GetKetSetGroupsInstalled();
+            }
+
+            foreach (var currentKeySet in settingsGroups)
+            {
+                var keySetYype = GetKeySetXmlType(currentKeySet, false);
+                var settingsInXml = keySetYype.Params;
+                var settingsInDb = GetByKeySet(currentKeySet);
+
+                foreach (var setting in settingsInXml)
+                {
+                    bool exists = settingsInDb.Where(
+                        o => o.KeyName.Equals(setting.Name)).Count() > 0;
+
+                    if (!exists)
+                    {
+                        var newSetting = formField2AppSetting(currentKeySet, setting);
+                        if (!string.IsNullOrEmpty(newSetting.KeyName))
+                        {
+                            Insert(newSetting);
+                            res++;
+                        }
+                    }
+                }
             }
 
             return res;
         }
 
         [DataObjectMethod(DataObjectMethodType.Select, false)]
-        public List<AppSetting> GetByFilter(AppSettingsFilter filter, string sort)
+        public override List<AppSetting> GetByFilter(AppSettingsFilter filter, string sort)
         {
             DbProviderFactory myProv = Database.ProviderFactory;
             DbConnection myConn = myProv.CreateConnection();
@@ -121,7 +171,6 @@ namespace PigeonCms
             return result;
         }
 
-        [Obsolete("Use AppSettingsManager2.GetByKey(string keySet, string keyName)", true)]
         public override AppSetting GetByKey(string id)
         {
             throw new NotSupportedException();
@@ -223,8 +272,6 @@ namespace PigeonCms
             return newObj;
         }
 
-
-        [Obsolete("Use AppSettingsManager2.Delete(string keySet, string keyName)", true)]
         public override int DeleteById(string recordId)
         {
             throw new NotSupportedException();
@@ -293,5 +340,15 @@ namespace PigeonCms
                 result.KeyInfo = (string)myRd["KeyInfo"];
         }
 
+        private AppSetting formField2AppSetting(string keyset, FormField formField)
+        {
+            var res = new AppSetting();
+            res.KeySet = keyset;
+            res.KeyName = formField.Name;
+            res.KeyTitle = formField.LabelValue;
+            res.KeyInfo = formField.Description;
+            res.KeyValue = formField.DefaultValue;
+            return res;
+        }
     }
 }

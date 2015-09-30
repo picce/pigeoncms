@@ -23,6 +23,7 @@
         </div>
     </div>
 
+
     <div class="row">
     <asp:MultiView ID="MultiView1" runat="server" ActiveViewIndex="0">
     
@@ -34,59 +35,88 @@
                         <div class="pull-right">
                             <div class="btn-group adminToolbar">
                                 <asp:Button ID="BtnNew" runat="server" Text="<%$ Resources:PublicLabels, CmdNew %>" 
-                                    CssClass="btn btn-primary btn-xs" OnClick="BtnNew_Click" />
+                                    CssClass="btn btn-primary" OnClick="BtnNew_Click" />
                                 <asp:Button ID="BtnApplySettings" runat="server" Text="<%$ Resources:PublicLabels, CmdApply %>" 
-                                    CssClass="btn btn-default btn-xs" OnClick="BtnApply_Click" />
+                                    CssClass="btn btn-default" OnClick="BtnApply_Click" />
                             </div>
                         </div> 
                     </div>
                 </div>
             </div>
-
+          
+          
             <div class="col-lg-12">
-                <div class="panel panel-default">
-                    <div class="table-responsive">
 
-                        <asp:GridView ID="Grid1" runat="server" AllowPaging="True" Width="100%" AutoGenerateColumns="False"
-                            DataSourceID="ObjDs1" DataKeyNames="KeyName" OnRowCommand="Grid1_RowCommand" OnRowCreated="Grid1_RowCreated" OnRowDataBound="Grid1_RowDataBound">
-                            <Columns>
+                <%--INIT accordion--%>
+                <div class="panel-group" id="accordion">
 
-                                <asp:TemplateField HeaderText="Name" ItemStyle-HorizontalAlign="Left" SortExpression="KeyName" HeaderStyle-HorizontalAlign="Left">
-                                    <ItemTemplate>
-                                        <asp:LinkButton ID="LnkName" runat="server" CausesValidation="false" CommandName="Select" CommandArgument='<%#Eval("KeyName") %>'></asp:LinkButton>
-                                        <br />
-                                        <%#Eval("KeyTitle") %>
-                                    </ItemTemplate>
-                                </asp:TemplateField>
+                    <asp:Repeater runat="server" ID="RepGroups" OnItemDataBound="RepGroups_ItemDataBound">
+                        <ItemTemplate>
 
-                                <asp:TemplateField ItemStyle-VerticalAlign="Top" HeaderText="Value" SortExpression="KeyValue">
-                                    <ItemTemplate>
-                                    <asp:Label runat="server" ID="LblKeyValue"></asp:Label>
-                                    </ItemTemplate>
-                                </asp:TemplateField>
+                            <div class='panel <%# Eval("PanelClass") %>'>
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                        
+                                        <i class='fa <%# Eval("IconClass") %> fa-fw'></i>
+                                        <a data-toggle="collapse" data-parent="#accordion" href='#AccordionGroup<%# Eval("Row") %>'>
+                                            <%# Eval("Title") %>
+                                        </a><br />
+                                        <span class="small text-muted"><%# Eval("Abstract") %></span>
+                                    </h4>
+                                </div>
+                                
+                                <div id='AccordionGroup<%# Eval("Row") %>' class='panel-collapse <%#Eval("CollapseClass") %>'>
+                                    <div class="panel-body">
 
-                                <asp:TemplateField HeaderText="" ItemStyle-HorizontalAlign="Center" ItemStyle-Width="10">
-                                    <ItemTemplate>
-                                        <asp:LinkButton ID="LnkDel" runat="server" CommandName="DeleteRow" 
-                                            CommandArgument='<%#Eval("KeyName") %>' OnClientClick="return confirm(deleteQuestion);">
-                                            <i class='fa fa-pgn_delete fa-fw'></i>
-                                        </asp:LinkButton>
-                                    </ItemTemplate>
-                                </asp:TemplateField>
+                                        <%--INIT table--%>
+                                        <div class="table-responsive">
+                                        <table class="table table-hover">
+                                        <tbody>
+                                            <asp:Repeater runat="server" ID="RepSettings" 
+                                                EnableViewState="true" 
+                                                OnItemCommand="RepSettings_ItemCommand"
+                                                OnItemDataBound="RepSettings_ItemDataBound">
+                                                <ItemTemplate>
+                                                    <tr>
+                                                        <td>
+                                                            <asp:LinkButton ID="LnkName" runat="server" CausesValidation="false" CommandName="Select"></asp:LinkButton>
+                                                            <br />
+                                                            <span class="small text-muted">
+                                                            <%#Eval("KeyTitle") %>
+                                                            </span>
+                                                        </td>
 
-                            </Columns>
-                        </asp:GridView>
+                                                        <td>
+                                                            <span class="small text-muted">
+                                                                <asp:Literal runat="server" ID="LblKeyValue"></asp:Literal>
+                                                            </span>
+                                                        </td>
 
-                    </div>
+                                                        <td>
+                                                            <asp:LinkButton ID="LnkDel" runat="server" CommandName="DeleteRow" 
+                                                                OnClientClick="return confirm(deleteQuestion);">
+                                                                <i class='fa fa-pgn_delete fa-fw'></i>
+                                                            </asp:LinkButton>
+                                                        </td>
+                                                    </tr>
+                                                </ItemTemplate>
+                                            </asp:Repeater>
+                                        </tbody>
+                                        </table>
+                                        </div>
+                                        <%--END table--%>
+
+                                    </div>
+                                </div>
+                            </div>
+
+                        </ItemTemplate>
+                    </asp:Repeater>
+
                 </div>
+                <%--EDN accordion--%>
+
             </div>
-            
-            <asp:ObjectDataSource ID="ObjDs1" runat="server" SelectMethod="GetSettings" TypeName="PigeonCms.AppSettingsManager">
-                <SelectParameters></SelectParameters>
-                <DeleteParameters>
-                    <asp:Parameter Name="KeyName" Type="String" />
-                </DeleteParameters>
-            </asp:ObjectDataSource>
 
         </asp:View>
    
@@ -94,19 +124,21 @@
 
             <div class="panel panel-default">
 
-                <div class="panel-heading">
-                    <%=base.GetLabel("LblDetails", "Details") %>
+                <div class="panel-heading clearfix">
                     <div class="pull-right">
                         <div class="btn-group">
-                            <asp:Button ID="BtnSave" runat="server" Text="<%$ Resources:PublicLabels, CmdSave %>" CssClass="btn btn-primary btn-xs" OnClick="BtnSave_Click" />
-                            <asp:Button ID="BtnCancel" runat="server" Text="<%$ Resources:PublicLabels, CmdCancel %>" CssClass="btn btn-default btn-xs" CausesValidation="false" OnClick="BtnCancel_Click" />
+                            <asp:Button ID="BtnSave" runat="server" Text="<%$ Resources:PublicLabels, CmdSave %>" CssClass="btn btn-primary" OnClick="BtnSave_Click" />
+                            <asp:Button ID="BtnCancel" runat="server" Text="<%$ Resources:PublicLabels, CmdCancel %>" CssClass="btn btn-default" CausesValidation="false" OnClick="BtnCancel_Click" />
                         </div>
                     </div>
                 </div>
 
                 <div class="panel-body">
 
-                    <asp:HiddenField ID="HiddenNewRecord" runat="server" />
+                    <div class="form-group col-md-6">
+                        <%=base.GetLabel("LblKeySet", "KeySet", DropKeySet, true)%>
+                        <asp:DropDownList runat="server" ID="DropKeySet" Enabled="false" CssClass="form-control"></asp:DropDownList>
+                    </div>
 
                     <div class="form-group col-md-6">
                         <%=base.GetLabel("LblName", "Name", TxtKeyName, true)%>
@@ -118,9 +150,10 @@
                         <asp:TextBox ID="TxtKeyTitle" MaxLength="500" runat="server" CssClass="form-control"></asp:TextBox>
                     </div>
 
-                    <div class="form-group col-md-12">
-                        <%=base.GetLabel("LblValue", "Value", TxtKeyValue, true)%>
-                        <asp:TextBox ID="TxtKeyValue" MaxLength="500" runat="server" CssClass="form-control"></asp:TextBox>
+                    <div class="form-group col-md-6">
+                        <%=base.GetLabel("LblValue", "Value", true)%>
+                        <asp:Panel ID="PanelValue" runat="server"></asp:Panel>
+                        <%--<asp:TextBox ID="TxtKeyValue" MaxLength="500" runat="server" CssClass="form-control"></asp:TextBox>--%>
                     </div>
                     
                     <div class="form-group col-md-12">

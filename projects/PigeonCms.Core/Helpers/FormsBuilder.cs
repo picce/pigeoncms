@@ -393,6 +393,11 @@ namespace PigeonCms
             return item;
         }
 
+        public static string GetControlValue(FormField currField, Control container)
+        {
+            return getControlValue(currField, container);
+        }
+
         #endregion
 
 
@@ -467,10 +472,7 @@ namespace PigeonCms
             ctrl.ID = ctrl.GetType().Name + param.Name;
             ctrl.ToolTip = param.Description;
             ctrl.Style.Value = param.CssStyle;
-            if (!string.IsNullOrEmpty(param.CssClass))
-                ctrl.CssClass = param.CssClass;
-            else
-                ctrl.CssClass = defaultCssClass;//"adminMediumText";
+            ctrl.CssClass = defaultCssClass + " " + param.CssClass;
             if (string.IsNullOrEmpty(currentValue))
                 ctrl.Text = param.DefaultValue;
             else
@@ -528,10 +530,7 @@ namespace PigeonCms
             ctrl.ID = ctrl.GetType().Name + param.Name;
             ctrl.ToolTip = param.Description;
             ctrl.Style.Value = param.CssStyle;
-            if (!string.IsNullOrEmpty(param.CssClass))
-                ctrl.CssClass = param.CssClass;
-            else
-                ctrl.CssClass = defaultCssClass;//"adminMediumText";
+            ctrl.CssClass = defaultCssClass + " " + param.CssClass;
             foreach (FormFieldOption item in param.Options)
             {
                 ctrl.Items.Add(new ListItem(item.Label, item.Value));

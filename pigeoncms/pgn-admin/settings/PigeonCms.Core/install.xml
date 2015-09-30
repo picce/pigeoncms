@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<install
+    installerVersion="1.0.0"
+    type="plugin"
+    version="1.0.0"
+    core="true"
+    namespace="PigeonCms"
+    name="Core"
+    author="p-ice"
+    creationDate="2015-09-22"
+    copyright="Copyright(C) 2015 Nicola Ridolfi. All rights reserved."
+    license=""
+    authorEmail="picce@yahoo.it"
+    authorUrl="https://github.com/picce/pigeoncms"
+    description="PigeonCms Core engine. Edit with caution"
+    iconClass="fa-warning"
+    panelClass="panel-danger"
+    >
+
+  <params group="">
+
+    <param name="CurrentMasterPage" cssClass="fa-folder-open" type="combo" default="" label="Pigeon masterpage" description="">
+      <datasource SelectMethod="GetList" SelectParams="" TypeName="PigeonCms.MasterPagesObjManager" />
+    </param>
+
+    <param name="CurrentTheme" cssClass="fa-folder-open" type="combo" default="" label="Pigeon default theme" description="">
+      <datasource SelectMethod="GetList" SelectParams="" TypeName="PigeonCms.MasterPagesObjManager" />
+    </param>
+
+    <param name="DocsPrivatePath" type="text" default="~/Private/Docs/" label="Private documents path" />
+
+    <param name="UseCache" type="combo" default="1" label="Global use of Cache">
+      <option value="1" label="Yes"></option>
+      <option value="0" label="No"></option>
+    </param>
+
+    <param name="UseLog" type="combo" default="1" label="Global use of LogProvider">
+      <option value="1" label="Yes"></option>
+      <option value="0" label="No"></option>
+    </param>
+    
+  </params>
+
+</install>
