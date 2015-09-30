@@ -87,6 +87,8 @@ public partial class Controls_AttributesAdmin : PigeonCms.BaseModuleControl
             LnkTitle.Text += Utility.Html.GetTextPreview(item.Name, 50, "");
             if (string.IsNullOrEmpty(LnkTitle.Text))
                 LnkTitle.Text += Utility.GetLabel("NO_VALUE", "<no value>");
+            if (Roles.IsUserInRole("debug"))
+                LnkTitle.Text += " [" + item.Id.ToString() + "]";
 
 
             // Get all selected attributes
@@ -94,8 +96,10 @@ public partial class Controls_AttributesAdmin : PigeonCms.BaseModuleControl
             var aman = new AttributesManager();
             foreach (var attributeId in item.AttributesList)
             {
-                selectedAttributes += "<i>" + aman.GetByKey(attributeId).Name  + "<i>" + "<br>";
+                selectedAttributes += " - <i>" + aman.GetByKey(attributeId).Name  + "<i>";
             }
+
+            selectedAttributes = selectedAttributes.Substring(2);
 
             Literal LitAttributesSelected = (Literal)e.Row.FindControl("LitAttributesSelected");
             LitAttributesSelected.Text = selectedAttributes;

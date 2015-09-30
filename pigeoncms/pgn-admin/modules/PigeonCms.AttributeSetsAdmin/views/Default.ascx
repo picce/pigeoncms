@@ -73,7 +73,9 @@ var deleteQuestion = '<%=PigeonCms.Utility.GetLabel("RECORD_DELETE_QUESTION") %>
                                 <%--1--%>
                                 <asp:TemplateField HeaderText="Attributes Selected" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
                                     <ItemTemplate>
-                                        <asp:Literal ID="LitAttributesSelected" runat="server" />
+                                        <span class="small text-muted">
+                                            <asp:Literal ID="LitAttributesSelected" runat="server" />
+                                        </span>  
                                     </ItemTemplate>
                                 </asp:TemplateField>
 
@@ -86,9 +88,6 @@ var deleteQuestion = '<%=PigeonCms.Utility.GetLabel("RECORD_DELETE_QUESTION") %>
                                         </asp:LinkButton>
                                     </ItemTemplate>
                                 </asp:TemplateField>
-
-                                <%--3--%>
-                                <asp:BoundField DataField="Id" HeaderText="ID" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left" />
 
                             </Columns>
                         </asp:GridView>
