@@ -35,7 +35,7 @@ namespace PigeonCms.Shop
 
                 sSql = "SELECT t.Id, t.Code, t.DateInserted, t.UserInserted, t.DateUpdated, t.UserUpdated, "
                     + " t.ValidFrom, t.ValidTo, t.Enabled, t.Amount, t.IsPercentage, "
-                    + " t.MinOrderAmount, t.CategoriesIdList, t.ItemType, "
+                    + " t.MinOrderAmount, t.CategoriesIdList, t.ItemsIdList, t.ItemType, "
                     + " t.MaxUses, t.UsesCounter "
                     + " FROM [" + this.TableName + "] t "
                     + " WHERE t.Id > 0 ";
@@ -112,7 +112,10 @@ namespace PigeonCms.Shop
             var result = new Coupon();
             var resultList = new List<Coupon>();
             var filter = new CouponsFilter();
-            
+
+            if (id <= 0)
+                return result;
+
             filter.Id = id;
             resultList = GetByFilter(filter, "");
             if (resultList.Count > 0)
@@ -156,24 +159,36 @@ namespace PigeonCms.Shop
                 myCmd.Connection = myConn;
 
                 sSql = "UPDATE [" + this.TableName + "] "
-                + " SET Code=@Code, DateUpdated=@DateUpdated, UserUpdated=@UserUpdated, "
-                    + " ValidFrom=@ValidFrom, ValidTo=@ValidTo, Enabled=@Enabled, Amount=@Amount, IsPercentage=@IsPercentage, MinOrderAmount=@MinOrderAmount, ItemType=@ItemType, "
-                    + " MaxUses=@MaxUses, UsesCounter=@UsesCounter "
+                + " SET Code=@Code, "
+                + " DateUpdated=@DateUpdated, UserUpdated=@UserUpdated, "
+                + " ValidFrom=@ValidFrom, ValidTo=@ValidTo, Enabled=@Enabled, Amount=@Amount, "
+                + " IsPercentage=@IsPercentage, MinOrderAmount=@MinOrderAmount, ItemType=@ItemType, "
+                + " CategoriesIdList=@CategoriesIdList, ItemsIdList=@ItemsIdList, "                
+                + " MaxUses=@MaxUses, UsesCounter=@UsesCounter "
                 + " WHERE Id = @Id";
                 myCmd.CommandText = Database.ParseSql(sSql);
                 myCmd.Parameters.Add(Database.Parameter(myProv, "Id", theObj.Id));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "Code", theObj.Code));
-                //myCmd.Parameters.Add(Database.Parameter(myProv, "DateInserted", theObj.DateInserted));
-                //myCmd.Parameters.Add(Database.Parameter(myProv, "UserInserted", theObj.UserInserted));
-                myCmd.Parameters.Add(Database.Parameter(myProv, "DateUpdated", theObj.DateUpdated));
-                myCmd.Parameters.Add(Database.Parameter(myProv, "UserUpdated", theObj.UserUpdated));
-                myCmd.Parameters.Add(Database.Parameter(myProv, "ValidFrom", theObj.ValidFrom));
-                myCmd.Parameters.Add(Database.Parameter(myProv, "ValidTo", theObj.ValidTo));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "DateUpdated", DateTime.Now));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "UserUpdated", PgnUserCurrent.UserName));
+
+                if (theObj.ValidFrom == DateTime.MinValue)
+                    myCmd.Parameters.Add(Database.Parameter(myProv, "ValidFrom", DBNull.Value));
+                else
+                    myCmd.Parameters.Add(Database.Parameter(myProv, "ValidFrom", theObj.ValidFrom));
+
+                if (theObj.ValidTo == DateTime.MinValue)
+                    myCmd.Parameters.Add(Database.Parameter(myProv, "ValidTo", DBNull.Value));
+                else
+                    myCmd.Parameters.Add(Database.Parameter(myProv, "ValidTo", theObj.ValidTo));
+
                 myCmd.Parameters.Add(Database.Parameter(myProv, "Enabled", theObj.Enabled));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "Amount", theObj.Amount));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "IsPercentage", theObj.IsPercentage));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "MinOrderAmount", theObj.MinOrderAmount));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "ItemType", theObj.ItemType));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "CategoriesIdList", theObj.CategoriesIdListString));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "ItemsIdList", theObj.ItemsIdListString));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "MaxUses", theObj.MaxUses));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "UsesCounter", theObj.UsesCounter));
 
@@ -204,10 +219,10 @@ namespace PigeonCms.Shop
 
                 sSql = "INSERT INTO [" + this.TableName + "](t.Code, t.DateInserted, t.UserInserted, t.DateUpdated, t.UserUpdated, "
                     + " t.ValidFrom, t.ValidTo, t.Enabled, t.Amount, t.IsPercentage, t.MinOrderAmount, t.ItemType, "
-                    + " t.MaxUses, t.UsesCounter ) "
+                    + " t.CategoriesIdList, t.ItemsIdList, t.MaxUses, t.UsesCounter ) "
                     + " VALUES(@Code, @DateInserted, @UserInserted, @DateUpdated, "
-                    + " @UserUpdated, @ValidFrom, @ValidTo, @Enabled, @Amount, @IsPercentage, @MinOrderAmount, "
-                    + " @ItemType, @MaxUses, @UsesCounter) ";
+                    + " @UserUpdated, @ValidFrom, @ValidTo, @Enabled, @Amount, @IsPercentage, @MinOrderAmount, @ItemType, "
+                    + " @CategoriesIdList, @ItemsIdList, @MaxUses, @UsesCounter) ";
                 myCmd.CommandText = Database.ParseSql(sSql);
 
                 myCmd.Parameters.Add(Database.Parameter(myProv, "Code", result.Code));
@@ -215,12 +230,22 @@ namespace PigeonCms.Shop
                 myCmd.Parameters.Add(Database.Parameter(myProv, "UserInserted", PgnUserCurrent.UserName));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "DateUpdated", DateTime.Now));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "UserUpdated", PgnUserCurrent.UserName));
-                myCmd.Parameters.Add(Database.Parameter(myProv, "ValidFrom", result.UserUpdated));
-                myCmd.Parameters.Add(Database.Parameter(myProv, "ValidTo", result.ValidTo));
+                if (result.ValidFrom == DateTime.MinValue)
+                    myCmd.Parameters.Add(Database.Parameter(myProv, "ValidFrom", DBNull.Value));
+                else
+                    myCmd.Parameters.Add(Database.Parameter(myProv, "ValidFrom", result.ValidFrom));
+
+                if (result.ValidTo == DateTime.MinValue)
+                    myCmd.Parameters.Add(Database.Parameter(myProv, "ValidTo", DBNull.Value));
+                else
+                    myCmd.Parameters.Add(Database.Parameter(myProv, "ValidTo", result.ValidTo));
+
                 myCmd.Parameters.Add(Database.Parameter(myProv, "Enabled", result.Enabled));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "Amount", result.Amount));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "IsPercentage", result.IsPercentage));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "MinOrderAmount", result.MinOrderAmount));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "CategoriesIdList", result.CategoriesIdListString));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "ItemsIdList", result.ItemsIdListString));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "ItemType", result.ItemType));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "MaxUses", result.MaxUses));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "UsesCounter", result.UsesCounter));
@@ -260,6 +285,10 @@ namespace PigeonCms.Shop
                 result.IsPercentage = (bool)myRd["IsPercentage"];
             if (!Convert.IsDBNull(myRd["MinOrderAmount"]))
                 result.MinOrderAmount = (decimal)myRd["MinOrderAmount"];
+            if (!Convert.IsDBNull(myRd["CategoriesIdList"]))
+                result.CategoriesIdListString = (string)myRd["CategoriesIdList"];
+            if (!Convert.IsDBNull(myRd["ItemsIdList"]))
+                result.ItemsIdListString = (string)myRd["ItemsIdList"];
             if (!Convert.IsDBNull(myRd["ItemType"]))
                 result.ItemType = (string)myRd["ItemType"];
             if (!Convert.IsDBNull(myRd["MaxUses"]))

@@ -144,6 +144,66 @@ namespace PigeonCms.Shop
             set { usesCounter = value; }
         }
 
+        string categoriesIdListString = "";
+        [DataObjectField(false)]
+        public string CategoriesIdListString
+        {
+            [DebuggerStepThrough()]
+            get { return categoriesIdListString; }
+            [DebuggerStepThrough()]
+            set { categoriesIdListString = value; }
+        }
+
+        string itemsIdListString = "";
+        [DataObjectField(false)]
+        public string ItemsIdListString
+        {
+            [DebuggerStepThrough()]
+            get { return itemsIdListString; }
+            [DebuggerStepThrough()]
+            set { itemsIdListString = value; }
+        }
+
+        /// <summary>
+        /// list of categories id valid for current coupon
+        /// </summary>
+        public List<int> CategoriesIdList
+        {
+            get 
+            {
+                var res = new List<int>();
+                var list = Utility.String2List(this.CategoriesIdListString, ",");
+                foreach (var item in list)
+                {
+                    int value = 0;
+                    int.TryParse(item, out value);
+                    if (value > 0)
+                        res.Add(value);
+                }
+                return res;
+            }
+        }
+
+        /// <summary>
+        /// list of items id valid for current coupon
+        /// </summary>
+        public List<int> ItemsIdList
+        {
+            get
+            {
+                var res = new List<int>();
+                var list = Utility.String2List(this.ItemsIdListString, ",");
+                foreach (var item in list)
+                {
+                    int value = 0;
+                    int.TryParse(item, out value);
+                    if (value > 0)
+                        res.Add(value);
+                }
+                return res;
+            }
+        }
+
         public bool IsValid//(decimal currentOrderTotal)
         {
             get

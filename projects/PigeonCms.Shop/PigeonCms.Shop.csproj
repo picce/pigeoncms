@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BLL\Currency.cs" />
     <Compile Include="BLL\Coupon.cs" />
     <Compile Include="BLL\Payment.cs" />
     <Compile Include="BLL\Customer.cs" />

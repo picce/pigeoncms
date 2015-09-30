@@ -408,7 +408,7 @@ namespace PigeonCms.Shop
         }
 
         /// <summary>
-        /// calculate order summary fetching rows
+        /// calculate order summary fetching rows, coupon and ship fees
         /// QtyAmount
         /// OrderAmount
         /// TotalAmount
