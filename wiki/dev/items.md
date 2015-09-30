@@ -13,4 +13,4 @@ For example **Items** could be used to represent:
 * blog posts
 * news
 * shop products
-* *..and so on..*
+* *...and so on...*
