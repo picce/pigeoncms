@@ -144,8 +144,11 @@ public partial class Controls_CategoriesTreeControl : PigeonCms.Modules.Categori
 
             if (this.ShowSecurity)
             {
+                string extIdString = "";
+                if (!string.IsNullOrEmpty(node.ExtId))
+                    extIdString = " / ExtID: " + node.ExtId;
                 text += "<div>"
-                    + "ID: " + node.Id.ToString() + "<br>"
+                    + "ID: " + node.Id.ToString() + extIdString + "<br>"
                     + RenderAccessTypeSummary(node, "read: ", "write: ")
                     + "</div>";
             }

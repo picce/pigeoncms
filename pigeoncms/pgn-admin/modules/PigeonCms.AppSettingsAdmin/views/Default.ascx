@@ -50,18 +50,30 @@
                 <%--INIT accordion--%>
                 <div class="panel-group" id="accordion">
 
-                    <asp:Repeater runat="server" ID="RepGroups" OnItemDataBound="RepGroups_ItemDataBound">
+                    <asp:Repeater runat="server" ID="RepGroups" OnItemDataBound="RepGroups_ItemDataBound" OnItemCommand="RepGroups_ItemCommand">
                         <ItemTemplate>
 
                             <div class='panel <%# Eval("PanelClass") %>'>
                                 <div class="panel-heading">
+
+                                    <div class="pull-right">
+                                        <div class="btn-group">
+                                            <asp:Button runat="server" ID="BtnUpdateDbVersion" CssClass="btn btn-default btn-xs" 
+                                                CommandName="UpdateVersion"
+                                                Visible="false" Text="Upgrade version" />
+                                        </div>
+                                    </div>
+
                                     <h4 class="panel-title">
                         
                                         <i class='fa <%# Eval("IconClass") %> fa-fw'></i>
                                         <a data-toggle="collapse" data-parent="#accordion" href='#AccordionGroup<%# Eval("Row") %>'>
                                             <%# Eval("Title") %>
                                         </a><br />
-                                        <span class="small text-muted"><%# Eval("Abstract") %></span>
+                                        <span class="small text-muted">
+                                            <%# Eval("Abstract") %><br />
+                                            <asp:Literal runat="server" ID="LitVersionInfo"></asp:Literal>
+                                        </span>
                                     </h4>
                                 </div>
                                 

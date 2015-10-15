@@ -37,7 +37,7 @@ namespace PigeonCms.Shop.PaymentsProvider
             var fields = new NameValueCollection();
             fields.Add("cmd", "_xclick");
             fields.Add("item_name", item);
-            fields.Add("item_number", order.OrderRef);//usato in ipn
+            fields.Add("item_number", order.OrderRef);//used as ipn
             fields.Add("quantity", "1");
             fields.Add("shipping", "0");
             fields.Add("no_shipping", "1"); //1 – non richiede un indirizzo

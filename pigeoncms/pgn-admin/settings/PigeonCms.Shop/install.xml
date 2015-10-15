@@ -22,8 +22,13 @@
     <param name="SectionId" cssClass="" type="combo" default="" label="Shop section" description="Section that contains Shop categories and products">
       <option value="0" label="Not set"></option>
       <datasource SelectMethod="GetListByItemType" SelectParams="PigeonCms.Shop.ProductItem" TypeName="PigeonCms.SectionsManager" />
-    </param>    
+    </param>
     
+    <param name="EmailTemplatesCatId" cssClass="" type="combo" default="" label="Email templates category" description="Category linked for email templates">
+      <option value="0" label="Not set"></option>
+      <datasource SelectMethod="GetList" TypeName="PigeonCms.CategoriesManager" />
+    </param>
+
     <param name="CurrencyDefault" type="text" default="EUR, €, Euro" label="Default currency" description="Coma separated Code, Symbol and name. Example: EUR, €, Euro" />
     
   </params>

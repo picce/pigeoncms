@@ -18,13 +18,14 @@ using System.Threading;
 
 namespace PigeonCms
 {
-    public class Section : ITableWithPermissions
+    public class Section : ITableWithPermissions, ITableExternalId
     {
         private int id = 0;
         private bool enabled = true;
         string defaultImageName = "";
         string cssClass = "";
         string itemType = "";
+        string extId = "";
 
         private Dictionary<string, string> titleTranslations = new Dictionary<string, string>();
         private Dictionary<string, string> descriptionTranslations = new Dictionary<string, string>();
@@ -75,6 +76,17 @@ namespace PigeonCms
             get { return enabled; }
             [DebuggerStepThrough()]
             set { enabled = value; }
+        }
+
+        /// <summary>
+        /// external identifier to allow import/export from external datasource
+        /// </summary>
+        public string ExtId
+        {
+            [DebuggerStepThrough()]
+            get { return extId; }
+            [DebuggerStepThrough()]
+            set { extId = value; }
         }
 
         /// <summary>
@@ -459,13 +471,14 @@ namespace PigeonCms
 
 
     [Serializable]
-    public class SectionsFilter
+    public class SectionsFilter : ITableExternalId
     {
         #region fields definition
 
         private int id = 0;
         private Utility.TristateBool enabled = Utility.TristateBool.NotSet;
         private string itemType = "";
+        private string extId = "";
 
         [DataObjectField(true)]
         public int Id
@@ -492,6 +505,18 @@ namespace PigeonCms
             get { return itemType; }
             [DebuggerStepThrough()]
             set { itemType = value; }
+        }
+
+        /// <summary>
+        /// external identifier to allow import/export from external datasource
+        /// </summary>
+        [DataObjectField(false)]
+        public string ExtId
+        {
+            [DebuggerStepThrough()]
+            get { return extId; }
+            [DebuggerStepThrough()]
+            set { extId = value; }
         }
 
         #endregion

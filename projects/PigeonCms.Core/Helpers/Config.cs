@@ -89,7 +89,7 @@ namespace PigeonCms
         /// </summary>
         public static string SettingsPath
         {
-            get { return (IsPigeonBundle ? PigeonAdminPath + "settings/" : ""); }
+            get { return (IsPigeonBundle ? PigeonAdminPath + "settings/" : "~/settings/"); }
         }
 
         /// <summary>
@@ -132,6 +132,24 @@ namespace PigeonCms
             get { return (IsPigeonBundle ? PigeonAdminPath + "vendor/" : getConfigValue("VendorPath", "~/Plugins/")); }
         }
 
+        /// <summary>
+        /// folder for temporary files
+        /// ~/public/temp/
+        /// </summary>
+        public static string TempGenericPath
+        {
+            get { return "~/public/temp/"; }
+        }
+
+        /// <summary>
+        /// folder for user session temporary files
+        /// ~/public/temp/<sessionID>/
+        /// </summary>
+        public static string TempUserSessionPath
+        {
+            get { return TempGenericPath + Utility._SessionID() + "/"; }
+        }
+
 
         public static string DocsPublicPath
         {
@@ -148,9 +166,23 @@ namespace PigeonCms
             get { return int.Parse(getConfigValue("defaultCacheValue")); }
         }
 
+        /// <summary>
+        /// culture code in web.config 
+        /// used as default culture in tranlations
+        /// </summary>
         public static string CultureDefault
         {
             get { return getConfigValue("CultureDefault"); }
+        }
+
+        /// <summary>
+        /// development culture in web.config
+        /// used as default culture for automatic resources insert (example: labels)
+        /// If not present, the default value is Config.CultureDefault
+        /// </summary>
+        public static string CultureDev
+        {
+            get { return getConfigValue("CultureDev", CultureDefault); }
         }
 
         /// <summary>

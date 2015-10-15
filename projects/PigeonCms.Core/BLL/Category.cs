@@ -18,7 +18,10 @@ using System.Threading;
 
 namespace PigeonCms
 {
-    public class Category: ITableWithOrdering, ITableWithPermissions
+    public class Category : 
+        ITableWithOrdering, 
+        ITableWithPermissions,
+        ITableExternalId
     {
         const string imagesPath = "~/public/gallery/categories/";
         const string filesPath = "~/public/files/categories/";
@@ -30,6 +33,7 @@ namespace PigeonCms
         private int ordering = 0;
         string defaultImageName = "";
         string cssClass = "";
+        string extId = "";
 
         private Dictionary<string, string> titleTranslations = new Dictionary<string, string>();
         private Dictionary<string, string> descriptionTranslations = new Dictionary<string, string>();
@@ -304,6 +308,18 @@ namespace PigeonCms
             set { cssClass = value; }
         }
 
+        /// <summary>
+        /// external identifier to allow import/export from external datasource
+        /// </summary>
+        public string ExtId
+        {
+            [DebuggerStepThrough()]
+            get { return extId; }
+            [DebuggerStepThrough()]
+            set { extId = value; }
+        }
+
+
         private FileMetaInfo defaultImage = new FileMetaInfo();
         public FileMetaInfo DefaultImage
         {
@@ -460,7 +476,7 @@ namespace PigeonCms
 
 
     [Serializable]
-    public class CategoriesFilter
+    public class CategoriesFilter : ITableExternalId
     {
         #region fields definition
 
@@ -470,6 +486,7 @@ namespace PigeonCms
         private int idToExpand = 0;
         private string alias = "";
         private Utility.TristateBool enabled = Utility.TristateBool.NotSet;
+        private string extId = "";
 
         [DataObjectField(true)]
         public int Id
@@ -525,6 +542,18 @@ namespace PigeonCms
             get { return enabled; }
             [DebuggerStepThrough()]
             set { enabled = value; }
+        }
+
+        /// <summary>
+        /// external identifier to allow import/export from external datasource
+        /// </summary>
+        [DataObjectField(false)]
+        public string ExtId
+        {
+            [DebuggerStepThrough()]
+            get { return extId; }
+            [DebuggerStepThrough()]
+            set { extId = value; }
         }
 
         #endregion

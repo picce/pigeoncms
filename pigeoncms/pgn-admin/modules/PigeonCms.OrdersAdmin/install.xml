@@ -16,6 +16,21 @@
     <files>
     </files>
 
-    <params>
+    <params group="filters">
+
+      <param name="OwnerUser" type="text" default="" label="Owner user" description=""></param>
+
+      <param name="PaymentFilter" type="combo" default="2" label="Payment">
+        <option value="2" label="Not set"></option>
+        <option value="1" label="Done"></option>
+        <option value="0" label="Pending"></option>
+      </param>
+
+      <param name="OrderConfirmedFilter" type="combo" default="2" label="Order confirmed">
+        <option value="2" label="Not set"></option>
+        <option value="1" label="Yes"></option>
+        <option value="0" label="No"></option>
+      </param>      
+      
     </params>
 </install>

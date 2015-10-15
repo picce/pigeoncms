@@ -16,6 +16,11 @@
     <files>
     </files>
 
-    <params>
-    </params>
+  <params group="restrictions">
+    <param name="AllowVersionUpdate" type="combo" default="0" label="Allow database version update">
+      <option value="1" label="Yes"></option>
+      <option value="0" label="No"></option>
+    </param>
+  </params>
+      
 </install>

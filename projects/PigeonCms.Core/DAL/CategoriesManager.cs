@@ -19,7 +19,11 @@ namespace PigeonCms
     /// <summary>
     /// DAL for categoria obj (in table categorie)
     /// </summary>
-    public class CategoriesManager : TableManagerWithOrdering<Category, CategoriesFilter, int>, ITableManagerWithPermission
+    public class CategoriesManager : 
+        TableManagerWithOrdering<Category, CategoriesFilter, int>, 
+        ITableManagerWithPermission,
+        ITableManagerExternalId<Category>
+
     {
         private bool checkUserContext = false;
         private bool writeMode = false;
@@ -85,7 +89,7 @@ namespace PigeonCms
                     + " sect.AccessCode sectAccessCode, sect.AccessLevel sectAccessLevel, "
                     + " sect.WriteAccessType sectWriteAccessType, sect.WritePermissionId sectWritePermissionId, "
                     + " sect.WriteAccessCode sectWriteAccessCode, sect.WriteAccessLevel sectWriteAccessLevel, "
-                    + " t.CssClass "
+                    + " t.CssClass, t.ExtId "
                     + " FROM [" + this.TableName + "] t "
                     + " LEFT JOIN [" + this.TableName + "_Culture]c ON t.Id=c.CategoryId "
                     + " LEFT JOIN #__sections sect ON t.SectionId = sect.Id "
@@ -115,6 +119,11 @@ namespace PigeonCms
                     sSql += " AND (replace(lower(c.title),' ','-') = @Alias) ";
                     myCmd.Parameters.Add(Database.Parameter(myProv, "Alias", filter.Alias));
                 }
+                if (!string.IsNullOrEmpty(filter.ExtId))
+                {
+                    sSql += " AND t.ExtId = @ExtId ";
+                    myCmd.Parameters.Add(Database.Parameter(myProv, "ExtId", filter.ExtId));
+                }
 
                 sSql += "GROUP BY t.Id, t.SectionId, t.ParentId, t.Enabled, "
                     + " t.Ordering, t.DefaultImageName, "
@@ -124,7 +133,7 @@ namespace PigeonCms
                     + " sect.AccessCode, sect.AccessLevel, "
                     + " sect.WriteAccessType, sect.WritePermissionId, "
                     + " sect.WriteAccessCode, sect.WriteAccessLevel,"
-                    + " t.CssClass ";
+                    + " t.CssClass, t.ExtId ";
                 if (!string.IsNullOrEmpty(sort))
                     sSql += " ORDER BY " + sort;
                 else
@@ -225,6 +234,33 @@ namespace PigeonCms
             return result;
         }
 
+        public Category GetByExtId(string extId)
+        {
+            var result = new Category();
+            var resultList = new List<Category>();
+            var filter = new CategoriesFilter();
+
+            if (string.IsNullOrEmpty(extId))
+                return result;
+
+            filter.ExtId = extId;
+            resultList = GetByFilter(filter, "");
+            if (resultList.Count > 0)
+                result = resultList[0];
+
+            return result;
+        }
+
+        public int DeleteByExtId(string extId)
+        {
+            int res = 0;
+            var item = GetByExtId(extId);
+            if (item.Id > 0)
+                res = this.DeleteById(item.Id);
+
+            return res;
+        }
+
         public override int Update(Category theObj)
         {
             DbProviderFactory myProv = Database.ProviderFactory;
@@ -257,7 +293,7 @@ namespace PigeonCms
                 + " [AccessCode]=@AccessCode, AccessLevel=@AccessLevel, "
                 + " WriteAccessType=@WriteAccessType, WritePermissionId=@WritePermissionId, "
                 + " [WriteAccessCode]=@WriteAccessCode, WriteAccessLevel=@WriteAccessLevel, "
-                + " CssClass=@CssClass "
+                + " CssClass=@CssClass, ExtId=@ExtId "
                 + " WHERE Id = @Id";
                 myCmd.CommandText = Database.ParseSql(sSql);
                 myCmd.Parameters.Add(Database.Parameter(myProv, "Id", theObj.Id));
@@ -276,8 +312,9 @@ namespace PigeonCms
                 myCmd.Parameters.Add(Database.Parameter(myProv, "WritePermissionId", theObj.WritePermissionId));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "WriteAccessCode", theObj.WriteAccessCode));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "WriteAccessLevel", theObj.WriteAccessLevel));
-                
+
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CssClass", theObj.CssClass));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "ExtId", theObj.ExtId));
 
                 result = myCmd.ExecuteNonQuery();
                 updateCultureText(theObj, myCmd, myProv);
@@ -326,11 +363,11 @@ namespace PigeonCms
                 sSql = "INSERT INTO [" + this.TableName + "](/*Id,*/ SectionId, ParentId, Enabled, Ordering, DefaultImageName, "
                 + " AccessType, PermissionId, AccessCode, AccessLevel, "
                 + " WriteAccessType, WritePermissionId, WriteAccessCode, WriteAccessLevel, "
-                + " CssClass) "
+                + " CssClass, ExtId) "
                 + " VALUES(/*@Id,*/ @SectionId, @ParentId, @Enabled, @Ordering, @DefaultImageName, "
                 + " @AccessType, @PermissionId, @AccessCode, @AccessLevel, "
                 + " @WriteAccessType, @WritePermissionId, @WriteAccessCode, @WriteAccessLevel, "
-                + " @CssClass) "
+                + " @CssClass, @ExtId) "
                 + " SELECT SCOPE_IDENTITY()";
                 myCmd.CommandText = Database.ParseSql(sSql);
 
@@ -352,6 +389,7 @@ namespace PigeonCms
                 myCmd.Parameters.Add(Database.Parameter(myProv, "WriteAccessLevel", (int)result.WriteAccessLevel));
 
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CssClass", result.CssClass));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "ExtId", result.ExtId));
 
                 result.Id = (int)(decimal)myCmd.ExecuteScalar();
                 updateCultureText(result, myCmd, myProv);
@@ -536,8 +574,11 @@ namespace PigeonCms
                 result.WriteAccessCode = (string)myRd["WriteAccessCode"];
             if (!Convert.IsDBNull(myRd["WriteAccessLevel"]))
                 result.WriteAccessLevel = (int)myRd["WriteAccessLevel"];
+            
             if (!Convert.IsDBNull(myRd["CssClass"]))
                 result.CssClass = (string)myRd["CssClass"];
+            if (!Convert.IsDBNull(myRd["ExtId"]))
+                result.ExtId = (string)myRd["ExtId"];
         }
 
         protected override int GetPreviousRecordInOrder(int ordering, int currentRecordId)
@@ -734,5 +775,6 @@ namespace PigeonCms
                 myCmd.ExecuteNonQuery();
             }
         }
+
     }
 }

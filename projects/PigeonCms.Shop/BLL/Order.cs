@@ -69,6 +69,9 @@ namespace PigeonCms.Shop
         Utility.TristateBool Processed { get; set; }
         string CouponCode { get; set; }
         List<int> ExcludeIdList { get; set; }
+        DatesRange OrderDatesRange { get; set; }
+        
+        void Reset();
     }
 
 
@@ -538,7 +541,22 @@ namespace PigeonCms.Shop
         private Utility.TristateBool processed = Utility.TristateBool.NotSet;
         private string couponCode = "";
         private List<int> excludeIdList = new List<int>();
+        private DatesRange orderDatesRange = new DatesRange(DatesRange.RangeType.Always);
 
+
+        public void Reset()
+        {
+            id = 0;
+            orderRef = "";
+            ownerUser = "";
+            customerId = 0;
+            confirmed = Utility.TristateBool.NotSet;
+            paid = Utility.TristateBool.NotSet;
+            processed = Utility.TristateBool.NotSet;
+            couponCode = "";
+            excludeIdList = new List<int>();
+            orderDatesRange = new DatesRange(DatesRange.RangeType.Always);
+        }
 
         /// <summary>
         /// PKey
@@ -618,6 +636,15 @@ namespace PigeonCms.Shop
             [DebuggerStepThrough()]
             set { excludeIdList = value; }
         }
+
+        public DatesRange OrderDatesRange
+        {
+            [DebuggerStepThrough()]
+            get { return orderDatesRange; }
+            [DebuggerStepThrough()]
+            set { orderDatesRange = value; }
+        }
+
 
     }
 

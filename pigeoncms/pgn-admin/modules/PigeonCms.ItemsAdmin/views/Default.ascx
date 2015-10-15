@@ -57,7 +57,6 @@ function onFailure(result) { }
 </script>
 
 <cc1:ToolkitScriptManager ID="ScriptManager1" runat="server" EnablePageMethods="true"></cc1:ToolkitScriptManager>
-<%--<asp:ScriptManager ID="ScriptManager1" runat="server" EnablePageMethods="true"></asp:ScriptManager>--%>
 <asp:UpdateProgress ID="UpdateProgress1" runat="server" DisplayAfter="1" AssociatedUpdatePanelID="Upd1">
     <ProgressTemplate>
         <div class="loading"><%=PigeonCms.Utility.GetLabel("LblLoading", "loading") %></div>
@@ -80,14 +79,14 @@ function onFailure(result) { }
         <asp:View ID="ViewSee" runat="server">
 
             <div class="col-lg-12">
-                <div class="panel panel-default">
+                <div class="panel panel-default clearfix">
                     <div class="panel-body"> 
                         <div class="pull-right">
                             <div class="btn-group adminToolbar">
                                 <asp:DropDownList runat="server" ID="DropNew"  AutoPostBack="true" CssClass="form-control" 
                                     OnSelectedIndexChanged="DropNew_SelectedIndexChanged"></asp:DropDownList>
                                 <asp:Button ID="BtnNew" runat="server" Text="<%$ Resources:PublicLabels, CmdNew %>" 
-                                    Visible="false" CssClass="btn btn-primary btn-xs" OnClick="BtnNew_Click" />
+                                    Visible="false" CssClass="btn btn-primary" OnClick="BtnNew_Click" />
                             </div>
                         </div> 
                     </div>
@@ -172,7 +171,6 @@ function onFailure(result) { }
                                 <asp:Literal ID="LitAccessTypeDesc" runat="server" Text=""></asp:Literal>
                                 </ItemTemplate>
                             </asp:TemplateField>
-
 
                             <%--5--%>
                             <asp:TemplateField HeaderText="" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center">
@@ -280,18 +278,22 @@ function onFailure(result) { }
                         
                         <div class="tab-pane fade in active" id="tab-main">
 
-                            <div class="form-group col-md-4">
+                            <div class="form-group col-md-6 col-lg-3">
                                 <%=base.GetLabel("LblSection", "Section", LitSection, true)%>
                                 <asp:TextBox ID="LitSection" runat="server" Enabled="false" CssClass="form-control"></asp:TextBox>
                             </div>
 
-
-                            <div class="form-group col-md-4">
+                            <div class="form-group col-md-6 col-lg-3">
                                 <%=base.GetLabel("LblItemType", "Item type", LitItemType, true)%>
                                 <asp:TextBox ID="LitItemType" runat="server" Enabled="false" CssClass="form-control"></asp:TextBox>
                             </div>
 
-                            <div class="form-group col-md-4">
+                            <div class="form-group col-md-6 col-lg-3">
+                                <%=base.GetLabel("LblExtId", "External Id", TxtExtId, true)%>
+                                <asp:TextBox ID="TxtExtId" runat="server" Enabled="true" CssClass="form-control"></asp:TextBox>
+                            </div>
+
+                            <div class="form-group col-md-6 col-lg-3">
                                 <%=base.GetLabel("LblEnabled", "Enabled", ChkEnabled, true)%>
                                 <asp:CheckBox ID="ChkEnabled" runat="server" CssClass="form-control" Enabled="true" />
                             </div>

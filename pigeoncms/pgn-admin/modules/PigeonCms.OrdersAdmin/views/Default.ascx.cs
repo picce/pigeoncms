@@ -12,12 +12,15 @@ using System.Web.Caching;
 using System.Collections.Generic;
 using System.Globalization;
 using PigeonCms;
+using PigeonCms.Shop;
 using PigeonCms.Core.Helpers;
 
 
-public partial class Controls_PigeonCms_Shop_OrdersAdmin : PigeonCms.ItemsAdminControl
+public partial class Controls_PigeonCms_Shop_OrdersAdmin :
+    PigeonCms.Shop.OrdersAdminControl<
+    PigeonCms.Shop.OrdersManager<Order, OrdersFilter, OrderRow, OrderRowsFilter>,
+            Order, OrdersFilter, OrderRow, OrderRowsFilter>
 {
-    //const int CAT_START = 1000;
     const int COL_ALIAS_INDEX = 2;
     const int COL_SECTION_INDEX = 3;
     const int COL_CATEGORY_INDEX = 4;
@@ -32,243 +35,50 @@ public partial class Controls_PigeonCms_Shop_OrdersAdmin : PigeonCms.ItemsAdminC
     const int VIEW_INSERT = 1;
 
 
-    protected DateTime ItemDate
-    {
-        get
-        {
-            CultureInfo culture;
-            DateTimeStyles styles;
-            culture = CultureInfo.CreateSpecificCulture("it-IT");
-            styles = DateTimeStyles.None;
-            DateTime res;
-            DateTime.TryParse(TxtItemDate.Text, culture, styles, out res);
-            return res.Date;
-            
-        }
-        set
-        {
-            TxtItemDate.Text = "";
-            if (value != DateTime.MinValue)
-                TxtItemDate.Text = value.ToShortDateString();
-        }
-    }
-
-    protected DateTime ValidFrom
-    {
-        get
-        {
-            CultureInfo culture;
-            DateTimeStyles styles;
-            culture = CultureInfo.CreateSpecificCulture("it-IT");
-            styles = DateTimeStyles.None;
-            DateTime res;
-            DateTime.TryParse(TxtValidFrom.Text, culture, styles, out res);
-            return res.Date;
-        }
-        set
-        {
-            TxtValidFrom.Text = "";
-            if (value != DateTime.MinValue)
-                TxtValidFrom.Text = value.ToShortDateString();
-        }
-    }
-
-    protected DateTime ValidTo
-    {
-        get
-        {
-            CultureInfo culture;
-            DateTimeStyles styles;
-            culture = CultureInfo.CreateSpecificCulture("it-IT");
-            styles = DateTimeStyles.None;
-            DateTime res;
-            DateTime.TryParse(TxtValidTo.Text, culture, styles, out res);
-            return res.Date;
-        }
-        set
-        {
-            TxtValidTo.Text = "";
-            if (value != DateTime.MinValue)
-                TxtValidTo.Text = value.ToShortDateString();
-        }
-    }
-
 
     protected new void Page_Init(object sender, EventArgs e)
     {
         base.Page_Init(sender, e);
-        ContentEditorProvider.InitEditor(this, Upd1, base.ContentEditorConfig);
-
-        string titleId = "";
-        foreach (KeyValuePair<string, string> item in Config.CultureList)
-        {
-            //title
-            Panel pan1 = new Panel();
-            pan1.CssClass = "form-group input-group";
-            PanelTitle.Controls.Add(pan1);
-
-            TextBox txt1 = new TextBox();
-            txt1.ID = "TxtTitle" + item.Value;
-            txt1.MaxLength = 200;
-            txt1.CssClass = "form-control";
-            txt1.ToolTip = item.Key;
-            LabelsProvider.SetLocalizedControlVisibility(this.ShowOnlyDefaultCulture, item.Key, txt1);
-            pan1.Controls.Add(txt1);
-            Literal lit1 = new Literal();
-            if (!this.ShowOnlyDefaultCulture)
-                lit1.Text = "<span class='input-group-addon'>" + item.Value + "</span>";
-            pan1.Controls.Add(lit1);
-            if (item.Key == Config.CultureDefault)
-                titleId = txt1.ClientID;
-
-            //description
-            var txt2 = (Controls_ContentEditorControl)LoadControl("~/Controls/ContentEditorControl.ascx");
-            txt2.ID = "TxtDescription" + item.Value;
-            //txt2.CssClass = "adminMediumText";
-            txt2.Configuration = base.ContentEditorConfig;
-            LabelsProvider.SetLocalizedControlVisibility(this.ShowOnlyDefaultCulture, item.Key, txt2);
-            PanelDescription.Controls.Add(txt2);
-
-            Literal lit2 = new Literal();
-            if (!this.ShowOnlyDefaultCulture)
-                lit2.Text = "&nbsp;[<i>" + item.Value + "</i>]<br /><br />";
-            PanelDescription.Controls.Add(lit2);
-        }
 
         if (this.BaseModule.DirectEditMode)
         {
         }
 
-        TxtAlias.Attributes.Add("onfocus", "preloadAlias('" + titleId + "', this)");
-
         //restrictions
-        Grid1.AllowSorting = this.AllowOrdering;
-        Grid1.Columns[COL_ORDER_ARROWS_INDEX].Visible = this.AllowOrdering;
-        Grid1.Columns[COL_ORDERING_INDEX].Visible = this.AllowOrdering;
-
-        Grid1.Columns[COL_ALIAS_INDEX].Visible = this.ShowAlias;
-        TxtAlias.Visible = this.ShowAlias;
-
-        Grid1.Columns[COL_TYPE_INDEX].Visible = this.ShowType;
-        LitItemType.Visible = this.ShowType;
-
-        Grid1.Columns[COL_SECTION_INDEX].Visible = this.ShowSectionColumn;
-        Grid1.Columns[COL_ACCESSTYPE_INDEX].Visible = this.ShowSecurity;
-        Grid1.Columns[COL_ACCESSLEVEL_INDEX].Visible = this.ShowSecurity;
-        Grid1.Columns[COL_ID_INDEX].Visible = this.ShowSecurity;
-        PermissionsControl1.Visible = this.ShowSecurity;
-
-        TxtItemDate.Visible = this.ShowDates;
-        TxtValidFrom.Visible = this.ShowDates;
-        TxtValidTo.Visible = this.ShowDates;
-
-        DropEnabledFilter.Visible = this.ShowEnabledFilter;
-        ItemFields1.Visible = this.ShowFieldsPanel;
-        ItemParams1.Visible = this.ShowParamsPanel;
-
-        ItemFields1.Title = base.GetLabel("LblFields", "Fields", null, true);
-        ItemParams1.Title = base.GetLabel("LblParameters", "Parameters", null, true);
+        //Grid1.Columns[COL_SECTION_INDEX].Visible = this.ShowSectionColumn;
+        //TxtItemDate.Visible = this.ShowDates;
+        //DropEnabledFilter.Visible = this.ShowEnabledFilter;
     }
 
-    protected void Page_Load(object sender, EventArgs e)
+    protected new void Page_Load(object sender, EventArgs e)
     {
+        base.Page_Load(sender, e);
+
         LblOk.Text = RenderSuccess("");
         LblErr.Text = RenderError("");
 
         if (this.BaseModule.DirectEditMode)
         {
-            if (base.CurrItem.Id == 0)
-                throw new ArgumentException();
-            if (new ItemsManager<Item, ItemsFilter>(true, true).GetByKey(base.CurrItem.Id).Id == 0)
-                throw new ArgumentException();
         }
+
 
         if (!Page.IsPostBack)
         {
-            loadDropEnabledFilter();
-            loadDropSectionsFilter(base.SectionId);
+            if (!string.IsNullOrEmpty(this.OwnerUser))
             {
-                int secId = -1;
-                int.TryParse(DropSectionsFilter.SelectedValue, out secId);
-                loadDropCategoriesFilter(secId);
+                TxtOwnerUserFilter.Enabled = false;
+                TxtOwnerUserFilter.Text = this.OwnerUser;
             }
-            loadDropsItemTypes();
-        }
-        else
-        {
-            string eventArg = HttpContext.Current.Request["__EVENTARGUMENT"];
-            if (eventArg == "items")
-                Grid1.DataBind();
-
-            //reload params on every postback, because cannot manage dinamically fields
-            var currentItem = new PigeonCms.Item();
-            if (CurrentId > 0)
-            {
-                currentItem = new ItemsManager<Item, ItemsFilter>(true, true).GetByKey(CurrentId);
-                ItemParams1.LoadParams(currentItem);
-                ItemFields1.LoadFields(currentItem);
-            }
-            else
-            {
-                //manually set ItemType
-                try
-                {
-                    currentItem.ItemTypeName = LitItemType.Text;
-                    ItemParams1.LoadParams(currentItem);
-                    ItemFields1.LoadFields(currentItem);
-                }
-                catch { }
-            }
-        }
-        if (this.BaseModule.DirectEditMode)
-        {
-            DropNew.Visible = false;
-            BtnNew.Visible = false;
-            BtnCancel.OnClientClick = "closePopup();";
-
-            editRow(base.CurrItem.Id);
+            loadDropOrderDatesRangeFilter();
+            loadDropPaymentFilter(this.PaymentFilter);
+            loadDropConfirmedFilter(this.OrderConfirmedFilter);
+            loadListOrders();
         }
     }
 
-    protected void DropEnabledFilter_SelectedIndexChanged(object sender, EventArgs e)
+    protected void Filter_Changed(object sender, EventArgs e)
     {
-        Grid1.DataBind();
-    }
-
-    protected void DropSectionsFilter_SelectedIndexChanged(object sender, EventArgs e)
-    {
-        int secID = 0;
-        int.TryParse(DropSectionsFilter.SelectedValue, out secID);
-
-        loadDropCategoriesFilter(secID);
-        loadDropCategories(secID);
-        Grid1.DataBind();
-        base.LastSelectedSectionId = secID;
-    }
-
-    protected void DropCategoriesFilter_SelectedIndexChanged(object sender, EventArgs e)
-    {
-        int catID = 0;
-        int.TryParse(DropCategoriesFilter.SelectedValue, out catID);
-
-        Grid1.DataBind();
-        base.LastSelectedCategoryId = catID;
-    }
-
-    protected void DropItemTypesFilter_SelectedIndexChanged(object sender, EventArgs e)
-    {
-        Grid1.DataBind();
-    }
-
-    protected void DropNew_SelectedIndexChanged(object sender, EventArgs e)
-    {
-        if (!checkAddNewFilters())
-            Utility.SetDropByValue(DropNew, "");
-        else
-        {
-            try { editRow(0); }
-            catch (Exception e1) { LblErr.Text = RenderError(e1.Message); }
-        }
+        loadListOrders();
     }
 
     protected void BtnNew_Click(object sender, EventArgs e)
@@ -277,62 +87,94 @@ public partial class Controls_PigeonCms_Shop_OrdersAdmin : PigeonCms.ItemsAdminC
         {
             if (checkAddNewFilters())
             {
-                Utility.SetDropByValue(DropNew, this.ItemType);
-                editRow(0);
+                editOrder(0);
             }
         }
         catch (Exception e1) { LblErr.Text = RenderError(e1.Message); }
     }
 
-    protected void ObjDs1_ObjectCreating(object sender, ObjectDataSourceEventArgs e)
-    {
-        var typename = new ItemsManager<Item, ItemsFilter>(true, true);
-        e.ObjectInstance = typename;
-    }
-
-    protected void ObjDs1_Selecting(object sender, ObjectDataSourceSelectingEventArgs e)
-    {
-        //see http://msdn.microsoft.com/en-us/library/w3f99sx1.aspx
-        //for use generics with ObjDs TypeName
-        var filter = new ItemsFilter();
-
-        filter.Enabled = Utility.TristateBool.NotSet;
-        switch (DropEnabledFilter.SelectedValue)
-        {
-            case "1":
-                filter.Enabled = Utility.TristateBool.True;
-                break;
-            case "0":
-                filter.Enabled = Utility.TristateBool.False;
-                break;
-            default:
-                filter.Enabled = Utility.TristateBool.NotSet;
-                break;
-        }
-
-        if (DropItemTypesFilter.SelectedValue != "")
-            filter.ItemType = DropItemTypesFilter.SelectedValue;
-        if (this.ItemId > 0)
-            filter.Id = this.ItemId;
-
-        int secId = -1;
-        int.TryParse(DropSectionsFilter.SelectedValue, out secId);
-
-        int catId = -1;
-        int.TryParse(DropCategoriesFilter.SelectedValue, out catId);
-
-
-        if (base.SectionId > 0)
-            filter.SectionId = base.SectionId;
-        else
-            filter.SectionId = secId;
-        filter.CategoryId = catId;
-
-        e.InputParameters["filter"] = filter;
-        e.InputParameters["sort"] = "";
-    }
-
     protected void Grid1_RowCommand(object sender, GridViewCommandEventArgs e)
+    {
+        if (e.CommandName == "Select")
+        {
+            try
+            {
+                editOrder(int.Parse(e.CommandArgument.ToString()));
+            }
+            catch (Exception e1) { LblErr.Text = RenderError(e1.Message); }
+        }
+        if (e.CommandName == "DeleteRow")
+        {
+            deleteOrder(int.Parse(e.CommandArgument.ToString()));
+            loadListOrders();
+        }
+    }
+
+    protected void Grid1_RowCreated(object sender, GridViewRowEventArgs e)
+    {
+        if (e.Row.RowType == DataControlRowType.Header)
+            Utility.AddGlyph(Grid1, e.Row);
+    }
+
+    protected void Grid1_RowDataBound(object sender, GridViewRowEventArgs e)
+    {
+        if (e.Row.RowType == DataControlRowType.DataRow)
+        {
+            var item = (PigeonCms.Shop.Order)e.Row.DataItem;
+
+            var LnkOrderRef = (LinkButton)e.Row.FindControl("LnkOrderRef");
+            LnkOrderRef.Text = "<i class='fa fa-pgn_edit fa-fw'></i>";
+            LnkOrderRef.Text += Utility.Html.GetTextPreview(item.OrderRef, 30, "");
+            if (Roles.IsUserInRole("admin"))
+                LnkOrderRef.Text += " ["+ item.Id +"]";
+
+            if (!string.IsNullOrEmpty(item.OwnerUser))
+            {
+                var LitOwnerUser = (Literal)e.Row.FindControl("LitOwnerUser");
+                LitOwnerUser.Text = "<i class='fa fa-fw fa-user'></i>" + item.OwnerUser;
+            }
+
+            var LitOrderDate = (Literal)e.Row.FindControl("LitOrderDate");
+            LitOrderDate.Text = item.OrderDate.ToShortDateString();
+
+            var LitCustomerName = (Literal)e.Row.FindControl("LitCustomerName");
+            LitCustomerName.Text = item.OrdName;
+
+            var LitCustomerAddress = (Literal)e.Row.FindControl("LitCustomerAddress");
+            LitCustomerAddress.Text = Utility.Html.GetTextPreview(item.OrdAddress, 30, "") + "<br>"
+                + item.OrdZipCode + " " + item.OrdCity + " " + item.OrdState + "<br>"
+                + item.OrdNation;
+
+            var LitConfirmed = (Literal)e.Row.FindControl("LitConfirmed");
+            LitConfirmed.Text = "<i class='glyphicon glyphicon-ok-circle " + getCssClass(item.Confirmed) + "'></i>";
+
+            var LitPaid = (Literal)e.Row.FindControl("LitPaid");
+            LitPaid.Text = "<i class='fa fa-money " + getCssClass(item.Paid) + "'></i>";
+
+            var LitProcessed = (Literal)e.Row.FindControl("LitProcessed");
+            LitProcessed.Text = "<i class='fa fa-database " + getCssClass(item.Processed) + "'></i>";
+
+            var LitInvoiced = (Literal)e.Row.FindControl("LitInvoiced");
+            LitInvoiced.Text = "<i class='fa fa-send " + getCssClass(item.Invoiced) + "'></i>";
+
+
+            var LitSummary = (Literal)e.Row.FindControl("LitSummary");
+            LitSummary.Text +=
+                "Total amount: <strong>" + item.Currency + " " + item.TotalAmount.ToString("0.00") + "</strong><br>" +
+                "Total paid: <strong>" + item.Currency + " " + item.TotalPaid.ToString("0.00") + "</strong><br>";
+
+        }
+    }
+
+    protected void Grid1_PageIndexChanging(object sender, GridViewPageEventArgs e)
+    {
+        Grid1.PageIndex = e.NewPageIndex;
+        loadListOrders();
+    }
+
+
+
+    protected void GridRows_RowCommand(object sender, GridViewCommandEventArgs e)
     {
         if (e.CommandName == "Select")
         {
@@ -346,163 +188,52 @@ public partial class Controls_PigeonCms_Shop_OrdersAdmin : PigeonCms.ItemsAdminC
         {
             deleteRow(int.Parse(e.CommandArgument.ToString()));
         }
-        //Enabled
-        if (e.CommandName == "ImgEnabledOk")
-        {
-            setFlag(Convert.ToInt32(e.CommandArgument), false, "enabled");
-            Grid1.DataBind();
-        }
-        if (e.CommandName == "ImgEnabledKo")
-        {
-            setFlag(Convert.ToInt32(e.CommandArgument), true, "enabled");
-            Grid1.DataBind();
-        }
-        //Ordering
-        if (e.CommandName == "MoveDown")
-        {
-            moveRecord(int.Parse(e.CommandArgument.ToString()), Database.MoveRecordDirection.Down);
-        }
-        if (e.CommandName == "MoveUp")
-        {
-            moveRecord(int.Parse(e.CommandArgument.ToString()), Database.MoveRecordDirection.Up);
-        }
     }
 
-    protected void Grid1_RowCreated(object sender, GridViewRowEventArgs e)
+    protected void GridRows_RowCreated(object sender, GridViewRowEventArgs e)
     {
         if (e.Row.RowType == DataControlRowType.Header)
-            Utility.AddGlyph(Grid1, e.Row);
+            Utility.AddGlyph(GridRows, e.Row);
     }
 
-    GridViewRow lastRowDataboundRoot;
-
-    protected void Grid1_RowDataBound(object sender, GridViewRowEventArgs e)
+    
+    protected void GridRows_RowDataBound(object sender, GridViewRowEventArgs e)
     {
         if (e.Row.RowType == DataControlRowType.DataRow)
         {
-            PigeonCms.Item item = new PigeonCms.Item();
-            item = (PigeonCms.Item)e.Row.DataItem;
+            var item = (PigeonCms.Shop.OrderRow)e.Row.DataItem;
 
-            if (item.IsThreadRoot)
-                lastRowDataboundRoot = e.Row;
-            else
+            var ImgPreview = (Image)e.Row.FindControl("ImgPreview");
+            ImgPreview.Visible = false;
+            var product = new PigeonCms.Shop.ProductItemsManager().GetBySku(item.ProductCode);
+            if (product.Id > 0)
             {
-                if (lastRowDataboundRoot != null)
-                    e.Row.RowState = lastRowDataboundRoot.RowState; //keeps same style of thread root
+                var file = product.DefaultImage;
+                ImgPreview.ImageUrl = PhotoManager.GetFileIconSrc(file, true);
+                ImgPreview.Visible = true;
             }
 
-            LinkButton LnkTitle = (LinkButton)e.Row.FindControl("LnkTitle");
-            LnkTitle.Text = "<i class='fa fa-pgn_edit fa-fw'></i>";
-            if (!item.IsThreadRoot)
-                LnkTitle.Text += "--";
-            LnkTitle.Text += Utility.Html.GetTextPreview(item.Title, 30, "");
-            if (string.IsNullOrEmpty(item.Title))
-                LnkTitle.Text += Utility.GetLabel("NO_VALUE", "<no value>");
+            var LnkProduct = (LinkButton)e.Row.FindControl("LnkProduct");
+            LnkProduct.Text = "<i class='fa fa-pgn_edit fa-fw'></i>";
+            LnkProduct.Text += Utility.Html.GetTextPreview(item.ProductCode, 30, "");
 
-            if (item.CategoryId > 0)
-            {
-                CategoriesManager mgr = new CategoriesManager();
-                Category cat = mgr.GetByKey(item.CategoryId);
-                Literal LitCategoryTitle = (Literal)e.Row.FindControl("LitCategoryTitle");
-                LitCategoryTitle.Text = cat.Title;
-                if (cat.SectionId > 0)
-                {
-                    Literal LitSectionTitle = (Literal)e.Row.FindControl("LitSectionTitle");
-                    LitSectionTitle.Text = new SectionsManager().GetByKey(cat.SectionId).Title;
-                }
-            }
+            var LitProductDetail = (Literal)e.Row.FindControl("LitProductDetail");
+            LitProductDetail.Text = item.ProductCode;
 
-            if (item.Enabled)
-            {
-                var img1 = e.Row.FindControl("ImgEnabledOk");
-                img1.Visible = true;
-            }
-            else
-            {
-                var img1 = e.Row.FindControl("ImgEnabledKo");
-                img1.Visible = true;
-            }
+            var LitQty = (Literal)e.Row.FindControl("LitQty");
+            LitQty.Text = item.Qty.ToString();
 
-            //permissions
-            //read
-            string readAccessLevel = item.ReadAccessCode;
-            if (item.ReadAccessLevel > 0)
-                readAccessLevel += " " + item.ReadAccessLevel.ToString();
-            if (!string.IsNullOrEmpty(readAccessLevel))
-                readAccessLevel = " - " + readAccessLevel;
+            var LitPriceNet = (Literal)e.Row.FindControl("LitPriceNet");
+            LitPriceNet.Text = item.PriceNet.ToString("0.00");
 
-            //write
-            string writeAccessLevel = item.WriteAccessCode;
-            if (item.WriteAccessLevel > 0)
-                writeAccessLevel += " " + item.WriteAccessLevel.ToString();
-            if (!string.IsNullOrEmpty(writeAccessLevel))
-                writeAccessLevel = " - " + writeAccessLevel;
+            var LitAmountNet = (Literal)e.Row.FindControl("LitAmountNet");
+            LitAmountNet.Text = item.AmountNet.ToString("0.00");
 
-            Literal LitAccessTypeDesc = (Literal)e.Row.FindControl("LitAccessTypeDesc");
-            //read
-            LitAccessTypeDesc.Text = item.ReadAccessType.ToString();
-            if (item.ReadAccessType != MenuAccesstype.Public)
-            {
-                string roles = "";
-                foreach (string role in item.ReadRolenames)
-                {
-                    roles += role + ", ";
-                }
-                if (roles.EndsWith(", ")) roles = roles.Substring(0, roles.Length - 2);
-                if (roles.Length > 0)
-                    roles = " (" + roles + ")";
-                LitAccessTypeDesc.Text += Utility.Html.GetTextPreview(roles, 60, "");
-                LitAccessTypeDesc.Text += readAccessLevel;
-            }
-            if (LitAccessTypeDesc.Text != "") LitAccessTypeDesc.Text += "<br />";
-            //write
-            LitAccessTypeDesc.Text += item.WriteAccessType.ToString();
-            if (item.WriteAccessType != MenuAccesstype.Public)
-            {
-                string roles = "";
-                foreach (string role in item.WriteRolenames)
-                {
-                    roles += role + ", ";
-                }
-                if (roles.EndsWith(", ")) roles = roles.Substring(0, roles.Length - 2);
-                if (roles.Length > 0)
-                    roles = " (" + roles + ")";
-                LitAccessTypeDesc.Text += Utility.Html.GetTextPreview(roles, 60, "");
-                LitAccessTypeDesc.Text += writeAccessLevel;
-            }
-
-
-            //files upload
-            var LnkUploadFiles = (HyperLink)e.Row.FindControl("LnkUploadFiles");
-            LnkUploadFiles.NavigateUrl = this.FilesUploadUrl
-                + "?type=items&id=" + item.Id.ToString();
-            if (this.IsMobileDevice == false)
-                LnkUploadFiles.CssClass = "fancyRefresh";
-            var LitFilesCount = (Literal)e.Row.FindControl("LitFilesCount");
-            int filesCount = item.Files.Count;
-            if (filesCount > 0)
-            {
-                LitFilesCount.Text = filesCount.ToString();
-                LitFilesCount.Text += filesCount == 1 ? " file" : " files";
-                LitFilesCount.Text += "<br />(" + Utility.GetFileHumanLength(item.FilesSize) + ")";
-            }
-
-            //images upload
-            var LnkUploadImg = (HyperLink)e.Row.FindControl("LnkUploadImg");
-            LnkUploadImg.NavigateUrl = this.ImagesUploadUrl
-                + "?type=items&id=" + item.Id.ToString();
-            if (this.IsMobileDevice == false)
-                LnkUploadImg.CssClass = "fancyRefresh";
-            var LitImgCount = (Literal)e.Row.FindControl("LitImgCount");
-            int imgCount = item.Images.Count;
-            if (imgCount > 0)
-            {
-                LitImgCount.Text = imgCount.ToString();
-                LitImgCount.Text += imgCount == 1 ? " file" : " files";
-                LitImgCount.Text += "<br />(" + Utility.GetFileHumanLength(item.ImagesSize) + ")";
-            }
+            var LitNotes = (Literal)e.Row.FindControl("LitNotes");
+            LitNotes.Text = Utility.Html.GetTextPreview(item.RowNotes, 50, "");
         }
     }
+
 
     protected void BtnSave_Click(object sender, EventArgs e)
     {
@@ -522,16 +253,8 @@ public partial class Controls_PigeonCms_Shop_OrdersAdmin : PigeonCms.ItemsAdminC
 
     protected void MultiView1_ActiveViewChanged(object sender, EventArgs e)
     {
-        if (this.BaseModule.DirectEditMode)
-        {
-            //list view not allowed (in case of js hacking)
-            if (MultiView1.ActiveViewIndex == VIEW_GRID)
-                MultiView1.ActiveViewIndex = VIEW_INSERT;
-        }
-
         if (MultiView1.ActiveViewIndex == VIEW_GRID)    //list view
         {
-            Utility.SetDropByValue(DropNew, "");
         }
     }
 
@@ -543,32 +266,16 @@ public partial class Controls_PigeonCms_Shop_OrdersAdmin : PigeonCms.ItemsAdminC
         LblOk.Text = RenderSuccess("");
         bool res = true;
         string err = "";
-
-        if (!string.IsNullOrEmpty(TxtAlias.Text))
+        
+        if (string.IsNullOrEmpty(TxtOrderRef.Text))
         {
-            var filter = new ItemsFilter();
-            var list = new List<PigeonCms.Item>();
-
-            filter.Alias = TxtAlias.Text;
-            list = new ItemsManager<Item,ItemsFilter>().GetByFilter(filter, "");
-            if (list.Count > 0)
-            {
-                if (this.CurrentId == 0)
-                {
-                    res = false;
-                    err += "alias in use<br />";
-                }
-                else
-                {
-                    if (list[0].Id != this.CurrentId)
-                    {
-                        res = false;
-                        err += "alias in use<br />";
-                    }
-                }
-            }
+            res = false;
+            err += "Missing order ref<br>";
         }
-        LblErr.Text = RenderError(err);
+
+        if (!res)
+            LblErr.Text = RenderError(err);
+
         return res;
     }
 
@@ -580,35 +287,73 @@ public partial class Controls_PigeonCms_Shop_OrdersAdmin : PigeonCms.ItemsAdminC
 
         try
         {
-            var o1 = new Item();
+            var o1 = new PigeonCms.Shop.Order();
 
             if (CurrentId == 0)
             {
                 form2obj(o1);
-                o1 = new ItemsManager<Item, ItemsFilter>().Insert(o1);
+                o1 = OrdMan.Insert(o1);
             }
             else
             {
-                o1 = new ItemsManager<Item, ItemsFilter>().GetByKey(CurrentId);  //precarico i campi esistenti e nn gestiti dal form
+                o1 = OrdMan.GetByKey(CurrentId);
                 form2obj(o1);
-                new ItemsManager<Item, ItemsFilter>().Update(o1);
+                OrdMan.Update(o1);
             }
-            removeFromCache();
 
-            Grid1.DataBind();
+            loadListOrders();
             LblOk.Text = RenderSuccess(Utility.GetLabel("RECORD_SAVED_MSG"));
             res = true;
         }
         catch (CustomException e1)
         {
-            if (e1.CustomMessage == ItemsManager<Item, ItemsFilter>.MaxItemsException)
-                LblErr.Text = RenderError(base.GetLabel("LblMaxItemsReached", "you have reached the maximum number of elements"));
-            else
-                LblErr.Text = RenderError(e1.CustomMessage);
+            LblErr.Text = RenderError(e1.CustomMessage);
         }
         catch (Exception e1)
         {
-            LblErr.Text = RenderError(Utility.GetLabel("RECORD_ERR_MSG") + "<br />" + e1.ToString());
+            LblErr.Text = RenderError(Utility.GetLabel("RECORD_ERR_MSG") + "<br />");
+            LogProvider.Write(this.BaseModule, "saveForm() err: " + e1.ToString(), TracerItemType.Error);
+        }
+        finally
+        {
+        }
+        return res;
+    }
+
+    private bool saveFormRow()
+    {
+        bool res = false;
+        LblErr.Text = RenderError("");
+        LblOk.Text = RenderSuccess("");
+
+        try
+        {
+            var o1 = new PigeonCms.Shop.OrderRow();
+
+            if (CurrentRowId == 0)
+            {
+                form2objRow(o1);
+                o1 = OrdMan.Rows_Insert(o1);
+            }
+            else
+            {
+                o1 = OrdMan.Rows_GetByKey(CurrentRowId);
+                form2objRow(o1);
+                OrdMan.Rows_Update(o1);
+            }
+
+            loadRows(o1.OrderId);
+            LblOk.Text = RenderSuccess(Utility.GetLabel("RECORD_SAVED_MSG"));
+            res = true;
+        }
+        catch (CustomException e1)
+        {
+            LblErr.Text = RenderError(e1.CustomMessage);
+        }
+        catch (Exception e1)
+        {
+            LblErr.Text = RenderError(Utility.GetLabel("RECORD_ERR_MSG") + "<br />");
+            LogProvider.Write(this.BaseModule, "saveFormRow() err: " + e1.ToString(), TracerItemType.Error);
         }
         finally
         {
@@ -618,116 +363,120 @@ public partial class Controls_PigeonCms_Shop_OrdersAdmin : PigeonCms.ItemsAdminC
 
     private void clearForm()
     {
-        LblId.Text = "";
-        LblOrderId.Text = "";
-        LitItemType.Text = "";
-        LblCreated.Text = "";
-        LblUpdated.Text = "";
-        ChkEnabled.Checked = true;
-        TxtAlias.Text = "";
-        TxtCssClass.Text = "";
-        this.ItemDate = DateTime.MinValue;
-        this.ValidFrom = DateTime.MinValue;
-        this.ValidTo = DateTime.MinValue;
-        foreach (KeyValuePair<string, string> item in Config.CultureList)
-        {
-            TextBox t1 = new TextBox();
-            t1 = (TextBox)PanelTitle.FindControl("TxtTitle" + item.Value);
-            t1.Text = "";
+        LitCurrentOrder.Text = "";
+        TxtOrderRef.Text = "";
+        TxtOrderDate.Text = "";
+        TxtOrderDateRequested.Text = "";
+        TxtOrderDateShipped.Text = "";
+        Utility.SetDropByValue(DropPaymentCode, "");
+        ChkPaid.Checked = false;
+        Utility.SetDropByValue(DropShipCode, "");
 
-            var txt2 = new Controls_ContentEditorControl();
-            txt2 = Utility.FindControlRecursive<Controls_ContentEditorControl>(this, "TxtDescription" + item.Value);
-            txt2.Text = "";
-            //FCKeditor t2 = new FCKeditor();
-            //t2 = (FCKeditor)PanelDescription.FindControl("TxtDescription" + item.Value);
-            //t2.Value = "";
-        }
-        PermissionsControl1.ClearForm();
+        TxtOrdName.Text = "";
+        TxtOrdAddress.Text = "";
+        TxtOrdZipCode.Text = "";
+        TxtOrdCity.Text = "";
+        TxtOrdState.Text = "";
+        TxtOrdNation.Text = "";
+        TxtOrdPhone.Text = "";
+        TxtOrdEmail.Text = "";
+        TxtNotes.Text = "";
     }
 
-    private void form2obj(Item obj)
+    private void clearFormRow()
+    {
+        //LitCurrentOrder.Text = "";
+        //TxtOrderRef.Text = "";
+    }
+
+    private void form2obj(PigeonCms.Shop.Order obj)
     {
         obj.Id = CurrentId;
-        obj.Enabled = ChkEnabled.Checked;
-        obj.TitleTranslations.Clear();
-        obj.DescriptionTranslations.Clear();
-        obj.CategoryId = int.Parse(DropCategories.SelectedValue);
-        obj.Alias = TxtAlias.Text;
-        obj.CssClass = TxtCssClass.Text;
+        //obj.ItemParams = FormBuilder.GetParamsString(obj.ItemType.Params, ItemParams1);
 
-        obj.ItemDate = this.ItemDate;
-        obj.ValidFrom = this.ValidFrom;
-        obj.ValidTo = this.ValidTo;
+        obj.OrderRef = TxtOrderRef.Text;
+        obj.OrderDate = GetDate(TxtOrderDate);
+        obj.OrderDateRequested = GetDate(TxtOrderDateRequested);
+        obj.OrderDateShipped = GetDate(TxtOrderDateShipped);
+        obj.PaymentCode = DropPaymentCode.SelectedValue;
+        obj.Paid = ChkPaid.Checked;
+        // ChkOrderShipped.Checked = false;
 
-        if (CurrentId == 0)
-            obj.ItemTypeName = LitItemType.Text;
-
-        foreach (KeyValuePair<string, string> item in Config.CultureList)
-        {
-            TextBox t1 = new TextBox();
-            t1 = (TextBox)PanelTitle.FindControl("TxtTitle" + item.Value);
-            obj.TitleTranslations.Add(item.Key, t1.Text);
-
-            var txt2 = new Controls_ContentEditorControl();
-            txt2 = Utility.FindControlRecursive<Controls_ContentEditorControl>(this, "TxtDescription" + item.Value);
-            obj.DescriptionTranslations.Add(item.Key, txt2.Text);
-
-            //FCKeditor t2 = new FCKeditor();
-            //t2 = (FCKeditor)PanelDescription.FindControl("TxtDescription" + item.Value);
-            //obj.DescriptionTranslations.Add(item.Key, t2.Value);
-        }
-        obj.ItemParams = FormBuilder.GetParamsString(obj.ItemType.Params, ItemParams1);
-        string fieldsString = FormBuilder.GetParamsString(obj.ItemType.Fields, ItemFields1);
-        obj.LoadCustomFieldsFromString(fieldsString);
-        PermissionsControl1.Form2obj(obj);
+         obj.OrdName = TxtOrdName.Text;
+         obj.OrdAddress = TxtOrdAddress.Text;
+         obj.OrdZipCode = TxtOrdZipCode.Text;
+         obj.OrdCity = TxtOrdCity.Text;
+         obj.OrdState = TxtOrdState.Text;
+         obj.OrdNation = TxtOrdNation.Text;
+         obj.OrdPhone = TxtOrdPhone.Text;
+         obj.OrdEmail = TxtOrdEmail.Text;
+         obj.Notes = TxtNotes.Text;
     }
 
-    private void obj2form(Item obj)
+    private void form2objRow(PigeonCms.Shop.OrderRow obj)
     {
-        LblId.Text = obj.Id.ToString();
-        LblOrderId.Text = obj.Ordering.ToString();
-        LblUpdated.Text = obj.DateUpdated.ToString() + " by " + obj.UserUpdated;
-        LblCreated.Text = obj.DateInserted.ToString() + " by " + obj.UserInserted;
-        ChkEnabled.Checked = obj.Enabled;
-        TxtAlias.Text = obj.Alias;
-        TxtCssClass.Text = obj.CssClass;
-        Utility.SetDropByValue(DropCategories, obj.CategoryId.ToString());
+        obj.Id = CurrentRowId;
 
-        foreach (KeyValuePair<string, string> item in Config.CultureList)
-        {
-            string sTitleTranslation = "";
-            TextBox t1 = new TextBox();
-            t1 = (TextBox)PanelTitle.FindControl("TxtTitle" + item.Value);
-            obj.TitleTranslations.TryGetValue(item.Key, out sTitleTranslation);
-            t1.Text = sTitleTranslation;
+        //obj.OrderRef = TxtOrderRef.Text;
+        //obj.OrderDate = getDate(TxtOrderDate);
 
-            string sDescriptionTraslation = "";
-            var txt2 = new Controls_ContentEditorControl();
-            txt2 = Utility.FindControlRecursive<Controls_ContentEditorControl>(this, "TxtDescription" + item.Value);
-            obj.DescriptionTranslations.TryGetValue(item.Key, out sDescriptionTraslation);
-            txt2.Text = sDescriptionTraslation;
-            //string sDescriptionTraslation = "";
-            //FCKeditor t2 = new FCKeditor();
-            //t2 = (FCKeditor)PanelDescription.FindControl("TxtDescription" + item.Value);
-            //obj.DescriptionTranslations.TryGetValue(item.Key, out sDescriptionTraslation);
-            //t2.Value = sDescriptionTraslation;
-        }
-        ItemParams1.ClearParams();
-        ItemFields1.ClearParams();
-
-        ItemParams1.LoadParams(obj);
-        ItemFields1.LoadFields(obj);
-        PermissionsControl1.Obj2form(obj);
-        LitItemType.Text = obj.ItemTypeName;
-        
-        this.ItemDate = obj.ItemDate;
-        this.ValidFrom = obj.ValidFrom;
-        this.ValidTo = obj.ValidTo;
+        //obj.OrdName = TxtOrdName.Text;
     }
 
-    private void editRow(int recordId)
+
+    private void obj2form(PigeonCms.Shop.Order obj)
     {
-        var obj = new PigeonCms.Item();
+        if (obj.Id == 0)
+            LitCurrentOrder.Text = base.GetLabel("NewOrder", "New order");
+        else
+        {
+            LitCurrentOrder.Text = base.GetLabel("EditOrder", "Edit order")
+                + " " + obj.OrderRef + " - " + obj.OrderDate.ToShortDateString()
+                + " - " + obj.OrdName;
+        }
+
+        TxtOrderRef.Text = obj.OrderRef;
+        SetDate(TxtOrderDate, obj.OrderDate);
+        SetDate(TxtOrderDateRequested, obj.OrderDateRequested);
+        SetDate(TxtOrderDateShipped, obj.OrderDateShipped);
+        Utility.SetDropByValue(DropPaymentCode, obj.PaymentCode);
+        ChkPaid.Checked = obj.Paid;
+        Utility.SetDropByValue(DropShipCode, obj.ShipCode);
+
+        TxtOrdName.Text = obj.OrdName;
+        TxtOrdAddress.Text = obj.OrdAddress;
+        TxtOrdZipCode.Text = obj.OrdZipCode;
+        TxtOrdCity.Text = obj.OrdCity;
+        TxtOrdState.Text = obj.OrdState;
+        TxtOrdNation.Text = obj.OrdNation;
+        TxtOrdPhone.Text = obj.OrdPhone;
+        TxtOrdEmail.Text = obj.OrdEmail;
+        TxtNotes.Text = obj.Notes;
+
+        loadRows(this.CurrentId);
+    }
+
+    private void obj2formRow(PigeonCms.Shop.OrderRow obj)
+    {
+        //if (obj.Id == 0)
+        //    LitCurrentOrder.Text = base.GetLabel("NewOrder", "New order");
+        //else
+        //{
+        //    LitCurrentOrder.Text = base.GetLabel("EditOrder", "Edit order")
+        //        + " " + obj.OrderRef + " - " + obj.OrderDate.ToShortDateString()
+        //        + " - " + obj.OrdName;
+        //}
+
+        //TxtOrderRef.Text = obj.OrderRef;
+        //Utility.SetDropByValue(DropPaymentCode, obj.PaymentCode);
+
+        //TxtOrdName.Text = obj.OrdName;
+        //TxtOrdAddress.Text = obj.OrdAddress;
+    }
+
+    private void editOrder(int recordId)
+    {
+        var obj = new PigeonCms.Shop.Order();
         LblOk.Text = RenderSuccess("");
         LblErr.Text = RenderError("");
 
@@ -735,28 +484,58 @@ public partial class Controls_PigeonCms_Shop_OrdersAdmin : PigeonCms.ItemsAdminC
             throw new Exception("user not authenticated");
 
         clearForm();
-        CurrentId = recordId;
+        this.CurrentId = recordId;
         if (CurrentId == 0)
         {
-            loadDropCategories(int.Parse(DropSectionsFilter.SelectedValue));
-            obj.ItemTypeName = DropNew.SelectedValue;
-            obj.ItemDate = DateTime.Now;
-            obj.ValidFrom = DateTime.Now;
-            obj.ValidTo = DateTime.MinValue;
-            int defaultCategoryId = 0;
-            int.TryParse(DropCategoriesFilter.SelectedValue, out defaultCategoryId);
-            obj.CategoryId = defaultCategoryId;
             obj2form(obj);
-            LitItemType.Text = DropNew.SelectedValue;
         }
         else
         {
-            obj = new ItemsManager<Item, ItemsFilter>(true, true).GetByKey(CurrentId);
-            loadDropCategories(obj.SectionId);
+            obj = OrdMan.GetByKey(CurrentId);
             obj2form(obj);
         }
         MultiView1.ActiveViewIndex = VIEW_INSERT;
     }
+
+    private void editRow(int recordId)
+    {
+        var obj = new PigeonCms.Shop.OrderRow();
+        LblOk.Text = RenderSuccess("");
+        LblErr.Text = RenderError("");
+
+
+        clearFormRow();
+        this.CurrentRowId = recordId;
+        if (CurrentRowId == 0)
+        {
+            obj2formRow(obj);
+        }
+        else
+        {
+            obj = OrdMan.Rows_GetByKey(CurrentRowId);
+            obj2formRow(obj);
+        }
+        //MultiView1.ActiveViewIndex = VIEW_INSERT;
+    }
+
+    private void deleteOrder(int recordId)
+    {
+        LblOk.Text = RenderSuccess("");
+        LblErr.Text = RenderError("");
+
+        try
+        {
+            if (!PgnUserCurrent.IsAuthenticated)
+                throw new Exception("user not authenticated");
+
+            OrdMan.DeleteById(recordId);
+        }
+        catch (Exception e)
+        {
+            LblErr.Text = RenderError(e.Message);
+        }
+    }
+
 
     private void deleteRow(int recordId)
     {
@@ -765,202 +544,132 @@ public partial class Controls_PigeonCms_Shop_OrdersAdmin : PigeonCms.ItemsAdminC
 
         try
         {
-            if (!PgnUserCurrent.IsAuthenticated)
-                throw new Exception("user not authenticated");
-
-            new ItemsManager<Item, ItemsFilter>(true, true).DeleteById(recordId);
-            removeFromCache();
+            OrdMan.Rows_DeleteById(recordId);
         }
         catch (Exception e)
         {
             LblErr.Text = RenderError(e.Message);
         }
-        Grid1.DataBind();
+        loadRows(this.CurrentId);
     }
 
-    private void loadDropEnabledFilter()
+    private void loadDropOrderDatesRangeFilter()
     {
-        DropEnabledFilter.Items.Clear();
-        DropEnabledFilter.Items.Add(new ListItem(Utility.GetLabel("LblSelectState", "Select state"), ""));
-        DropEnabledFilter.Items.Add(new ListItem("On-line", "1"));
-        DropEnabledFilter.Items.Add(new ListItem("Off-line", "0"));
+        DropOrderDatesRangeFilter.Items.Clear();
+        DropOrderDatesRangeFilter.Items.Add(new ListItem(base.GetLabel("DateToday", "Today"), "3"));
+        DropOrderDatesRangeFilter.Items.Add(new ListItem(base.GetLabel("DateAlways", "Always"), "2"));
+        DropOrderDatesRangeFilter.Items.Add(new ListItem(base.GetLabel("DateLastWeek", "Last week"), "4"));
+        DropOrderDatesRangeFilter.Items.Add(new ListItem(base.GetLabel("DateLastMonth", "Last month"), "5"));
+
+        Utility.SetDropByValue(DropOrderDatesRangeFilter, ((int)DatesRange.RangeType.LastMonth).ToString());
+
     }
 
-    private void loadDropSectionsFilter(int sectionId)
+    private void loadDropPaymentFilter(Utility.TristateBool forcedValue)
     {
-        DropSectionsFilter.Items.Clear();
+        DropPaymentFilter.Items.Clear();
+        DropPaymentFilter.Items.Add(new ListItem(base.GetLabel("NotSet", "Not set"), "2"));
+        DropPaymentFilter.Items.Add(new ListItem(base.GetLabel("Done", "Done"), "1"));
+        DropPaymentFilter.Items.Add(new ListItem(base.GetLabel("Pending", "Pending"), "0"));
 
-        var secFilter = new SectionsFilter();
-        secFilter.Id = sectionId;
-        var secList = new SectionsManager(true, false).GetByFilter(secFilter, "");
-
-        foreach (var sec in secList)
+        if (forcedValue != Utility.TristateBool.NotSet)
         {
-            DropSectionsFilter.Items.Add(new ListItem(sec.Title, sec.Id.ToString()));
-        }
-        if (base.LastSelectedSectionId > 0)
-            Utility.SetDropByValue(DropSectionsFilter, base.LastSelectedSectionId.ToString());
-    }
-
-    private void loadDropCategoriesFilter(int sectionId)
-    {
-        DropCategoriesFilter.Items.Clear();
-        DropCategoriesFilter.Items.Add(new ListItem(Utility.GetLabel("LblSelectCategory", "Select category"), "0"));
-
-        var catFilter = new CategoriesFilter();
-        var catList = new List<Category>();
-
-        catFilter = new CategoriesFilter();
-        catFilter.SectionId = sectionId;
-        if (catFilter.SectionId == 0) catFilter.Id = -1;
-        catList = new CategoriesManager(true, false).GetByFilter(catFilter, "");
-        foreach (var cat in catList)
-        {
-            DropCategoriesFilter.Items.Add(new ListItem(cat.Title, cat.Id.ToString()));
-        }
-        if (base.LastSelectedCategoryId > 0)
-            Utility.SetDropByValue(DropCategoriesFilter, base.LastSelectedCategoryId.ToString());
-    }
-
-    private void loadDropCategories(int sectionId)
-    {
-        DropCategories.Items.Clear();
-        //DropCategories.Items.Add(new ListItem("", "0"));  //mandatory category
-
-        var catFilter = new CategoriesFilter();
-        var catList = new List<Category>();
-
-        catFilter = new CategoriesFilter();
-        catFilter.SectionId = sectionId;
-        if (catFilter.SectionId == 0) catFilter.Id = -1;
-        catList = new CategoriesManager().GetByFilter(catFilter, "");
-        foreach (var cat in catList)
-        {
-            DropCategories.Items.Add(new ListItem(cat.Section.Title + " > " + cat.Title, cat.Id.ToString()));
+            DropPaymentFilter.Enabled = false;
+            Utility.SetDropByValue(DropPaymentFilter, ((int)forcedValue).ToString());
         }
     }
 
-    private void loadDropsItemTypes()
+    private void loadDropConfirmedFilter(Utility.TristateBool forcedValue)
     {
+        DropConfirmedFilter.Items.Clear();
+        DropConfirmedFilter.Items.Add(new ListItem(base.GetLabel("NotSet", "Not set"), "2"));
+        DropConfirmedFilter.Items.Add(new ListItem(base.GetLabel("Yes", "Yes"), "1"));
+        DropConfirmedFilter.Items.Add(new ListItem(base.GetLabel("No", "No"), "0"));
 
-        DropNew.Items.Clear();
-        DropNew.Items.Add(new ListItem(Utility.GetLabel("LblCreateNew", "Create new"), ""));
-
-        DropItemTypesFilter.Items.Clear();
-        DropItemTypesFilter.Items.Add(new ListItem(Utility.GetLabel("LblSelectItem", "Select item"), ""));
-
-        var filter = new ItemTypeFilter();
-        if (!string.IsNullOrEmpty(this.ItemType))
-            filter.FullName = this.ItemType;
-        List<ItemType> recordList = new ItemTypeManager().GetByFilter(filter, "FullName");
-        foreach (ItemType record1 in recordList)
+        if (forcedValue != Utility.TristateBool.NotSet)
         {
-            DropNew.Items.Add(
-                new ListItem(record1.FullName, record1.FullName));
-
-            DropItemTypesFilter.Items.Add(
-                new ListItem(record1.FullName, record1.FullName));
-        }
-
-        if (!string.IsNullOrEmpty(this.ItemType))
-        {
-            BtnNew.Visible = true;
-            DropNew.Visible = false;
-            DropItemTypesFilter.Visible = false;
-        }
-        else
-        {
-            BtnNew.Visible = false;
-            DropNew.Visible = true;
-            DropItemTypesFilter.Visible = true;
+            DropConfirmedFilter.Enabled = false;
+            Utility.SetDropByValue(DropConfirmedFilter, ((int)forcedValue).ToString());
         }
     }
 
-    private void setFlag(int recordId, bool value, string flagName)
+    private bool checkAddNewFilters()
     {
-        try
-        {
-            if (!PgnUserCurrent.IsAuthenticated)
-                throw new Exception("user not authenticated");
-
-            var o1 = new ItemsManager<Item, ItemsFilter>().GetByKey(recordId);
-            switch (flagName.ToLower())
-            {
-                case "enabled":
-                    o1.Enabled = value;
-                    break;
-                default:
-                    break;
-            }
-            new ItemsManager<Item, ItemsFilter>().Update(o1);
-            removeFromCache();
-        }
-        catch (Exception e1)
-        {
-            LblErr.Text = RenderError(Utility.GetLabel("RECORD_ERR_MSG") + "<br />" + e1.ToString());
-        }
-        finally { }
-    }
-
-    protected void moveRecord(int recordId, Database.MoveRecordDirection direction)
-    {
-        LblErr.Text = RenderError("");
-        LblOk.Text = RenderSuccess("");
-
-        try
-        {
-            if (!PgnUserCurrent.IsAuthenticated)
-                throw new Exception("user not authenticated");
-
-            new ItemsManager<Item, ItemsFilter>(true, true).MoveRecord(recordId, direction);
-            removeFromCache();
-            Grid1.DataBind();
-            MultiView1.ActiveViewIndex = VIEW_GRID;
-        }
-        catch (Exception e1)
-        {
-            LblErr.Text = RenderError(Utility.GetLabel("RECORD_ERR_MSG") + "<br />" + e1.ToString());
-        }
-        finally { }
-    }
-
-    Boolean checkAddNewFilters()
-    {
-        Boolean res = true;
-        if (DropSectionsFilter.SelectedValue == "0" || DropSectionsFilter.SelectedValue == "")
-        {
-            LblErr.Text = RenderError(base.GetLabel("ChooseSection", "Choose a section before"));
-            res = false;
-        }
-
-        if (DropCategoriesFilter.SelectedValue == "0" || DropCategoriesFilter.SelectedValue == "")
-        {
-            LblErr.Text = RenderError(base.GetLabel("ChooseCategory", "Choose a category before"));
-            res = false;
-        }
+        bool res = true;
         return res;
     }
 
-    /// <summary>
-    /// remove all items from cache
-    /// </summary>
-    protected static void removeFromCache()
+    private string getCssClass(bool value)
     {
-        new CacheManager<PigeonCms.Item>("PigeonCms.Item").Clear();
+        string res = "text-muted opacity-2";
+        if (value)
+            res = "text-primary";
+
+        return res;
     }
 
-    [PigeonCms.UserControlScriptMethod]
-    public static void RemoveFromCache()
+    private void loadRows(int orderId)
     {
-        removeFromCache();
+        RowsFilter.Reset();
+        RowsFilter.OrderId = orderId;
+
+
+        var list = OrdMan.Rows_GetByFilter(RowsFilter, "");
+        GridRows.DataSource = list;
+        GridRows.DataBind();
     }
 
-    [PigeonCms.UserControlScriptMethod]
-    public static void Refresh()
+    private void loadListOrders()
     {
-        //return ClientScript.GetPostBackEventReference(this, null);
-        //__doPostBack('__Page', 'MyCustomArgument')
+        OrdFilter.Reset();
+
+        //*** security check to avoid html hack ***
+
+        if (DropOrderDatesRangeFilter.SelectedValue != "")
+        {
+            var rangeType = (DatesRange.RangeType)int.Parse(DropOrderDatesRangeFilter.SelectedValue);
+            DatesRange datesRange = new DatesRange(rangeType);
+            OrdFilter.OrderDatesRange = datesRange;
+        }
+
+        if (this.OrderConfirmedFilter != Utility.TristateBool.NotSet)
+            OrdFilter.Confirmed = this.OrderConfirmedFilter;
+        else
+            OrdFilter.Confirmed = (Utility.TristateBool)int.Parse(DropConfirmedFilter.SelectedValue);
+
+        if (this.PaymentFilter != Utility.TristateBool.NotSet)
+            OrdFilter.Paid = this.PaymentFilter;
+        else
+            OrdFilter.Paid = (Utility.TristateBool)int.Parse(DropPaymentFilter.SelectedValue);
+
+        if (!string.IsNullOrEmpty(this.OwnerUser))
+            OrdFilter.OwnerUser = this.OwnerUser;
+        else
+            OrdFilter.OwnerUser = TxtOwnerUserFilter.Text;
+
+
+        var list = OrdMan.GetByFilter(OrdFilter, "");
+        Grid1.DataSource = list;
+        Grid1.DataBind();
+
+        int ordersCount = 0;
+        int ordersToShip = 0;
+        decimal ordersTotalAmount = 0;
+        decimal ordersTotalPaid = 0;
+        foreach (var item in list)
+        {
+            ordersCount++;
+            ordersTotalAmount += item.TotalAmount;
+            ordersTotalPaid += item.TotalPaid;
+            if (item.OrderDateShipped != DateTime.MinValue)
+                ordersToShip++;
+        }
+        LitBoardOrdersCount.Text = ordersCount.ToString();
+        LitBoardOrdersTotalAmount.Text = ordersTotalAmount.ToString("0.00");
+        LitBoardOrdersTotalPaid.Text = ordersTotalPaid.ToString("0.00");
+        LitBoardOrdersToShip.Text = ordersToShip.ToString();
     }
 
     #endregion
+
 }

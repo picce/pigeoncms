@@ -79,6 +79,7 @@
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="BLL\AppSetting.cs" />
+    <Compile Include="BLL\DbVersion.cs" />
     <Compile Include="BLL\Attribute.cs" />
     <Compile Include="BLL\AttributeSet.cs" />
     <Compile Include="BLL\AttributeValue.cs" />
@@ -112,6 +113,7 @@
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="DAL\AttributeSetsManager.cs" />
+    <Compile Include="DAL\DbVersionsManager.cs" />
     <Compile Include="DAL\AttributesManager.cs" />
     <Compile Include="DAL\AttributeValuesManager.cs" />
     <Compile Include="DAL\CategoriesManager.cs" />
@@ -207,6 +209,7 @@
     </Compile>
     <Compile Include="PageRouteHandler.cs" />
     <Compile Include="PagesUrlRewrite.cs" />
+    <Compile Include="Providers\DatabaseUpdateProvider.cs" />
     <Compile Include="Providers\ContentEditorProvider.cs" />
     <Compile Include="Providers\AppSettingsProvider.cs" />
     <Compile Include="Providers\MessageProvider.cs" />

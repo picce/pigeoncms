@@ -201,6 +201,7 @@ public partial class Controls_CategoriesAdmin : PigeonCms.Modules.CategoriesAdmi
             t2.Text = "";
         }
         TxtCssClass.Text = "";
+        TxtExtId.Text = "";
         ChkEnabled.Checked = true;
         LitSection.Text = "";
         PermissionsControl1.ClearForm();
@@ -214,6 +215,7 @@ public partial class Controls_CategoriesAdmin : PigeonCms.Modules.CategoriesAdmi
         obj.DescriptionTranslations.Clear();
         obj.SectionId = int.Parse(DropSectionsFilter.SelectedValue);
         obj.CssClass = TxtCssClass.Text;
+        obj.ExtId = TxtExtId.Text;
 
         int parentId = 0;
         foreach (ListItem item in ListParentId.Items)
@@ -257,6 +259,7 @@ public partial class Controls_CategoriesAdmin : PigeonCms.Modules.CategoriesAdmi
             t2.Text = sDescriptionTraslation;
         }
         TxtCssClass.Text = obj.CssClass;
+        TxtExtId.Text = obj.ExtId;
         ChkEnabled.Checked = obj.Enabled;
         LitSection.Text = obj.Section.Title;
         loadListParentId();

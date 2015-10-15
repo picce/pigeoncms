@@ -269,13 +269,13 @@ function pageLoad(sender, args) {
 
             <div class="panel panel-default">
                 
-                <div class="panel-heading">
+                <div class="panel-heading clearfix">
                     <%=base.GetLabel("LblDetails", "Details") %>
                     <div class="pull-right">
                         <div class="btn-group">
-                            <asp:Button ID="BtnSave" CssClass="btn btn-primary btn-xs" runat="server" Text="<%$ Resources:PublicLabels, CmdSave %>" OnClick="BtnSave_Click" />
-                            <asp:Button ID="BtnApply" CssClass="btn btn-default btn-xs" runat="server" Text="<%$ Resources:PublicLabels, CmdApply %>" OnClick="BtnApply_Click" />
-                            <asp:Button ID="BtnCancel" CssClass="btn btn-default btn-xs" CausesValidation="false" runat="server" Text="<%$ Resources:PublicLabels, CmdCancel %>" OnClick="BtnCancel_Click" />
+                            <asp:Button ID="BtnSave" CssClass="btn btn-primary" runat="server" Text="<%$ Resources:PublicLabels, CmdSave %>" OnClick="BtnSave_Click" />
+                            <asp:Button ID="BtnApply" CssClass="btn btn-default" runat="server" Text="<%$ Resources:PublicLabels, CmdApply %>" OnClick="BtnApply_Click" />
+                            <asp:Button ID="BtnCancel" CssClass="btn btn-default" CausesValidation="false" runat="server" Text="<%$ Resources:PublicLabels, CmdCancel %>" OnClick="BtnCancel_Click" />
                         </div>
                     </div>
                 </div>
@@ -289,10 +289,10 @@ function pageLoad(sender, args) {
                         <li><a href="#tab-parameters" data-toggle="tab"><%=base.GetLabel("Parameters", "Parameters") %></a></li>
                     </ul>
 
-                    <div class="tab-content">
+                    <div class="tab-content row">
 
                         <div class="tab-pane fade in active" id="tab-main">
-                            <%--<h4>Subtitle</h4>--%>
+                            <h4></h4>
                             
                             <div class="form-group col-sm-6">
                                 <%=base.GetLabel("LblMenuType", "Menu type", LitMenuType, true)%>
@@ -387,6 +387,7 @@ function pageLoad(sender, args) {
                         </div>
 
                         <div class="tab-pane fade" id="tab-options">
+                            <h4></h4>
                         
                             <div class="form-group col-sm-12">
                                 <asp:CheckBox ID="ChkVisible" runat="server" Enabled="true" />
@@ -426,10 +427,13 @@ function pageLoad(sender, args) {
                         </div>   
                         
                         <div class="tab-pane fade" id="tab-security">
-                            <uc1:PermissionsControl ID="PermissionsControl1" runat="server" />
+                            <div class="form-group col-lg-12">
+                                <uc1:PermissionsControl ID="PermissionsControl1" runat="server" />
+                            </div>
                         </div>
 
                         <div class="tab-pane fade" id="tab-parameters">
+                            <h4></h4>
                             <uc1:ModuleParams ID="ModuleParams1" runat="server" />
                         </div>                                         
                     

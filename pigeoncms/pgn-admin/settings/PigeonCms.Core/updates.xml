@@ -1,3 +1,9 @@
+Ôªø<?xml version="1.0" encoding="utf-8" ?>
+<updates>
+
+  <item id="0" date="2009-03-30" dev="https://github.com/picce/" notes="initial deploy, not parsed">
+  <![CDATA[
+
 
 --20090330
 ALTER TABLE #__menu ADD
@@ -171,7 +177,7 @@ CREATE TABLE [#__cultures](
 
 INSERT INTO #__cultures (cultureCode,displayName,enabled, ordering)  VALUES( 'it-IT','Italiano',1, 0)
 INSERT INTO #__cultures (cultureCode,displayName,enabled, ordering)  VALUES( 'en-US','English',1, 1)
-INSERT INTO #__cultures (cultureCode,displayName,enabled, ordering)  VALUES( 'es-ES','EspaÒol',0, 2)
+INSERT INTO #__cultures (cultureCode,displayName,enabled, ordering)  VALUES( 'es-ES','Espa√±ol',0, 2)
 INSERT INTO #__cultures (cultureCode,displayName,enabled, ordering)  VALUES( 'de-DE','Deutsch',0, 3)
 INSERT INTO #__cultures (cultureCode,displayName,enabled, ordering)  VALUES( 'sl-SI','Slovenski',0, 4)
 
@@ -852,7 +858,7 @@ begin
 	insert into #__staticPages_Culture(cultureName,pageName,pageTitle,pageContent)
 	values('en-US','error','Ops. An error occurred.','The resource you requested caused an error.<br />  Try to navigate to <a href="/pages/default.aspx">homepage</a>.')
 	insert into #__staticPages_Culture(cultureName,pageName,pageTitle,pageContent)
-	values('it-IT','error','Ops. Si Ë verificato un errore.','La risorsa richiesta ha generato un errore.<br />  Prova ad andare alla <a href="&quot;/pages/default.aspx&quot;">homepage</a>.')
+	values('it-IT','error','Ops. Si √® verificato un errore.','La risorsa richiesta ha generato un errore.<br />  Prova ad andare alla <a href="&quot;/pages/default.aspx&quot;">homepage</a>.')
 
 	INSERT INTO #__modules (id,title,content,ordering,templateBlockName,published,
 	moduleName,moduleNamespace,dateInserted,userInserted,dateUpdated,userUpdated,accessType,
@@ -1372,7 +1378,7 @@ GO
 --tickets labels
 insert into #__labels(cultureName, resourceSet, resourceId, value) values('it-IT', 'PigeonCms.ItemsAdmin', 'NewTicket', 'Nuovo ticket')
 go
-insert into #__labels(cultureName, resourceSet, resourceId, value) values('it-IT', 'PigeonCms.ItemsAdmin', 'PriorityFilter','--priorit‡--')
+insert into #__labels(cultureName, resourceSet, resourceId, value) values('it-IT', 'PigeonCms.ItemsAdmin', 'PriorityFilter','--priorit√†--')
 go
 insert into #__labels(cultureName, resourceSet, resourceId, value) values('it-IT', 'PigeonCms.ItemsAdmin', 'Close', 'chiudi')
 go
@@ -1426,13 +1432,13 @@ insert into #__labels(cultureName, resourceSet, resourceId, value) values('it-IT
 go
 insert into #__labels(cultureName, resourceSet, resourceId, value) values('it-IT', 'PigeonCms.ItemsAdmin', '<subject>', '<oggetto>')
 go
-insert into #__labels(cultureName, resourceSet, resourceId, value) values('it-IT', 'PigeonCms.ItemsAdmin', 'Priority', 'Priorit‡')
+insert into #__labels(cultureName, resourceSet, resourceId, value) values('it-IT', 'PigeonCms.ItemsAdmin', 'Priority', 'Priorit√†')
 go
 insert into #__labels(cultureName, resourceSet, resourceId, value) values('it-IT', 'PigeonCms.ItemsAdmin', 'Operator', 'Operatore')
 go
 insert into #__labels(cultureName, resourceSet, resourceId, value) values('it-IT', 'PigeonCms.ItemsAdmin', 'DateInserted', 'Inserito il')
 go
-insert into #__labels(cultureName, resourceSet, resourceId, value) values('it-IT', 'PigeonCms.ItemsAdmin', 'LastActivity', 'Ultima attivit‡')
+insert into #__labels(cultureName, resourceSet, resourceId, value) values('it-IT', 'PigeonCms.ItemsAdmin', 'LastActivity', 'Ultima attivit√†')
 go
 insert into #__labels(cultureName, resourceSet, resourceId, value) values('it-IT', 'PigeonCms.ItemsAdmin', 'Text', 'Testo')
 go
@@ -1849,7 +1855,7 @@ INSERT INTO #__geoCountries(code, name, custom1, continent, iso3) VALUES
 ('AT', 'Austria', '040', 'EU', 'AUT'),
 ('AU', 'Australia', '036', 'OC', 'AUS'),
 ('AW', 'Aruba', '533', 'NA', 'ABW'),
-('AX', '≈land', '248', 'EU', 'ALA'),
+('AX', '√Öland', '248', 'EU', 'ALA'),
 ('AZ', 'Azerbaijan', '031', 'AS', 'AZE'),
 ('BA', 'Bosnia and Herzegovina', '070', 'EU', 'BIH'),
 ('BB', 'Barbados', '052', 'NA', 'BRB'),
@@ -1860,7 +1866,7 @@ INSERT INTO #__geoCountries(code, name, custom1, continent, iso3) VALUES
 ('BH', 'Bahrain', '048', 'AS', 'BHR'),
 ('BI', 'Burundi', '108', 'AF', 'BDI'),
 ('BJ', 'Benin', '204', 'AF', 'BEN'),
-('BL', 'Saint BarthÈlemy', '652', 'NA', 'BLM'),
+('BL', 'Saint Barth√©lemy', '652', 'NA', 'BLM'),
 ('BM', 'Bermuda', '060', 'NA', 'BMU'),
 ('BN', 'Brunei', '096', 'AS', 'BRN'),
 ('BO', 'Bolivia', '068', 'SA', 'BOL'),
@@ -2022,7 +2028,7 @@ INSERT INTO #__geoCountries(code, name, custom1, continent, iso3) VALUES
 ('PW', 'Palau', '585', 'OC', 'PLW'),
 ('PY', 'Paraguay', '600', 'SA', 'PRY'),
 ('QA', 'Qatar', '634', 'AS', 'QAT'),
-('RE', 'RÈunion', '638', 'AF', 'REU'),
+('RE', 'R√©union', '638', 'AF', 'REU'),
 ('RO', 'Romania', '642', 'EU', 'ROU'),
 ('RS', 'Serbia', '688', 'EU', 'SRB'),
 ('RU', 'Russia', '643', 'EU', 'RUS'),
@@ -2043,7 +2049,7 @@ INSERT INTO #__geoCountries(code, name, custom1, continent, iso3) VALUES
 ('SO', 'Somalia', '706', 'AF', 'SOM'),
 ('SR', 'Suriname', '740', 'SA', 'SUR'),
 ('SS', 'South Sudan', '728', 'AF', 'SSD'),
-('ST', 'S„o TomÈ and PrÌncipe', '678', 'AF', 'STP'),
+('ST', 'S√£o Tom√© and Pr√≠ncipe', '678', 'AF', 'STP'),
 ('SV', 'El Salvador', '222', 'NA', 'SLV'),
 ('SX', 'Sint Maarten', '534', 'NA', 'SXM'),
 ('SY', 'Syria', '760', 'AS', 'SYR'),
@@ -2153,7 +2159,7 @@ insert into #__geoZones
 ('IT', 'Cuneo', 'CN', '004', '01'),
 ('IT', 'Asti', 'AT', '005', '01'),
 ('IT', 'Alessandria', 'AL', '006', '01'),
-('IT', 'Valle d''Aosta/VallÈe d''Aoste', 'AO', '007', '02'),
+('IT', 'Valle d''Aosta/Vall√©e d''Aoste', 'AO', '007', '02'),
 ('IT', 'Imperia', 'IM', '008', '07'),
 ('IT', 'Savona', 'SV', '009', '07'),
 ('IT', 'Genova', 'GE', '010', '07'),
@@ -2186,7 +2192,7 @@ insert into #__geoZones
 ('IT', 'Bologna', 'BO', '037', '08'),
 ('IT', 'Ferrara', 'FE', '038', '08'),
 ('IT', 'Ravenna', 'RA', '039', '08'),
-('IT', 'ForlÏ-Cesena', 'FC', '040', '08'),
+('IT', 'Forl√¨-Cesena', 'FC', '040', '08'),
 ('IT', 'Pesaro e Urbino', 'PU', '041', '11'),
 ('IT', 'Ancona', 'AN', '042', '11'),
 ('IT', 'Macerata', 'MC', '043', '11'),
@@ -2637,7 +2643,7 @@ ALTER TABLE #__attributesValues ADD
 	extId varchar(50) NULL
 GO
 
---20151006
+--20151007
 --manage db updates
 DROP TABLE #__dbVersion
 GO
@@ -2657,7 +2663,12 @@ CREATE TABLE [#__dbVersion](
 ) ON [PRIMARY]
 GO
 
---20151007
+  ]]>
+  </item>
+
+  <item id="1" date="2015-10-07" dev="https://github.com/picce/" 
+        notes="items related, relations and tags">
+<![CDATA[
 DROP TABLE [dbo].[#__itemsRelated]
 GO
 
@@ -2763,3 +2774,61 @@ GO
 insert into #__dbVersion(componentFullName, versionId, versionDate, versionDev, versionNotes, dateUpdated, userUpdated)
 values('PigeonCms.Core', 1, GETDATE(), '', '', GETDATE(), 'MANUAL')
 GO
+
+]]>
+
+  </item>
+
+  <item id="2" date="2015-10-11" dev="https://github.com/picce/"
+      notes="new table for user temp data with 20 cols available and nvarchar(max) datatype">
+    <![CDATA[
+DROP TABLE [dbo].[#__userTempData]
+GO
+
+CREATE TABLE [dbo].[#__userTempData]
+	(
+	id int NOT NULL,
+	username varchar(50) NOT NULL,
+	sessionId varchar(255) NOT NULL,
+	dateInserted datetime NOT NULL,
+	dateExpiration datetime NOT NULL,
+	enabled bit NULL,
+	col01 nvarchar(MAX) NULL,
+	col02 nvarchar(MAX) NULL,
+	col03 nvarchar(MAX) NULL,
+	col04 nvarchar(MAX) NULL,
+	col05 nvarchar(MAX) NULL,
+	col06 nvarchar(MAX) NULL,
+	col07 nvarchar(MAX) NULL,
+	col08 nvarchar(MAX) NULL,
+	col09 nvarchar(MAX) NULL,
+	col10 nvarchar(MAX) NULL,
+	col11 nvarchar(MAX) NULL,
+	col12 nvarchar(MAX) NULL,
+	col13 nvarchar(MAX) NULL,
+	col14 nvarchar(MAX) NULL,
+	col15 nvarchar(MAX) NULL,
+	col16 nvarchar(MAX) NULL,
+	col17 nvarchar(MAX) NULL,
+	col18 nvarchar(MAX) NULL,
+	col19 nvarchar(MAX) NULL,
+	col20 nvarchar(MAX) NULL
+	)  ON [PRIMARY]
+	 TEXTIMAGE_ON [PRIMARY]
+GO
+ALTER TABLE #__userTempData ADD CONSTRAINT
+	PK_#__userTempData PRIMARY KEY CLUSTERED 
+	(
+	id
+	) WITH( STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+
+--new version fallback for manual db upgrade
+INSERT INTO #__dbVersion(componentFullName, versionId, versionDate, versionDev, versionNotes, dateUpdated, userUpdated)
+VALUES('PigeonCms.Core', 2/*version*/, GETDATE(), '', '', GETDATE(), 'MANUAL')
+GO
+
+]]>
+
+  </item>
+</updates>

@@ -17,28 +17,7 @@ function preloadAlias(sourceControlName, targetControl) {
 }
 
 function pageLoad(sender, args) {
-    $(document).ready(function () {
-        $("a.fancyRefresh").fancybox({
-            'width': '80%',
-            'height': '80%',
-            'type': 'iframe',
-            'hideOnContentClick': false,
-            onClosed: function () {
-                RemoveFromCache(onSuccess, onFailure);
-                ReloadUpd1();
-            }
-        });
 
-        $('td.key').each(function () {
-            var hide = true;
-            var html = $(this).html();
-            if ($.trim(html) != '')
-                hide = false;
-            if (hide)
-                $(this).parent('tr').hide();
-        });
-
-    });
 }
 
 var upd1 = '<%=Upd1.ClientID%>';
@@ -62,7 +41,6 @@ function onFailure(result) { }
 </script>
 
 <cc1:ToolkitScriptManager ID="ScriptManager1" runat="server" EnablePageMethods="true"></cc1:ToolkitScriptManager>
-<%--<asp:ScriptManager ID="ScriptManager1" runat="server" EnablePageMethods="true"></asp:ScriptManager>--%>
 <asp:UpdateProgress ID="UpdateProgress1" runat="server" DisplayAfter="1" AssociatedUpdatePanelID="Upd1">
     <ProgressTemplate>
         <div class="loading"><%=PigeonCms.Utility.GetLabel("LblLoading", "loading") %></div>
@@ -79,340 +57,481 @@ function onFailure(result) { }
         </div>
     </div>
 
-    <div class="row">
-            <div class="col-lg-10">
 
-                <asp:MultiView ID="MultiView1" runat="server" ActiveViewIndex="0" OnActiveViewChanged="MultiView1_ActiveViewChanged">
+    <asp:MultiView ID="MultiView1" runat="server" ActiveViewIndex="0" OnActiveViewChanged="MultiView1_ActiveViewChanged">
 
-                    <asp:View ID="ViewSee" runat="server">
+        <asp:View ID="ViewSee" runat="server">
+        <div class="row">
 
-                        <div class="col-lg-12">
-                            <div class="panel panel-default">
-                                <div class="panel-body"> 
-                                    <div class="pull-right">
-                                        <div class="btn-group adminToolbar">
-                                            <asp:DropDownList runat="server" ID="DropNew"  AutoPostBack="true" CssClass="form-control" 
-                                                OnSelectedIndexChanged="DropNew_SelectedIndexChanged"></asp:DropDownList>
-                                            <asp:Button ID="BtnNew" runat="server" Text="<%$ Resources:PublicLabels, CmdNew %>" 
-                                                Visible="false" CssClass="btn btn-primary btn-xs" OnClick="BtnNew_Click" />
-                                        </div>
-                                    </div> 
-                                </div>
+            <div class="col-lg-12">
+                <div class="panel panel-default">
+                    <div class="panel-body"> 
+                        <div class="pull-right">
+                            <div class="btn-group adminToolbar">
+                                <asp:Button ID="BtnNew" runat="server" Text="<%$ Resources:PublicLabels, CmdNew %>" 
+                                    CssClass="btn btn-primary" OnClick="BtnNew_Click" />
                             </div>
-                        </div>
-
-                        <div class="col-lg-12">
-                            <div class="panel panel-default adminFilters">
-                                <div class="panel-heading">
-                                    <h4 class="panel-title">
-                                        <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
-                                        <%=PigeonCms.Utility.GetLabel("LblFilters")%>
-                                        </a>
-                                    </h4>
-
-                                </div>
-                                <div id="collapseOne" class="panel-collapse collapse in">
-                                    <div class="panel-body">
-                                        <div class="form-group col-lg-3 col-md-6">
-                                            <asp:DropDownList ID="DropEnabledFilter" runat="server" AutoPostBack="true" CssClass="form-control" 
-                                            OnSelectedIndexChanged="DropEnabledFilter_SelectedIndexChanged"></asp:DropDownList>
-                                        </div>
-                                        <div class="form-group col-lg-3 col-md-6">
-                                            <asp:DropDownList ID="DropSectionsFilter" runat="server" AutoPostBack="true" CssClass="form-control" 
-                                            OnSelectedIndexChanged="DropSectionsFilter_SelectedIndexChanged"></asp:DropDownList>
-                                        </div>
-                                        <div class="form-group col-lg-3 col-md-6">
-                                            <asp:DropDownList ID="DropCategoriesFilter" runat="server" AutoPostBack="true" CssClass="form-control" 
-                                            OnSelectedIndexChanged="DropCategoriesFilter_SelectedIndexChanged"></asp:DropDownList>
-                                        </div>
-                                        <div class="form-group col-lg-3 col-md-6">
-                                            <asp:DropDownList ID="DropItemTypesFilter" runat="server" AutoPostBack="true" CssClass="form-control" 
-                                            OnSelectedIndexChanged="DropItemTypesFilter_SelectedIndexChanged"></asp:DropDownList>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-
-                        <div class="col-lg-12">
-
-                            <div class="panel panel-default">
-                                <div class="table-responsive">
-
-                                <asp:GridView ID="Grid1" runat="server" AllowPaging="True" AllowSorting="true" Width="100%" AutoGenerateColumns="False"
-                                    DataSourceID="ObjDs1" DataKeyNames="Id" OnRowCommand="Grid1_RowCommand" OnRowCreated="Grid1_RowCreated" OnRowDataBound="Grid1_RowDataBound">
-                                    <Columns>
-                                        <asp:TemplateField ItemStyle-Width="10" Visible="false">
-                                            <ItemTemplate>
-                                            <asp:ImageButton ID="ImgSel" CommandName="Select" CommandArgument='<%#Eval("Id") %>' 
-                                            runat="server" SkinID="ImgEditFile" />
-                                            </ItemTemplate>
-                                        </asp:TemplateField>
-
-                                        <asp:TemplateField HeaderText="<%$ Resources:PublicLabels, LblTitle %>" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
-                                            <ItemTemplate>
-                                                <asp:LinkButton ID="LnkTitle" runat="server" CausesValidation="false" CommandName="Select" CommandArgument='<%#Eval("Id") %>'></asp:LinkButton>
-                                            </ItemTemplate>
-                                        </asp:TemplateField>
-
-                                        <asp:BoundField DataField="Alias" HeaderText="Alias" SortExpression="Alias" />
-                                        <asp:BoundField DataField="CssClass" HeaderText="Css" SortExpression="CssClass" />
-
-                                        <asp:TemplateField HeaderText="<%$ Resources:PublicLabels, LblSection %>" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
-                                            <ItemTemplate>
-                                                <asp:Literal ID="LitSectionTitle" runat="server" />
-                                            </ItemTemplate>
-                                        </asp:TemplateField>
-
-                                        <asp:TemplateField HeaderText="<%$ Resources:PublicLabels, LblCategory %>" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
-                                            <ItemTemplate>
-                                                <asp:Literal ID="LitCategoryTitle" runat="server" />
-                                            </ItemTemplate>
-                                        </asp:TemplateField>
-
-                                        <asp:BoundField DataField="ItemTypeName" HeaderText="<%$ Resources:PublicLabels, LblType %>" />
-
-                                        <asp:BoundField DataField="Ordering"  SortExpression="Ordering" ItemStyle-HorizontalAlign="Right" />
-                                        <asp:TemplateField HeaderText="<%$ Resources:PublicLabels, LblOrder %>" ItemStyle-HorizontalAlign="Right" SortExpression="Ordering">
-                                            <ItemTemplate>
-                                                <asp:LinkButton ID="ImgMoveUp" runat="server" CommandName="MoveUp" CommandArgument='<%#Eval("Id") %>'>
-                                                    <i class='fa fa-pgn_up fa-fw'></i>                            
-                                                </asp:LinkButton>
-                                                <asp:LinkButton ID="ImgMoveDown" runat="server" CommandName="MoveDown" CommandArgument='<%#Eval("Id") %>'>
-                                                    <i class='fa fa-pgn_down fa-fw'></i>                            
-                                                </asp:LinkButton>
-                                            </ItemTemplate>
-                                        </asp:TemplateField>
-
-                                        <asp:TemplateField HeaderText="<%$ Resources:PublicLabels, LblEnabled %>" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center">
-                                            <ItemTemplate>
-                                                <asp:LinkButton ID="ImgEnabledOk" runat="server" CommandName="ImgEnabledOk" Visible="false" CommandArgument='<%#Eval("Id") %>'>
-                                                    <i class='fa fa-pgn_checked fa-fw'></i>
-                                                </asp:LinkButton>
-                                                <asp:LinkButton ID="ImgEnabledKo" runat="server" CommandName="ImgEnabledKo" Visible="false" CommandArgument='<%#Eval("Id") %>'>
-                                                    <i class='fa fa-pgn_unchecked fa-fw'></i>                            
-                                                </asp:LinkButton>
-                                            </ItemTemplate>
-                                        </asp:TemplateField>
-                    
-                                        <asp:TemplateField HeaderText="Access" SortExpression="AccessType">
-                                            <ItemTemplate>
-                                            <asp:Literal ID="LitAccessTypeDesc" runat="server" Text=""></asp:Literal>
-                                            </ItemTemplate>
-                                        </asp:TemplateField>
-                    
-                                        <asp:TemplateField HeaderText="Access Level" SortExpression="AccessCode, AccessLevel" Visible="false">
-                                            <ItemTemplate>
-                                            <asp:Literal ID="LitAccessLevel" runat="server" Text=""></asp:Literal>
-                                            </ItemTemplate>
-                                        </asp:TemplateField>
-
-                                        <asp:TemplateField HeaderText="<%$ Resources:PublicLabels, LblFiles %>" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center">
-                                            <ItemTemplate>
-                                                <asp:HyperLink ID="LnkUploadFiles" runat="server">
-                                                    <i class='fa fa-pgn_attach fa-fw'></i>
-                                                </asp:HyperLink>
-                                                <br />
-                                                <span><asp:Literal ID="LitFilesCount" runat="server" Text=""></asp:Literal></span>
-                                            </ItemTemplate>
-                                        </asp:TemplateField>
-                    
-                                        <asp:TemplateField HeaderText="Img">
-                                            <ItemTemplate>
-                                                <asp:HyperLink ID="LnkUploadImg" runat="server">
-                                                    <i class='fa fa-pgn_image fa-fw'></i>
-                                                </asp:HyperLink>
-                                                <br />
-                                                <span><asp:Literal ID="LitImgCount" runat="server" Text=""></asp:Literal></span>
-                                            </ItemTemplate>
-                                        </asp:TemplateField>
-                    
-                                        <asp:TemplateField HeaderText="" ItemStyle-HorizontalAlign="Center" ItemStyle-Width="10">
-                                            <ItemTemplate>
-                                                <asp:LinkButton ID="LnkDel" runat="server" CommandName="DeleteRow" 
-                                                    CommandArgument='<%#Eval("Id") %>' OnClientClick="return confirm(deleteQuestion);">
-                                                    <i class='fa fa-pgn_delete fa-fw'></i>
-                                                </asp:LinkButton>
-                                            </ItemTemplate>
-                                        </asp:TemplateField>
-                    
-                                        <asp:BoundField DataField="Id" HeaderText="ID" SortExpression="Id" ItemStyle-HorizontalAlign="Right" HeaderStyle-HorizontalAlign="Right" />
-                                    </Columns>
-                                </asp:GridView>
-                                </div>
-                            </div>
-                        </div>
-            
-                        <asp:ObjectDataSource ID="ObjDs1" runat="server" 
-                            SortParameterName="sort" SelectMethod="GetByFilter" 
-                            TypeName="PigeonCms.ItemsManager`2[[PigeonCms.Item],[PigeonCms.ItemsFilter]]" 
-                            OnObjectCreating="ObjDs1_ObjectCreating"
-                            OnSelecting="ObjDs1_Selecting">
-                            <SelectParameters>
-                                <asp:Parameter Name="filter" Type="Object" />
-                                <asp:Parameter Name="sort" Type="String" DefaultValue="" />
-                            </SelectParameters>
-                            <DeleteParameters>
-                                <asp:Parameter Name="Id" Type="Int32" />
-                            </DeleteParameters>
-                        </asp:ObjectDataSource>
-                    </asp:View>
-   
-
-                    <asp:View ID="ViewInsert" runat="server">
-
-                        <div class="panel panel-default">
-
-                            <div class="panel-heading">
-                                <%=base.GetLabel("LblDetails", "Details") %>
-                                <div class="pull-right">
-                                    <div class="btn-group">
-                                        <asp:Button ID="BtnSave" runat="server" Text="<%$ Resources:PublicLabels, CmdSave %>" CssClass="btn btn-primary btn-xs" OnClick="BtnSave_Click" />
-                                        <asp:Button ID="BtnCancel" runat="server" Text="<%$ Resources:PublicLabels, CmdCancel %>" CssClass="btn btn-default btn-xs" CausesValidation="false" OnClick="BtnCancel_Click" />
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="panel-body">
-
-                                <ul class="nav nav-pills">
-                                    <li class="active"><a href="#tab-header" data-toggle="tab"><%=base.GetLabel("Header", "Rows") %></a></li>
-                                    <li><a href="#tab-rows" data-toggle="tab"><%=base.GetLabel("Rows", "Rows") %></a></li>
-                                </ul>
-
-                                <div class="tab-content">
-                        
-                                    <div class="tab-pane fade in active" id="tab-header">
-
-                                        <div class="form-group col-md-4">
-                                            <%=base.GetLabel("OrderRef", "Order ref.", TxtOrderRef, true)%>
-                                            <asp:TextBox ID="TxtOrderRef" runat="server"  CssClass="form-control"></asp:TextBox>
-                                        </div>
-
-                                        <div class="form-group col-md-4">
-                                            <%=base.GetLabel("OrderDate", "Date", TxtOrderDate, true)%>
-                                            <asp:TextBox ID="TxtOrderDate" runat="server" CssClass='form-control'></asp:TextBox>        
-                                            <cc1:CalendarExtender ID="CalOrderDate" runat="server" TargetControlID="TxtOrderDate" Format="dd/MM/yyyy"></cc1:CalendarExtender>
-                                        </div>
-
-                                        <div class="form-group col-md-4">
-                                            <%=base.GetLabel("OrderDateRequested", "Date requested", TxtOrderDateRequested, true)%>
-                                            <asp:TextBox ID="TxtOrderDateRequested" runat="server" CssClass='form-control'></asp:TextBox>        
-                                            <cc1:CalendarExtender ID="CalOrderDateRequested" runat="server" TargetControlID="TxtOrderDateRequested" Format="dd/MM/yyyy"></cc1:CalendarExtender>
-                                        </div>
-
-                                        <%---sped---%>
-                                        <div class="form-group lg-4">
-                                            <%=base.GetLabel("PaymentCode", "Payment code", DropPaymentCode, true)%>
-                                            <asp:DropDownList runat="server" ID="DropPaymentCode"></asp:DropDownList>
-                                        </div>
-                                        <div class="form-group lg-4">
-                                            <%=base.GetLabel("Paid", "Paid", ChkPaid, true)%>
-                                            <asp:CheckBox runat="server" ID="ChkPaid"></asp:CheckBox>
-                                        </div>
-                                        <div class="form-group col-lg-4">
-                                            <%=base.GetLabel("CouponCode", "Coupon", TxtCouponCode, true)%>
-                                            <asp:TextBox ID="TxtCouponCode" runat="server" MaxLength="50"  CssClass="form-control"></asp:TextBox>
-                                        </div>
-
-                                        <%--pag--%>
-                                        <div class="form-group col-lg-6">
-                                            <%=base.GetLabel("OrderDateShipped", "Shipping date", TxtOrderDateShipped, true)%>
-                                            <asp:TextBox ID="TxtOrderDateShipped" runat="server" CssClass='form-control'></asp:TextBox>        
-                                            <cc1:CalendarExtender ID="CalOrderDateShipped" runat="server" TargetControlID="TxtOrderDateShipped" Format="dd/MM/yyyy"></cc1:CalendarExtender>
-                                        </div>
-                                        <div class="form-group col-lg-6">
-                                            <%=base.GetLabel("OrderShipped", "Shipped", ChkOrderShipped, true)%>
-                                            <asp:CheckBox ID="ChkOrderShipped" runat="server" CssClass='form-control'></asp:CheckBox>
-                                        </div>
-
-                                        <%---customer---%>
-                                        <div class="form-group col-md-6">
-                                            <%=base.GetLabel("OrdName", "Name", TxtOrdName, true)%>
-                                            <asp:TextBox ID="TxtOrdName" runat="server" MaxLength="255"  CssClass="form-control"></asp:TextBox>
-                                        </div>
-                                        <div class="form-group col-md-6">
-                                            <%=base.GetLabel("OrdAddress", "Address", TxtOrdAddress, true)%>
-                                            <asp:TextBox ID="TxtOrdAddress" runat="server" MaxLength="255"  CssClass="form-control"></asp:TextBox>
-                                        </div>
-
-                                        <div class="form-group col-md-6 lg-3">
-                                            <%=base.GetLabel("OrdZipCode", "Zip", TxtOrdZipCode, true)%>
-                                            <asp:TextBox ID="TxtOrdZipCode" runat="server" MaxLength="255"  CssClass="form-control"></asp:TextBox>
-                                        </div>
-                                        <div class="form-group col-md-6 lg-3">
-                                            <%=base.GetLabel("OrdZipCode", "Zip", TxtOrdZipCode, true)%>
-                                            <asp:TextBox ID="TextBox1" runat="server" MaxLength="255"  CssClass="form-control"></asp:TextBox>
-                                        </div>
-                                        <div class="form-group col-md-6 lg-3">
-                                            <%=base.GetLabel("OrdCity", "City", TxtOrdCity, true)%>
-                                            <asp:TextBox ID="TxtOrdCity" runat="server" MaxLength="255"  CssClass="form-control"></asp:TextBox>
-                                        </div>
-                                        <div class="form-group col-md-6 lg-3">
-                                            <%=base.GetLabel("OrdState", "State", TxtOrdState, true)%>
-                                            <asp:TextBox ID="TxtOrdState" runat="server" MaxLength="255"  CssClass="form-control"></asp:TextBox>
-                                        </div>
-                                        <div class="form-group col-md-6 lg-3">
-                                            <%=base.GetLabel("OrdNation", "Nation", TxtOrdNation, true)%>
-                                            <asp:TextBox ID="TxtOrdNation" runat="server" MaxLength="255"  CssClass="form-control"></asp:TextBox>
-                                        </div>
-
-                                        <div class="form-group col-md-6">
-                                            <%=base.GetLabel("OrdPhone", "Phone", TxtOrdPhone, true)%>
-                                            <asp:TextBox ID="TxtOrdPhone" runat="server" MaxLength="255"  CssClass="form-control"></asp:TextBox>
-                                        </div>
-                                        <div class="form-group col-md-6">
-                                            <%=base.GetLabel("OrdEmail", "E-mail", TxtOrdEmail, true)%>
-                                            <asp:TextBox ID="TxtOrdEmail" runat="server" MaxLength="255"  CssClass="form-control"></asp:TextBox>
-                                        </div>
-
-                                        <%---notes---%>
-                                        <div class="form-group col-lg-12">
-                                            <%=base.GetLabel("Notes", "Notes", TxtNotes, true)%>
-                                            <asp:TextBox ID="TxtNotes" runat="server" TextMode="MultiLine"  CssClass="form-control"></asp:TextBox>
-                                        </div>
-
-                                        <%---summary---%>           
-                                        <div class="form-group col-md-3">
-                                            <%=base.GetLabel("QtyAmount", "Qty amount")%>
-                                            <asp:Literal ID="LitQtyAmount" runat="server"></asp:Literal>
-                                        </div>
-                                        <div class="form-group col-md-3">
-                                            <%=base.GetLabel("OrderAmount", "Order amount")%>
-                                            <asp:Literal ID="LitOrderAmount" runat="server"></asp:Literal>
-                                        </div>
-                                        <div class="form-group col-md-3">
-                                            <%=base.GetLabel("ShipAmount", "Ship amount")%>
-                                            <asp:Literal ID="LitShipAmount" runat="server"></asp:Literal>
-                                        </div>
-                                        <div class="form-group col-md-3">
-                                            <%=base.GetLabel("TotalAmount", "Total amount")%>
-                                            <asp:Literal ID="LitTotalAmount" runat="server"></asp:Literal>
-                                        </div>
-
-                                    </div>
-
-                                    <div class="tab-pane fade" id="tab-rows">
-                                        <uc1:ItemParams ID="ItemParams1" runat="server" />
-                                    </div>
-
-                                </div>
-
-                            </div>
-            
-                        </div>
-                    </asp:View>
-    
-                </asp:MultiView>
-    
+                        </div> 
+                    </div>
+                </div>
             </div>
 
-<%--            <div class="col-lg-2">
+            <div class="col-lg-12">
+                <div class="panel panel-default adminFilters">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+                            <%=PigeonCms.Utility.GetLabel("LblFilters")%>
+                            </a>
+                        </h4>
 
+                    </div>
+                    <div id="collapseOne" class="panel-collapse collapse in">
+                        <div class="panel-body">
+                            <div class="form-group col-md-6 col-lg-3">
+                                <%=GetLabel("OrderDateFilter", "Order date", DropOrderDatesRangeFilter) %>
+                                <asp:DropDownList runat="server" ID="DropOrderDatesRangeFilter" AutoPostBack="true" CssClass="form-control" 
+                                OnSelectedIndexChanged="Filter_Changed"></asp:DropDownList>
+                            </div>
 
-            </div>  --%>          
-    </div>
+                            <div class="form-group col-md-6 col-lg-3">
+                                <%=GetLabel("OwnerUserFilter", "Owner user", TxtOwnerUserFilter) %>
+                                <asp:TextBox runat="server" ID="TxtOwnerUserFilter" CssClass="form-control" 
+                                    OnTextChanged="Filter_Changed" AutoPostBack="true"></asp:TextBox>
+                            </div>
+                            <div class="form-group col-md-6 col-lg-3">
+                                <%=GetLabel("ConfirmedFilter", "Confirmed", DropConfirmedFilter) %>
+                                <asp:DropDownList ID="DropConfirmedFilter" runat="server" AutoPostBack="true" CssClass="form-control" 
+                                OnSelectedIndexChanged="Filter_Changed"></asp:DropDownList>
+                            </div>
+                            <div class="form-group col-md-6 col-lg-3">
+                                <%=GetLabel("PaymentFilter", "Payment", DropPaymentFilter) %>
+                                <asp:DropDownList ID="DropPaymentFilter" runat="server" AutoPostBack="true" CssClass="form-control" 
+                                OnSelectedIndexChanged="Filter_Changed"></asp:DropDownList>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="panel panel-green">
+                    <div class="panel-heading">
+                        <div class="row">
+                            <div class="col-xs-3">
+                                <i class="fa fa-shopping-cart fa-4x"></i>
+                            </div>
+                            <div class="col-xs-9 text-right">
+                                <div class="huge">
+                                    <asp:Literal runat="server" ID="LitBoardOrdersCount"></asp:Literal>
+                                </div>
+                                <div>Orders</div>
+                            </div>
+                        </div>
+                    </div>
+                    <%--<a href="#">
+                        <div class="panel-footer">
+                            <span class="pull-left">View Details</span>
+                            <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                            <div class="clearfix"></div>
+                        </div>
+                    </a>--%>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <div class="row">
+                            <div class="col-xs-3">
+                                <i class="fa fa-rocket fa-4x"></i>
+                            </div>
+                            <div class="col-xs-9 text-right">
+                                <div class="huge">
+                                    <asp:Literal runat="server" ID="LitBoardOrdersToShip"></asp:Literal>
+                                </div>
+                                <div>Orders to ship</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="panel panel-yellow">
+                    <div class="panel-heading">
+                        <div class="row">
+                            <div class="col-xs-12 text-right">
+                                <div class="huge">
+                                    <asp:Literal runat="server" ID="LitBoardOrdersTotalAmount"></asp:Literal>
+                                </div>
+                                <div>Total amount</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="panel panel-red">
+                    <div class="panel-heading">
+                        <div class="row">
+                            <div class="col-xs-12 text-right">
+                                <div class="huge">
+                                    <asp:Literal runat="server" ID="LitBoardOrdersTotalPaid"></asp:Literal>
+                                </div>
+                                <div>Total paid</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-12">
+
+                <div class="panel panel-default">
+                    <div class="table-responsive">
+
+                    <asp:GridView ID="Grid1" runat="server" AllowPaging="True" AllowSorting="false" Width="100%" AutoGenerateColumns="False"
+                        DataKeyNames="Id" OnRowCommand="Grid1_RowCommand" OnPageIndexChanging="Grid1_PageIndexChanging" 
+                        OnRowCreated="Grid1_RowCreated" OnRowDataBound="Grid1_RowDataBound">
+                        <Columns>
+
+                            <asp:TemplateField HeaderText="Order" SortExpression="OrderRef" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
+                                <ItemTemplate>
+                                    <span class="small">
+                                        <asp:LinkButton ID="LnkOrderRef" runat="server" CausesValidation="false" CommandName="Select" CommandArgument='<%#Eval("Id") %>'></asp:LinkButton>
+                                    </span>
+                                    <br />
+                                    <small class="small text-muted">
+                                        <asp:Literal ID="LitOwnerUser" runat="server" />
+                                    </small>
+                                </ItemTemplate>
+                            </asp:TemplateField>
+
+                            <asp:TemplateField HeaderText="Date" SortExpression="OrderDate" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
+                                <ItemTemplate>
+                                    <span class="small text-muted">
+                                        <asp:Literal ID="LitOrderDate" runat="server" />
+                                    </span>
+                                </ItemTemplate>
+                            </asp:TemplateField>
+
+                            <asp:TemplateField HeaderText="Customer" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
+                                <ItemTemplate>
+                                    <span class="small text-muted">
+                                        <i class="fa fa-folder-o"></i>
+                                        <asp:Literal ID="LitCustomerName" runat="server" />
+                                    </span><br />
+                                    <span class="small text-muted">
+                                        <asp:Literal ID="LitCustomerAddress" runat="server" />
+                                    </span>
+                                </ItemTemplate>
+                            </asp:TemplateField>
+
+                            <asp:TemplateField HeaderText="<abbr title='Confirmed'>C</abbr>" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
+                                <ItemTemplate>
+                                    <asp:Literal ID="LitConfirmed" runat="server" />
+                                </ItemTemplate>
+                            </asp:TemplateField>
+
+                            <asp:TemplateField HeaderText="<abbr title='Paid'>P</abbr>" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
+                                <ItemTemplate>
+                                    <asp:Literal ID="LitPaid" runat="server" />
+                                </ItemTemplate>
+                            </asp:TemplateField>
+
+                            <asp:TemplateField HeaderText="<abbr title='Processed'>P</abbr>" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
+                                <ItemTemplate>
+                                    <asp:Literal ID="LitProcessed" runat="server" />
+                                </ItemTemplate>
+                            </asp:TemplateField>
+
+                            <asp:TemplateField HeaderText="<abbr title='Invoiced'>I</abbr>" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
+                                <ItemTemplate>
+                                    <asp:Literal ID="LitInvoiced" runat="server" />
+                                </ItemTemplate>
+                            </asp:TemplateField>
+
+                            <asp:TemplateField HeaderText="Summary" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
+                                <ItemTemplate>
+                                    <span class="small text-muted">
+                                        <asp:Literal ID="LitSummary" runat="server" />
+                                    </span>
+                                </ItemTemplate>
+                            </asp:TemplateField>
+                    
+                            <asp:TemplateField HeaderText="" ItemStyle-HorizontalAlign="Center" ItemStyle-Width="10">
+                                <ItemTemplate>
+                                    <asp:LinkButton ID="LnkDel" runat="server" CommandName="DeleteRow" 
+                                        CommandArgument='<%#Eval("Id") %>' OnClientClick="return confirm(deleteQuestion);">
+                                        <i class='fa fa-pgn_delete fa-fw'></i>
+                                    </asp:LinkButton>
+                                </ItemTemplate>
+                            </asp:TemplateField>
+                    
+                        </Columns>
+                    </asp:GridView>
+                    </div>
+                </div>
+            </div>
+        
+        </div>
+        </asp:View>
+   
+
+        <asp:View ID="ViewInsert" runat="server">
+
+            <div class="panel panel-default">
+
+                <div class="panel-heading clearfix">
+                    <asp:Literal runat="server" ID="LitCurrentOrder"></asp:Literal>
+                    <div class="pull-right">
+                        <div class="btn-group">
+                            <asp:Button ID="BtnSave" runat="server" Text="<%$ Resources:PublicLabels, CmdSave %>" CssClass="btn btn-primary" OnClick="BtnSave_Click" />
+                            <asp:Button ID="BtnCancel" runat="server" Text="<%$ Resources:PublicLabels, CmdCancel %>" CssClass="btn btn-default" CausesValidation="false" OnClick="BtnCancel_Click" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-body">
+
+                    <ul class="nav nav-pills">
+                        <li class="active"><a href="#tab-header" data-toggle="tab"><%=base.GetLabel("Header", "Header") %></a></li>
+                        <li><a href="#tab-rows" data-toggle="tab"><%=base.GetLabel("Rows", "Rows") %></a></li>
+                    </ul>
+
+                    <div class="tab-content row">
+                        
+                        <div class="tab-pane fade in active" id="tab-header">
+                            <h4></h4>
+                            <div class="form-group col-md-4">
+                                <%=base.GetLabel("OrderRef", "Order ref.", TxtOrderRef, true)%>
+                                <asp:TextBox ID="TxtOrderRef" runat="server"  CssClass="form-control"></asp:TextBox>
+                            </div>
+
+                            <div class="form-group col-md-4">
+                                <%=base.GetLabel("OrderDate", "Date", TxtOrderDate, true)%>
+                                <asp:TextBox ID="TxtOrderDate" runat="server" CssClass='form-control'></asp:TextBox>        
+                                <cc1:CalendarExtender ID="CalOrderDate" runat="server" TargetControlID="TxtOrderDate" Format="dd/MM/yyyy"></cc1:CalendarExtender>
+                            </div>
+
+                            <div class="form-group col-md-4">
+                                <%=base.GetLabel("OrderDateRequested", "Date requested", TxtOrderDateRequested, true)%>
+                                <asp:TextBox ID="TxtOrderDateRequested" runat="server" CssClass='form-control'></asp:TextBox>        
+                                <cc1:CalendarExtender ID="CalOrderDateRequested" runat="server" TargetControlID="TxtOrderDateRequested" Format="dd/MM/yyyy"></cc1:CalendarExtender>
+                            </div>
+
+                            <%---sped---%>
+                            <div class="form-group col-lg-4">
+                                <%=base.GetLabel("PaymentCode", "Payment code", DropPaymentCode, true)%>
+                                <asp:DropDownList runat="server" CssClass='form-control' ID="DropPaymentCode"></asp:DropDownList>
+                            </div>
+                            <div class="form-group col-lg-4">
+                                <%=base.GetLabel("Paid", "Paid", ChkPaid, true)%>
+                                <asp:CheckBox runat="server" CssClass='form-control' ID="ChkPaid"></asp:CheckBox>
+                            </div>
+                            <div class="form-group col-lg-4">
+                                <%=base.GetLabel("CouponCode", "Coupon", TxtCouponCode, true)%>
+                                <asp:TextBox ID="TxtCouponCode" runat="server" MaxLength="50"  CssClass="form-control"></asp:TextBox>
+                            </div>
+
+                            <%--ship--%>
+                            <div class="form-group col-lg-6">
+                                <%=base.GetLabel("ShipCode", "Shipment code", DropShipCode, true)%>
+                                <asp:DropDownList runat="server" CssClass='form-control' ID="DropShipCode"></asp:DropDownList>
+                            </div>
+                            <div class="form-group col-lg-6">
+                                <%=base.GetLabel("OrderDateShipped", "Shipping date", TxtOrderDateShipped, true)%>
+                                <asp:TextBox ID="TxtOrderDateShipped" runat="server" CssClass='form-control'></asp:TextBox>        
+                                <cc1:CalendarExtender ID="CalOrderDateShipped" runat="server" TargetControlID="TxtOrderDateShipped" Format="dd/MM/yyyy"></cc1:CalendarExtender>
+                            </div>
+
+                            <%---notes---%>
+                            <div class="form-group col-lg-12">
+                                <%=base.GetLabel("Notes", "Notes", TxtNotes, true)%>
+                                <asp:TextBox ID="TxtNotes" runat="server" TextMode="MultiLine"  CssClass="form-control"></asp:TextBox>
+                            </div>
+
+                            <div class="form-group col-lg-12">
+                                <%---customer data---%>
+                                <div class="panel panel-info">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title">
+                                            <a data-toggle="collapse" data-parent="#accordionCustomer" href="#collapseCustomer" aria-expanded="false" class="">
+                                                <%=base.GetLabel("CustomerData", "Customer data") %>
+                                            </a>
+                                        </h4>
+                                    </div>
+                                    <div id="collapseCustomer" class="panel-collapse collapse" aria-expanded="true">
+                                        <div class="panel-body">
+
+                                            <div class="form-group col-md-6">
+                                                <%=base.GetLabel("OrdName", "Name", TxtOrdName, true)%>
+                                                <asp:TextBox ID="TxtOrdName" runat="server" MaxLength="255"  CssClass="form-control"></asp:TextBox>
+                                            </div>
+                                            <div class="form-group col-md-6">
+                                                <%=base.GetLabel("OrdAddress", "Address", TxtOrdAddress, true)%>
+                                                <asp:TextBox ID="TxtOrdAddress" runat="server" MaxLength="255"  CssClass="form-control"></asp:TextBox>
+                                            </div>
+
+                                            <div class="form-group col-md-6 lg-3">
+                                                <%=base.GetLabel("OrdZipCode", "Zip", TxtOrdZipCode, true)%>
+                                                <asp:TextBox ID="TxtOrdZipCode" runat="server" MaxLength="255"  CssClass="form-control"></asp:TextBox>
+                                            </div>
+                                            <div class="form-group col-md-6 lg-3">
+                                                <%=base.GetLabel("OrdZipCode", "Zip", TxtOrdZipCode, true)%>
+                                                <asp:TextBox ID="TextBox1" runat="server" MaxLength="255"  CssClass="form-control"></asp:TextBox>
+                                            </div>
+                                            <div class="form-group col-md-6 lg-3">
+                                                <%=base.GetLabel("OrdCity", "City", TxtOrdCity, true)%>
+                                                <asp:TextBox ID="TxtOrdCity" runat="server" MaxLength="255"  CssClass="form-control"></asp:TextBox>
+                                            </div>
+                                            <div class="form-group col-md-6 lg-3">
+                                                <%=base.GetLabel("OrdState", "State", TxtOrdState, true)%>
+                                                <asp:TextBox ID="TxtOrdState" runat="server" MaxLength="255"  CssClass="form-control"></asp:TextBox>
+                                            </div>
+                                            <div class="form-group col-md-6 lg-3">
+                                                <%=base.GetLabel("OrdNation", "Nation", TxtOrdNation, true)%>
+                                                <asp:TextBox ID="TxtOrdNation" runat="server" MaxLength="255"  CssClass="form-control"></asp:TextBox>
+                                            </div>
+
+                                            <div class="form-group col-md-6">
+                                                <%=base.GetLabel("OrdPhone", "Phone", TxtOrdPhone, true)%>
+                                                <asp:TextBox ID="TxtOrdPhone" runat="server" MaxLength="255"  CssClass="form-control"></asp:TextBox>
+                                            </div>
+                                            <div class="form-group col-md-6">
+                                                <%=base.GetLabel("OrdEmail", "E-mail", TxtOrdEmail, true)%>
+                                                <asp:TextBox ID="TxtOrdEmail" runat="server" MaxLength="255"  CssClass="form-control"></asp:TextBox>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <%---order summary---%>
+                                <div class="panel panel-success">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title">
+                                            <a data-toggle="collapse" data-parent="#accordionSummary" href="#collapseSummary" aria-expanded="false" class="">
+                                                <%=base.GetLabel("Order summary", "Order summary") %>
+                                            </a>
+                                        </h4>
+                                    </div>
+                                    <div id="collapseSummary" class="panel-collapse collapse in" aria-expanded="true">
+                                        <div class="panel-body">
+
+                                            <div class="form-group col-md-3">
+                                                <%=base.GetLabel("QtyAmount", "Qty amount")%>
+                                                <asp:Literal ID="LitQtyAmount" runat="server"></asp:Literal>
+                                            </div>
+                                            <div class="form-group col-md-3">
+                                                <%=base.GetLabel("OrderAmount", "Order amount")%>
+                                                <asp:Literal ID="LitOrderAmount" runat="server"></asp:Literal>
+                                            </div>
+                                            <div class="form-group col-md-3">
+                                                <%=base.GetLabel("ShipAmount", "Ship amount")%>
+                                                <asp:Literal ID="LitShipAmount" runat="server"></asp:Literal>
+                                            </div>
+                                            <div class="form-group col-md-3">
+                                                <%=base.GetLabel("TotalAmount", "Total amount")%>
+                                                <asp:Literal ID="LitTotalAmount" runat="server"></asp:Literal>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                                    
+                        </div>
+
+                        <div class="tab-pane fade" id="tab-rows">
+                            <h4></h4>
+                            <div class="form-group col-lg-12">
+                            
+                            <%--rows--%>
+                            <div class="panel panel-default">
+                                <div class="table-responsive">
+                                    <asp:GridView ID="GridRows" runat="server" AllowPaging="false" AllowSorting="false" Width="100%" AutoGenerateColumns="False"
+                                        DataKeyNames="Id" OnRowCommand="GridRows_RowCommand"  
+                                        OnRowCreated="GridRows_RowCreated" OnRowDataBound="GridRows_RowDataBound">
+                                        <Columns>
+
+                                            <asp:TemplateField HeaderText="" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
+                                                <ItemTemplate>
+                                                    <asp:Image runat="server" ID="ImgPreview"></asp:Image>
+                                                </ItemTemplate>
+                                            </asp:TemplateField>
+
+                                            <asp:TemplateField HeaderText="" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
+                                                <ItemTemplate>
+                                                    <span class="small">
+                                                        <asp:LinkButton ID="LnkProduct" runat="server" CausesValidation="false" CommandName="Select" CommandArgument='<%#Eval("Id") %>'></asp:LinkButton>
+                                                    </span>
+                                                    <br />
+                                                    <small class="small text-muted">
+                                                        <asp:Literal ID="LitProductDetail" runat="server" />
+                                                    </small>
+                                                </ItemTemplate>
+                                            </asp:TemplateField>
+
+                                            <asp:TemplateField HeaderText="Qty" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
+                                                <ItemTemplate>
+                                                    <span class="small text-muted">
+                                                        <asp:Literal ID="LitQty" runat="server" />
+                                                    </span>
+                                                </ItemTemplate>
+                                            </asp:TemplateField>
+
+                                            <asp:TemplateField HeaderText="Price net" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
+                                                <ItemTemplate>
+                                                    <span class="small text-muted">
+                                                        <asp:Literal ID="LitPriceNet" runat="server" />
+                                                    </span>
+                                                </ItemTemplate>
+                                            </asp:TemplateField>
+
+                                            <asp:TemplateField HeaderText="Amount" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
+                                                <ItemTemplate>
+                                                    <span class="small text-muted">
+                                                        <asp:Literal ID="LitAmountNet" runat="server" />
+                                                    </span>
+                                                </ItemTemplate>
+                                            </asp:TemplateField>
+
+                                            <asp:TemplateField HeaderText="" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
+                                                <ItemTemplate>
+                                                    <span class="small text-muted">
+                                                        <asp:Literal ID="LitNotes" runat="server" />
+                                                    </span>
+                                                </ItemTemplate>
+                                            </asp:TemplateField>
+                    
+                                            <asp:TemplateField HeaderText="" ItemStyle-HorizontalAlign="Center" ItemStyle-Width="10">
+                                                <ItemTemplate>
+                                                    <asp:LinkButton ID="LnkDel" runat="server" CommandName="DeleteRow" 
+                                                        CommandArgument='<%#Eval("Id") %>' OnClientClick="return confirm(deleteQuestion);">
+                                                        <i class='fa fa-pgn_delete fa-fw'></i>
+                                                    </asp:LinkButton>
+                                                </ItemTemplate>
+                                            </asp:TemplateField>
+                    
+                                        </Columns>
+                                    </asp:GridView>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            
+            </div>
+        </asp:View>
+    
+    </asp:MultiView>
+    
 
 </ContentTemplate>
 </asp:UpdatePanel>

@@ -26,6 +26,24 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         public string CollapseClass { get; set; }
     }
 
+    /// <summary>
+    /// Allow to update database version for components
+    /// only if enabled and admin users
+    /// </summary>
+    public bool AllowVersionUpdate
+    {
+        get
+        {
+            bool res = false;
+            bool allowVersionUpdate = GetBoolParam("AllowVersionUpdate", false);
+            if (allowVersionUpdate && Roles.IsUserInRole("admin"))
+            {
+                res = true;
+            }
+            return res;
+        }
+    }
+
     FormField currentXmlType = null;
     protected FormField CurrentXmlType
     {
@@ -86,11 +104,59 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
 
         var item = (SettingsGruopAdapter)e.Item.DataItem;
 
+        var LitVersionInfo = (Literal)e.Item.FindControl("LitVersionInfo");
+        var dbManProvider = new PigeonCms.DatabaseUpdateProvider(item.Title);
+        if (dbManProvider.LastVersionInstalled.VersionId > 0)
+            LitVersionInfo.Text += dbManProvider.LastVersionInstalled.ToString() + "<br>";
+        if (dbManProvider.UpdatesListPending.Count > 0)
+        {
+            int lastIdx = dbManProvider.UpdatesListPending.Count - 1;
+            var upgradeVersion = dbManProvider.UpdatesListPending[lastIdx];
+            string versionSummary = 
+                "versionId: " + upgradeVersion.VersionId.ToString() + "; "
+                + "versionDate: " + upgradeVersion.VersionDate.ToShortDateString() + "; "
+                + "versionDev: " + upgradeVersion.VersionDev + "; "
+                + "versionNotes: " + upgradeVersion.VersionNotes;
+
+            LitVersionInfo.Text += "<strong>UPGRADE AVAILABLE TO</strong><br>"
+                + versionSummary + "<br>";
+
+            var BtnUpdateDbVersion = (Button)e.Item.FindControl("BtnUpdateDbVersion");
+            BtnUpdateDbVersion.Visible = true;
+            BtnUpdateDbVersion.CommandArgument = item.Title;
+        }
+
         var RepSettings = (Repeater)e.Item.FindControl("RepSettings");
         var man = new AppSettingsManager2();
         var list = man.GetByKeySet(item.Title);
         RepSettings.DataSource = list;
         RepSettings.DataBind();
+    }
+
+    protected void RepGroups_ItemCommand(object source, RepeaterCommandEventArgs e)
+    {
+        LblOk.Text = "";
+        LblErr.Text = "";
+
+        if (e.CommandName == "UpdateVersion")
+        {
+            bool res = false;
+            string logResult = "";
+            string componentFullName = (string)e.CommandArgument;
+
+            var dbManProvider = new PigeonCms.DatabaseUpdateProvider(componentFullName);
+            res = dbManProvider.ApplyPendingUpdates(out logResult);
+
+            if (res)
+            {
+                LblOk.Text = RenderSuccess("Upgrade completed successfully!");
+            }
+            else
+            {
+                LblErr.Text = RenderError("Upgrade not completed. Check logs.<br>" + logResult);
+            }
+            loadGroupsList("");
+        }
     }
 
     protected void RepSettings_ItemDataBound(object sender, RepeaterItemEventArgs e)

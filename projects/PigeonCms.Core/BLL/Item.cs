@@ -60,7 +60,8 @@ namespace PigeonCms
         }
     }
 
-    public class Item: ITableWithPermissions, ITableWithOrdering, ITableWithComments
+    public class Item: ITableWithPermissions,
+        ITableWithOrdering, ITableWithComments, ITableExternalId
     {
         const string DefaultItemType = "PigeonCms.Item";
 
@@ -74,7 +75,7 @@ namespace PigeonCms
         private DateTime validFrom;
         private DateTime validTo;
         string cssClass = "";
-
+        string extId = "";
 
         private Dictionary<string, string> titleTranslations = new Dictionary<string, string>();
         private Dictionary<string, string> descriptionTranslations = new Dictionary<string, string>();
@@ -265,6 +266,17 @@ namespace PigeonCms
             get { return alias; }
             [DebuggerStepThrough()]
             set { alias = value; }
+        }
+
+        /// <summary>
+        /// external identifier to allow import/export from external datasource
+        /// </summary>
+        public string ExtId
+        {
+            [DebuggerStepThrough()]
+            get { return extId; }
+            [DebuggerStepThrough()]
+            set { extId = value; }
         }
 
         /// <summary>
@@ -1109,7 +1121,7 @@ namespace PigeonCms
 
 
     [Serializable]
-    public class ItemsFilter
+    public class ItemsFilter : ITableExternalId
     {
         #region fields definition
 
@@ -1132,6 +1144,7 @@ namespace PigeonCms
         private int numOfRecords = 0;
         private int threadId = 0;
         private bool showOnlyRootItems = true;
+        private string extId = "";
 
         //custom fields
         private Utility.TristateBool customBool1 = Utility.TristateBool.NotSet;
@@ -1318,6 +1331,18 @@ namespace PigeonCms
             get { return showOnlyRootItems; }
             [DebuggerStepThrough()]
             set { showOnlyRootItems = value; }
+        }
+
+        /// <summary>
+        /// external identifier to allow import/export from external datasource
+        /// </summary>
+        [DataObjectField(false)]
+        public string ExtId
+        {
+            [DebuggerStepThrough()]
+            get { return extId; }
+            [DebuggerStepThrough()]
+            set { extId = value; }
         }
 
 

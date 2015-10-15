@@ -428,6 +428,8 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
                 LnkTitle.Text += " ["+ item.Id.ToString() +"]";
 
             var LitItemInfo = (Literal)e.Row.FindControl("LitItemInfo");
+            if (!string.IsNullOrEmpty(item.ExtId))
+                LitItemInfo.Text += "extId: " + item.ExtId + "<br>";
             if (this.ShowType)
                 LitItemInfo.Text += item.ItemTypeName + "<br>";
             if (!string.IsNullOrEmpty(item.CssClass))
@@ -622,6 +624,7 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
         ChkEnabled.Checked = true;
         TxtAlias.Text = "";
         TxtCssClass.Text = "";
+        TxtExtId.Text = "";
         this.ItemDate = DateTime.MinValue;
         this.ValidFrom = DateTime.MinValue;
         this.ValidTo = DateTime.MinValue;
@@ -650,7 +653,7 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
         obj.CategoryId = int.Parse(DropCategories.SelectedValue);
         obj.Alias = TxtAlias.Text;
         obj.CssClass = TxtCssClass.Text;
-
+        obj.ExtId = TxtExtId.Text;
         obj.ItemDate = this.ItemDate;
         obj.ValidFrom = this.ValidFrom;
         obj.ValidTo = this.ValidTo;
@@ -683,6 +686,7 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
         ChkEnabled.Checked = obj.Enabled;
         TxtAlias.Text = obj.Alias;
         TxtCssClass.Text = obj.CssClass;
+        TxtExtId.Text = obj.ExtId;
         Utility.SetDropByValue(DropCategories, obj.CategoryId.ToString());
 
         foreach (KeyValuePair<string, string> item in Config.CultureList)

@@ -246,7 +246,10 @@ namespace PigeonCms
             ");
 
             Utility.Script.RegisterStartupScript(upd1, "initEditor", @"
-            try{ setTimeout(function() { initEditor(); }, 200); }
+            try{
+                if (typeof(initEditor) != 'undefined') {
+                    setTimeout(function() { initEditor(); }, 200); }
+                } 
             catch(err) {}
             ");
             control.Page.ClientScript.RegisterOnSubmitStatement(control.GetType(), "save", "tinyMCE.triggerSave();");            

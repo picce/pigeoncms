@@ -30,6 +30,24 @@ namespace PigeonCms.Shop
             }
         }
 
+        /// <summary>
+        /// category linked for email templates
+        /// -1 if not set
+        /// </summary>
+        public int EmailTemplatesCatId
+        {
+            get
+            {
+                string value = provider.GetValue("EmailTemplatesCatId", "0");
+                int res = 0;
+                int.TryParse(value, out res);
+                if (res == 0)
+                    res = -1;
+
+                return res;
+            }
+        }
+
         Currency currencyDefault = null;
         /// <summary>
         /// shop default currency

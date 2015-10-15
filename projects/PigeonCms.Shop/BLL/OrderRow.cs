@@ -152,6 +152,12 @@ namespace PigeonCms.Shop
         private int id = 0;
         private int orderId = 0;
 
+        public void Reset()
+        {
+            id = 0;
+            orderId = 0;
+        }
+
         public int Id
         {
             [DebuggerStepThrough()]

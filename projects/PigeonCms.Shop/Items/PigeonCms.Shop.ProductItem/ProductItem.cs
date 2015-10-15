@@ -328,6 +328,19 @@ namespace PigeonCms.Shop
             : base(checkUserContext, writeMode)
         { }
 
+        public ProductItem GetBySku(string Sku)
+        {
+            var res = new ProductItem();
+            if (!string.IsNullOrEmpty(Sku))
+            {
+                var filter = new ProductItemFilter();
+                filter.SKU = Sku;
+                var list = this.GetByFilter(filter, "");
+                if (list.Count > 0)
+                    res = list[0];
+            }
+            return res;
+        }
     }
 
 }

@@ -107,7 +107,11 @@ namespace PigeonCms
         /// </summary>
         /// <returns></returns>
         [Obsolete("USE ONLY in static methods. This method doesn't use in page caching. Prefer use if BaseModuleControl.GetLabel")]
-        public static string GetLabel(string moduleFullName, string resourceId, string defaultValue)
+        public static string GetLabel(
+            string moduleFullName, 
+            string resourceId, 
+            string defaultValue,
+            string forcedCultureCode = "")
         {
             string res = "";
             var labelsList = LabelsProvider.getLabelsByResourceId(moduleFullName, resourceId);
@@ -118,7 +122,7 @@ namespace PigeonCms
                 resourceId, 
                 defaultValue, 
                 ContentEditorProvider.Configuration.EditorTypeEnum.Text,
-                "");
+                forcedCultureCode);
 
             if (string.IsNullOrEmpty(res))
             {
@@ -322,6 +326,10 @@ namespace PigeonCms
 
         #endregion
 
+        /// <summary>
+        /// automatically insert label in labels using CultureDev
+        /// </summary>
+        /// <returns>operation done sucessfully</returns>
         private static bool insertDefaultValue(
             string resourceSet,
             string resourceId,
@@ -336,7 +344,7 @@ namespace PigeonCms
 
                 filter.ResourceSet = resourceSet;
                 filter.ResourceId = resourceId;
-                filter.CultureName = Config.CultureDefault;
+                filter.CultureName = Config.CultureDev;
 
                 var l = man.GetByFilter(filter, "");
                 if (l.Count == 0)
@@ -344,7 +352,7 @@ namespace PigeonCms
                     var o1 = new ResLabel();
                     o1.ResourceSet = resourceSet;
                     o1.ResourceId = resourceId;
-                    o1.CultureName = Config.CultureDefault;
+                    o1.CultureName = Config.CultureDev;
                     o1.Value = defaultValue;
                     o1.Comment = "SYSTEM";
                     o1.TextMode = textMode;

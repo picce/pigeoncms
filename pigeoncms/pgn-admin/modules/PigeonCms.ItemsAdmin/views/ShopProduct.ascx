@@ -327,7 +327,7 @@ function onFailure(result) { }
                                 <asp:RequiredFieldValidator ID="ReqWeight" ControlToValidate="TxtWeight" runat="server" Text="*" ForeColor="Red" validationgroup="SaveProduct"></asp:RequiredFieldValidator>
                                 <div class="form-group input-group">
                                     <asp:TextBox ID="TxtWeight" runat="server" CssClass="form-control"></asp:TextBox>
-                                    <span class='input-group-addon'><%=ShopSettings.ItemWeightUnit %></span>
+                                    <span class='input-group-addon'><%=ShopSettings.WeightUnit %></span>
                                 </div>
                             </div>
 
@@ -507,7 +507,7 @@ function onFailure(result) { }
                                             <asp:RequiredFieldValidator ID="ReqQuickWeight" ControlToValidate="QuickTxtWeight" runat="server" Text="*" ForeColor="Red" validationgroup="QuickProduct"></asp:RequiredFieldValidator>
                                             <div class="form-group input-group">
                                                 <asp:TextBox ID="QuickTxtWeight" runat="server" CssClass="form-control"></asp:TextBox>
-                                                <span class='input-group-addon'><%=ShopSettings.ItemWeightUnit %></span>
+                                                <span class='input-group-addon'><%=ShopSettings.WeightUnit %></span>
                                             </div>
                                         </div>
 

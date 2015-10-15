@@ -18,7 +18,7 @@ namespace PigeonCms
 {
     public class UserTempDataManager : TableManager<UserTempData, UserTempDataFilter, int>, ITableManager
     {
-        public const int NO_OF_COLS = 10;
+        public const int NO_OF_COLS = 20;
         private bool checkUserContext = false;
 
         public bool CheckUserContext
@@ -64,7 +64,9 @@ namespace PigeonCms
                 sSql = "SELECT " + topItems + " t.Id, t.Username, t.SessionId, "
                     + " t.DateInserted, t.DateExpiration, t.Enabled, "
                     + " t.col01, t.col02, t.col03, t.col04, t.col05, "
-                    + " t.col06, t.col07, t.col08, t.col09, t.col10  "
+                    + " t.col06, t.col07, t.col08, t.col09, t.col10,  "
+                    + " t.col11, t.col12, t.col13, t.col14, t.col15,  "
+                    + " t.col16, t.col17, t.col18, t.col19, t.col20  "
                     + " FROM [" + this.TableName + "] t "
                     + " WHERE t.Id > 0 ";
 
@@ -194,11 +196,15 @@ namespace PigeonCms
                 sSql = "INSERT INTO [" + this.TableName + "](Id, Username, SessionId, "
                 + " DateInserted, DateExpiration, Enabled, "
                 + " Col01, Col02, Col03, Col04, Col05, "
-                + " Col06, Col07, Col08, Col09, Col10) "
+                + " Col06, Col07, Col08, Col09, Col10, "
+                + " Col11, Col12, Col13, Col14, Col15, "
+                + " Col16, Col17, Col18, Col19, Col20) "
                 + " VALUES(@Id, @Username, @SessionId, "
                 + " @DateInserted, @DateExpiration, @Enabled, "
                 + " @Col01, @Col02, @Col03, @Col04, @Col05, "
-                + " @Col06, @Col07, @Col08, @Col09, @Col10)";
+                + " @Col06, @Col07, @Col08, @Col09, @Col10, "
+                + " @Col11, @Col12, @Col13, @Col14, @Col15, "
+                + " @Col16, @Col17, @Col18, @Col19, @Col20) ";
                 myCmd.CommandText = Database.ParseSql(sSql);
 
                 myCmd.Parameters.Add(Database.Parameter(myProv, "Id", result.Id));

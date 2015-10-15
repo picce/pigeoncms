@@ -16,7 +16,9 @@ using System.Diagnostics;
 
 namespace PigeonCms
 {
-    public class ItemsManager<T, F> : TableManagerWithOrdering<T, F, int>, ITableManagerWithPermission
+    public class ItemsManager<T, F> : 
+        TableManagerWithOrdering<T, F, int>,
+        ITableManagerWithPermission, ITableManagerExternalId<T>
         where T: Item, new()
         where F: ItemsFilter, new()
     {
@@ -106,7 +108,7 @@ namespace PigeonCms
                     + " t.CustomString1, t.CustomString2, t.CustomString3, t.CustomString4, "
                     + " t.ItemParams, t.AccessType, t.PermissionId, t.AccessCode, t.AccessLevel, "
                     + " t.CommentsGroupId, t.WriteAccessType, t.WritePermissionId, t.WriteAccessCode, t.WriteAccessLevel, "
-                    + " t.ThreadId, t.CssClass, "
+                    + " t.ThreadId, t.CssClass, t.ExtId, "
                     + " categ.AccessType categAccessType, categ.PermissionId categPermissionId, "
                     + " categ.AccessCode categAccessCode, categ.AccessLevel categAccessLevel, "
                     + " categ.WriteAccessType categWriteAccessType, categ.WritePermissionId categWritePermissionId, "
@@ -225,6 +227,12 @@ namespace PigeonCms
                     }
                 }
 
+                if (!string.IsNullOrEmpty(filter.ExtId))
+                {
+                    sSql += " AND t.ExtId = @ExtId ";
+                    myCmd.Parameters.Add(Database.Parameter(myProv, "ExtId", filter.ExtId));
+                }
+
                 //custom fields
                 if (filter.CustomBool1 != Utility.TristateBool.NotSet)
                 {
@@ -298,7 +306,7 @@ namespace PigeonCms
                     + " t.CustomString1, t.CustomString2, t.CustomString3, t.CustomString4, "
                     + " t.ItemParams, t.AccessType, t.PermissionId, t.AccessCode, t.AccessLevel, "
                     + " t.CommentsGroupId, t.WriteAccessType, t.WritePermissionId, t.WriteAccessCode, t.WriteAccessLevel, "
-                    + " t.ThreadId, t.CssClass, "
+                    + " t.ThreadId, t.CssClass, t.ExtId, "
                     + " categ.AccessType, categ.PermissionId, "
                     + " categ.AccessCode, categ.AccessLevel, "
                     + " categ.WriteAccessType, categ.WritePermissionId, "
@@ -432,6 +440,34 @@ namespace PigeonCms
             return result;
         }
 
+        public T GetByExtId(string extId)
+        {
+            T result = new T();
+            var resultList = new List<T>();
+            F filter = new F();
+
+            if (string.IsNullOrEmpty(extId))
+                return result;
+
+            filter.ExtId = extId;
+            filter.ShowOnlyRootItems = false;
+            resultList = GetByFilter(filter, "");
+            if (resultList.Count > 0)
+                result = resultList[0];
+
+            return result;
+        }
+
+        public int DeleteByExtId(string extId)
+        {
+            int res = 0;
+            var item = GetByExtId(extId);
+            if (item.Id > 0)
+                res = this.DeleteById(item.Id);
+
+            return res;
+        }
+
         public override int Update(T theObj)
         {
             DbProviderFactory myProv = Database.ProviderFactory;
@@ -487,7 +523,7 @@ namespace PigeonCms
                 + " [ItemParams]=@ItemParams, AccessType=@AccessType, PermissionId=@PermissionId, "
                 + " [AccessCode]=@AccessCode, AccessLevel=@AccessLevel, CommentsGroupId=@CommentsGroupId, "
                 + " WriteAccessType=@WriteAccessType, WritePermissionId=@WritePermissionId, [WriteAccessCode]=@WriteAccessCode, "
-                + " WriteAccessLevel=@WriteAccessLevel, ThreadId=@ThreadId, CssClass=@CssClass "
+                + " WriteAccessLevel=@WriteAccessLevel, ThreadId=@ThreadId, CssClass=@CssClass, ExtId=@ExtId "
                 + " WHERE Id = @Id";
                 myCmd.CommandText = Database.ParseSql(sSql);
                 myCmd.Parameters.Add(Database.Parameter(myProv, "Id", theObj.Id));
@@ -571,6 +607,7 @@ namespace PigeonCms
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CommentsGroupId", theObj.CommentsGroupId));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "ThreadId", theObj.ThreadId));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CssClass", theObj.CssClass));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "ExtId", theObj.ExtId));
 
                 result = myCmd.ExecuteNonQuery();
                 updateCultureText(theObj, myCmd, myProv);
@@ -656,7 +693,7 @@ namespace PigeonCms
                 + " CustomString1, CustomString2, CustomString3, CustomString4, "
                 + " ItemParams, AccessType, PermissionId, AccessCode, AccessLevel, CommentsGroupId, "
                 + " WriteAccessType, WritePermissionId, WriteAccessCode, WriteAccessLevel, "
-                + " ThreadId, CssClass) "
+                + " ThreadId, CssClass, ExtId) "
                 + " VALUES(/*@Id,*/ @ItemType, @CategoryId, @Enabled, "
                 + " @Alias, @Ordering, @DefaultImageName, "
                 + " @DateInserted, @UserInserted, @DateUpdated, @UserUpdated, "
@@ -668,7 +705,7 @@ namespace PigeonCms
                 + " @CustomString1, @CustomString2, @CustomString3, @CustomString4, "
                 + " @ItemParams, @AccessType, @PermissionId, @AccessCode, @AccessLevel, @CommentsGroupId, "
                 + " @WriteAccessType, @WritePermissionId, @WriteAccessCode, @WriteAccessLevel, "
-                + " @ThreadId, @CssClass) "
+                + " @ThreadId, @CssClass, @ExtId) "
                 + " SELECT SCOPE_IDENTITY()";
                 myCmd.CommandText = Database.ParseSql(sSql);
 
@@ -754,6 +791,7 @@ namespace PigeonCms
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CommentsGroupId", result.CommentsGroupId));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "ThreadId", result.ThreadId));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CssClass", result.CssClass));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "ExtId", result.ExtId));
 
                 result.Id = (int)(decimal)myCmd.ExecuteScalar();
 
@@ -1084,6 +1122,8 @@ namespace PigeonCms
                 result.ThreadId = (int)myRd["ThreadId"];
             if (!Convert.IsDBNull(myRd["CssClass"]))
                 result.CssClass = (string)myRd["CssClass"];
+            if (!Convert.IsDBNull(myRd["ExtId"]))
+                result.ExtId = (string)myRd["ExtId"];
         }
 
         protected override int GetPreviousRecordInOrder(int ordering, int currentRecordId)
@@ -1504,6 +1544,5 @@ namespace PigeonCms
             }
 
         }
-             
     }
 }

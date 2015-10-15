@@ -705,6 +705,11 @@ namespace PigeonCms
         int CommentsGroupId { get; set; }
     }
 
+    public interface ITableExternalId
+    {
+        string ExtId { get; set; }
+    }
+
     public interface ITableWithPermissions : ITable
     {
         //read
@@ -736,5 +741,12 @@ namespace PigeonCms
     {
         bool CheckUserContext { get; }
         bool WriteMode { get; }
+    }
+
+    public interface ITableManagerExternalId<T>
+        where T: ITableExternalId
+    {
+        T GetByExtId(string extId);
+        int DeleteByExtId(string extId);
     }
 }

@@ -186,8 +186,10 @@ public partial class Controls_SectionsAdmin : PigeonCms.BaseModuleControl
             if (string.IsNullOrEmpty(LnkTitle.Text))
                 LnkTitle.Text += Utility.GetLabel("NO_VALUE", "<no value>");
 
-            var LitItemType = (Literal)e.Row.FindControl("LitItemType");
-            LitItemType.Text = item.ItemType;
+            var LitItemInfo = (Literal)e.Row.FindControl("LitItemInfo");
+            if (!string.IsNullOrEmpty(item.ExtId))
+                LitItemInfo.Text += base.GetLabel("ExtId", "ExtId") + ": " + item.ExtId + "<br>";
+            LitItemInfo.Text += item.ItemType;
 
             if (item.Enabled)
             {
@@ -362,6 +364,7 @@ public partial class Controls_SectionsAdmin : PigeonCms.BaseModuleControl
             t2 = (TextBox)PanelDescription.FindControl("TxtDescription" + item.Value);
             t2.Text = "";
         }
+        TxtExtId.Text = "";
         DropItemType.SelectedValue = "";
         TxtCssClass.Text = "";
         ChkEnabled.Checked = true;
@@ -396,6 +399,7 @@ public partial class Controls_SectionsAdmin : PigeonCms.BaseModuleControl
 
         obj.ItemType = DropItemType.SelectedValue;
         obj.CssClass = TxtCssClass.Text;
+        obj.ExtId = TxtExtId.Text;
 
         PermissionsControl1.Form2obj(obj);
     }
@@ -420,6 +424,7 @@ public partial class Controls_SectionsAdmin : PigeonCms.BaseModuleControl
         TxtMaxItems.Text = obj.MaxItems.ToString();
         TxtMaxAttachSizeKB.Text = obj.MaxAttachSizeKB.ToString();
         TxtCssClass.Text = obj.CssClass;
+        TxtExtId.Text = obj.ExtId;
         Utility.SetDropByValue(DropItemType, obj.ItemType);
 
         ChkEnabled.Checked = obj.Enabled;

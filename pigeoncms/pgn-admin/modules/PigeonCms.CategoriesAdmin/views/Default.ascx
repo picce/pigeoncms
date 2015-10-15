@@ -51,11 +51,11 @@
         <asp:View ID="ViewSee" runat="server">
 
             <div class="col-lg-12">
-                <div class="panel panel-default">
+                <div class="panel panel-default clearfix">
                     <div class="panel-body"> 
                         <div class="pull-right">
                             <div class="btn-group adminToolbar">
-                                <asp:Button ID="BtnNew" runat="server" Text="<%$ Resources:PublicLabels, CmdNew %>" CssClass="btn btn-primary btn-xs" OnClick="BtnNew_Click" />
+                                <asp:Button ID="BtnNew" runat="server" Text="<%$ Resources:PublicLabels, CmdNew %>" CssClass="btn btn-primary" OnClick="BtnNew_Click" />
                             </div>
                         </div> 
                     </div>
@@ -105,28 +105,34 @@
 
             <div class="panel panel-default">
 
-                <div class="panel-heading">
+                <div class="panel-heading clearfix">
                     <%=base.GetLabel("LblDetails", "Details") %>
                     <div class="pull-right">
                         <div class="btn-group">
-                            <asp:Button ID="BtnSave" runat="server" Text="<%$ Resources:PublicLabels, CmdSave %>" CssClass="btn btn-primary btn-xs" OnClick="BtnSave_Click" />
-                            <asp:Button ID="BtnCancel" runat="server" Text="<%$ Resources:PublicLabels, CmdCancel %>" CssClass="btn btn-default btn-xs" CausesValidation="false" OnClick="BtnCancel_Click" />
+                            <asp:Button ID="BtnSave" runat="server" Text="<%$ Resources:PublicLabels, CmdSave %>" CssClass="btn btn-primary" OnClick="BtnSave_Click" />
+                            <asp:Button ID="BtnCancel" runat="server" Text="<%$ Resources:PublicLabels, CmdCancel %>" CssClass="btn btn-default" CausesValidation="false" OnClick="BtnCancel_Click" />
                         </div>
                     </div>
                 </div>
 
                 <div class="panel-body">
-                    <div class="form-group col-sm-12 col-md-4">
+                    <div class="form-group col-sm-6 col-lg-3">
                         <%=base.GetLabel("LblSection", "Section", LitSection, true)%>
                         <asp:TextBox ID="LitSection" runat="server" Enabled="false" CssClass="form-control"></asp:TextBox>
                     </div>
 
-                    <div class="form-group col-sm-6 col-md-4">
+
+                    <div class="form-group col-sm-6 col-lg-3">
+                        <%=base.GetLabel("LblExtId", "External Id", TxtExtId, true)%>
+                        <asp:TextBox ID="TxtExtId" runat="server" MaxLength="50" CssClass="form-control"></asp:TextBox>
+                    </div>
+
+                    <div class="form-group col-lg-3">
                         <%=base.GetLabel("LblCssClass", "Css class", TxtCssClass, true)%>
                         <asp:TextBox ID="TxtCssClass" runat="server" MaxLength="50" CssClass="form-control"></asp:TextBox>
                     </div>
 
-                    <div class="form-group col-sm-6 col-md-4">
+                    <div class="form-group col-lg-3">
                         <%=base.GetLabel("LblEnabled", "Enabled", ChkEnabled, true)%>
                         <asp:CheckBox ID="ChkEnabled" runat="server" CssClass="form-control" Enabled="true" />
                     </div>

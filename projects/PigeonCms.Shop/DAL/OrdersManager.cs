@@ -142,6 +142,10 @@ namespace PigeonCms.Shop
 
                     sSql += " AND t.Id NOT IN (" + excludeParams + ") ";
                 }
+                sSql += " AND ("
+                     + Database.AddDatesRangeParameters(myCmd.Parameters, myProv, "t.orderDate", filter.OrderDatesRange)
+                     + ")";
+
                 if (!string.IsNullOrEmpty(sort))
                 {
                     sSql += " ORDER BY " + sort;
