@@ -27,9 +27,15 @@ Then remove `/pgn-admin/installation/install.txt` file from your website
 Delete `/projects` folder content except your own projects and then copy the updated content from the zip file.
 
 ###Upgrade database
-Currently you need to run the udate script manually (for example from Sql Server Management Studio).
-- open `/pgn-admin/installation/sql/updates.sql` file
-- copy the script from the last update date
-- paste in your sql console (for example from Sql Server Management Studio)
+**Automatic mode**
+
+You can go in admin area *Settings* and then check if *Upgrade* button is available in `PigeonCms.Core` section.
+
+**Manual mode (if automatic mode is not available)**
+
+You need to run the upgrade scripts manually (for example from Sql Server Management Studio).
+- open `/pgn-admin/settings/PigeonCms.Core/updates.xml` file
+- check current db version in `#__dbVersion` table
+- copy and paste sql in sql console (for example from Sql Server Management Studio)
 - replace all occurencies of table placeholder `#__` with your tables placeholder (for example `pgn_`)
 - run the script
