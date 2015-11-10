@@ -13,7 +13,7 @@
     authorEmail="picce@yahoo.it"
     authorUrl="https://github.com/picce/pigeoncms"
     description="PigeonCms Shop plugin."
-    iconClass="fa-shopping-cart"
+    iconClass="fa fa-shopping-cart"
     panelClass="panel-default"
     >
 
@@ -30,6 +30,10 @@
     </param>
 
     <param name="CurrencyDefault" type="text" default="EUR, €, Euro" label="Default currency" description="Coma separated Code, Symbol and name. Example: EUR, €, Euro" />
+
+    <param name="WeightUnitDefault" type="text" default="Kg" label="Default weight unit" description="Default unit weight to calculate ship cost" />
+
+    <param name="FreeShippingMinValue" type="text" default="-1" label="Free Shipping minimum value" description="The min amout of user total cart to have free shipping, set to -1 if you don't use it." />
     
   </params>
 

@@ -66,7 +66,7 @@
 
                                     <h4 class="panel-title">
                         
-                                        <i class='fa <%# Eval("IconClass") %> fa-fw'></i>
+                                        <i class='<%# Eval("IconClass") %> fa-fw'></i>
                                         <a data-toggle="collapse" data-parent="#accordion" href='#AccordionGroup<%# Eval("Row") %>'>
                                             <%# Eval("Title") %>
                                         </a><br />
@@ -147,25 +147,24 @@
 
                 <div class="panel-body">
 
-                    <div class="form-group col-md-6">
+                    <div class="form-group col-md-4">
                         <%=base.GetLabel("LblKeySet", "KeySet", DropKeySet, true)%>
                         <asp:DropDownList runat="server" ID="DropKeySet" Enabled="false" CssClass="form-control"></asp:DropDownList>
                     </div>
 
-                    <div class="form-group col-md-6">
+                    <div class="form-group col-md-4">
                         <%=base.GetLabel("LblName", "Name", TxtKeyName, true)%>
                         <asp:TextBox ID="TxtKeyName" MaxLength="50" runat="server" Enabled="false" CssClass="form-control"></asp:TextBox>
                     </div>
                               
-                    <div class="form-group col-md-6">
+                    <div class="form-group col-md-4">
                         <%=base.GetLabel("LblTitle", "Title", TxtKeyTitle, true)%>
                         <asp:TextBox ID="TxtKeyTitle" MaxLength="500" runat="server" CssClass="form-control"></asp:TextBox>
                     </div>
 
-                    <div class="form-group col-md-6">
+                    <div class="form-group col-md-12">
                         <%=base.GetLabel("LblValue", "Value", true)%>
                         <asp:Panel ID="PanelValue" runat="server"></asp:Panel>
-                        <%--<asp:TextBox ID="TxtKeyValue" MaxLength="500" runat="server" CssClass="form-control"></asp:TextBox>--%>
                     </div>
                     
                     <div class="form-group col-md-12">

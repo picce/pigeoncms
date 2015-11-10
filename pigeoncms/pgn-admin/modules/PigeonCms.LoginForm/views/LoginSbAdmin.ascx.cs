@@ -32,6 +32,7 @@ public partial class Controls_LoginSbAdmin : PigeonCms.LoginFormControl
         {
             TxtUser.Attributes.Add("placeholder", base.GetLabel("Username", "Username"));
             TxtPassword.Attributes.Add("placeholder", base.GetLabel("Password", "Password"));
+            LitRememberMe.Text = base.GetLabel("RememberMe", "Remember me");
         }
     }
 
@@ -46,7 +47,10 @@ public partial class Controls_LoginSbAdmin : PigeonCms.LoginFormControl
                 PgnUser user = (PgnUser)Membership.GetUser(TxtUser.Text, true);
                 if (user.Enabled && user.IsApproved)
                 {
-                    FormsAuthentication.RedirectFromLoginPage(user.UserName, false);
+                    FormsAuthentication.RedirectFromLoginPage(
+                        user.UserName, 
+                        ChkRememberMe.Checked);
+
                     LogProvider.Write(this.BaseModule, TxtUser.Text + " logged in");
 
                     string redirUrl = "";

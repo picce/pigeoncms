@@ -735,14 +735,28 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
         CurrentId = recordId;
         if (CurrentId == 0)
         {
-            loadDropCategories(int.Parse(DropSectionsFilter.SelectedValue));
+            int sectionId = int.Parse(DropSectionsFilter.SelectedValue);
+            loadDropCategories(sectionId);
+
             obj.ItemTypeName = DropNew.SelectedValue;
             obj.ItemDate = DateTime.Now;
             obj.ValidFrom = DateTime.Now;
             obj.ValidTo = DateTime.MinValue;
+
             int defaultCategoryId = 0;
             int.TryParse(DropCategoriesFilter.SelectedValue, out defaultCategoryId);
+            if (defaultCategoryId == 0)
+            {
+                //retrieve first category in selected section
+                var cman = new CategoriesManager();
+                var cfilter = new CategoriesFilter();
+                cfilter.SectionId = sectionId;
+                var clist = cman.GetByFilter(cfilter, "");
+                if (clist.Count > 0)
+                    defaultCategoryId = clist[0].Id;
+            }
             obj.CategoryId = defaultCategoryId;
+
             obj2form(obj);
             LitItemType.Text = DropNew.SelectedValue;
         }

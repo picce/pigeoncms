@@ -1,0 +1,101 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<updates>
+
+  <item id="0" date="2015-10-19" dev="https://github.com/picce/" notes="initial deploy, not parsed">
+  <![CDATA[
+
+  --first deploy
+  
+  ]]>
+  </item>
+
+  <item id="1" date="2015-10-19" dev="https://github.com/picce/" 
+        notes="Export stored procedures. Check sql user grants">
+<![CDATA[
+
+
+-- =============================================
+-- Author:		https://github.com/picce/
+-- Create date: 20151019
+-- Description:	flat version of menu used in pigeoncms to export data
+-- =============================================
+CREATE PROCEDURE [dbo].[#__sp_menu_cultureFlat]
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+	DECLARE @columns NVARCHAR(MAX), @sql NVARCHAR(MAX);
+	SET @columns = N'';
+	SELECT @columns += N', p.' + QUOTENAME(cultureCode)
+	  FROM (
+		select cultureCode from #__cultures where enabled=1 
+	  ) AS x;
+	SET @sql = N'
+	SELECT p.menuId, p.menuType, p.alias, ' + STUFF(@columns, 1, 2, '') + '
+	FROM
+	(
+	  SELECT m.menuType, m.alias, mc.culturename, mc.menuid, mc.title
+	  FROM #__menu m left join #__menu_Culture mc
+	  on m.id = mc.menuId 
+	) AS j
+	PIVOT
+	(
+	  max(title) FOR culturename IN ('
+	  + STUFF(REPLACE(@columns, ', p.[', ',['), 1, 1, '')
+	  + ')
+	) AS p;';
+	--PRINT @sql;
+	EXEC sp_executesql @sql;
+	
+END
+GO
+
+
+-- =============================================
+-- Author:		https://github.com/picce/
+-- Create date: 20151019
+-- Description:	flat version of modules used in pigeoncms to export data
+-- =============================================
+CREATE PROCEDURE [dbo].[#__sp_modules_cultureFlat]
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+	DECLARE @columns NVARCHAR(MAX), @sql NVARCHAR(MAX);
+	SET @columns = N'';
+	SELECT @columns += N', p.' + QUOTENAME(cultureCode)
+	  FROM (
+		select cultureCode from #__cultures where enabled=1 
+	  ) AS x;
+	SET @sql = N'
+	SELECT p.moduleId, p.templateBlockName, p.moduleNameSpace, 
+	p.moduleName, p.currView, ' + STUFF(@columns, 1, 2, '') + '
+	FROM
+	(
+	  SELECT mc.moduleId, m.templateBlockName, m.moduleNameSpace,
+	  m.moduleName, m.currView,
+	  mc.culturename, mc.title
+	  FROM #__modules m left join #__modules_Culture mc
+	  on m.id = mc.moduleId where mc.moduleid is not null
+	) AS j
+	PIVOT
+	(
+	  max(title) FOR culturename IN ('
+	  + STUFF(REPLACE(@columns, ', p.[', ',['), 1, 1, '')
+	  + ')
+	) AS p;';
+	--PRINT @sql;
+	EXEC sp_executesql @sql;
+
+END
+GO
+
+
+]]>
+
+  </item>
+</updates>

@@ -52,10 +52,18 @@
     <Compile Include="BLL\Customer.cs" />
     <Compile Include="BLL\OrderRow.cs" />
     <Compile Include="BLL\Order.cs" />
+    <Compile Include="BLL\ShipGeoZones.cs" />
+    <Compile Include="BLL\Shipment.cs" />
+    <Compile Include="BLL\ShipZones.cs" />
+    <Compile Include="BLL\ShipZonesWeight.cs" />
     <Compile Include="DAL\CouponsManager.cs" />
     <Compile Include="DAL\CustomersManager.cs" />
     <Compile Include="DAL\PaymentsManager.cs" />
     <Compile Include="DAL\OrdersManager.cs" />
+    <Compile Include="DAL\ShipGeoZonesManager.cs" />
+    <Compile Include="DAL\ShipmentsManager.cs" />
+    <Compile Include="DAL\ShipZonesManager.cs" />
+    <Compile Include="DAL\ShipZonesWeightManager.cs" />
     <Compile Include="Helpers\Settings.cs" />
     <Compile Include="Items\PigeonCms.Shop.ProductItem\ProductItem.cs" />
     <Compile Include="Modules\OrdersAdminControl.cs">
@@ -67,6 +75,8 @@
     <Compile Include="Provider\Payments\PaymentsProvider.cs" />
     <Compile Include="Provider\OrdersProvider.cs" />
     <Compile Include="Provider\ProductsProvider.cs" />
+    <Compile Include="Provider\Shipments\ShipmentsProvider.cs" />
+    <Compile Include="Provider\Shipments\WeightZones.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PigeonCms.Core\PigeonCms.Core.csproj">

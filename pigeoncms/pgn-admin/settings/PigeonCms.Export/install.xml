@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<install
+    installerVersion="1.0.0"
+    type="plugin"
+    version="1.0.0"
+    core="true"
+    namespace="PigeonCms"
+    name="Export"
+    author="p-ice"
+    creationDate="2015-10-19"
+    copyright="Copyright(C) 2015 Nicola Ridolfi. All rights reserved."
+    license=""
+    authorEmail="picce@yahoo.it"
+    authorUrl="https://github.com/picce/pigeoncms"
+    description="Export Pigeon data."
+    iconClass="glyphicon glyphicon-export"
+    panelClass="panel-default"
+    >
+
+  <params group="">
+
+    <param name="Resources" type="text" default="#__sp_menu_cultureFlat, Menu | #__sp_modules_cultureFlat, Modules" 
+           label="Resources to export" description="example: storedProcedureName1, resourceName1 | storedProcedureName2, resourceName2" />
+
+  </params>
+
+</install>

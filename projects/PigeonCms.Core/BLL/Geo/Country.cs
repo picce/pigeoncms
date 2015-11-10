@@ -21,12 +21,12 @@ namespace PigeonCms.Geo
     public class Country: ITable
     {
         string 
-            code,
-            iso3,
-            continent,
-            name,
-            custom1,
-            custom2,
+            code = "",
+            iso3 = "",
+            continent = "",
+            name = "",
+            custom1 = "",
+            custom2 = "",
             custom3 = "";
 
         /// <summary>

@@ -543,33 +543,42 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
 
     protected void BtnApplyImport_Click(object sender, EventArgs e)
     {
-        //LblErr.Text = "";
-        //LblOk.Text = "";
+        LblErr.Text = "";
+        LblOk.Text = "";
 
-        //try
-        //{
-        //    int records = importData();
-        //    updateCatalogueDate();
-        //    MultiView1.ActiveViewIndex = VIEW_FINISH;
 
-        //    string fin = base.GetLabel("FinishMessage", "You have sucessfully imported %1 items in your catalogue");
-        //    fin = fin.Replace("%1", records.ToString());
-        //    LitFinish.Text = fin;
-        //    LogProvider.Write(this.BaseModule, records.ToString() + " items imported", TracerItemType.Info);
-        //}
-        //catch (Exception e1)
-        //{
-        //    LblErr.Text = Utility.GetLabel("RECORD_ERR_MSG") + "<br />" + e1.ToString();
-        //}
-        //finally
-        //{
-        //}
+        string message = "";
+        int countUpdates = 0;
+        int countInsert = 0;
+        bool res = false;
+
+        try
+        {
+
+            res = importData(out countUpdates, out countInsert);
+
+            message = base.GetLabel("ImportResultMessage", "%1 labels updated and %2 labels inserted");
+            message = message
+                .Replace("%1", countUpdates.ToString())
+                .Replace("%2", countInsert.ToString());
+
+            LblOk.Text = RenderSuccess(message);
+            LogProvider.Write(this.BaseModule, "Import result: " + message, TracerItemType.Info);
+        }
+        catch (Exception e1)
+        {
+            LogProvider.Write(this.BaseModule, "Import error: " + e1.ToString(), TracerItemType.Error);
+            LblErr.Text = RenderError("Error during import. Check log.");
+        }
+        finally
+        {
+            LabelsProvider.ClearCacheByResourceSet();
+        }
     }
 
     protected void BtnImport_Click(object sender, EventArgs e)
     {
         MultiView1.ActiveViewIndex = VIEW_IMPORT_IDX;
-        BtnApplyImport.Enabled = false;
         deleteUserTempData();
         loadDropsImport();
         loadGridImportPreview();
@@ -582,10 +591,11 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
 
         try
         {
-            int rows = exportToExcel(prepareGridForExport(Grid1), "labels_" + DropModuleTypesFilter.SelectedValue);
+            var exportHelper = new PigeonCms.ExportHelper();
+            string file = exportHelper.GridToExcel(prepareGridForExport(Grid1), "labels_" + DropModuleTypesFilter.SelectedValue);
 
-            if (rows > 0)
-                LblOk.Text = RenderSuccess(rows.ToString() + " exported");
+            if (!string.IsNullOrEmpty(file))
+                LblOk.Text = RenderSuccess("File "+ file + " exported");
             else
                 LblErr.Text = RenderError("No rows to export");
         }
@@ -1026,6 +1036,60 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         }
     }
 
+    private void loadDropsImport()
+    {
+        loadDropColumns(DropColResourceSet, "0");
+        loadDropColumns(DropColResourceId, "1");
+
+        PanelPreviewValue0.Visible = false;
+        PanelPreviewValue1.Visible = false;
+        PanelPreviewValue2.Visible = false;
+        PanelPreviewValue3.Visible = false;
+        PanelPreviewValue4.Visible = false;
+
+        for (int i = 0; i < this.CultureColumnsCount; i++)
+        {
+            var culture = this.CultureList[i];
+
+            var panel = Utility.FindControlRecursive<HtmlControl>(ViewImport, "PanelPreviewValue" + i.ToString());
+            var lit = Utility.FindControlRecursive<Literal>(ViewImport, "LitColValue" + i.ToString());
+            var drop = Utility.FindControlRecursive<DropDownList>(ViewImport, "DropColValue" + i.ToString());
+
+            panel.Visible = true;
+            lit.Text = "Value " + culture.CultureCode + " column";
+            loadDropColumns(drop, (i + 2).ToString());
+        }
+
+    }
+
+    private void loadDropColumns(DropDownList drop, string selectedValue)
+    {
+        try
+        {
+            drop.Items.Clear();
+            drop.Items.Add(new ListItem("--COL--", ""));
+
+            drop.Items.Add(new ListItem("A", "0"));
+            drop.Items.Add(new ListItem("B", "1"));
+            drop.Items.Add(new ListItem("C", "2"));
+            drop.Items.Add(new ListItem("D", "3"));
+            drop.Items.Add(new ListItem("E", "4"));
+            drop.Items.Add(new ListItem("F", "5"));
+            drop.Items.Add(new ListItem("G", "6"));
+            drop.Items.Add(new ListItem("H", "7"));
+            drop.Items.Add(new ListItem("I", "8"));
+            drop.Items.Add(new ListItem("J", "9"));
+            drop.Items.Add(new ListItem("K", "10"));
+
+            Utility.SetDropByValue(drop, selectedValue);
+        }
+        catch (Exception ex)
+        {
+            LblErr.Text = ex.ToString();
+        }
+    }
+
+
     /// <summary>
     /// load grid with data to import
     /// </summary>
@@ -1049,10 +1113,12 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         GridImportPreview.PageSize = 100;
         GridImportPreview.DataSource = list;
         GridImportPreview.DataBind();
-        
-        BtnApplyImport.Enabled = count > 0;
+
+        //BtnApplyImport.Enabled = count > 0;
+        BtnApplyImport.Enabled = true;
     }
 
+    //load labels grid with current filter
     private void loadGrid(GridView grid)
     {
         var man = new PigeonCms.LabelsManager();
@@ -1270,63 +1336,9 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         return resId;
     }
 
-    //tnx to http://www.siddharthrout.com/2014/07/20/creating-a-new-excel-file-and-adding-data-using-ace/
-    private int exportToExcel(GridView ctrl, string filename)
-    {
-        if (ctrl.Rows.Count == 0)
-            return 0;
-
-        //create file
-        var olecon = new OleDbConnection();
-        var olecmd = new OleDbCommand();
-        string filePath = new FilesGallery().TempPhisicalPath;
-        filename += ".xlsx";
-        string connstring = "Provider=Microsoft.ACE.OLEDB.12.0;" +
-                            "Data Source=" + Path.Combine(filePath, filename) + ";" +
-                            "Extended Properties=\"Excel 12.0 Xml;HDR=YES;\"";
-
-        if (!Directory.Exists(filePath))
-            Directory.CreateDirectory(filePath);
-
-        if (File.Exists(Path.Combine(filePath, filename)))
-            File.Delete(Path.Combine(filePath, filename));
-
-        olecon.ConnectionString = connstring;
-        olecon.Open();
-        olecmd.Connection = olecon;
-
-        //create table
-        olecmd.CommandText = getCreateTableSql(ctrl);
-        olecmd.ExecuteNonQuery();
-
-        //insert rows
-        for (int i = 0; i < ctrl.Rows.Count; i++)
-        {
-            GridViewRow row = ctrl.Rows[i];
-            olecmd.CommandText = getInsertSqlFromRow(row, ctrl);
-            olecmd.ExecuteNonQuery();
-        }
-        olecon.Close();
 
 
-        //download file
-        FileInfo file = new FileInfo(Path.Combine(filePath, filename));
-        if (file.Exists)
-        {
-            Response.Clear();
-            Response.ClearHeaders();
-            Response.ClearContent();
-            Response.AddHeader("content-disposition", "attachment; filename=" + filename);
-            Response.AddHeader("Content-Type", "application/Excel");
-            Response.ContentType = "application/vnd.xls";
-            Response.AddHeader("Content-Length", file.Length.ToString());
-            Response.WriteFile(file.FullName);
-            Response.End();
-        }
-
-        return ctrl.Rows.Count;
-    }
-
+    //remove user data in current section
     private void deleteUserTempData()
     {
         var man = new UserTempDataManager(true);
@@ -1335,10 +1347,12 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         filter.SessionId = Utility._SessionID();
         filter.IsExpired = Utility.TristateBool.NotSet;
 
-        //remove user data in current section
         man.DeleteByFilter(filter);
     }
 
+    /// <summary>
+    /// import userTempData from excel file
+    /// </summary>
     private bool importPreviewFromExcel(string fileName, bool hasHeaders)
     {
         var res = false;
@@ -1408,59 +1422,9 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         return res;
     }
 
-    private void loadDropsImport()
-    {
-        loadDropColumns(DropColResourceSet, "0");
-        loadDropColumns(DropColResourceId, "1");
-
-        PanelPreviewValue0.Visible = false;
-        PanelPreviewValue1.Visible = false;
-        PanelPreviewValue2.Visible = false;
-        PanelPreviewValue3.Visible = false;
-        PanelPreviewValue4.Visible = false;
-
-        for (int i = 0; i < this.CultureColumnsCount; i++)
-        {
-            var culture = this.CultureList[i];
-            
-            var panel = Utility.FindControlRecursive<HtmlControl>(ViewImport, "PanelPreviewValue" + i.ToString());
-            var lit = Utility.FindControlRecursive<Literal>(ViewImport, "LitColValue" + i.ToString());
-            var drop = Utility.FindControlRecursive<DropDownList>(ViewImport, "DropColValue" + i.ToString());
-
-            panel.Visible = true;
-            lit.Text = "Value " + culture.CultureCode + " column";
-            loadDropColumns(drop, (i + 2).ToString());
-        }
-
-    }
-
-    private void loadDropColumns(DropDownList drop, string selectedValue)
-    {
-        try
-        {
-            drop.Items.Clear();
-            drop.Items.Add(new ListItem("--COL--", ""));
-
-            drop.Items.Add(new ListItem("A", "0"));
-            drop.Items.Add(new ListItem("B", "1"));
-            drop.Items.Add(new ListItem("C", "2"));
-            drop.Items.Add(new ListItem("D", "3"));
-            drop.Items.Add(new ListItem("E", "4"));
-            drop.Items.Add(new ListItem("F", "5"));
-            drop.Items.Add(new ListItem("G", "6"));
-            drop.Items.Add(new ListItem("H", "7"));
-            drop.Items.Add(new ListItem("I", "8"));
-            drop.Items.Add(new ListItem("J", "9"));
-            drop.Items.Add(new ListItem("K", "10"));
-
-            Utility.SetDropByValue(drop, selectedValue);
-        }
-        catch (Exception ex)
-        {
-            LblErr.Text = ex.ToString();
-        }
-    }
-
+    /// <summary>
+    /// prepare grid format for excel export 
+    /// </summary>
     private GridView prepareGridForExport(GridView ctrl)
     {
         ctrl.AllowPaging = false;
@@ -1487,79 +1451,8 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         return ctrl;
     }
 
-    private string getCreateTableSql(GridView ctrl)
-    {
-        string res = "";
-        string cols = "";
-        foreach (DataControlField col in ctrl.Columns)
-        {
-            if (string.IsNullOrEmpty(col.HeaderText))
-                col.Visible = false;
 
-            if (!col.Visible)
-                continue;
 
-            cols += "[" + col.HeaderText + "] memo,";
-        }
-        if (cols.EndsWith(","))
-            cols = cols.Substring(0, cols.Length - 1);
-
-        res = "CREATE TABLE Sheet1(" + cols + ")";
-        return res;
-    }
-
-    private string getInsertSqlFromRow(GridViewRow row, GridView ctrl)
-    {
-        string res = "";
-        string cols = "";
-        string values = "";
-        int colIdx = 0;
-        foreach (DataControlField col in ctrl.Columns)
-        {
-            if (!col.Visible)
-            {
-                colIdx++;
-                continue;
-            }
-
-            cols += "[" + col.HeaderText + "],";
-
-            var LitValue = FindFirstControlRecursive<Literal>(row.Cells[colIdx]);
-            string value = row.Cells[colIdx].Text;
-            if (LitValue != null)
-                value = LitValue.Text;
-
-            //issue on newline that becomes _x000d_ in excel
-            if (value.Contains("\r\n"))
-                value = value.Replace("\r\n", "");
-
-            values += "'" + value.Replace("'", "''") + "',";
-
-            colIdx++;
-        }
-        if (cols.EndsWith(","))
-            cols = cols.Substring(0, cols.Length - 1);
-        if (values.EndsWith(","))
-            values = values.Substring(0, values.Length - 1);
-        
-        res = "INSERT INTO Sheet1("+ cols +") VALUES("+ values +")";
-        return res;
-    }
-
-    private T FindFirstControlRecursive<T>(Control parentControl) where T : Control
-    {
-        T ctrl = default(T);
-
-        if ((parentControl is T) /*&& (parentControl.ID == id)*/)
-            return (T)parentControl;
-
-        foreach (Control c in parentControl.Controls)
-        {
-            ctrl = FindFirstControlRecursive<T>(c);
-            if (ctrl != null) break;
-        }
-        return ctrl;
-    }
 
     private void selectAll(bool enabled)
     {
@@ -1590,54 +1483,84 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         }
     }
 
-    private int importData()
+    private bool importData(out int countUpdates, out int countInsert)
     {
-        int res = 0;
+        bool res = true;
+        var man = new LabelsManager();
+        var lFilter = new LabelsFilter();
+        string now = DateTime.Now.ToShortTimeString();
      
-        int colResourceSet = 0;
-        int colResourceId = 0;
-        int colValue0 = 0;
-        int colValue1 = 0;
-        int colValue2 = 0;
-        int colValue3 = 0;
-        int colValue4 = 0;
-        var category = new Category();
+        int colResourceSet_idx = 0;
+        int colResourceId_idx = 0;
+        int.TryParse(DropColResourceSet.SelectedValue, out colResourceSet_idx);
+        int.TryParse(DropColResourceId.SelectedValue, out colResourceId_idx);
 
-        int.TryParse(DropColResourceSet.SelectedValue, out colResourceSet);
-        int.TryParse(DropColResourceId.SelectedValue, out colResourceId);
-        int.TryParse(DropColValue0.SelectedValue, out colValue0);
-        int.TryParse(DropColValue1.SelectedValue, out colValue1);
-        int.TryParse(DropColValue2.SelectedValue, out colValue2);
-        int.TryParse(DropColValue3.SelectedValue, out colValue3);
-        int.TryParse(DropColValue4.SelectedValue, out colValue4);
+        countUpdates = 0;
+        countInsert = 0;
 
+        var tempMan = new UserTempDataManager(true);
+        var tempFilter = new UserTempDataFilter();
+        tempFilter.Username = PgnUserCurrent.UserName;
+        tempFilter.SessionId = Utility._SessionID();
+        tempFilter.IsExpired = Utility.TristateBool.False;
+        tempFilter.Enabled = Utility.TristateBool.True;
+        var list = tempMan.GetByFilter(tempFilter, "");
 
-        var man = new UserTempDataManager(true);
-        var filter = new UserTempDataFilter();
-        filter.Username = PgnUserCurrent.UserName;
-        filter.SessionId = Utility._SessionID();
-        filter.IsExpired = Utility.TristateBool.False;
-        filter.Enabled = Utility.TristateBool.True;
-        var list = man.GetByFilter(filter, "");
         foreach (var item in list)
         {
-            //TODO insert labels
+            string labelResSet = item.Columns[colResourceSet_idx];
+            string labelResId = item.Columns[colResourceId_idx];
 
-            //var o1 = new DroidCatalogue.DroidItem();
-            //decimal price = 0m;
-            //Decimal.TryParse(item.Columns[colItemPrice], out price);
+            if (string.IsNullOrEmpty(labelResSet))
+                continue;
 
-            //o1.Enabled = true;
-            //o1.TitleTranslations.Clear();
-            //o1.DescriptionTranslations.Clear();
-            //o1.CategoryId = category.Id;
-            //o1.TitleTranslations.Add(Config.CultureDefault, item.Columns[colItemTitle]);
-            //o1.DescriptionTranslations.Add(Config.CultureDefault, item.Columns[colItemDescription]);
-            //o1.Sku = item.Columns[colItemSku];
-            //o1.Price = price;
+            if (string.IsNullOrEmpty(labelResId))
+                continue;
 
-            //o1 = new DroidItemsManager(true, false).Insert(o1, false);
-            res++;
+            for (int i = 0; i < this.CultureColumnsCount; i++)
+            {
+                string labelCulture = this.CultureList[i].CultureCode;
+
+                var label = new ResLabel();
+                var labelList = new List<ResLabel>();
+                int colValue_idx = 0;
+                var drop = Utility.FindControlRecursive<DropDownList>(ViewImport, "DropColValue" + i.ToString());
+                int.TryParse(drop.SelectedValue, out colValue_idx);
+                
+                string labelValue = item.Columns[colValue_idx];
+
+                lFilter.ResourceSet = labelResSet;
+                lFilter.ResourceId = labelResId;
+                lFilter.CultureName = labelCulture;
+                labelList = man.GetByFilter(lFilter, "");
+                if (labelList.Count > 0)
+                {
+                    label = labelList[0];
+                    if (label.Value != labelValue)
+                    {
+                        //update only different values
+                        label.Value = labelValue;
+                        //label.Comment = 
+                        //label.TextMode = 
+                        label.ResourceParams = "";
+                        man.Update(label);
+                        countUpdates++;
+                    }
+                }
+                else
+                {
+                    label.ResourceSet = labelResSet;
+                    label.ResourceId = labelResId;
+                    label.CultureName = labelCulture;
+                    label.Value = labelValue;
+                    label.Comment = "imported " + now + " by " + PgnUserCurrent.UserName;
+                    //label.TextMode = o1.TextMode;
+                    //label.ResourceParams = "";
+                    man.Insert(label);
+                    countInsert++;
+                }
+            }
+
         }
         
         return res;

@@ -2831,4 +2831,24 @@ GO
 ]]>
 
   </item>
+
+  <item id="3" date="2015-11-10" dev="https://github.com/picce/" notes="table #__itemsRelationTypes_Culture field name correction ">
+<![CDATA[
+
+    IF EXISTS(SELECT * FROM sys.columns
+    WHERE Name = N'itemsRelationTypes_Culture' AND Object_ID = Object_ID(N'#__itemsRelationTypes_Culture'))
+    BEGIN
+      EXECUTE sp_rename N'dbo.#__itemsRelationTypes_Culture.itemsRelationTypes_Culture', N'Tmp_itemsRelationTypeId', 'COLUMN'
+      EXECUTE sp_rename N'dbo.#__itemsRelationTypes_Culture.Tmp_itemsRelationTypeId', N'itemsRelationTypeId', 'COLUMN'
+      ALTER TABLE dbo.#__itemsRelationTypes_Culture SET (LOCK_ESCALATION = TABLE)
+    END
+    GO
+
+    --new version fallback for manual db upgrade
+    INSERT INTO #__dbVersion(componentFullName, versionId, versionDate, versionDev, versionNotes, dateUpdated, userUpdated)
+    VALUES('PigeonCms.Core', 3/*version*/, GETDATE(), '', '', GETDATE(), 'MANUAL')
+    GO
+]]>
+
+  </item>
 </updates>

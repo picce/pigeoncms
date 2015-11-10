@@ -74,7 +74,7 @@ namespace PigeonCms.Test
         public void GetByFilterTest()
         {
             CountriesManager target = new CountriesManager(); // TODO: Initialize to an appropriate value
-            CountriesFilter filter = null; // TODO: Initialize to an appropriate value
+            CountriesFilter filter = new CountriesFilter(); ; // TODO: Initialize to an appropriate value
             filter.Code = TEST_CODE;
             List<Country> actual;
 
@@ -104,21 +104,28 @@ namespace PigeonCms.Test
         public void GetListTest()
         {
             CountriesManager target = new CountriesManager(); // TODO: Initialize to an appropriate value
-            Dictionary<string, string> expected = null; // TODO: Initialize to an appropriate value
             Dictionary<string, string> actual;
             actual = target.GetList();
-            Assert.AreEqual(expected, actual);
-            Assert.IsTrue(actual.Count > 0);
+            //Assert.AreEqual(expected, actual);
+            Assert.IsTrue(actual.Count > 0, "no countries in table");
+        }
+
+        [TestMethod()]
+        public void DeleteTest()
+        {
+            CountriesManager target = new CountriesManager();
+            int actual = target.DeleteById(TEST_CODE);
+            Assert.IsTrue(actual > 0);
         }
 
         /// <summary>
         ///A test for Insert
         ///</summary>
         [TestMethod()]
-        public void InsertTest()
+        public void DeleteInsertTest()
         {
             CountriesManager target = new CountriesManager();
-            Country theObj = null;
+            Country theObj = new Country(); ;
             Country actual;
             theObj.Code = TEST_CODE;
             theObj.Iso3 = "TES";
@@ -133,7 +140,7 @@ namespace PigeonCms.Test
         public void UpdateTest()
         {
             CountriesManager target = new CountriesManager(); // TODO: Initialize to an appropriate value
-            Country theObj = null;
+            Country theObj = new Country(); ;
             int actual;
             theObj = target.GetByKey(TEST_CODE);
             theObj.Iso3 = "TTT";

@@ -104,8 +104,10 @@ namespace PigeonCms
 
         public static void InitEditor(PigeonCms.BaseModuleControl control, UpdatePanel upd1, Configuration config)
         {
-            string extra = "";
-            string editorTheme = "";
+            //string extra = "";
+            //string editorTheme = "";
+            string menuBar = "";
+            string toolBar = "";
             string contentCss = "";
             string editorCss = ""; //control.ResolveUrl("~/Css/common.css");
             string initEditorText = "";
@@ -121,14 +123,29 @@ namespace PigeonCms
             if (!string.IsNullOrEmpty(editorCss))
                 contentCss = "content_css: '" + editorCss + @"', ";
 
+            var tinySettings = new AppSettingsProvider("PigeonCms.Core");
+
 
             switch (config.EditorType)
             {
                 case Configuration.EditorTypeEnum.Html:
-                    editorTheme = "advanced";
+                    toolBar = tinySettings.GetValue("TinyEditor-Html-toolbar", "true");
+                    menuBar = tinySettings.GetValue("TinyEditor-Html-menubar", "true");
+                    //tiny bug - "true" or empty string not allowed
+                    if (toolBar == "true")
+                        toolBar = "";
+                    if (menuBar == "true")
+                        menuBar = "";
+
+                    //removed in v4
+                    //editorTheme = "advanced";
                     break;
+
                 case Configuration.EditorTypeEnum.BasicHtml:
-                    editorTheme = "simple";
+                    toolBar = tinySettings.GetValue("TinyEditor-BasicHtml-toolbar", "bold italic | link | alignleft aligncenter alignright");
+                    menuBar = tinySettings.GetValue("TinyEditor-BasicHtml-menubar", "false");
+                    //removed in v4
+                    //editorTheme = "simple";
                     //extra = "paste_text_sticky : true, paste_text_sticky_default : true,";
                     /*extra = @"
                     setup: function(ed) {
@@ -139,11 +156,17 @@ namespace PigeonCms
                         });
                     }, ";*/
                     break;
+
                 case Configuration.EditorTypeEnum.Text:
                 default:
-                    editorTheme = "";
                     break;
             }
+
+            if (!string.IsNullOrEmpty(toolBar))
+                toolBar = "toolbar: '" + toolBar + @"',";
+
+            if (!string.IsNullOrEmpty(menuBar))
+                menuBar = "menubar: '" + menuBar + @"',";
 
             if (config.EditorType == Configuration.EditorTypeEnum.Text
                 || config.EditorType == Configuration.EditorTypeEnum.Image)
@@ -161,6 +184,8 @@ namespace PigeonCms
                     tinymce.remove('textarea');
                     tinymce.init({
                         selector: 'textarea',
+                        " + toolBar + @"
+                        " + menuBar + @"
                         relative_urls: false,
                         plugins: [
                                  'advlist autolink link image lists charmap print preview hr anchor pagebreak ',

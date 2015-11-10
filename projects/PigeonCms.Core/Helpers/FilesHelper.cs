@@ -10,6 +10,7 @@ using System.Web.UI.HtmlControls;
 using System.Web.UI.WebControls;
 using System.Web.UI.WebControls.WebParts;
 using System.IO;
+using System.Data.OleDb;
 
 
 namespace PigeonCms
@@ -84,5 +85,173 @@ namespace PigeonCms
             }
             return res;
         }
+    }
+
+    public class ExportHelper
+    {
+        /// <summary>
+        /// export grid to excel file
+        /// returns destination file path
+        /// tnx to http://www.siddharthrout.com/2014/07/20/creating-a-new-excel-file-and-adding-data-using-ace/
+        /// </summary>
+        public string GridToExcel(GridView ctrl, string filename, bool download = true, List<string>columns = null)
+        {
+            if (ctrl.Rows.Count == 0)
+                return "";
+
+            if (columns == null)
+            {
+                //ctrl.Columns is empty for grid with AutoGenerateColumns=true
+                columns = new List<string>();
+                foreach (DataControlField col in ctrl.Columns)
+                {
+                    //if (string.IsNullOrEmpty(col.HeaderText))
+                    //    col.Visible = false;
+
+                    //if (!col.Visible)
+                    //    continue;
+
+                    string title = col.HeaderText;
+                    if (!col.Visible)
+                        title = "";
+                    columns.Add(title);
+                }
+            }
+
+            //create file
+            var olecon = new OleDbConnection();
+            var olecmd = new OleDbCommand();
+            string filePath = new FilesGallery().TempPhisicalPath;
+            filename += ".xlsx";
+            string connstring = "Provider=Microsoft.ACE.OLEDB.12.0;" +
+                                "Data Source=" + Path.Combine(filePath, filename) + ";" +
+                                "Extended Properties=\"Excel 12.0 Xml;HDR=YES;\"";
+
+            if (!Directory.Exists(filePath))
+                Directory.CreateDirectory(filePath);
+
+            if (File.Exists(Path.Combine(filePath, filename)))
+                File.Delete(Path.Combine(filePath, filename));
+
+            olecon.ConnectionString = connstring;
+            olecon.Open();
+            olecmd.Connection = olecon;
+
+            //create table
+            olecmd.CommandText = getCreateTableSql(columns);
+            olecmd.ExecuteNonQuery();
+
+            //insert rows
+            for (int i = 0; i < ctrl.Rows.Count; i++)
+            {
+                GridViewRow row = ctrl.Rows[i];
+                olecmd.CommandText = getInsertSqlFromRow(row, columns);
+                olecmd.ExecuteNonQuery();
+            }
+            olecon.Close();
+
+
+            //download file
+            FileInfo file = new FileInfo(Path.Combine(filePath, filename));
+            if (download && file.Exists)
+            {
+                HttpContext.Current.Response.Clear();
+                HttpContext.Current.Response.ClearHeaders();
+                HttpContext.Current.Response.ClearContent();
+                HttpContext.Current.Response.AddHeader("content-disposition", "attachment; filename=" + filename);
+                HttpContext.Current.Response.AddHeader("Content-Type", "application/Excel");
+                HttpContext.Current.Response.ContentType = "application/vnd.xls";
+                HttpContext.Current.Response.AddHeader("Content-Length", file.Length.ToString());
+                HttpContext.Current.Response.WriteFile(file.FullName);
+                //HttpContext.Current.Response.End();
+                HttpContext.Current.Response.Flush();
+                HttpContext.Current.ApplicationInstance.CompleteRequest();
+            }
+            return file.FullName;
+            //return ctrl.Rows.Count;
+        }
+
+        /// <summary>
+        /// sql to create table (sheet) in excel file
+        /// </summary>
+        private string getCreateTableSql(List<string> columns)
+        {
+            string res = "";
+            string cols = "";
+            foreach (var title in columns)
+            {
+                if (!string.IsNullOrEmpty(title))
+                    cols += "[" + title + "] memo,";
+            }
+            if (cols.EndsWith(","))
+                cols = cols.Substring(0, cols.Length - 1);
+
+            res = "CREATE TABLE Sheet1(" + cols + ")";
+            return res;
+        }
+
+        /// <summary>
+        /// sql for insert single row in excel file
+        /// </summary>
+        private string getInsertSqlFromRow(GridViewRow row, List<string>columns /*GridView ctrl*/)
+        {
+            string res = "";
+            string cols = "";
+            string values = "";
+            int colIdx = 0;
+            //foreach (DataControlField col in ctrl.Columns)
+            foreach (string title in columns)
+            {
+                //if (!col.Visible)
+                //{
+                //    colIdx++;
+                //    continue;
+                //}
+
+                if (string.IsNullOrEmpty(title))
+                {
+                    colIdx++;
+                    continue;
+                }
+
+                cols += "[" + title + "],";
+
+                var LitValue = findFirstControlRecursive<Literal>(row.Cells[colIdx]);
+                string value = row.Cells[colIdx].Text;
+                if (LitValue != null)
+                    value = LitValue.Text;
+
+                //issue on newline that becomes _x000d_ in excel
+                if (value.Contains("\r\n"))
+                    value = value.Replace("\r\n", "");
+
+                values += "'" + value.Replace("'", "''") + "',";
+
+                colIdx++;
+            }
+            if (cols.EndsWith(","))
+                cols = cols.Substring(0, cols.Length - 1);
+            if (values.EndsWith(","))
+                values = values.Substring(0, values.Length - 1);
+
+            res = "INSERT INTO Sheet1(" + cols + ") VALUES(" + values + ")";
+            return res;
+        }
+
+        private T findFirstControlRecursive<T>(Control parentControl) where T : Control
+        {
+            T ctrl = default(T);
+
+            if ((parentControl is T) /*&& (parentControl.ID == id)*/)
+                return (T)parentControl;
+
+            foreach (Control c in parentControl.Controls)
+            {
+                ctrl = findFirstControlRecursive<T>(c);
+                if (ctrl != null) break;
+            }
+            return ctrl;
+        }
+
     }
 }

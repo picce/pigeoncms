@@ -1438,7 +1438,7 @@ namespace PigeonCms
 
 		//TOCHECK-LOLLO
         //ottimizzare qry (magari includere in ItemsFilter) - includere prop Related (List<T>) in Item; renamed
-        public List<T> GetRelatedItems(int itemId)
+        public List<T> GetRelatedItems(int itemId, int itemsRelationTypeId)
         {
             DbProviderFactory myProv = Database.ProviderFactory;
             DbConnection myConn = myProv.CreateConnection();
@@ -1454,11 +1454,13 @@ namespace PigeonCms
             try {
                 sSql = "SELECT RelatedId "
                   + " FROM #__itemsRelated r "
-                  + " WHERE ItemId = @ItemId ";
+                  + " WHERE ItemId = @ItemId "
+                  + " AND ItemsRelationTypeId = @ItemsRelationTypeId ";
 
                 myCmd.CommandText = Database.ParseSql(sSql);
                 myCmd.Parameters.Clear();
                 myCmd.Parameters.Add(Database.Parameter(myProv, "ItemId", itemId));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "ItemsRelationTypeId", itemsRelationTypeId));
                 myRd = myCmd.ExecuteReader();
                 while (myRd.Read())
                 {
@@ -1487,7 +1489,7 @@ namespace PigeonCms
 
 		//TOCHECK-LOLLO - edit picce (in SetRelated) TODO: check if exists
         //TODO check if exists
-        public void SetRelated(int itemId, int RelatedId)
+        public void SetRelated(int itemId, int relatedId, int itemsRelationTypeId)
         {
             DbProviderFactory myProv = Database.ProviderFactory;
             DbConnection myConn = myProv.CreateConnection();
@@ -1500,12 +1502,13 @@ namespace PigeonCms
             try
             {
                 string sSql = "";
-                sSql = "INSERT INTO #__itemsRelated (ItemId, RelatedId) "
-                      + " VALUES(@ItemId, @RelatedId) ";
+                sSql = "INSERT INTO #__itemsRelated (ItemId, RelatedId, ItemsRelationTypeId) "
+                      + " VALUES(@ItemId, @RelatedId, @ItemsRelationTypeId) ";
                 myCmd.CommandText = Database.ParseSql(sSql);
                 myCmd.Parameters.Clear();
                 myCmd.Parameters.Add(Database.Parameter(myProv, "ItemId", itemId));
-                myCmd.Parameters.Add(Database.Parameter(myProv, "RelatedId", RelatedId));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "RelatedId", relatedId));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "ItemsRelationTypeId", itemsRelationTypeId));
                 myCmd.ExecuteNonQuery();
 
             }
@@ -1517,7 +1520,7 @@ namespace PigeonCms
         }
         
         //TOCHECK-LOLLO - edit picce (in DeleteRelated) TODO: check if exists
-        public void DeleteRelated(int itemId, int relatedId)
+        public void DeleteRelated(int itemId, int relatedId, int itemsRelationTypeId)
         {
             DbProviderFactory myProv = Database.ProviderFactory;
             DbConnection myConn = myProv.CreateConnection();
@@ -1531,11 +1534,12 @@ namespace PigeonCms
             {
                 string sSql = "";
                 sSql = "DELETE FROM #__itemsRelated "
-                      + " WHERE ItemId=@ItemId AND RelatedId=@RelatedId ";
+                      + " WHERE ItemId=@ItemId AND RelatedId=@RelatedId AND ItemsRelationTypeId=@ItemsRelationTypeId ";
                 myCmd.CommandText = Database.ParseSql(sSql);
                 myCmd.Parameters.Clear();
                 myCmd.Parameters.Add(Database.Parameter(myProv, "ItemId", itemId));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "RelatedId", relatedId));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "ItemsRelationTypeId", itemsRelationTypeId));
                 myCmd.ExecuteNonQuery();
             }
             finally

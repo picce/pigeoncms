@@ -68,11 +68,28 @@ namespace PigeonCms.Shop
         /// <summary>
         /// product weight unit of measure
         /// </summary>
-        public string WeightUnit
+        public string WeightUnitDefault
         {
             get
             {
-                return provider.GetValue("WeightUnit", "Kg");
+                return provider.GetValue("WeightUnitDefault", "Kg");
+            }
+        }
+
+        /// <summary>
+        /// unit to get the free shipping options
+        /// </summary>
+        public decimal FreeShippingMinValue
+        {
+            get
+            {
+                string value = provider.GetValue("FreeShippingMinValue", "0");
+                decimal res = 0;
+                decimal.TryParse(value, out res);
+                if (res == 0)
+                    res = -1;
+
+                return res;
             }
         }
 

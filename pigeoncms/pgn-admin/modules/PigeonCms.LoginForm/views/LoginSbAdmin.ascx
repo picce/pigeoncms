@@ -12,16 +12,15 @@
                 <div class="form-group">
                     <asp:TextBox id="TxtUser" ValidationGroup="AdminArea" CssClass="form-control" runat="server"></asp:TextBox>
                     <asp:RequiredFieldValidator ID="RequiredUser" runat="server" ControlToValidate="TxtUser"
-                        ValidationGroup="AdminArea" ErrorMessage="Inserire il nome utente">*</asp:RequiredFieldValidator>
+                        ValidationGroup="AdminArea" ErrorMessage="">*</asp:RequiredFieldValidator>
                 </div>
 
 
                 <div class="form-group">
                     <asp:TextBox id="TxtPassword" TextMode="Password" ValidationGroup="AdminArea" CssClass="form-control" runat="server"></asp:TextBox>
                     <asp:RequiredFieldValidator ID="RequiredPassword" runat="server" ControlToValidate="TxtPassword"
-                        ValidationGroup="AdminArea" ErrorMessage="Inserire la password">*</asp:RequiredFieldValidator>
+                        ValidationGroup="AdminArea" ErrorMessage="">*</asp:RequiredFieldValidator>
                 </div>
-
 
                 <%--<div class="checkbox">
                     <label>
@@ -31,6 +30,14 @@
                 
                 <asp:Button ID="CmdLogin" ValidationGroup="AdminArea" runat="server" 
                     CssClass="btn btn-lg btn-success btn-block" OnClick="CmdLogin_Click" Text="Login" />
+
+                <div class="checkbox">
+                    <label>
+                        <asp:CheckBox runat="server" ID="ChkRememberMe" Text="" />
+                        <asp:Literal runat="server" ID="LitRememberMe"></asp:Literal>
+                    </label>
+                </div>
+
 
             </fieldset>
         </div>

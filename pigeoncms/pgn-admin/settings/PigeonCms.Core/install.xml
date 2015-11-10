@@ -13,7 +13,7 @@
     authorEmail="picce@yahoo.it"
     authorUrl="https://github.com/picce/pigeoncms"
     description="PigeonCms Core engine. Edit with caution"
-    iconClass="fa-warning"
+    iconClass="fa fa-warning"
     panelClass="panel-danger"
     >
 
@@ -38,7 +38,28 @@
       <option value="1" label="Yes"></option>
       <option value="0" label="No"></option>
     </param>
-    
+
+    <param name="TinyEditor-BasicHtml-menubar" type="text" 
+           default="false" 
+           label="TinyMCE editor BasicHTML menu"
+           description="Menu bar configuration. See http://www.tinymce.com/wiki.php/Configuration:menubar" />
+
+    <param name="TinyEditor-BasicHtml-toolbar" type="text" 
+           default="bold italic | link | alignleft aligncenter alignright"
+           label="TinyMCE editor BasicHTML toolbar"
+           description="Menu bar configuration. See http://www.tinymce.com/wiki.php/Configuration:toolbar" />
+
+
+    <param name="TinyEditor-Html-menubar" type="text" default="true"
+           label="TinyMCE editor HTML menu"
+           description="Menu bar configuration. See http://www.tinymce.com/wiki.php/Configuration:menubar" />
+
+    <param name="TinyEditor-Html-toolbar" type="text"
+           default="true"
+           label="TinyMCE editor HTML toolbar"
+           description="Menu bar configuration. See http://www.tinymce.com/wiki.php/Configuration:toolbar" />
+
+
   </params>
 
 </install>

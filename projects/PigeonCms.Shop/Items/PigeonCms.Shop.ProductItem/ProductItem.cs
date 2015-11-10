@@ -130,6 +130,7 @@ namespace PigeonCms.Shop
                     var filter = new ProductItemFilter();
                     filter.ThreadId = this.Id;
                     filter.ShowOnlyRootItems = false;
+                    filter.Enabled = PigeonCms.Utility.TristateBool.True;
                     threadItems = new ProductItemsManager().GetByFilter(filter, "");
                 }
                 return threadItems;
@@ -335,12 +336,47 @@ namespace PigeonCms.Shop
             {
                 var filter = new ProductItemFilter();
                 filter.SKU = Sku;
+                // to get also variants
+                filter.ShowOnlyRootItems = false;
                 var list = this.GetByFilter(filter, "");
                 if (list.Count > 0)
                     res = list[0];
             }
             return res;
         }
+
+        public override int Update(ProductItem theObj)
+        {
+            //check alias in category
+            if (!string.IsNullOrEmpty(theObj.SKU))
+            {
+                int existingItemId = this.GetBySku(theObj.SKU).Id;
+                if (existingItemId > 0 && existingItemId != theObj.Id)
+                    throw new CustomException(
+                        "Item SKU in use",
+                        CustomExceptionSeverity.Warning, CustomExceptionLogLevel.Log,
+                        ItemAliasInUseException);
+            }
+            return base.Update(theObj);
+        }
+
+        public ProductItem Insert(ProductItem newObj, bool checkMaxItems = false)
+        {
+            //check alias in category
+            if (!string.IsNullOrEmpty(newObj.Alias))
+            {
+                if (this.GetBySku(newObj.SKU).Id > 0)
+                    throw new CustomException(
+                        "Item sku in use",
+                        CustomExceptionSeverity.Warning, CustomExceptionLogLevel.Log,
+                        ItemAliasInUseException);
+            }
+
+            return base.Insert(newObj, checkMaxItems);
+
+        }
+
+
     }
 
 }

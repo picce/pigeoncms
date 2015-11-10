@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<install
+    installerVersion="1.0.0"
+    type="module"
+    version="1.0.0"
+    core="true"
+    namespace="PigeonCms"
+    name="ExportData"
+    author="picce"
+    creationDate="2015-10-19"
+    copyright="Copyright(C) 2015 Nicola Ridolfi. All rights reserved."
+    license=""
+    authorEmail="picce@yahoo.it"
+    authorUrl="https://github.com/picce/"
+    description="">
+
+  <params group="filters">
+  </params>
+  
+</install>

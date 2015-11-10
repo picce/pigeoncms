@@ -40,12 +40,21 @@ namespace PigeonCms.Shop
         //ORDER customer details HERE
         string OrdName { get; set; }
         string OrdAddress { get; set; }
+        string OrdVat { get; set; }
         string OrdZipCode { get; set; }
         string OrdCity { get; set; }
         string OrdState { get; set; }
         string OrdNation { get; set; }
         string OrdPhone { get; set; }
         string OrdEmail { get; set; }
+
+        //ORDER shipments details HERE
+        string ShipName { get; set; }
+        string ShipAddress { get; set; }
+        string ShipZipCode { get; set; }
+        string ShipCity { get; set; }
+        string ShipState { get; set; }
+        string ShipNation { get; set; }
 
         string CouponCode { get; set; }
         decimal CouponValue { get; set; }
@@ -56,6 +65,8 @@ namespace PigeonCms.Shop
         string Custom1 { get; set; }
         string Custom2 { get; set; }
         string Custom3 { get; set; }
+
+        decimal? ItemsCount { get; }
     }
 
     public interface IOrderFilter
@@ -347,6 +358,15 @@ namespace PigeonCms.Shop
             set { ordAddress = value; }
         }
 
+        private string ordVat = "";
+        public string OrdVat
+        {
+            [DebuggerStepThrough()]
+            get { return ordVat; }
+            [DebuggerStepThrough()]
+            set { ordVat = value; }
+        }
+
         private string ordZipCode = "";
         public string OrdZipCode
         {
@@ -401,6 +421,60 @@ namespace PigeonCms.Shop
             set { ordEmail = value; }
         }
 
+        //ORDER customer details HERE
+        private string shipName = "";
+        public string ShipName
+        {
+            [DebuggerStepThrough()]
+            get { return shipName; }
+            [DebuggerStepThrough()]
+            set { shipName = value; }
+        }
+
+        private string shipAddress = "";
+        public string ShipAddress
+        {
+            [DebuggerStepThrough()]
+            get { return shipAddress; }
+            [DebuggerStepThrough()]
+            set { shipAddress = value; }
+        }
+
+        private string shipZipCode = "";
+        public string ShipZipCode
+        {
+            [DebuggerStepThrough()]
+            get { return shipZipCode; }
+            [DebuggerStepThrough()]
+            set { shipZipCode = value; }
+        }
+
+        private string shipCity = "";
+        public string ShipCity
+        {
+            [DebuggerStepThrough()]
+            get { return shipCity; }
+            [DebuggerStepThrough()]
+            set { shipCity = value; }
+        }
+
+        private string shipState = "";
+        public string ShipState
+        {
+            [DebuggerStepThrough()]
+            get { return shipState; }
+            [DebuggerStepThrough()]
+            set { shipState = value; }
+        }
+
+        private string shipNation = "";
+        public string ShipNation
+        {
+            [DebuggerStepThrough()]
+            get { return shipNation; }
+            [DebuggerStepThrough()]
+            set { shipNation = value; }
+        }
 
         private string couponCode = "";
         [DataObjectField(false)]

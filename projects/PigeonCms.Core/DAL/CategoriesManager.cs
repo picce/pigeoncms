@@ -253,10 +253,15 @@ namespace PigeonCms
 
         public int DeleteByExtId(string extId)
         {
+            return DeleteByExtId(extId, false);
+        }
+
+        public int DeleteByExtId(string extId, bool deleteChilds)
+        {
             int res = 0;
             var item = GetByExtId(extId);
             if (item.Id > 0)
-                res = this.DeleteById(item.Id);
+                res = this.DeleteById(item.Id, deleteChilds);
 
             return res;
         }

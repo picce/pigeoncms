@@ -90,7 +90,7 @@ namespace PigeonCms
         /// 
         /// </summary>
         /// <param name="resourceSet">clear all labels cache. Param not used</param>
-        public static void ClearCacheByResourceSet(string resourceSet)
+        public static void ClearCacheByResourceSet(string resourceSet = "")
         {
             var cache = new CacheManager<List<ResLabel>>(CacheKeyPrefix);
             

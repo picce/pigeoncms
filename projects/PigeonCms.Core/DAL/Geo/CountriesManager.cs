@@ -118,7 +118,7 @@ namespace PigeonCms.Geo
 
                 sSql = "UPDATE [" + this.TableName + "] "
                 + " SET Iso3=@Iso3, Continent=@Continent, Name=@Name, "
-                + " Custom1=@Custom1, Custom2@Custom2, Custom3=@Custom3 "
+                + " Custom1=@Custom1, Custom2=@Custom2, Custom3=@Custom3 "
                 + " WHERE Code = @Code";
 
                 p.Add("Code", theObj.Code, null, null, null);

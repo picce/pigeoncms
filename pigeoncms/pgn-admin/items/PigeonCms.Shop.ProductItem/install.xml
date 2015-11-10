@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<install 
+    installerVersion="1.0.0"
+    type="item" 
+    version="1.0.0"
+    core="true"
+    namespace="PigeonCms.Shop"
+    name="ProductItem"
+    author="p-ice"
+    creationDate="2015-09-24"
+    copyright="Copyright(C) 2015 Nicola Ridolfi. All rights reserved."
+    license=""
+    authorEmail="picce@yahoo.it"
+    authorUrl="www.pigeoncms.com"
+    description="">
+    <files></files>
+    <fields></fields>
+	<params></params>
+</install>

@@ -16,12 +16,13 @@ namespace PigeonCms.Shop
     public interface IOrdersManager<OT, OF, RT, RF>
         where OT : PigeonCms.Shop.IOrder, new()
         where OF : PigeonCms.Shop.IOrderFilter, new()
-        where RT : PigeonCms.Shop.OrderRow, new()
-        where RF : PigeonCms.Shop.OrderRowsFilter, new()
+        where RT : PigeonCms.Shop.IOrderRow, new()
+        where RF : PigeonCms.Shop.IOrderRowsFilter, new()
     {
         void CalculateSummary(int recordId);
         decimal GetShipAmount(OT order);
         decimal GetCouponAmount(OT order, decimal orderAmount);
+        decimal GetOrderWeight(List<RT> orderRows);
         void SetOrderAsConfirmed(int orderId);
 
         List<OT> GetByFilter(OF filter, string sort);
@@ -48,8 +49,8 @@ namespace PigeonCms.Shop
             IOrdersManager<OT, OF, RT, RF>
         where OT: PigeonCms.Shop.IOrder, new()
         where OF: PigeonCms.Shop.IOrderFilter, new()
-        where RT : PigeonCms.Shop.OrderRow, new()
-        where RF : PigeonCms.Shop.OrderRowsFilter, new()
+        where RT : PigeonCms.Shop.IOrderRow, new()
+        where RF : PigeonCms.Shop.IOrderRowsFilter, new()
     {
 
         [DebuggerStepThrough()]
@@ -78,8 +79,9 @@ namespace PigeonCms.Shop
                 + " t.orderDateRequested, t.orderDateShipped, t.dateInserted, t.userInserted, "
                 + " t.dateUpdated, t.userUpdated, t.confirmed, t.paid, t.processed, t.invoiced, t.notes, "
                 + " t.qtyAmount, t.orderAmount, t.shipAmount, t.totalAmount, t.TotalPaid, t.Currency, "
-                + " t.invoiceId, t.invoiceRef, t.ordName, t.ordAddress, t.ordZipCode, t.ordCity, t.ordState, "
-                + " t.ordNation, t.ordPhone, t.ordEmail, t.couponCode, t.couponValue, "
+                + " t.invoiceId, t.invoiceRef, t.ordName, t.ordAddress, t.ordVat, t.ordZipCode, t.ordCity, t.ordState, "
+                + " t.ordNation, t.ordPhone, t.ordEmail, t.shipName, t.shipAddress, t.shipZipCode, "
+                + " t.shipCity, t.shipState, t.shipNation, t.couponCode, t.couponValue, "
                 + " t.paymentCode, t.shipCode, t.couponIsPercentage, "
                 + " t.JsData, t.Custom1, t.Custom2, t.Custom3 "
                 + " FROM [" + this.TableName + "] t "
@@ -226,9 +228,10 @@ namespace PigeonCms.Shop
                 DateUpdated=@DateUpdated, UserUpdated=@UserUpdated, 
                 Confirmed=@Confirmed, Paid=@Paid, Processed=@Processed, Invoiced=@Invoiced, Notes=@Notes, 
                 QtyAmount=@QtyAmount, OrderAmount=@OrderAmount, ShipAmount=@ShipAmount, TotalAmount=@TotalAmount, TotalPaid=@TotalPaid, Currency=@Currency, 
-                InvoiceId=@InvoiceId, InvoiceRef=@InvoiceRef, OrdName=@OrdName, OrdAddress=@OrdAddress, OrdZipCode=@OrdZipCode, 
+                InvoiceId=@InvoiceId, InvoiceRef=@InvoiceRef, OrdName=@OrdName, OrdAddress=@OrdAddress, OrdVat=@OrdVat, OrdZipCode=@OrdZipCode, 
                 OrdCity=@OrdCity, OrdState=@OrdState, OrdNation=@OrdNation, OrdPhone=@OrdPhone, OrdEmail=@OrdEmail, 
-                CouponCode=@CouponCode, CouponValue=@CouponValue, 
+                ShipName=@ShipName, ShipAddress=@ShipAddress, ShipZipCode=@ShipZipCode, 
+                ShipCity=@ShipCity, ShipState=@ShipState, ShipNation=@ShipNation, CouponCode=@CouponCode, CouponValue=@CouponValue, 
                 PaymentCode=@PaymentCode, ShipCode=@ShipCode, CouponIsPercentage=@CouponIsPercentage, 
                 JsData=@JsData, Custom1=@Custom1, Custom2=@Custom2, Custom3=@Custom3 
                 WHERE Id = @Id ";
@@ -267,12 +270,19 @@ namespace PigeonCms.Shop
                 myCmd.Parameters.Add(Database.Parameter(myProv, "InvoiceRef", theObj.InvoiceRef));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "OrdName", theObj.OrdName));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "OrdAddress", theObj.OrdAddress));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "OrdVat", theObj.OrdVat));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "OrdZipCode", theObj.OrdZipCode));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "OrdCity", theObj.OrdCity));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "OrdState", theObj.OrdState));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "OrdNation", theObj.OrdNation));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "OrdPhone", theObj.OrdPhone));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "OrdEmail", theObj.OrdEmail));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "ShipName", theObj.ShipName));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "ShipAddress", theObj.ShipAddress));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "ShipZipCode", theObj.ShipZipCode));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "ShipCity", theObj.ShipCity));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "ShipState", theObj.ShipState));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "ShipNation", theObj.ShipNation));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CouponCode", theObj.CouponCode));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CouponValue", theObj.CouponValue));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "PaymentCode", theObj.PaymentCode));
@@ -464,6 +474,17 @@ namespace PigeonCms.Shop
             return res;
         }
 
+        public virtual decimal GetOrderWeight(List<RT> orderRows)
+        {
+            decimal res = 0;
+            foreach (var row in orderRows)
+            {
+                var item = new ProductItemsManager().GetBySku(row.ProductCode);
+                res += item.Weight * row.Qty;
+            }
+            return res;
+        }
+
         public void SetOrderAsConfirmed(int orderId)
         {
             var order = new OT();
@@ -539,6 +560,18 @@ namespace PigeonCms.Shop
                 result.OrdPhone = (string)myRd["OrdPhone"];
             if (!Convert.IsDBNull(myRd["OrdEmail"]))
                 result.OrdEmail = (string)myRd["OrdEmail"];
+            if (!Convert.IsDBNull(myRd["ShipName"]))
+                result.ShipName = (string)myRd["ShipName"];
+            if (!Convert.IsDBNull(myRd["ShipAddress"]))
+                result.ShipAddress = (string)myRd["ShipAddress"];
+            if (!Convert.IsDBNull(myRd["ShipZipCode"]))
+                result.ShipZipCode = (string)myRd["ShipZipCode"];
+            if (!Convert.IsDBNull(myRd["ShipCity"]))
+                result.ShipCity = (string)myRd["ShipCity"];
+            if (!Convert.IsDBNull(myRd["ShipState"]))
+                result.ShipState = (string)myRd["ShipState"];
+            if (!Convert.IsDBNull(myRd["ShipNation"]))
+                result.ShipNation = (string)myRd["ShipNation"];
             if (!Convert.IsDBNull(myRd["CouponCode"]))
                 result.CouponCode = (string)myRd["CouponCode"];
             if (!Convert.IsDBNull(myRd["CouponValue"]))
@@ -681,7 +714,8 @@ namespace PigeonCms.Shop
 
                 sSql = "INSERT INTO [" + Rows_TableName + "] "
                     + " (OrderId, ProductCode, Qty, PriceNet, TaxPercentage, RowNotes) "
-                    + " VALUES(@OrderId, @ProductCode, @Qty, @PriceNet, @TaxPercentage, @RowNotes)";
+                    + " VALUES(@OrderId, @ProductCode, @Qty, @PriceNet, @TaxPercentage, @RowNotes)"
+                    + " SELECT SCOPE_IDENTITY() ";
 
                 //p.Add("Id", theObj.Id, null, null, null);
                 p.Add("OrderId", theObj.OrderId, null, null, null);
@@ -690,7 +724,7 @@ namespace PigeonCms.Shop
                 p.Add("PriceNet", theObj.PriceNet, null, null, null);
                 p.Add("TaxPercentage", theObj.TaxPercentage, null, null, null);
                 p.Add("RowNotes", theObj.RowNotes, null, null, null);
-                myConn.Execute(Database.ParseSql(sSql), p);
+                theObj.Id = (int)myConn.ExecuteScalar<decimal>(Database.ParseSql(sSql), p, null, null, null);
 
                 CalculateSummary(theObj.OrderId);
             }

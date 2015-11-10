@@ -28,6 +28,11 @@ function ReloadUpd1() {
     }
 }
 
+
+function changeTab(tabId) {
+    $('.nav-pills a[href="#' + tabId + '"]').tab('show');
+}
+
 var deleteQuestion = '<%=PigeonCms.Utility.GetLabel("RECORD_DELETE_QUESTION") %>';
 
 //use in popup version
@@ -279,7 +284,6 @@ function onFailure(result) { }
         </div>
         </asp:View>
    
-
         <asp:View ID="ViewInsert" runat="server">
 
             <div class="panel panel-default">
@@ -374,14 +378,9 @@ function onFailure(result) { }
                                                 <%=base.GetLabel("OrdAddress", "Address", TxtOrdAddress, true)%>
                                                 <asp:TextBox ID="TxtOrdAddress" runat="server" MaxLength="255"  CssClass="form-control"></asp:TextBox>
                                             </div>
-
                                             <div class="form-group col-md-6 lg-3">
                                                 <%=base.GetLabel("OrdZipCode", "Zip", TxtOrdZipCode, true)%>
                                                 <asp:TextBox ID="TxtOrdZipCode" runat="server" MaxLength="255"  CssClass="form-control"></asp:TextBox>
-                                            </div>
-                                            <div class="form-group col-md-6 lg-3">
-                                                <%=base.GetLabel("OrdZipCode", "Zip", TxtOrdZipCode, true)%>
-                                                <asp:TextBox ID="TextBox1" runat="server" MaxLength="255"  CssClass="form-control"></asp:TextBox>
                                             </div>
                                             <div class="form-group col-md-6 lg-3">
                                                 <%=base.GetLabel("OrdCity", "City", TxtOrdCity, true)%>
@@ -405,6 +404,46 @@ function onFailure(result) { }
                                                 <asp:TextBox ID="TxtOrdEmail" runat="server" MaxLength="255"  CssClass="form-control"></asp:TextBox>
                                             </div>
 
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <%---customer data---%>
+                                <div class="panel panel-info">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title">
+                                            <a data-toggle="collapse" data-parent="#accordionCustomer" href="#collapseShipping" aria-expanded="false" class="">
+                                                <%=base.GetLabel("ShippingData", "Shipping data") %>
+                                            </a>
+                                        </h4>
+                                    </div>
+                                    <div id="collapseShipping" class="panel-collapse collapse" aria-expanded="true">
+                                        <div class="panel-body">
+                                            <div class="form-group col-md-6">
+                                                <%=base.GetLabel("ShipName", "Name", TxtShipName, true)%>
+                                                <asp:TextBox ID="TxtShipName" runat="server" MaxLength="255"  CssClass="form-control"></asp:TextBox>
+                                            </div>
+                                            <div class="form-group col-md-6">
+                                                <%=base.GetLabel("ShipAddress", "Address", TxtShipAddress, true)%>
+                                                <asp:TextBox ID="TxtShipAddress" runat="server" MaxLength="255"  CssClass="form-control"></asp:TextBox>
+                                            </div>
+
+                                            <div class="form-group col-md-6 lg-3">
+                                                <%=base.GetLabel("ShipZipCode", "Zip", TxtShipZipCode, true)%>
+                                                <asp:TextBox ID="TxtShipZipCode" runat="server" MaxLength="255"  CssClass="form-control"></asp:TextBox>
+                                            </div>
+                                            <div class="form-group col-md-6 lg-3">
+                                                <%=base.GetLabel("ShipCity", "City", TxtShipCity, true)%>
+                                                <asp:TextBox ID="TxtShipCity" runat="server" MaxLength="255"  CssClass="form-control"></asp:TextBox>
+                                            </div>
+                                            <div class="form-group col-md-6 lg-3">
+                                                <%=base.GetLabel("ShipState", "State", TxtShipState, true)%>
+                                                <asp:TextBox ID="TxtShipState" runat="server" MaxLength="255"  CssClass="form-control"></asp:TextBox>
+                                            </div>
+                                            <div class="form-group col-md-6 lg-3">
+                                                <%=base.GetLabel("ShipNation", "Nation", TxtShipNation, true)%>
+                                                <asp:TextBox ID="TxtShipNation" runat="server" MaxLength="255"  CssClass="form-control"></asp:TextBox>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -447,26 +486,145 @@ function onFailure(result) { }
 
                         <div class="tab-pane fade" id="tab-rows">
                             <h4></h4>
+
+                            <div class="form-group col-lg-12">
+                                
+                            </div>
+
                             <div class="form-group col-lg-12">
                             
+                                <%--rows--%>
+                                <div class="panel panel-default">
+                                    <div class="table-responsive">
+                                        <asp:GridView ID="GridRows" runat="server" AllowPaging="false" AllowSorting="false" Width="100%" AutoGenerateColumns="False"
+                                            DataKeyNames="Id" OnRowCommand="GridRows_RowCommand"  
+                                            OnRowCreated="GridRows_RowCreated" OnRowDataBound="GridRows_RowDataBound">
+                                            <Columns>
+                                                <asp:TemplateField>
+                                                    <HeaderTemplate>
+                                                        <asp:Button ID="BtnRow" runat="server" Text="Aggiungi Riga" CssClass="btn btn-primary btn-xs" OnClick="BtnRow_Click" />
+                                                    </HeaderTemplate>
+                                                    <ItemTemplate>
+                                                        <asp:Image runat="server" ID="ImgPreview"></asp:Image>
+                                                    </ItemTemplate>
+                                                </asp:TemplateField>
+
+                                                <asp:TemplateField HeaderText="" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
+                                                    <ItemTemplate>
+                                                        <span class="small">
+                                                            <asp:LinkButton ID="LnkProduct" runat="server" CausesValidation="false" CommandName="Select" CommandArgument='<%#Eval("Id") %>'></asp:LinkButton>
+                                                        </span>
+                                                        <br />
+                                                        <small class="small text-muted">
+                                                            <asp:Literal ID="LitProductDetail" runat="server" />
+                                                        </small>
+                                                    </ItemTemplate>
+                                                </asp:TemplateField>
+
+                                                <asp:TemplateField HeaderText="Qty" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
+                                                    <ItemTemplate>
+                                                        <span class="small text-muted">
+                                                            <asp:Literal ID="LitQty" runat="server" />
+                                                        </span>
+                                                    </ItemTemplate>
+                                                </asp:TemplateField>
+
+                                                <asp:TemplateField HeaderText="Price net" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
+                                                    <ItemTemplate>
+                                                        <span class="small text-muted">
+                                                            <asp:Literal ID="LitPriceNet" runat="server" />
+                                                        </span>
+                                                    </ItemTemplate>
+                                                </asp:TemplateField>
+
+                                                <asp:TemplateField HeaderText="Amount" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
+                                                    <ItemTemplate>
+                                                        <span class="small text-muted">
+                                                            <asp:Literal ID="LitAmountNet" runat="server" />
+                                                        </span>
+                                                    </ItemTemplate>
+                                                </asp:TemplateField>
+
+                                                <asp:TemplateField HeaderText="" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
+                                                    <ItemTemplate>
+                                                        <span class="small text-muted">
+                                                            <asp:Literal ID="LitNotes" runat="server" />
+                                                        </span>
+                                                    </ItemTemplate>
+                                                </asp:TemplateField>
+                    
+                                                <asp:TemplateField HeaderText="" ItemStyle-HorizontalAlign="Center" ItemStyle-Width="10">
+                                                    <ItemTemplate>
+                                                        <asp:LinkButton ID="LnkDel" runat="server" CommandName="DeleteRow" 
+                                                            CommandArgument='<%#Eval("Id") %>' OnClientClick="return confirm(deleteQuestion);">
+                                                            <i class='fa fa-pgn_delete fa-fw'></i>
+                                                        </asp:LinkButton>
+                                                    </ItemTemplate>
+                                                </asp:TemplateField>
+                    
+                                            </Columns>
+                                        </asp:GridView>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            
+            </div>
+        </asp:View>
+
+        <asp:View ID="ViewProducts" runat="server">
+            <div class="row">
+                <div class="panel panel-default">
+                    <div class="panel-heading clearfix">
+                        <%=base.GetLabel("LblDetails", "Details") %>
+                        <div class="pull-right">
+                            <div class="btn-group">
+                                <asp:Button ID="BtnSaveRow" runat="server" Text="<%$ Resources:PublicLabels, CmdSave %>" CssClass="btn btn-primary btn" OnClick="BtnSaveRow_Click" />
+                                <asp:Button ID="BtnCancelRow" runat="server" Text="<%$ Resources:PublicLabels, CmdCancel %>" CssClass="btn btn-default btn" CausesValidation="false" OnClick="BtnCancelRow_Click" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel-body">
+                        <div class="form-group col-md-6">
+                             <%=base.GetLabel("ProductQty", "Product Quantity")%>
+                            <asp:TextBox ID="TxtProdQty" runat="server" CssClass="form-control"></asp:TextBox>
+                        </div>
+                        <div class="form-group col-md-6">
                             <%--rows--%>
                             <div class="panel panel-default">
                                 <div class="table-responsive">
-                                    <asp:GridView ID="GridRows" runat="server" AllowPaging="false" AllowSorting="false" Width="100%" AutoGenerateColumns="False"
-                                        DataKeyNames="Id" OnRowCommand="GridRows_RowCommand"  
-                                        OnRowCreated="GridRows_RowCreated" OnRowDataBound="GridRows_RowDataBound">
+                                    <asp:GridView ID="GridProducts" runat="server" AllowPaging="false" AllowSorting="false" Width="100%" AutoGenerateColumns="False"
+                                        DataKeyNames="Id" OnRowCommand="GridProducts_RowCommand"  
+                                        OnRowCreated="GridProducts_RowCreated" OnRowDataBound="GridProducts_RowDataBound">
                                         <Columns>
-
-                                            <asp:TemplateField HeaderText="" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
+                                           <asp:TemplateField HeaderText="Selected" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
                                                 <ItemTemplate>
-                                                    <asp:Image runat="server" ID="ImgPreview"></asp:Image>
+                                                    <asp:LinkButton ID="ImgEnabledOk" runat="server" CommandName="ImgEnabledOk" Visible="false" CommandArgument='<%#Eval("SKU") %>'>
+                                                        <i class='fa fa-check-circle fa-fw'></i>
+                                                    </asp:LinkButton>
+                                                    <asp:LinkButton ID="ImgEnabledKo" runat="server" CommandName="ImgEnabledKo" Visible="false" CommandArgument='<%#Eval("SKU") %>'>
+                                                        <i class='fa fa-circle-o fa-fw'></i>                            
+                                                    </asp:LinkButton>
+                                                </ItemTemplate>
+                                            </asp:TemplateField>
+
+                                            <asp:TemplateField>
+                                                <ItemTemplate>
+                                                    <asp:LinkButton ID="LnkShowVariants" runat="server" CausesValidation="false" CommandArgument='<%#Eval("Id") %>'>
+                                                    </asp:LinkButton>
                                                 </ItemTemplate>
                                             </asp:TemplateField>
 
                                             <asp:TemplateField HeaderText="" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
                                                 <ItemTemplate>
                                                     <span class="small">
-                                                        <asp:LinkButton ID="LnkProduct" runat="server" CausesValidation="false" CommandName="Select" CommandArgument='<%#Eval("Id") %>'></asp:LinkButton>
+                                                        <asp:Literal ID="LitProduct" runat="server"></asp:Literal>
                                                     </span>
                                                     <br />
                                                     <small class="small text-muted">
@@ -475,7 +633,7 @@ function onFailure(result) { }
                                                 </ItemTemplate>
                                             </asp:TemplateField>
 
-                                            <asp:TemplateField HeaderText="Qty" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
+                                            <asp:TemplateField HeaderText="Stock Qty" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
                                                 <ItemTemplate>
                                                     <span class="small text-muted">
                                                         <asp:Literal ID="LitQty" runat="server" />
@@ -486,49 +644,19 @@ function onFailure(result) { }
                                             <asp:TemplateField HeaderText="Price net" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
                                                 <ItemTemplate>
                                                     <span class="small text-muted">
-                                                        <asp:Literal ID="LitPriceNet" runat="server" />
+                                                        <asp:Literal ID="LitPrice" runat="server" />
                                                     </span>
                                                 </ItemTemplate>
                                             </asp:TemplateField>
 
-                                            <asp:TemplateField HeaderText="Amount" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
-                                                <ItemTemplate>
-                                                    <span class="small text-muted">
-                                                        <asp:Literal ID="LitAmountNet" runat="server" />
-                                                    </span>
-                                                </ItemTemplate>
-                                            </asp:TemplateField>
-
-                                            <asp:TemplateField HeaderText="" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
-                                                <ItemTemplate>
-                                                    <span class="small text-muted">
-                                                        <asp:Literal ID="LitNotes" runat="server" />
-                                                    </span>
-                                                </ItemTemplate>
-                                            </asp:TemplateField>
-                    
-                                            <asp:TemplateField HeaderText="" ItemStyle-HorizontalAlign="Center" ItemStyle-Width="10">
-                                                <ItemTemplate>
-                                                    <asp:LinkButton ID="LnkDel" runat="server" CommandName="DeleteRow" 
-                                                        CommandArgument='<%#Eval("Id") %>' OnClientClick="return confirm(deleteQuestion);">
-                                                        <i class='fa fa-pgn_delete fa-fw'></i>
-                                                    </asp:LinkButton>
-                                                </ItemTemplate>
-                                            </asp:TemplateField>
-                    
                                         </Columns>
                                     </asp:GridView>
                                 </div>
                             </div>
-                            </div>
                         </div>
-
                     </div>
-
                 </div>
-            
-            </div>
-        </asp:View>
+            </asp:View>
     
     </asp:MultiView>
     

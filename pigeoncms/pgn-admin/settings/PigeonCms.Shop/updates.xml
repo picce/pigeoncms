@@ -1,0 +1,129 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<updates>
+
+  <item id="0" date="2015-10-30" dev="https://github.com/picce/" notes="initial deploy, not parsed">
+  <![CDATA[
+
+  --first deploy
+  
+  ]]>
+  </item>
+
+  <item id="1" date="2015-10-30" dev="https://github.com/Liqueflies/" 
+        notes="tables for ship management: #__shop_shipZones, .#__shop_shipGeoZones, #__shop_shipZonesWeight">
+<![CDATA[
+
+
+-- =============================================
+-- Author:		https://github.com/picce/ | https://github.com/Liqueflies/
+-- Create date: 20151030
+-- Description:	tables for ship management: #__shop_shipZones, .#__shop_shipGeoZones, #__shop_shipZonesWeight
+-- =============================================
+
+CREATE TABLE dbo.#__shop_shipZones
+	(
+	code varchar(50) NOT NULL,
+	title varchar(255) NOT NULL
+	)  ON [PRIMARY]
+GO
+ALTER TABLE dbo.#__shop_shipZones ADD CONSTRAINT
+	PK_#__shop_shipZones PRIMARY KEY CLUSTERED 
+	(
+	code
+	) WITH( STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+
+CREATE TABLE dbo.#__shop_shipGeoZones
+	(
+	id int NOT NULL IDENTITY (1, 1),
+	zoneCode varchar(50) NOT NULL,
+	countryCode varchar(2) NULL,
+	cityCode varchar(2) NOT NULL,
+	continent varchar(255) NOT NULL
+	)  ON [PRIMARY]
+GO
+ALTER TABLE dbo.#__shop_shipGeoZones ADD CONSTRAINT
+	PK_#__shop_shipGeoZones PRIMARY KEY CLUSTERED 
+	(
+	id
+	) WITH( STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+
+GO
+ALTER TABLE dbo.#__shop_shipGeoZones SET (LOCK_ESCALATION = TABLE)
+GO
+
+CREATE TABLE [dbo].[#__shop_shipZonesWeight](
+	[id] [int] IDENTITY(1,1) NOT NULL,
+	[zoneCode] [varchar](50) NOT NULL,
+	[weightFrom] [decimal](18, 2) NOT NULL,
+	[weightTo] [decimal](18, 2) NOT NULL,
+	[shippingPrice] [decimal](18, 2) NOT NULL,
+ CONSTRAINT [PK_#__shop_shipZonesWeight] PRIMARY KEY CLUSTERED 
+(
+	[id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+--new version fallback for manual db upgrade
+INSERT INTO #__dbVersion(componentFullName, versionId, versionDate, versionDev, versionNotes, dateUpdated, userUpdated)
+VALUES('PigeonCms.Shop', 1/*version*/, GETDATE(), '', '', GETDATE(), 'MANUAL')
+GO
+
+]]>
+
+  </item>
+
+  <item id="2" date="2015-10-30" dev="https://github.com/picce/" 
+        notes="fields ship different from order customer">
+    <![CDATA[
+
+  ALTER TABLE dbo.#__shop_orderHeader ADD
+    ordVat nvarchar(255) NULL,
+    shipName varchar(500) NULL,
+    shipAddress varchar(500) NULL,
+    shipZipCode varchar(50) NULL,
+    shipCity varchar(50) NULL,
+    shipState varchar(50) NULL,
+    shipNation varchar(50) NULL
+  GO
+
+--new version fallback for manual db upgrade
+INSERT INTO #__dbVersion(componentFullName, versionId, versionDate, versionDev, versionNotes, dateUpdated, userUpdated)
+VALUES('PigeonCms.Shop', 2/*version*/, GETDATE(), '', '', GETDATE(), 'MANUAL')
+GO
+
+
+  ]]>
+  </item>
+
+  <item id="3" date="2015-11-03" dev="https://github.com/picce/"
+        notes="#__shop_shipments tables">
+    <![CDATA[
+    
+CREATE TABLE [dbo].[#__shop_shipments](
+	[shipCode] [nvarchar](20) NOT NULL,
+	[name] [nvarchar](50) NULL,
+	[assemblyName] [nvarchar](100) NULL,
+	[enabled] [bit] NULL,
+	[isDebug] [bit] NULL,
+	[shipType] [nvarchar](50) NULL,
+	[shipParams] [nvarchar](500) NULL,
+ CONSTRAINT [PK_#__shop_shipments] PRIMARY KEY CLUSTERED 
+(
+	[shipCode] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO   
+
+--#__shop_ordersHeader shipCode from varchar(10) to varchar(20)
+  
+ --new version fallback for manual db upgrade
+INSERT INTO #__dbVersion(componentFullName, versionId, versionDate, versionDev, versionNotes, dateUpdated, userUpdated)
+VALUES('PigeonCms.Shop', 3/*version*/, GETDATE(), '', '', GETDATE(), 'MANUAL')
+GO
+
+    ]]>
+  </item>
+
+</updates>

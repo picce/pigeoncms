@@ -76,7 +76,9 @@ namespace PigeonCms.Core.Helpers
         {
             foreach (string key in HttpContext.Current.Application.AllKeys)
             {
-                if (key.StartsWith(this.KeyPrefix + "_"))
+				//if (key.StartsWith(this.KeyPrefix))
+				//TOCHECK 20151104
+                if (key.StartsWith(this.KeyPrefix))
                 {
                     this.remove(key, true);
                 }

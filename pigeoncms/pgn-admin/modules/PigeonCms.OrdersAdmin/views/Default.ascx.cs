@@ -4,6 +4,7 @@ using System.Configuration;
 using System.Collections;
 using System.Web;
 using System.Web.Security;
+using System.Linq;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Web.UI.WebControls.WebParts;
@@ -33,6 +34,7 @@ public partial class Controls_PigeonCms_Shop_OrdersAdmin :
 
     const int VIEW_GRID = 0;
     const int VIEW_INSERT = 1;
+    const int VIEW_ROWS = 2;
 
 
 
@@ -73,6 +75,8 @@ public partial class Controls_PigeonCms_Shop_OrdersAdmin :
             loadDropPaymentFilter(this.PaymentFilter);
             loadDropConfirmedFilter(this.OrderConfirmedFilter);
             loadListOrders();
+            loadDropPayments();
+            loadDropShipments();
         }
     }
 
@@ -93,6 +97,16 @@ public partial class Controls_PigeonCms_Shop_OrdersAdmin :
         catch (Exception e1) { LblErr.Text = RenderError(e1.Message); }
     }
 
+    protected void BtnRow_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            editRow(0);
+        }
+        catch (Exception e1) { LblErr.Text = RenderError(e1.Message); }
+    }
+
+
     protected void Grid1_RowCommand(object sender, GridViewCommandEventArgs e)
     {
         if (e.CommandName == "Select")
@@ -110,10 +124,111 @@ public partial class Controls_PigeonCms_Shop_OrdersAdmin :
         }
     }
 
+    protected void GridProducts_RowCommand(object sender, GridViewCommandEventArgs e)
+    {
+        //Selected
+        if (e.CommandName == "ImgEnabledOk")
+        {
+            setSelected(e.CommandArgument.ToString(), false);
+            //loadListProducts();
+        }
+        if (e.CommandName == "ImgEnabledKo")
+        {
+            setSelected(e.CommandArgument.ToString(), true);
+            //loadListProducts();
+        }
+        if (e.CommandName == "ShowThreads")
+        {
+            this.CurrentKey = e.CommandArgument.ToString();
+            loadListProducts(Convert.ToInt32(this.CurrentKey));
+            //Grid1.DataBind();
+        }
+        if (e.CommandName == "HideThreads")
+        {
+            this.CurrentKey = "0";
+            loadListProducts();
+            //Grid1.DataBind();
+        }
+    }
+
     protected void Grid1_RowCreated(object sender, GridViewRowEventArgs e)
     {
         if (e.Row.RowType == DataControlRowType.Header)
             Utility.AddGlyph(Grid1, e.Row);
+    }
+
+    protected void GridProducts_RowCreated(object sender, GridViewRowEventArgs e)
+    {
+        if (e.Row.RowType == DataControlRowType.Header)
+            Utility.AddGlyph(Grid1, e.Row);
+    }
+
+    protected void GridProducts_RowDataBound(object sender, GridViewRowEventArgs e)
+    {
+        if (e.Row.RowType == DataControlRowType.DataRow)
+        {
+            var item = (ProductItem)e.Row.DataItem;
+
+            var LitProduct = (Literal)e.Row.FindControl("LitProduct");
+            LitProduct.Text += Utility.Html.GetTextPreview(item.Title, 30, "");
+            LitProduct.Text += "<br> [" + item.SKU + "] <br>";
+            LitProduct.Text += "[ ";
+            foreach (var i in item.AttributeValues)
+            {
+                LitProduct.Text += i.Value + " ";
+            }
+            LitProduct.Text += "]";
+            var LitQty = (Literal)e.Row.FindControl("LitQty");
+            LitQty.Text = item.Availability.ToString();
+
+            var LitPrice = (Literal)e.Row.FindControl("LitPrice");
+            LitPrice.Text = ((item.SalePrice > 0 && item.SalePrice < item.RegularPrice) ? item.SalePrice : item.RegularPrice).ToString("0.##") + " " + new PigeonCms.Shop.Settings().CurrencyDefault.Symbol;
+
+            int threadId = 0;
+            int.TryParse(base.CurrentKey, out threadId);
+
+            LinkButton LnkShowVariants = (LinkButton)e.Row.FindControl("LnkShowVariants");
+            if (!item.IsDraft && item.ProductType == ProductItem.ProductTypeEnum.Configurable && item.IsThreadRoot && (bool)item.HasThreads)
+            {
+                if (threadId > 0)
+                {
+                    LnkShowVariants.Text = "<i class='fa fa-minus fa-fw'></i>";
+                    LnkShowVariants.CommandName = "HideThreads";
+                }
+                else
+                {
+                    LnkShowVariants.Text = "<i class='fa fa-plus fa-fw'></i>";
+                    LnkShowVariants.CommandName = "ShowThreads";
+                }
+            }
+            else
+            {
+                LnkShowVariants.Visible = false;
+            }
+            
+            if (this.CurrentRowId > 0)
+            {
+                var order = OrdMan.GetByKey(this.CurrentId);
+                var row = order.Rows.Find(x => x.Id == this.CurrentRowId);
+
+                if (item.SKU == row.ProductCode)
+                {
+                    var img1 = e.Row.FindControl("ImgEnabledOk");
+                    img1.Visible = true;
+                }
+                else
+                {
+                    var img1 = e.Row.FindControl("ImgEnabledKo");
+                    img1.Visible = true;
+                }
+            }
+            else
+            {
+                var img1 = e.Row.FindControl("ImgEnabledKo");
+                img1.Visible = true;
+            }
+
+        }
     }
 
     protected void Grid1_RowDataBound(object sender, GridViewRowEventArgs e)
@@ -215,7 +330,7 @@ public partial class Controls_PigeonCms_Shop_OrdersAdmin :
 
             var LnkProduct = (LinkButton)e.Row.FindControl("LnkProduct");
             LnkProduct.Text = "<i class='fa fa-pgn_edit fa-fw'></i>";
-            LnkProduct.Text += Utility.Html.GetTextPreview(item.ProductCode, 30, "");
+            LnkProduct.Text += Utility.Html.GetTextPreview(product.Title, 30, "");
 
             var LitProductDetail = (Literal)e.Row.FindControl("LitProductDetail");
             LitProductDetail.Text = item.ProductCode;
@@ -251,6 +366,28 @@ public partial class Controls_PigeonCms_Shop_OrdersAdmin :
         MultiView1.ActiveViewIndex = VIEW_GRID;
     }
 
+    protected void BtnSaveRow_Click(object sender, EventArgs e)
+    {
+        if (checkFormRow())
+        {
+            if (saveFormRow())
+            {
+                MultiView1.ActiveViewIndex = VIEW_INSERT;
+                Utility.Script.RegisterStartupScript(Upd1, "changeTab", @"changeTab('tab-rows');");
+            }
+        }
+    }
+    protected void BtnCancelRow_Click(object sender, EventArgs e)
+    {
+        if (checkUndo())
+        {
+            LblErr.Text = RenderError("");
+            LblOk.Text = RenderSuccess("");
+            MultiView1.ActiveViewIndex = VIEW_INSERT;
+            Utility.Script.RegisterStartupScript(Upd1, "changeTab", @"changeTab('tab-rows');");
+        }
+    }
+
     protected void MultiView1_ActiveViewChanged(object sender, EventArgs e)
     {
         if (MultiView1.ActiveViewIndex == VIEW_GRID)    //list view
@@ -259,6 +396,27 @@ public partial class Controls_PigeonCms_Shop_OrdersAdmin :
     }
 
     #region private methods
+
+    private bool checkUndo()
+    {
+        LblErr.Text = RenderError("");
+        LblOk.Text = RenderSuccess("");
+        bool res = true;
+        string err = "";
+        try
+        {
+            if (this.CurrentRowId > 0)
+            {
+                OrdMan.Rows_DeleteById(this.CurrentRowId);
+            }
+        }
+        catch (Exception ex)
+        {
+            res = false;
+            err = ex.ToString();
+        }
+        return res;
+    }
 
     private bool checkForm()
     {
@@ -271,6 +429,27 @@ public partial class Controls_PigeonCms_Shop_OrdersAdmin :
         {
             res = false;
             err += "Missing order ref<br>";
+        }
+
+        if (!res)
+            LblErr.Text = RenderError(err);
+
+        return res;
+    }
+
+    private bool checkFormRow()
+    {
+        LblErr.Text = RenderError("");
+        LblOk.Text = RenderSuccess("");
+        bool res = true;
+        string err = "";
+
+        int qty = -1;
+        int.TryParse(TxtProdQty.Text, out qty);
+        if (qty <= 0)
+        {
+            res = false;
+            err += "Quantity value not valid<br>";
         }
 
         if (!res)
@@ -344,6 +523,7 @@ public partial class Controls_PigeonCms_Shop_OrdersAdmin :
 
             loadRows(o1.OrderId);
             LblOk.Text = RenderSuccess(Utility.GetLabel("RECORD_SAVED_MSG"));
+            //Utility.Script.RegisterStartupScript(Upd1, "changeTab", @"changeTab('tab-rows');");
             res = true;
         }
         catch (CustomException e1)
@@ -380,6 +560,12 @@ public partial class Controls_PigeonCms_Shop_OrdersAdmin :
         TxtOrdNation.Text = "";
         TxtOrdPhone.Text = "";
         TxtOrdEmail.Text = "";
+        TxtShipName.Text = "";
+        TxtShipAddress.Text = "";
+        TxtShipZipCode.Text = "";
+        TxtShipCity.Text = "";
+        TxtShipState.Text = "";
+        TxtShipNation.Text = "";
         TxtNotes.Text = "";
     }
 
@@ -411,16 +597,31 @@ public partial class Controls_PigeonCms_Shop_OrdersAdmin :
          obj.OrdPhone = TxtOrdPhone.Text;
          obj.OrdEmail = TxtOrdEmail.Text;
          obj.Notes = TxtNotes.Text;
+
+         obj.ShipName = TxtShipName.Text;
+         obj.ShipAddress = TxtShipAddress.Text;
+         obj.ShipZipCode = TxtShipZipCode.Text;
+         obj.ShipCity = TxtShipCity.Text;
+         obj.ShipState = TxtShipState.Text;
+         obj.ShipNation = TxtShipNation.Text;
+
     }
 
     private void form2objRow(PigeonCms.Shop.OrderRow obj)
     {
         obj.Id = CurrentRowId;
-
-        //obj.OrderRef = TxtOrderRef.Text;
-        //obj.OrderDate = getDate(TxtOrderDate);
-
-        //obj.OrdName = TxtOrdName.Text;
+        obj.OrderId = CurrentId;
+        decimal qty = 0;
+        decimal.TryParse(TxtProdQty.Text, out qty);
+        //obj.ProductCode = TxtProductCode.Text;
+        var item = new ProductItemsManager().GetBySku(obj.ProductCode);
+        if (item.Availability < qty)
+        {
+            throw new Exception("not in stock");
+        }
+        obj.Qty = qty;
+        obj.PriceNet = (item.SalePrice > 0 && item.SalePrice < item.RegularPrice) ? item.SalePrice : item.RegularPrice;
+        
     }
 
 
@@ -440,9 +641,24 @@ public partial class Controls_PigeonCms_Shop_OrdersAdmin :
         SetDate(TxtOrderDateRequested, obj.OrderDateRequested);
         SetDate(TxtOrderDateShipped, obj.OrderDateShipped);
         Utility.SetDropByValue(DropPaymentCode, obj.PaymentCode);
+        if (string.IsNullOrEmpty(obj.PaymentCode))
+        {
+            DropPaymentCode.Enabled = true;
+        }
+        else
+        {
+            DropPaymentCode.Enabled = false;
+        }
         ChkPaid.Checked = obj.Paid;
         Utility.SetDropByValue(DropShipCode, obj.ShipCode);
-
+        if (string.IsNullOrEmpty(obj.ShipCode))
+        {
+            DropShipCode.Enabled = true;
+        }
+        else
+        {
+            DropShipCode.Enabled = false;
+        }
         TxtOrdName.Text = obj.OrdName;
         TxtOrdAddress.Text = obj.OrdAddress;
         TxtOrdZipCode.Text = obj.OrdZipCode;
@@ -453,25 +669,23 @@ public partial class Controls_PigeonCms_Shop_OrdersAdmin :
         TxtOrdEmail.Text = obj.OrdEmail;
         TxtNotes.Text = obj.Notes;
 
+        TxtShipName.Text = obj.ShipName;
+        TxtShipAddress.Text = obj.ShipAddress;
+        TxtShipZipCode.Text = obj.ShipZipCode;
+        TxtShipCity.Text = obj.ShipCity;
+        TxtShipState.Text = obj.ShipState;
+        TxtShipNation.Text = obj.ShipNation;
+
         loadRows(this.CurrentId);
     }
 
     private void obj2formRow(PigeonCms.Shop.OrderRow obj)
     {
-        //if (obj.Id == 0)
-        //    LitCurrentOrder.Text = base.GetLabel("NewOrder", "New order");
-        //else
-        //{
-        //    LitCurrentOrder.Text = base.GetLabel("EditOrder", "Edit order")
-        //        + " " + obj.OrderRef + " - " + obj.OrderDate.ToShortDateString()
-        //        + " - " + obj.OrdName;
-        //}
-
-        //TxtOrderRef.Text = obj.OrderRef;
-        //Utility.SetDropByValue(DropPaymentCode, obj.PaymentCode);
-
-        //TxtOrdName.Text = obj.OrdName;
-        //TxtOrdAddress.Text = obj.OrdAddress;
+        //ProductItem item = new ProductItemsManager().GetBySku(obj.ProductCode);
+        //if (item.Id == 0)
+        //    TxtProductCode.Enabled = true;
+        //TxtProductCode.Text = item.SKU;
+        TxtProdQty.Text = obj.Qty.ToString();
     }
 
     private void editOrder(int recordId)
@@ -506,6 +720,7 @@ public partial class Controls_PigeonCms_Shop_OrdersAdmin :
 
         clearFormRow();
         this.CurrentRowId = recordId;
+        loadListProducts();
         if (CurrentRowId == 0)
         {
             obj2formRow(obj);
@@ -515,7 +730,7 @@ public partial class Controls_PigeonCms_Shop_OrdersAdmin :
             obj = OrdMan.Rows_GetByKey(CurrentRowId);
             obj2formRow(obj);
         }
-        //MultiView1.ActiveViewIndex = VIEW_INSERT;
+        MultiView1.ActiveViewIndex = VIEW_ROWS;
     }
 
     private void deleteOrder(int recordId)
@@ -551,6 +766,7 @@ public partial class Controls_PigeonCms_Shop_OrdersAdmin :
             LblErr.Text = RenderError(e.Message);
         }
         loadRows(this.CurrentId);
+        Utility.Script.RegisterStartupScript(Upd1, "changeTab", @"changeTab('tab-rows');");
     }
 
     private void loadDropOrderDatesRangeFilter()
@@ -669,6 +885,79 @@ public partial class Controls_PigeonCms_Shop_OrdersAdmin :
         LitBoardOrdersTotalPaid.Text = ordersTotalPaid.ToString("0.00");
         LitBoardOrdersToShip.Text = ordersToShip.ToString();
     }
+
+    private void loadListProducts(int thread = 0)
+    {
+
+        var rows = OrdMan.GetByKey(this.CurrentId).Rows;
+        var codes = new List<string>();
+        foreach (var row in rows)
+        {
+            if(this.CurrentRowId != row.Id)
+                codes.Add(row.ProductCode);
+        }
+        var f = new ProductItemFilter();
+        var items = new List<ProductItem>();
+        if (thread == 0)
+        {
+            items = new ProductItemsManager().GetByFilter(f, "");
+        }
+        else
+        {
+            f.ShowOnlyRootItems = false;
+            f.ThreadId = thread;
+            items = new ProductItemsManager().GetByFilter(f, "");
+        }
+        var itemsFiltered = items.Where(i => !codes.Any(c => c == i.SKU)).ToList();
+
+        GridProducts.DataSource = itemsFiltered;
+        GridProducts.DataBind();
+
+    }
+
+    private void setSelected(string productCode, bool enable)
+    {
+        var order = OrdMan.GetByKey(this.CurrentId);
+        var row = order.Rows.Find(x => x.Id == this.CurrentRowId);
+        if (row == null)
+        {
+            row = new OrderRow();
+            row.OrderId = order.Id;
+            row.ProductCode = productCode;
+            this.CurrentRowId = OrdMan.Rows_Insert(row).Id;
+        } 
+        else 
+        {
+            row.ProductCode = productCode;
+            OrdMan.Rows_Update(row);
+        }
+        if (this.CurrentKey == "")
+            this.CurrentKey = "0";
+        loadListProducts(Convert.ToInt32(this.CurrentKey));
+    }
+
+    private void loadDropPayments() 
+    {
+        DropPaymentCode.Items.Clear();
+        DropPaymentCode.Items.Add(new ListItem(base.GetLabel("SelectPaymentMode", "Select Payment Mode"), "0"));
+        var payments = new PigeonCms.Shop.PaymentsManager().GetByFilter(new PigeonCms.Shop.PaymentsFilter(), "");
+        foreach (var p in payments)
+        {
+            DropPaymentCode.Items.Add(new ListItem(p.Name, p.PayCode));
+        }
+    }
+
+    private void loadDropShipments()
+    {
+        DropShipCode.Items.Clear();
+        DropShipCode.Items.Add(new ListItem(base.GetLabel("SelectPaymentMode", "Select Payment Mode"), "0"));
+        var shipments = new PigeonCms.Shop.ShipmentsManager().GetByFilter(new PigeonCms.Shop.ShipmentFilter(), "");
+        foreach (var s in shipments)
+        {
+            DropShipCode.Items.Add(new ListItem(s.Name, s.ShipCode));
+        }
+    }
+
 
     #endregion
 

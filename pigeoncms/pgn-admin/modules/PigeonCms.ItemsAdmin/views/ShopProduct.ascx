@@ -265,12 +265,12 @@ function onFailure(result) { }
 
             <div class="panel panel-default">
 
-                <div class="panel-heading">
+                <div class="panel-heading clearfix">
                     <%=base.GetLabel("LblDetails", "Details") %>
                     <div class="pull-right">
                         <div class="btn-group">
-                            <asp:Button ID="BtnSave" runat="server" Text="<%$ Resources:PublicLabels, CmdSave %>" CssClass="btn btn-primary btn-xs" OnClick="BtnSave_Click" validationgroup="SaveProduct" />
-                            <asp:Button ID="BtnCancel" runat="server" Text="<%$ Resources:PublicLabels, CmdCancel %>" CssClass="btn btn-default btn-xs" CausesValidation="false" OnClick="BtnCancel_Click" />
+                            <asp:Button ID="BtnSave" runat="server" Text="<%$ Resources:PublicLabels, CmdSave %>" CssClass="btn btn-primary" OnClick="BtnSave_Click" validationgroup="SaveProduct" />
+                            <asp:Button ID="BtnCancel" runat="server" Text="<%$ Resources:PublicLabels, CmdCancel %>" CssClass="btn btn-default" CausesValidation="false" OnClick="BtnCancel_Click" />
                         </div>
                     </div>
                 </div>
@@ -327,7 +327,7 @@ function onFailure(result) { }
                                 <asp:RequiredFieldValidator ID="ReqWeight" ControlToValidate="TxtWeight" runat="server" Text="*" ForeColor="Red" validationgroup="SaveProduct"></asp:RequiredFieldValidator>
                                 <div class="form-group input-group">
                                     <asp:TextBox ID="TxtWeight" runat="server" CssClass="form-control"></asp:TextBox>
-                                    <span class='input-group-addon'><%=ShopSettings.WeightUnit %></span>
+                                    <span class='input-group-addon'><%=DefaultSettings.WeightUnitDefault %></span>
                                 </div>
                             </div>
 
@@ -341,7 +341,7 @@ function onFailure(result) { }
                                 <asp:RequiredFieldValidator ID="ReqRegularPrice" ControlToValidate="TxtRegularPrice" runat="server" Text="*" ForeColor="Red" validationgroup="SaveProduct"></asp:RequiredFieldValidator>
                                 <div class="form-group input-group">
                                     <asp:TextBox ID="TxtRegularPrice" runat="server" CssClass="form-control"></asp:TextBox>
-                                    <span class='input-group-addon'><%=ShopSettings.ShopCurrency %></span>
+                                    <span class='input-group-addon'><%=DefaultSettings.CurrencyDefault.Symbol %></span>
                                 </div>
                             </div>
 
@@ -349,7 +349,7 @@ function onFailure(result) { }
                                 <%=base.GetLabel("LblSalePrice", "Sale Price", TxtSalePrice, true)%>
                                 <div class="form-group input-group">
                                     <asp:TextBox ID="TxtSalePrice" runat="server" CssClass="form-control"></asp:TextBox>
-                                    <span class='input-group-addon'><%=ShopSettings.ShopCurrency %></span>
+                                    <span class='input-group-addon'><%=DefaultSettings.CurrencyDefault.Symbol %></span>
                                 </div>
                             </div>
 
@@ -439,16 +439,19 @@ function onFailure(result) { }
                         <div class="tab-pane fade" id="tab-related">
                             
                             <div class="row col-lg-12">
-                                <%=base.GetLabel("LblAssociateRelated", "Associa Correlati", null, true) %>
                                 <div class="panel panel-default">
                                     <div class="table-responsive">
-
-                                        <asp:GridView ID="GridRelated" runat="server" AllowPaging="True" AllowSorting="true" Width="100%" AutoGenerateColumns="False"
-                                            DataSourceID="ObjDs3" DataKeyNames="Id" OnRowDataBound="GridRelated_RowDataBound">
+                                        <asp:GridView ID="Grid3" runat="server" AllowPaging="True" AllowSorting="true" Width="100%" AutoGenerateColumns="False"
+                                                DataKeyNames="Id" OnRowCommand="Grid3_RowCommand" OnRowDataBound="Grid3_RowDataBound">
                                             <Columns>
-                                                <asp:TemplateField HeaderText="Associate" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
+                                                <asp:TemplateField HeaderText="Relates" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
                                                     <ItemTemplate>
-                                                        <asp:CheckBox ID="chkRow" runat="server" />
+                                                        <asp:LinkButton ID="RelatedOk" runat="server" CommandName="RelatedOk" Visible="false" CommandArgument='<%#Eval("Id") %>'>
+                                                            <i class='fa fa-pgn_checked fa-fw'></i>
+                                                        </asp:LinkButton>
+                                                        <asp:LinkButton ID="RelatedKo" runat="server" CommandName="RelatedKo" Visible="false" CommandArgument='<%#Eval("Id") %>'>
+                                                            <i class='fa fa-pgn_unchecked fa-fw'></i>                            
+                                                        </asp:LinkButton>
                                                     </ItemTemplate>
                                                 </asp:TemplateField>
                                                 <asp:BoundField DataField="Title" HeaderText="Title" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left" />
@@ -458,25 +461,10 @@ function onFailure(result) { }
                                                 <asp:BoundField DataField="Id" HeaderText="ID" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left" />
                                             </Columns>
                                         </asp:GridView>
-
-                                        <asp:ObjectDataSource ID="ObjDs3" runat="server" 
-                                            SortParameterName="sort" SelectMethod="GetByFilter" 
-                                            TypeName="PigeonCms.Shop.ProductItemsManager" 
-                                            OnObjectCreating="ObjDs3_ObjectCreating"
-                                            OnSelecting="ObjDs3_Selecting">
-                                            <SelectParameters>
-                                                <asp:Parameter Name="filter" Type="Object" />
-                                                <asp:Parameter Name="sort" Type="String" DefaultValue="" />
-                                            </SelectParameters>
-                                            <DeleteParameters>
-                                                <asp:Parameter Name="Id" Type="Int32" />
-                                            </DeleteParameters>
-                                        </asp:ObjectDataSource>
-
                                     </div>
                                 </div>
-
                             </div>
+
                         </div>
 
                         <asp:PlaceHolder ID="PlhConfigurableProductPane" runat="server" Visible="false">
@@ -484,7 +472,6 @@ function onFailure(result) { }
                             <div class="tab-pane fade" id="tab-associated">
 
                                 <div class="row">
-
                                     <div class="form-group col-md-6">
 
                                         <div class="form-group col-lg-12">
@@ -507,7 +494,7 @@ function onFailure(result) { }
                                             <asp:RequiredFieldValidator ID="ReqQuickWeight" ControlToValidate="QuickTxtWeight" runat="server" Text="*" ForeColor="Red" validationgroup="QuickProduct"></asp:RequiredFieldValidator>
                                             <div class="form-group input-group">
                                                 <asp:TextBox ID="QuickTxtWeight" runat="server" CssClass="form-control"></asp:TextBox>
-                                                <span class='input-group-addon'><%=ShopSettings.WeightUnit %></span>
+                                                <span class='input-group-addon'><%=DefaultSettings.WeightUnitDefault %></span>
                                             </div>
                                         </div>
 
@@ -521,7 +508,7 @@ function onFailure(result) { }
                                             <asp:RequiredFieldValidator ID="ReqQuickRegPrice" ControlToValidate="QuickTxtRegularPrice" runat="server" Text="*" ForeColor="Red" validationgroup="QuickProduct"></asp:RequiredFieldValidator>
                                             <div class="form-group input-group">
                                                 <asp:TextBox ID="QuickTxtRegularPrice" runat="server" CssClass="form-control"></asp:TextBox>
-                                                <span class='input-group-addon'><%=ShopSettings.ShopCurrency %></span>
+                                                <span class='input-group-addon'><%=DefaultSettings.CurrencyDefault.Symbol %></span>
                                             </div>
                                         </div>
 
@@ -529,7 +516,7 @@ function onFailure(result) { }
                                             <%=base.GetLabel("LblSalePrice", "Sale Price", QuickTxtSalePrice, true)%>
                                             <div class="form-group input-group">
                                                 <asp:TextBox ID="QuickTxtSalePrice" runat="server" CssClass="form-control"></asp:TextBox>
-                                                <span class='input-group-addon'><%=ShopSettings.ShopCurrency %></span>
+                                                <span class='input-group-addon'><%=DefaultSettings.CurrencyDefault.Symbol %></span>
                                             </div>
                                         </div>
 
@@ -558,13 +545,17 @@ function onFailure(result) { }
 
                                         <div class="panel panel-default">
                                             <div class="table-responsive">
-
-                                                <asp:GridView ID="GridViewSimple" runat="server" AllowPaging="True" AllowSorting="true" Width="100%" AutoGenerateColumns="False"
-                                                    DataSourceID="ObjDs2" DataKeyNames="Id" OnRowDataBound="GridViewSimple_RowDataBound">
+                                                <asp:GridView ID="Grid2" runat="server" AllowPaging="True" AllowSorting="true" Width="100%" AutoGenerateColumns="False"
+                                                    DataKeyNames="Id" OnRowCommand="Grid2_RowCommand" OnRowDataBound="Grid2_RowDataBound">
                                                     <Columns>
-                                                        <asp:TemplateField HeaderText="Associate" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
+                                                        <asp:TemplateField HeaderText="Relates" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left">
                                                             <ItemTemplate>
-                                                                <asp:CheckBox ID="chkRow" runat="server" />
+                                                                <asp:LinkButton ID="AssociatedOk" runat="server" CommandName="AssociatedOk" Visible="false" CommandArgument='<%#Eval("Id") %>'>
+                                                                    <i class='fa fa-pgn_checked fa-fw'></i>
+                                                                </asp:LinkButton>
+                                                                <asp:LinkButton ID="AssociatedKo" runat="server" CommandName="AssociatedKo" Visible="false" CommandArgument='<%#Eval("Id") %>'>
+                                                                    <i class='fa fa-pgn_unchecked fa-fw'></i>                            
+                                                                </asp:LinkButton>
                                                             </ItemTemplate>
                                                         </asp:TemplateField>
                                                         <asp:BoundField DataField="Title" HeaderText="Title" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left" />
@@ -574,28 +565,11 @@ function onFailure(result) { }
                                                         <asp:BoundField DataField="Id" HeaderText="ID" ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left" />
                                                     </Columns>
                                                 </asp:GridView>
-
-                                                <asp:ObjectDataSource ID="ObjDs2" runat="server" 
-                                                    SortParameterName="sort" SelectMethod="GetByFilter" 
-                                                    TypeName="PigeonCms.Shop.ProductItemsManager" 
-                                                    OnObjectCreating="ObjDs2_ObjectCreating"
-                                                    OnSelecting="ObjDs2_Selecting">
-                                                    <SelectParameters>
-                                                        <asp:Parameter Name="filter" Type="Object" />
-                                                        <asp:Parameter Name="sort" Type="String" DefaultValue="" />
-                                                    </SelectParameters>
-                                                    <DeleteParameters>
-                                                        <asp:Parameter Name="Id" Type="Int32" />
-                                                    </DeleteParameters>
-                                                </asp:ObjectDataSource>
-
                                             </div>
                                         </div>
 
                                     </div>
-
                                 </div>
-
                             </div>
 
                         </asp:PlaceHolder>
