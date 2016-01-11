@@ -109,14 +109,14 @@ namespace PigeonCms
             return result;
         }
 
-        public List<string> GetResourceSetList(string resourceSetPart)
+        public Dictionary<string, string> GetResourceSetList(string resourceSetPart)
         {
             DbProviderFactory myProv = Database.ProviderFactory;
             DbConnection myConn = myProv.CreateConnection();
             DbDataReader myRd = null;
             DbCommand myCmd = myConn.CreateCommand();
             string sSql;
-            var result = new List<string>();
+            var result = new Dictionary<string, string>();
 
             try
             {
@@ -128,6 +128,7 @@ namespace PigeonCms
                     + " FROM [" + this.TableName + "] t "
                     + " WHERE t.Id > 0 ";
 
+                resourceSetPart = resourceSetPart.Trim();
                 if (!string.IsNullOrEmpty(resourceSetPart))
                 {
                     sSql += " AND t.ResourceSet like @resourceSetPart ";
@@ -140,7 +141,10 @@ namespace PigeonCms
                 while (myRd.Read())
                 {
                     if (!Convert.IsDBNull(myRd["ResourceSet"]))
-                        result.Add( (string)myRd["ResourceSet"] );
+                    {
+                        string resSet = (string)myRd["ResourceSet"];
+                        result.Add(resSet, resSet);
+                    }
                 }
                 myRd.Close();
             }

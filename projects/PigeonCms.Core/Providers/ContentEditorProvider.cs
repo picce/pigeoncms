@@ -108,6 +108,7 @@ namespace PigeonCms
             //string editorTheme = "";
             string menuBar = "";
             string toolBar = "";
+            string options = "";
             string contentCss = "";
             string editorCss = ""; //control.ResolveUrl("~/Css/common.css");
             string initEditorText = "";
@@ -131,6 +132,7 @@ namespace PigeonCms
                 case Configuration.EditorTypeEnum.Html:
                     toolBar = tinySettings.GetValue("TinyEditor-Html-toolbar", "true");
                     menuBar = tinySettings.GetValue("TinyEditor-Html-menubar", "true");
+                    options = tinySettings.GetValue("TinyEditor-Html-options", "height: 200");
                     //tiny bug - "true" or empty string not allowed
                     if (toolBar == "true")
                         toolBar = "";
@@ -144,6 +146,7 @@ namespace PigeonCms
                 case Configuration.EditorTypeEnum.BasicHtml:
                     toolBar = tinySettings.GetValue("TinyEditor-BasicHtml-toolbar", "bold italic | link | alignleft aligncenter alignright");
                     menuBar = tinySettings.GetValue("TinyEditor-BasicHtml-menubar", "false");
+                    options = tinySettings.GetValue("TinyEditor-BasicHtml-options", "height: 150");
                     //removed in v4
                     //editorTheme = "simple";
                     //extra = "paste_text_sticky : true, paste_text_sticky_default : true,";
@@ -168,6 +171,10 @@ namespace PigeonCms
             if (!string.IsNullOrEmpty(menuBar))
                 menuBar = "menubar: '" + menuBar + @"',";
 
+            if (!string.IsNullOrEmpty(options) && !options.Trim().EndsWith(",") )
+                options += ",";
+
+
             if (config.EditorType == Configuration.EditorTypeEnum.Text
                 || config.EditorType == Configuration.EditorTypeEnum.Image)
             { 
@@ -186,6 +193,7 @@ namespace PigeonCms
                         selector: 'textarea',
                         " + toolBar + @"
                         " + menuBar + @"
+                        " + options + @"
                         relative_urls: false,
                         plugins: [
                                  'advlist autolink link image lists charmap print preview hr anchor pagebreak ',

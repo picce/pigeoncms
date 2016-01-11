@@ -1145,6 +1145,9 @@ namespace PigeonCms
         private int threadId = 0;
         private bool showOnlyRootItems = true;
         private string extId = "";
+        private List<int> tagsId = new List<int>();
+        private List<string> tagsTitle = new List<string>();
+
 
         //custom fields
         private Utility.TristateBool customBool1 = Utility.TristateBool.NotSet;
@@ -1345,6 +1348,28 @@ namespace PigeonCms
             set { extId = value; }
         }
 
+        /// <summary>
+        /// list of tags id to filter
+        /// </summary>
+        public List<int> TagsId
+        {
+            [DebuggerStepThrough()]
+            get { return this.tagsId; }
+            [DebuggerStepThrough()]
+            set { this.tagsId = value; }
+        }
+
+        /// <summary>
+        /// list of tags id to filter
+        /// </summary>
+        public List<string> TagsTitle
+        {
+            [DebuggerStepThrough()]
+            get { return this.tagsTitle; }
+            [DebuggerStepThrough()]
+            set { this.tagsTitle = value; }
+        }
+
 
         //custom fields
         public Utility.TristateBool CustomBool1
@@ -1444,5 +1469,20 @@ namespace PigeonCms
         }
 
         #endregion
+    }
+
+    /// <summary>
+    /// tag associated to an item
+    /// </summary>
+    public class ItemTag: ITable
+    {
+        public int ItemId { get; set; }
+        public int TagId { get; set; }
+    }
+
+    public class ItemTagsFilter
+    {
+        public int ItemId { get; set; }
+        public int TagId { get; set; }
     }
 }

@@ -992,9 +992,10 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
                 }
 
 
-                foreach (string item in list)
+                foreach (var item in list)
                 {
-                    DropModuleTypesFilter.Items.Add(new ListItem(item, item));
+                    DropModuleTypesFilter.Items.Add(
+                        new ListItem(item.Value, item.Value));
                 }
             }
             else

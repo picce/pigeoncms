@@ -88,6 +88,8 @@
     <Compile Include="BLL\ItemAttributeValue.cs" />
     <Compile Include="BLL\Geo\Zone.cs" />
     <Compile Include="BLL\Geo\Country.cs" />
+    <Compile Include="BLL\TagType.cs" />
+    <Compile Include="BLL\Tag.cs" />
     <Compile Include="BLL\UserTempData.cs" />
     <Compile Include="BLL\Customer.cs" />
     <Compile Include="BLL\Message.cs" />
@@ -124,6 +126,9 @@
     <Compile Include="DAL\ItemAttributesValuesManager.cs" />
     <Compile Include="DAL\Geo\ZonesManager.cs" />
     <Compile Include="DAL\Geo\CountriesManager.cs" />
+    <Compile Include="DAL\ItemTagsManager.cs" />
+    <Compile Include="DAL\TagTypesManager.cs" />
+    <Compile Include="DAL\TagsManager.cs" />
     <Compile Include="DAL\UserTempDataManager.cs" />
     <Compile Include="DAL\CustomersManager.cs" />
     <Compile Include="DAL\MessagesManager.cs" />

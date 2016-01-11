@@ -30,13 +30,20 @@ namespace PigeonCms.Shop.PaymentsProvider
             return this;
         }
 
+        /// <summary>
+        /// submit to payment gateway
+        /// </summary>
         public abstract void Submit(IOrder order, NameValueCollection data = null);
 
         //How to: Raise Base Class Events in Derived Classes
         //https://msdn.microsoft.com/en-us/library/hy3sefw3.aspx
         public event EventHandler<ConfirmEventArgs> PaymentConfirmed;
 
-        //The event-invoking method that derived classes can override. 
+        /// <summary>
+        /// event called on payment provider callback done
+        /// The event-invoking method that derived classes can override. 
+        /// </summary>
+        /// <param name="e"></param>
         public virtual void OnPaymentConfirmed(ConfirmEventArgs e)
         {
             // Make a temporary copy of the event to avoid possibility of 
@@ -89,6 +96,9 @@ namespace PigeonCms.Shop.PaymentsProvider
             }
         }
 
+        /// <summary>
+        /// called by payment gateway callback
+        /// </summary>
         public abstract void Confirm();
 
         protected string ParseUrl(string url)

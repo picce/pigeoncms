@@ -258,6 +258,9 @@ namespace PigeonCms
             /// </summary>
             public static string StripTagsCharArray(string source)
             {
+                if (string.IsNullOrEmpty(source))
+                    return "";
+
                 char[] array = new char[source.Length];
                 int arrayIndex = 0;
                 bool inside = false;
@@ -1136,6 +1139,9 @@ namespace PigeonCms
         /// <returns>a valid url</returns>
         public static string GetUrlAlias(string url)
         {
+            if (url == null)
+                return "";
+
             string res = url.ToLower();
             res = res.Replace(" ","-");
             res = HttpUtility.UrlEncode(res);

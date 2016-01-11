@@ -98,11 +98,13 @@ namespace PigeonCms.Shop
                 + " SET ZoneCode=@ZoneCode, WeightFrom=@WeightFrom, "
                 + " WeightTo=@WeightTo, ShippingPrice=@ShippingPrice"
                 + " WHERE " + this.KeyFieldName + " = @Id";
+                
                 p.Add("Id", theObj.Id, null, null, null);
                 p.Add("ZoneCode", theObj.ZoneCode, null, null, null);
                 p.Add("WeightFrom", theObj.WeightFrom, null, null, null);
                 p.Add("WeightTo", theObj.WeightTo, null, null, null);
                 p.Add("ShippingPrice", theObj.ShippingPrice, null, null, null);
+                
                 result = myConn.Execute(Database.ParseSql(sSql), p);
             }
             finally
@@ -147,33 +149,31 @@ namespace PigeonCms.Shop
             return result;
         }
 
-        public override int DeleteById(int id)
-        {
-            DbProviderFactory myProv = Database.ProviderFactory;
-            DbConnection myConn = myProv.CreateConnection();
-            var p = new DynamicParameters();
+        //TOREMOVE
+        //public override int DeleteById(int id)
+        //{
+        //    DbProviderFactory myProv = Database.ProviderFactory;
+        //    DbConnection myConn = myProv.CreateConnection();
+        //    var p = new DynamicParameters();
+        //    string sSql;
+        //    int res = 0;
 
-            string sSql;
-            int res = 0;
+        //    try
+        //    {
+        //        myConn.ConnectionString = Database.ConnString;
+        //        myConn.Open();
 
-            try
-            {
-                var currObj = this.GetByKey(id);
+        //        sSql = "DELETE FROM " + this.TableName + " WHERE " + this.KeyFieldName + " = @Id ";
+        //        p.Add("Id", id, null, null, null);
 
-                myConn.ConnectionString = Database.ConnString;
-                myConn.Open();
-
-                sSql = "DELETE FROM " + this.TableName + " WHERE " + this.KeyFieldName + " = @Id ";
-                p.Add("Id", id, null, null, null);
-
-                myConn.Execute(Database.ParseSql(sSql), p);
-            }
-            finally
-            {
-                myConn.Dispose();
-            }
-            return res;
-        }
+        //        myConn.Execute(Database.ParseSql(sSql), p);
+        //    }
+        //    finally
+        //    {
+        //        myConn.Dispose();
+        //    }
+        //    return res;
+        //}
 
     }
 }

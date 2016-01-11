@@ -362,6 +362,18 @@ namespace PigeonCms
                     if (item.WritePermissionId > 0 && item.WriteAccessType != MenuAccesstype.Public)
                         item.WriteRolenames = new PermissionProvider().GetPermissionRoles(item.WritePermissionId);
                 }
+
+                if (filter.TagsId.Count > 0)
+                {
+                    //TODO
+                    //var itemTagsMan = new ItemTagsManager(0);
+                }
+
+                if (filter.TagsTitle.Count > 0)
+                {
+                    //TODO
+                }
+
                 if (this.CheckUserContext)
                 {
                     result.RemoveAll(new PermissionProvider().IsItemNotAllowed);
@@ -1436,9 +1448,7 @@ namespace PigeonCms
             return res;
         }
 
-		//TOCHECK-LOLLO
-        //ottimizzare qry (magari includere in ItemsFilter) - includere prop Related (List<T>) in Item; renamed
-        public List<T> GetRelatedItems(int itemId, int itemsRelationTypeId)
+        public List<int> GetRelatedItemsId(int itemId, int itemsRelationTypeId)
         {
             DbProviderFactory myProv = Database.ProviderFactory;
             DbConnection myConn = myProv.CreateConnection();
@@ -1451,25 +1461,27 @@ namespace PigeonCms
             myConn.Open();
             myCmd.Connection = myConn;
 
-            try {
+            try
+            {
                 sSql = "SELECT RelatedId "
                   + " FROM #__itemsRelated r "
-                  + " WHERE ItemId = @ItemId "
-                  + " AND ItemsRelationTypeId = @ItemsRelationTypeId ";
+                  + " WHERE ItemId = @ItemId ";
+                myCmd.Parameters.Add(Database.Parameter(myProv, "ItemId", itemId));
+                if (itemsRelationTypeId > 0)
+                {
+                    sSql += " AND ItemsRelationTypeId = @ItemsRelationTypeId ";
+                    myCmd.Parameters.Add(Database.Parameter(myProv, "ItemsRelationTypeId", itemsRelationTypeId));
+                }
 
                 myCmd.CommandText = Database.ParseSql(sSql);
-                myCmd.Parameters.Clear();
-                myCmd.Parameters.Add(Database.Parameter(myProv, "ItemId", itemId));
-                myCmd.Parameters.Add(Database.Parameter(myProv, "ItemsRelationTypeId", itemsRelationTypeId));
                 myRd = myCmd.ExecuteReader();
                 while (myRd.Read())
                 {
-                    int RelatedId = 0;
-
+                    int relatedId = 0;
                     if (!Convert.IsDBNull(myRd["RelatedId"]))
-                        RelatedId = (int)myRd["RelatedId"];
+                        relatedId = (int)myRd["RelatedId"];
 
-                    relatedIdList.Add(RelatedId);
+                    relatedIdList.Add(relatedId);
                 }
                 myRd.Close();
             }
@@ -1477,13 +1489,17 @@ namespace PigeonCms
             {
                 myConn.Dispose();
             }
+            return relatedIdList;
+        }
 
-            //TODO add in filter List<int>
+        public List<T> GetRelatedItems(int itemId, int itemsRelationTypeId)
+        {
+            var relatedIdList = GetRelatedItemsId(itemId, itemsRelationTypeId);
             var relatedItemList = new List<T>();
-            foreach(var Id in relatedIdList) {
+            foreach(var Id in relatedIdList) 
+            {
                 relatedItemList.Add(this.GetByKey(Id));
             }
-
             return relatedItemList;
         }
 

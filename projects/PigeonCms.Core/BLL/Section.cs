@@ -97,10 +97,7 @@ namespace PigeonCms
         {
             get
             {
-                string res = "";
-                titleTranslations.TryGetValue(Thread.CurrentThread.CurrentCulture.Name, out res);
-                if (string.IsNullOrEmpty(res))
-                    titleTranslations.TryGetValue(Config.CultureDefault, out res);
+                string res = LabelsProvider.GetLocalizedTextFromDictionary(titleTranslations);
                 return res;
             }
         }
@@ -153,10 +150,7 @@ namespace PigeonCms
         {
             get
             {
-                string res = "";
-                descriptionTranslations.TryGetValue(Thread.CurrentThread.CurrentCulture.Name, out res);
-                if (string.IsNullOrEmpty(res))
-                    descriptionTranslations.TryGetValue(Config.CultureDefault, out res);
+                string res = LabelsProvider.GetLocalizedTextFromDictionary(descriptionTranslations);
                 return res;
             }
         }

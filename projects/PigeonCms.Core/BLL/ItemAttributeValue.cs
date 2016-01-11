@@ -20,11 +20,6 @@ namespace PigeonCms
 
         #region fields
 
-        /// <summary>
-        /// Automatic Id as PKey
-        /// </summary>
-        [DataObjectField(true)]
-        public int Id { get; set; }
 
         /// <summary>
         /// Item id, owner of Attribute

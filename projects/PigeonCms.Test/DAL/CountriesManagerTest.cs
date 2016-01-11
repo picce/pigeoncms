@@ -3,7 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 
-namespace PigeonCms.Test
+namespace PigeonCms.UT.Core
 {
     
     
@@ -122,9 +122,12 @@ namespace PigeonCms.Test
         ///A test for Insert
         ///</summary>
         [TestMethod()]
-        public void DeleteInsertTest()
+        public void InsertTest()
         {
             CountriesManager target = new CountriesManager();
+
+            target.DeleteById(TEST_CODE);
+
             Country theObj = new Country(); ;
             Country actual;
             theObj.Code = TEST_CODE;

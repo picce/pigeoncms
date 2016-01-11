@@ -1,12 +1,12 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "pigeoncms(1)", "..\pigeoncms\", "{9BBB1122-2347-44A8-A085-7D86DEFB9E7E}"
 	ProjectSection(WebsiteProperties) = preProject
 		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.0"
-		ProjectReferences = "{B5680C69-ADE4-4233-AF97-ED41E7C10E13}|PigeonCms.Core.dll;{6CE8F051-18B4-44E0-ADE8-D39EBADB9D71}|PigeonCms.Core.Offline.dll;"
+		ProjectReferences = "{B5680C69-ADE4-4233-AF97-ED41E7C10E13}|PigeonCms.Core.dll;{6CE8F051-18B4-44E0-ADE8-D39EBADB9D71}|PigeonCms.Core.Offline.dll;{9b7c9bbb-9618-4e2a-b6eb-e267cdd82f4f}|PigeonCms.Shop.dll;"
 		Debug.AspNetCompiler.VirtualPath = "/pigeoncms"
 		Debug.AspNetCompiler.PhysicalPath = "..\pigeoncms\"
 		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\pigeoncms\"
@@ -30,7 +30,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PigeonCms.Core", "PigeonCms
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PigeonCms.Core.Offline", "PigeonCms.Core.OfflineProvider\PigeonCms.Core.Offline.csproj", "{6CE8F051-18B4-44E0-ADE8-D39EBADB9D71}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PigeonCms.Test", "PigeonCms.Test\PigeonCms.Test.csproj", "{AC56D118-7456-4629-8B12-4441D4639EF9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PigeonCms.Test.Core", "PigeonCms.Test\PigeonCms.Test.Core.csproj", "{AC56D118-7456-4629-8B12-4441D4639EF9}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Others", "Others", "{8FB0BC1A-751C-467F-A1A6-DFEE7D5C410A}"
 EndProject

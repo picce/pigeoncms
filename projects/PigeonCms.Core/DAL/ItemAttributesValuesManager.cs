@@ -7,16 +7,19 @@ using System.Text;
 
 namespace PigeonCms
 {
-    public class ItemAttributesValuesManager : TableManager<AttributeValue, AttributeValueFilter, int>, ITableManager
+    public class ItemAttributesValuesManager : 
+        TableManager<ItemAttributeValue, ItemAttributeValueFilter, int>, 
+        ITableManager
     {
         [DebuggerStepThrough()]
         public ItemAttributesValuesManager()
         {
             this.TableName = "#__itemsAttributesValues";
+            this.KeyFieldName = "ItemId|AttributeId|AttributeValueId";
         }
 
 
-        public List<PigeonCms.ItemAttributeValue> GetByFilter(ItemAttributeValueFilter filter, string sort)
+        public override List<PigeonCms.ItemAttributeValue> GetByFilter(ItemAttributeValueFilter filter, string sort)
         {
             DbProviderFactory myProv = Database.ProviderFactory;
             DbConnection myConn = myProv.CreateConnection();
@@ -68,7 +71,7 @@ namespace PigeonCms
                 myRd = myCmd.ExecuteReader();
                 while (myRd.Read())
                 {
-                    PigeonCms.ItemAttributeValue item = new PigeonCms.ItemAttributeValue();
+                    var item = new PigeonCms.ItemAttributeValue();
                     FillObject(item, myRd);
                     result.Add(item);
                 }
@@ -81,7 +84,7 @@ namespace PigeonCms
             return result;
         }
 
-        protected void FillObject(PigeonCms.ItemAttributeValue result, DbDataReader myRd)
+        protected override void FillObject(PigeonCms.ItemAttributeValue result, DbDataReader myRd)
         {
             if (!Convert.IsDBNull(myRd["ItemId"]))
                 result.ItemId = (int)myRd["ItemId"];
@@ -93,15 +96,21 @@ namespace PigeonCms
                 result.CustomValueString = (string)myRd["CustomValueString"];
         }
 
-        public PigeonCms.ItemAttributeValue GetById(int itemId, int attributeId)
+        public override ItemAttributeValue GetByKey(int id)
+        {
+            throw new NotSupportedException();
+        }
+
+        public PigeonCms.ItemAttributeValue GetById(int itemId, int attributeId, int attributeValueId)
         {
             var result = new PigeonCms.ItemAttributeValue();
             var list = new List<PigeonCms.ItemAttributeValue>();
             var filter = new ItemAttributeValueFilter();
-            if (itemId > 0 && attributeId > 0)
+            if (itemId > 0 && attributeId > 0 && attributeValueId > 0)
             {
                 filter.ItemId = itemId;
                 filter.AttributeId = attributeId;
+                filter.AttributeValueId = attributeValueId;
                 list = this.GetByFilter(filter, "");
                 if (list.Count > 0)
                     result = list[0];
@@ -121,41 +130,13 @@ namespace PigeonCms
             return list;
         }
 
-        public int Update(ItemAttributeValue theObj)
+        public override int Update(ItemAttributeValue theObj)
         {
-            DbProviderFactory myProv = Database.ProviderFactory;
-            DbConnection myConn = myProv.CreateConnection();
-            DbCommand myCmd = myConn.CreateCommand();
-            string sSql;
-            int result = 0;
-            try
-            {
-                myConn.ConnectionString = Database.ConnString;
-                myConn.Open();
-                myCmd.Connection = myConn;
-
-                sSql = "UPDATE " + this.TableName 
-                + " SET ItemId=@ItemId, AttributeId = @AttributeId, "
-                + " AttributeValueId = @AttributeValueId, "
-                + " CustomValueString =@CustomValueString"
-                + " WHERE Id= @Id";
-                myCmd.CommandText = Database.ParseSql(sSql);
-                myCmd.Parameters.Add(Database.Parameter(myProv, "ItemId", theObj.ItemId));
-                myCmd.Parameters.Add(Database.Parameter(myProv, "Id", theObj.Id));
-                myCmd.Parameters.Add(Database.Parameter(myProv, "AttributeId", theObj.AttributeId));
-                myCmd.Parameters.Add(Database.Parameter(myProv, "AttributeValueId", theObj.AttributeValueId));
-                myCmd.Parameters.Add(Database.Parameter(myProv, "CustomValueString", theObj.CustomValueString));
-                result = myCmd.ExecuteNonQuery();
-            }
-            finally
-            {
-                myConn.Dispose();
-            }
-            return result;
+            throw new NotSupportedException();
         }
 
 
-        public ItemAttributeValue Insert(ItemAttributeValue newObj)
+        public override ItemAttributeValue Insert(ItemAttributeValue newObj)
         {
             DbProviderFactory myProv = Database.ProviderFactory;
             DbConnection myConn = myProv.CreateConnection();
@@ -201,7 +182,7 @@ namespace PigeonCms
             int res = 0;
 
             if (itemId <= 0)
-                throw new ArgumentException("Warning: invalid itemId");
+                throw new ArgumentException("Warning: invalid itemId", "itemId");
 
             try
             {
@@ -236,10 +217,6 @@ namespace PigeonCms
             return res;
         }
 
-
-
-
-        //TOCHECK-LOLLO - renamed in DeleteByItemId da DeleByID
         public int DeleteByItemId(int itemId)
         {
             return this.Delete(itemId, 0, 0);

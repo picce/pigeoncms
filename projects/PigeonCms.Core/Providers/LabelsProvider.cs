@@ -196,6 +196,9 @@ namespace PigeonCms
             dict.TryGetValue(forcedCultureCode, out res);
             if (Utility.IsEmptyFckField(res))
                 dict.TryGetValue(Config.CultureDefault, out res);
+            
+            if (string.IsNullOrEmpty(res))
+                res = "";
 
             return res;
         }

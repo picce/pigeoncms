@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<OrderedTest name="itemtagsmanager" storage="c:\inetpub\wwwroot\pigeoncms\code\projects\pigeoncms.test\itemtagsmanager.orderedtest" id="4bce6278-9147-4a6d-948a-24b70d5e4f63" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <TestLinks>
+    <TestLink id="5de1c309-d4e7-7e67-ee4f-f9c17457443c" name="InsertTest" storage="bin\debug\pigeoncms.test.dll" type="Microsoft.VisualStudio.TestTools.TestTypes.Unit.UnitTestElement, Microsoft.VisualStudio.QualityTools.Tips.UnitTest.ObjectModel, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+    <TestLink id="274087b5-e208-0e07-342a-371b45c2474d" name="GetByFilterTest" storage="bin\debug\pigeoncms.test.dll" type="Microsoft.VisualStudio.TestTools.TestTypes.Unit.UnitTestElement, Microsoft.VisualStudio.QualityTools.Tips.UnitTest.ObjectModel, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+    <TestLink id="d1028919-7e18-1962-17a7-c26e2cba8706" name="GetByKey" storage="bin\debug\pigeoncms.test.dll" type="Microsoft.VisualStudio.TestTools.TestTypes.Unit.UnitTestElement, Microsoft.VisualStudio.QualityTools.Tips.UnitTest.ObjectModel, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+    <TestLink id="7275e7f3-1003-4ad7-7f51-e47de9a8cb7b" name="UpdateTest" storage="bin\debug\pigeoncms.test.dll" type="Microsoft.VisualStudio.TestTools.TestTypes.Unit.UnitTestElement, Microsoft.VisualStudio.QualityTools.Tips.UnitTest.ObjectModel, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+    <TestLink id="5b9ab103-b420-37ec-ec09-ba18e0aa47ba" name="DeleteByIdTest" storage="bin\debug\pigeoncms.test.dll" type="Microsoft.VisualStudio.TestTools.TestTypes.Unit.UnitTestElement, Microsoft.VisualStudio.QualityTools.Tips.UnitTest.ObjectModel, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  </TestLinks>
+</OrderedTest>
