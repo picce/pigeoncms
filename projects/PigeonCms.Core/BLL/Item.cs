@@ -667,7 +667,7 @@ namespace PigeonCms
         }
 
         private Item threadRoot = null;
-        public Item ThreadRoot
+        public virtual Item ThreadRoot
         {
             get
             {
@@ -688,7 +688,7 @@ namespace PigeonCms
         /// <summary>
         /// thread list
         /// </summary>
-        public List<Item> ThreadList
+        public virtual List<Item> ThreadList
         {
             get
             {
