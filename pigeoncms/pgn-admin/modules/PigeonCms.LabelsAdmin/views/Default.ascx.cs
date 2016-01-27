@@ -1203,6 +1203,13 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
             //no additional filters
             res = list;
         }
+        
+		if (!string.IsNullOrEmpty(this.ModuleFullNamePart) 
+			&& DropModuleTypesFilter.SelectedValue == "")
+		{
+			//filter all labels with
+			res = res.FindAll(x => x.ResourceSet.StartsWith(this.ModuleFullNamePart, StringComparison.InvariantCultureIgnoreCase));
+		}        
 
         grid.DataSource = res;
         grid.DataBind();
