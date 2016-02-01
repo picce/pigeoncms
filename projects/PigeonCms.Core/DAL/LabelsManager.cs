@@ -128,7 +128,7 @@ namespace PigeonCms
                     + " FROM [" + this.TableName + "] t "
                     + " WHERE t.Id > 0 ";
 
-                resourceSetPart = resourceSetPart.Trim();
+                resourceSetPart = resourceSetPart.Trim().Replace("_", "[_]");
                 if (!string.IsNullOrEmpty(resourceSetPart))
                 {
                     sSql += " AND t.ResourceSet like @resourceSetPart ";
