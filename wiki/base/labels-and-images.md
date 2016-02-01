@@ -56,7 +56,7 @@ LitSample5.Text = GetLabel("Page1", "Sample5", "Label value calling method in co
 
 ###Images
 
-You can add localized image resourcesin your page using the following ways.
+You can add localized image resources in your page using the following ways.
 All resources are then available in backed to be edited.
 
 **Sample image 1:**
