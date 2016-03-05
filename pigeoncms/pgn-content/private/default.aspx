@@ -6,11 +6,20 @@
 
 <asp:Content ID="Content2" ContentPlaceHolderID="CphMain" Runat="Server">
 
-    <h1>
-        <%=GetLabel("AQ_private", "Title", "Private area")%>    
-    </h1>
+    <div class="o-container">
 
-    <asp:Literal runat="server" ID="Lit1"></asp:Literal>
+        <div class="o-row o-row--small u-table u-table--full u-pad-tb--5 u-border--bottom">
+
+			<div class="o-title o-title--small o-col o-col--20 u-table-cell">
+				<%=GetLabel("AQ_private", "Title", "Private area")%>   
+			</div>
+
+			<div class="o-title o-subtitle--big o-col o-col--80 u-table-cell">
+                <%=Description  %>
+			</div>
+
+		</div>
+
+    </div>
 
 </asp:Content>
-

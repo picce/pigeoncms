@@ -9,14 +9,6 @@ namespace PigeonCms
 {
     public class ItemsAdminControl : PigeonCms.ItemControl<Item, ItemsFilter>
     {
-        //##20141205
-        //filter per category
-        private int categoryId = 0;
-        public int CategoryId
-        {
-            get { return GetIntParam("CategoryId", categoryId, "categoryId"); }
-            set { categoryId = value; }
-        }
 
         int targetImagesUpload = 0;
         //images attached
@@ -206,6 +198,15 @@ namespace PigeonCms
         #endregion
 
         #region filters
+
+		//##20141205
+		//filter per category
+		private int categoryId = 0;
+		public int CategoryId
+		{
+			get { return GetIntParam("CategoryId", categoryId, "categoryId"); }
+			set { categoryId = value; }
+		}
 
         private string itemType = "";
         public string ItemType

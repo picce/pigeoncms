@@ -22,148 +22,113 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
             loadDropsModuleTypes();
             loadDropTracerItemTypeFilter();
             loadDropDatesRangeFilter();
+			loadList();
         }
     }
 
     protected void Filter_Changed(object sender, EventArgs e)
     {
-        try { Grid1.DataBind(); }
-        catch (Exception ex)
-        {
-            LblErr.Text = ex.Message;
-        }
+		loadList();
     }
 
-    protected void ObjDs1_Selecting(object sender, ObjectDataSourceSelectingEventArgs e)
+	protected void RepPaging_ItemDataBound(object sender, RepeaterItemEventArgs e)
+	{
+		if (e.Item.ItemType == ListItemType.Header)
+		{
+			return;
+		}
+
+		int page = int.Parse(e.Item.DataItem.ToString());
+		if (page - 1 == base.ListCurrentPage)
+		{
+			var BtnPage = (LinkButton)e.Item.FindControl("BtnPage");
+			BtnPage.CssClass = "selected";
+		}
+	}
+
+	protected void RepPaging_ItemCommand(object source, RepeaterCommandEventArgs e)
+	{
+		if (e.CommandName == "Page")
+		{
+			base.ListCurrentPage = int.Parse(e.CommandArgument.ToString()) - 1;
+			loadList();
+		}
+	}
+
+	protected void Rep1_ItemCommand(object source, RepeaterCommandEventArgs e)
     {
-        var filter = new LogItemsFilter();
-
-        filter.TopRows = int.Parse(DropTopRowsFilter.SelectedValue);
-
-        if (DropTracerItemTypeFilter.SelectedValue != "")
-        {
-            filter.FilterType = true;
-            filter.Type = (TracerItemType)Enum.Parse(typeof(TracerItemType), DropTracerItemTypeFilter.SelectedValue);
-        }
-
-        if (DropModuleTypesFilter.SelectedValue != "")
-            filter.ModuleFullName = DropModuleTypesFilter.SelectedValue;
-
-        if (DropDatesRangeFilter.SelectedValue != "")
-        {
-            DatesRange.RangeType rangeType =
-                (DatesRange.RangeType)Enum.Parse(typeof(DatesRange.RangeType), DropDatesRangeFilter.SelectedValue);
-            DatesRange datesRange = new DatesRange(rangeType);
-            filter.DateInsertedRange = datesRange;
-        }
-
-        if (!string.IsNullOrEmpty(TxtDescriptionFilter.Text))
-            filter.DescriptionPart = TxtDescriptionFilter.Text;
-
-        if (!string.IsNullOrEmpty(TxtIpFilter.Text))
-            filter.UserHostAddressPart = TxtIpFilter.Text;
-
-        if (!string.IsNullOrEmpty(TxtSessionIdFilter.Text))
-            filter.SessionIdPart = TxtSessionIdFilter.Text;
-
-        e.InputParameters["filter"] = filter;
+		if (e.CommandName == "Select")
+		{
+			editRow(int.Parse(e.CommandArgument.ToString()));
+		}
     }
 
-    protected void Grid1_DataBinding(object sender, EventArgs e)
+	protected void Rep1_ItemDataBound(object sender, RepeaterItemEventArgs e)
     {
+		if (e.Item.ItemType == ListItemType.Header)
+			return;
 
-    }
+		var item = (PigeonCms.LogItem)e.Item.DataItem;
 
-    protected void Grid1_RowCommand(object sender, GridViewCommandEventArgs e)
-    {
-        if (e.CommandName == "Select")
+
+		var LitType = (Literal)e.Item.FindControl("LitType");
+		switch (item.Type)
+		{
+			case TracerItemType.Debug:
+				LitType.Text = "<i class='fa fa-pgn_debug fa-fw'></i>";
+				break;
+			case TracerItemType.Info:
+				LitType.Text = "<i class='fa fa-pgn_info fa-fw'></i>";
+				break;
+			case TracerItemType.Warning:
+				LitType.Text = "<i class='fa fa-pgn_warning fa-fw'></i>";
+				break;
+			case TracerItemType.Alert:
+				LitType.Text = "<i class='fa fa-pgn_alert fa-fw'></i>";
+				break;
+			case TracerItemType.Error:
+				LitType.Text = "<i class='fa fa-pgn_error fa-fw'></i>";
+				break;
+			default:
+				LitType.Text = "<i class='fa fa-pgn_debug fa-fw'></i>";
+				break;
+		}
+
+
+		var LitDateInserted = (Literal)e.Item.FindControl("LitDateInserted");
+		LitDateInserted.Text = item.DateInserted.ToString();
+
+		var LitItemInfo = (Literal)e.Item.FindControl("LitItemInfo");
+		LitItemInfo.Text = item.UserHostAddress + "<br>"
+			+ item.SessionId;
+
+		var LitId = (Literal)e.Item.FindControl("LitId");
+		LitId.Text = item.Id.ToString() + " - " + item.UserInserted;
+
+        var LitModule = (Literal)e.Item.FindControl("LitModule");
+        LitModule.Text = item.ModuleFullName;
+
+        var LitUrl = (Literal)e.Item.FindControl("LitUrl");
+		string path = Utility.Html.GetTextPreview(item.Url, 50, "");
+        try
         {
-            editRow(int.Parse(e.CommandArgument.ToString()));
+            Uri url = new Uri(item.Url);
+            path = Utility.Html.GetTextPreview(url.AbsolutePath, 50, "");
+            if (item.Url.StartsWith("https://"))
+                LitUrl.Text += "https://...";
         }
-        if (e.CommandName == "DeleteRow")
-        {
-            deleteRow(int.Parse(e.CommandArgument.ToString()));
-        }
-    }
+        catch { }
+        LitUrl.Text += path;
 
-    protected void Grid1_RowCreated(object sender, GridViewRowEventArgs e)
-    {
-        if (e.Row.RowType == DataControlRowType.Header)
-            Utility.AddGlyph(Grid1, e.Row);
-    }
-
-    protected void Grid1_RowDataBound(object sender, GridViewRowEventArgs e)
-    {
-        if (e.Row.RowType == DataControlRowType.DataRow)
-        {
-            var item = new PigeonCms.LogItem();
-            item = (PigeonCms.LogItem)e.Row.DataItem;
-
-            Literal LitModule = (Literal)e.Row.FindControl("LitModule");
-            LitModule.Text = item.ModuleFullName;
-
-            Literal LitIp = (Literal)e.Row.FindControl("LitIp");
-            LitIp.Text = item.UserHostAddress;
-
-            Literal LitSessionId = (Literal)e.Row.FindControl("LitSessionId");
-            LitSessionId.Text = item.SessionId;
-
-            Literal LitUrl = (Literal)e.Row.FindControl("LitUrl");
-            string path = Utility.Html.GetTextPreview(item.Url, 40, "");
-            try
-            {
-                Uri url = new Uri(item.Url);
-                path = Utility.Html.GetTextPreview(url.AbsolutePath, 40, "");
-                if (item.Url.StartsWith("https://"))
-                    LitUrl.Text += "https://...";
-            }
-            catch { }
-
-            LitUrl.Text += path;
-
-            Literal LitDescription = (Literal)e.Row.FindControl("LitDescription");
-            LitDescription.Text = Utility.Html.GetTextPreview(item.Description, 120, "");
-
-            var LnkSel = (LinkButton)e.Row.FindControl("LnkSel");
-            switch (item.Type)
-            {
-                case TracerItemType.Debug:
-                    LnkSel.Text = "<i class='fa fa-pgn_debug fa-fw'></i>";
-                    break;
-                case TracerItemType.Info:
-                    LnkSel.Text = "<i class='fa fa-pgn_info fa-fw'></i>";
-                    break;
-                case TracerItemType.Warning:
-                    LnkSel.Text = "<i class='fa fa-pgn_warning fa-fw'></i>";
-                    break;
-                case TracerItemType.Alert:
-                    LnkSel.Text = "<i class='fa fa-pgn_alert fa-fw'></i>";
-                    break;
-                case TracerItemType.Error:
-                    LnkSel.Text = "<i class='fa fa-pgn_error fa-fw'></i>";
-                    break;
-                default:
-                    LnkSel.Text = "<i class='fa fa-pgn_debug fa-fw'></i>";
-                    break;
-            }
-        }
+        var LitDescription = (Literal)e.Item.FindControl("LitDescription");
+        LitDescription.Text = Utility.Html.GetTextPreview(item.Description, 150, "");
     }
 
     protected void BtnCancel_Click(object sender, EventArgs e)
     {
-        LblErr.Text = "";
-        LblOk.Text = "";
-        MultiView1.ActiveViewIndex = 0;
+		showInsertPanel(false);
     }
 
-    protected void MultiView1_ActiveViewChanged(object sender, EventArgs e)
-    {
-        if (MultiView1.ActiveViewIndex == 0)    //list view
-        {
-        }
-    }
-
-    #region private methods
 
     private void clearForm()
     {
@@ -207,37 +172,96 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
     private void editRow(int recordId)
     {
         var obj = new LogItem();
-        LblOk.Text = "";
-        LblErr.Text = "";
 
         clearForm();
         base.CurrentId = recordId;
 
-        if (base.CurrentId == 0)
-        { }
-        else
+        if (base.CurrentId > 0)
         {
             obj = new LogItemsManager().GetByKey(base.CurrentId);
             obj2form(obj);
         }
-        MultiView1.ActiveViewIndex = 1;
+		showInsertPanel(true);
     }
+
+	private void showInsertPanel(bool toShow)
+	{
+		PigeonCms.Utility.Script.RegisterStartupScript(Upd1, "bodyBlocked", "bodyBlocked(" + toShow.ToString().ToLower() + ");");
+
+		if (toShow)
+			PanelInsert.Visible = true;
+		else
+			PanelInsert.Visible = false;
+	}
 
     private void deleteRow(int recordId)
     {
-        LblOk.Text = "";
-        LblErr.Text = "";
-
         try
         {
             new LogItemsManager().DeleteById(recordId);
         }
         catch (Exception e)
         {
-            LblErr.Text = e.Message;
+            //LblErrInsert.Text = e.Message;
         }
-        Grid1.DataBind();
+		loadList();
     }
+
+	private void loadList()
+	{
+		var man = new LogItemsManager();
+		var filter = new LogItemsFilter();
+		filter.TopRows = int.Parse(DropTopRowsFilter.SelectedValue);
+		if (DropTracerItemTypeFilter.SelectedValue != "")
+		{
+			filter.FilterType = true;
+			filter.Type = (TracerItemType)Enum.Parse(typeof(TracerItemType), DropTracerItemTypeFilter.SelectedValue);
+		}
+
+		if (DropModuleTypesFilter.SelectedValue != "")
+			filter.ModuleFullName = DropModuleTypesFilter.SelectedValue;
+
+		if (DropDatesRangeFilter.SelectedValue != "")
+		{
+			DatesRange.RangeType rangeType =
+				(DatesRange.RangeType)Enum.Parse(typeof(DatesRange.RangeType), DropDatesRangeFilter.SelectedValue);
+			DatesRange datesRange = new DatesRange(rangeType);
+			filter.DateInsertedRange = datesRange;
+		}
+
+		if (!string.IsNullOrEmpty(TxtDescriptionFilter.Text))
+			filter.DescriptionPart = TxtDescriptionFilter.Text;
+
+		if (!string.IsNullOrEmpty(TxtIpFilter.Text))
+			filter.UserHostAddressPart = TxtIpFilter.Text;
+
+		if (!string.IsNullOrEmpty(TxtSessionIdFilter.Text))
+			filter.SessionIdPart = TxtSessionIdFilter.Text;
+
+
+		var list = man.GetByFilter(filter, "");
+		var ds = new PagedDataSource();
+		ds.DataSource = list;
+		ds.AllowPaging = true;
+		ds.PageSize = base.ListPageSize;
+		ds.CurrentPageIndex = base.ListCurrentPage;
+
+		RepPaging.Visible = false;
+		if (ds.PageCount > 1)
+		{
+			RepPaging.Visible = true;
+			var pages = new ArrayList();
+			for (int i = 0; i <= ds.PageCount - 1; i++)
+			{
+				pages.Add((i + 1).ToString());
+			}
+			RepPaging.DataSource = pages;
+			RepPaging.DataBind();
+		}
+
+		Rep1.DataSource = ds;
+		Rep1.DataBind();
+	}
 
     private void loadDropTracerItemTypeFilter()
     {
@@ -254,39 +278,25 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
 
     private void loadDropsModuleTypes()
     {
-        try
-        {
-            DropModuleTypesFilter.Items.Clear();
-            DropModuleTypesFilter.Items.Add(new ListItem(Utility.GetLabel("LblSelectModule", "Select module"), ""));
+        DropModuleTypesFilter.Items.Clear();
+        DropModuleTypesFilter.Items.Add(new ListItem(Utility.GetLabel("LblSelectModule", "Select module"), ""));
 
-            ModuleTypeFilter filter = new ModuleTypeFilter();
-            List<ModuleType> recordList = new ModuleTypeManager(true).GetByFilter(filter, "FullName");
-            foreach (ModuleType record1 in recordList)
-            {
-                DropModuleTypesFilter.Items.Add(
-                    new ListItem(record1.FullName, record1.FullName));
-            }
-        }
-        catch (Exception ex)
+        ModuleTypeFilter filter = new ModuleTypeFilter();
+        List<ModuleType> recordList = new ModuleTypeManager(true).GetByFilter(filter, "FullName");
+        foreach (ModuleType record1 in recordList)
         {
-            LblErr.Text = ex.ToString();
+            DropModuleTypesFilter.Items.Add(
+                new ListItem(record1.FullName, record1.FullName));
         }
     }
 
     private void loadDropDatesRangeFilter()
     {
-        try
-        {
-            DropDatesRangeFilter.Items.Clear();
-            DropDatesRangeFilter.Items.Add(new ListItem("Today", "3"));
-            DropDatesRangeFilter.Items.Add(new ListItem("Always", "2"));
-            DropDatesRangeFilter.Items.Add(new ListItem("Last week", "4"));
-            DropDatesRangeFilter.Items.Add(new ListItem("Last month", "5"));
-        }
-        catch (Exception ex)
-        {
-            LblErr.Text = ex.ToString();
-        }
+		DropDatesRangeFilter.Items.Clear();
+		DropDatesRangeFilter.Items.Add(new ListItem("Today", "3"));
+		DropDatesRangeFilter.Items.Add(new ListItem("Always", "2"));
+		DropDatesRangeFilter.Items.Add(new ListItem("Last week", "4"));
+		DropDatesRangeFilter.Items.Add(new ListItem("Last month", "5"));
     }
 
     private void loadDropTopRowsFilter()
@@ -299,5 +309,4 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         DropTopRowsFilter.Items.Add(new ListItem("All items", "0"));
     }
 
-    #endregion
 }

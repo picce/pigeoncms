@@ -19,41 +19,57 @@
     <tr>
         <td class="key"><%=base.GetLabel("LblAccessType", "AccessType", DropAccessType, true)%></td>
         <td>
-            <asp:DropDownList ID="DropAccessType" runat="server" CssClass="form-group form-control">
-            </asp:DropDownList>
+            <div class="form-group form-select-wrapper select-right form-select-detail-item-colored">
+                <asp:DropDownList ID="DropAccessType" runat="server" CssClass="form-control">
+                </asp:DropDownList>
+            </div>
         </td>
         <td>
-            <asp:DropDownList ID="DropWriteAccessType" runat="server" CssClass="form-group form-control">
-            </asp:DropDownList>
+            <div class="form-group form-select-wrapper select-right form-select-detail-item-colored">
+                <asp:DropDownList ID="DropWriteAccessType" runat="server" CssClass="form-control">
+                </asp:DropDownList>
+            </div>
         </td>
     </tr>
     <tr>
         <td class="key"><%=base.GetLabel("LblRolesAllowed", "Allowed roles", ListRoles, true)%></td>
         <td>
-            <asp:ListBox ID="ListRoles" SelectionMode="Multiple" Rows="10" 
-                CssClass="form-group form-control" runat="server"></asp:ListBox>
+            <div class="form-group">
+                <asp:ListBox ID="ListRoles" SelectionMode="Multiple" Rows="10" 
+                    CssClass="form-control double-height" runat="server"></asp:ListBox>
+            </div>
         </td>
         <td>
-            <asp:ListBox ID="ListWriteRoles" SelectionMode="Multiple" Rows="10" 
-                CssClass="form-group form-control" runat="server"></asp:ListBox>
+            <div class="form-group">
+                <asp:ListBox ID="ListWriteRoles" SelectionMode="Multiple" Rows="10" 
+                    CssClass="form-control double-height" runat="server"></asp:ListBox>
+            </div>
         </td>
     </tr>
     <tr>
         <td class="key"><%=base.GetLabel("LblAccessCode", "Access code", TxtAccessCode, true)%></td>
         <td>
-            <asp:TextBox ID="TxtAccessCode" CssClass="form-group form-control" runat="server"></asp:TextBox>
+            <div class="form-group">
+                <asp:TextBox ID="TxtAccessCode" CssClass="form-control" runat="server"></asp:TextBox>
+            </div>
         </td>
         <td>
-            <asp:TextBox ID="TxtWriteAccessCode" CssClass="form-group form-control" runat="server"></asp:TextBox>
+            <div class="form-group">
+                <asp:TextBox ID="TxtWriteAccessCode" CssClass="form-control" runat="server"></asp:TextBox>
+            </div>
         </td>
     </tr>
     <tr>
         <td class="key"><%=base.GetLabel("LblAccessLevel", "Access level", TxtAccessLevel, true)%></td>
         <td>
-            <asp:TextBox ID="TxtAccessLevel" CssClass="form-group form-control" runat="server"></asp:TextBox>
+            <div class="form-group">
+                <asp:TextBox ID="TxtAccessLevel" CssClass="form-control" runat="server"></asp:TextBox>
+            </div>
         </td>
         <td>
-            <asp:TextBox ID="TxtWriteAccessLevel" CssClass="form-group form-control" runat="server"></asp:TextBox>
+            <div class="form-group">
+                <asp:TextBox ID="TxtWriteAccessLevel" CssClass="form-control" runat="server"></asp:TextBox>
+            </div>
         </td>
     </tr>
 </table>

@@ -5,65 +5,45 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using PigeonCms;
-using PigeonCms.Shop;
+using Acme;
 
-public partial class _detail : Acme.BasePage
+public partial class contents_detail : Acme.BasePage
 {
+    protected int CurrentId
+    {
+        get
+        {
+            int id = 0;
+            int.TryParse(PigeonCms.Utility._QueryString("id"), out id);
+            return id;
+        }
+    }
 
-    int ProductId = 0;
+    protected string CodeSource = @"
+        public void test(){};";
+
+    protected Item SingleItem;
+    protected string DescriptionItem;
 
     protected void Page_Load(object sender, EventArgs e)
     {
-        int.TryParse(Request["productId"], out ProductId);
-        var man = new AttributeSetsManager();
-        var parentsAttributes = new List<int>();
-        var parentsAttributesValues = new List<int>();
+        CurrentMasterPage.DataSection = "detail";
+        CurrentMasterPage.LinkFooter = "javascript:history.back()";
+        CurrentMasterPage.TextLinkFooter = "back";
 
-        var prodProv = new PigeonCms.Shop.ProductsProvider.CurrentProduct<ProductItem, ProductItemsManager, ProductItemFilter>(ProductId);
+        //example source
+        CodeSource = HttpContext.Current.Server.HtmlEncode(CodeSource);
 
-        PanelDropVariants.Attributes.Add("data-product-id", ProductId.ToString());
+        //get item detail
+        var itemMan = new PigeonCms.ItemsManager<PigeonCms.Item, PigeonCms.ItemsFilter>(true, false);
+        SingleItem = itemMan.GetByKey(CurrentId);
 
-        // variants
-        for (int i = 0; i < prodProv.Product.Attributes.Count; i++)
-        {
-            DropDownList d = new DropDownList();
-            d.ID = "DropDown" + prodProv.Product.Attributes[i].Name;
-            d.ClientIDMode = System.Web.UI.ClientIDMode.Static;
-            d.Attributes.Add("data-select-id", prodProv.Product.Attributes[i].Id.ToString());
-            if (i == 0)
-            {
-                d.Attributes.Add("data-select-parent", "");
-                foreach (var v in prodProv.GetDefaultAttribute())
-                {
-                    d.Items.Add(new ListItem(v.Value, v.Id.ToString()));
-                }
-            }
-            else
-            {
-                parentsAttributes.Add(prodProv.Product.Attributes[i - 1].Id);
-                parentsAttributesValues.Add(prodProv.Product.AttributeValues[i - 1].Id);
-                d.Attributes.Add("data-select-parent", string.Join(",", parentsAttributes.Select(parent => parent.ToString()).ToArray()));
-                foreach (var v in prodProv.GetNextAttribute(parentsAttributesValues))
-                {
-                    d.Items.Add(new ListItem(v.Value, v.Id.ToString()));
-                }
-            }
+        //get item description
+        DescriptionItem = SingleItem.Description;
+        var list = PigeonCms.Utility.String2List(SingleItem.Description, PigeonCms.ContentEditorProvider.SystemReadMoreTag);
+        if (list.Count > 1)
+            DescriptionItem = list[1];
+        DescriptionItem = PigeonCms.Utility.Html.StripTagsRegexCompiled(DescriptionItem);
 
-            if (i == prodProv.Product.Attributes.Count - 1)
-            {
-                d.Attributes.Add("data-last", "");
-            }
-
-            var selected = prodProv.Product.AttributeValues.Find(x => x.AttributeId == prodProv.Product.Attributes[i].Id);
-            d.SelectedValue = selected.Id.ToString();
-
-            PanelDropVariants.Controls.Add(d);
-        }
-
-        LitTitle.Text = prodProv.Product.Title;
-        LitDescription.Text = prodProv.Product.Description;
-        LitRegPrice.Text = prodProv.Product.RegularPrice.ToString("C");
-        LitSalePrice.Text = prodProv.Product.SalePrice.ToString("C");
     }
-
 }

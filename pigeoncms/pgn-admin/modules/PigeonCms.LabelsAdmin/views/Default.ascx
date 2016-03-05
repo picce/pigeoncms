@@ -20,21 +20,6 @@
 
         if (args.get_isPartialLoad()) {
 
-            $("a.fancyRefresh").fancybox({
-                'width': '80%',
-                'height': '80%',
-                'type': 'iframe',
-                'hideOnContentClick': false,
-                onClosed: function () {
-
-                    var upd1 = '<%=Upd1.ClientID%>';
-                    if (upd1 != null) {
-                        __doPostBack(upd1, 'grid');
-                    }
-
-                }
-            });
-
         }
     }
 
@@ -100,275 +85,309 @@
     </ProgressTemplate>
 </asp:UpdateProgress>
 
+<script type="text/javascript">
+
+	Sys.WebForms.PageRequestManager.getInstance().add_endRequest(EndRequestHandler);
+	function EndRequestHandler(sender, args) {
+		if (args.get_error() != undefined) {
+			args.set_errorHandled(true);
+		}
+	}
+
+</script>
+
 <asp:UpdatePanel ID="Upd1" UpdateMode="Conditional" runat="server">
 
 <Triggers>
     <asp:PostBackTrigger ControlID="DropTextMode" />
-    <asp:PostBackTrigger ControlID="BtnExport" />
+    <%--<asp:PostBackTrigger ControlID="BtnExport" />--%>
 </Triggers>
 
 <ContentTemplate>
 
-    <div class="row">
-        <div class="col-lg-12">
-            <asp:Label ID="LblErr" runat="server" Text=""></asp:Label>
-            <asp:Label ID="LblOk" runat="server" Text=""></asp:Label>
-        </div>
-    </div>
+	<%--pigeonmodern--%>
+	<div class="row">
 
-    <div class="row">
-    <asp:MultiView ID="MultiView1" runat="server" ActiveViewIndex="0" OnActiveViewChanged="MultiView1_ActiveViewChanged">
+		<asp:Panel runat="server" ID="PanelSee">
 
-        <asp:View ID="ViewSee" runat="server">
+				<%--#toolbar--%>
+				<div class="col-lg-12">
+					<div class="panel panel-default panel-filter panel-filer--new clearfix">
+						<div class="panel-body">
+							<div>
+								<asp:Label ID="LblErrSee" runat="server" Text=""></asp:Label>
+								<asp:Label ID="LblOkSee" runat="server" Text=""></asp:Label>
+							</div>
 
-            <div class="col-lg-12">
-                <div class="panel panel-default">
-                    <div class="panel-body"> 
-                        <div class="pull-right">
-                            <div class="btn-group adminToolbar">
-                               <asp:Button ID="BtnNew" runat="server" Text="<%$ Resources:PublicLabels, CmdNew %>" CssClass="btn btn-primary clearfix" OnClick="BtnNew_Click" />
+							<div class="pull-right">
+								<div class="btn-group adminToolbar">
 
-                                <button type="button" class="<%=BtnActionClass %> btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                                    <i class="fa fa-file-excel-o"></i>
-                                    Bulk actions
-                                    <span class="caret"></span>
-                                </button>
-                                <ul class="dropdown-menu pull-right <%=BtnActionClass %>" role="menu">
-                                    <li>
-                                        <asp:LinkButton runat="server" ID="BtnImport" OnClick="BtnImport_Click">
-                                            Import form file
-                                        </asp:LinkButton>
-                                    </li>
-                                    <li>
-                                        <asp:LinkButton runat="server" ID="BtnExport" OnClick="BtnExport_Click">
-                                            Export current selection
-                                        </asp:LinkButton>
+									<asp:Button ID="BtnNew" runat="server" Text="<%$ Resources:PublicLabels, CmdNew %>" CssClass="btn btn-primary clearfix" OnClick="BtnNew_Click" />
 
-                                    </li>
-                                </ul>
-                            </div>
+									<%--
+									<button type="button" class="<%=BtnActionClass%> btn btn-primary btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+										<i class="fa fa-file-excel-o"></i>
+										Bulk actions
+										<span class="caret"></span>
+									</button>
+									<ul class="dropdown-menu pull-right <%=BtnActionClass%>" role="menu">
+										<li>
+											<asp:LinkButton runat="server" ID="BtnImport" OnClick="BtnImport_Click">
+												Import form file
+											</asp:LinkButton>
+										</li>
+										<li>
+											<asp:LinkButton runat="server" ID="BtnExport" OnClick="BtnExport_Click">
+												Export current selection
+											</asp:LinkButton>
 
-                        </div> 
-                    </div>
-                </div>
-            </div>
+										</li>
+									</ul>--%>
 
-            <div class="col-lg-12">
-                <div class="panel panel-default adminFilters">
-                    <div class="panel-heading">
-                        <h4 class="panel-title">
-                            <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
-                            <%=PigeonCms.Utility.GetLabel("LblFilters")%>
-                            </a>
-                        </h4>
+								</div>
+							</div>
 
-                    </div>
-                    <div id="collapseOne" class="panel-collapse collapse in">
-                        <div class="panel-body">
-                                              
-                            <div class="form-group col-md-6 col-lg-3">
-                                <%=base.GetLabel("LblResource", "Resource", DropModuleTypesFilter) %>
-                                <asp:DropDownList ID="DropModuleTypesFilter" runat="server" AutoPostBack="true" CssClass="form-control" OnSelectedIndexChanged="Filter_Changed"></asp:DropDownList>
-                            </div>
-                            <div class="form-group col-md-6 col-lg-3">
-                                <%=base.GetLabel("LblMissingValues", "Missing values", DropMissingFilter) %>
-                                <asp:DropDownList ID="DropMissingFilter" runat="server" AutoPostBack="true" CssClass="form-control" OnSelectedIndexChanged="Filter_Changed"></asp:DropDownList>
-                            </div>
-                            <div class="form-group col-md-6 col-lg-3">
-                                <%=base.GetLabel("LblValuesStartsWith", "Only values that starts with", TxtValuesStartsWithFilter) %>
-                                <asp:TextBox runat="server" ID="TxtValuesStartsWithFilter" AutoPostBack="true" CssClass="form-control" MaxLength="20" OnTextChanged="Filter_Changed"></asp:TextBox>
-                            </div>
-                            <div class="form-group col-md-6 col-lg-3">
-                                <%=base.GetLabel("LblValuesContains", "Only values that contains", TxtValuesContainsFilter) %>
-                                <asp:TextBox runat="server" ID="TxtValuesContainsFilter" AutoPostBack="true" CssClass="form-control" MaxLength="20" OnTextChanged="Filter_Changed"></asp:TextBox>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+						</div>
+					</div>
+				</div>
 
-            <div class="col-lg-12">
+				<%--#filters--%>
+				<div class="col-lg-12">
+					<div class="panel panel-default panel-filter">
+						<div class="panel-heading">
+							<h4 class="panel-title">
+								<a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+									<%=PigeonCms.Utility.GetLabel("LblFilters")%>
+									<span>
+										<font class="close-span"><%=base.GetLabel("LblClose", "Close")%></font>
+										<font class="open-span"><%=base.GetLabel("LblOpen", "Open")%></font>
+									</span>
+								</a>
+							</h4>
 
-                <div class="panel panel-default">
-                    <div class="table-responsive">
+						</div>
+						<div id="collapseOne" class="panel-collapse collapse in">
+							<div class="panel-body">
 
-                    <asp:GridView ID="Grid1" runat="server" AllowPaging="True" AllowSorting="false" Width="100%" AutoGenerateColumns="False"
-                        DataKeyNames="ResourceId" OnRowCommand="Grid1_RowCommand" OnPageIndexChanging="Grid1_PageIndexChanging"  
-                        OnRowCreated="Grid1_RowCreated" OnRowDataBound="Grid1_RowDataBound">
-                        <Columns>
+								<div class="form-group col-lg-3 col-md-6 form-select-wrapper has-label">
+									<%=base.GetLabel("LblResource", "Resource", DropModuleTypesFilter)%>
+									<asp:DropDownList ID="DropModuleTypesFilter" runat="server" AutoPostBack="true" CssClass="form-control" OnSelectedIndexChanged="Filter_Changed">
+									</asp:DropDownList>
+								</div>
 
-                            <%--0--%>
-                            <asp:TemplateField>
-                                <ItemTemplate>
-                                    <asp:Literal ID="LitSel" runat="server"></asp:Literal>
-                                </ItemTemplate>
-                            </asp:TemplateField>
-                    
-                            <%--1--%>
-                            <asp:TemplateField HeaderText="Resource">
-                                <ItemTemplate>
-                                    <span class="small">
-                                        <asp:Literal ID="LitResourceSet" runat="server"  />
-                                    </span>
-                                </ItemTemplate>
-                            </asp:TemplateField>
+								<div class="form-group col-lg-3 col-md-6 form-select-wrapper has-label">
+									<%=base.GetLabel("LblMissingValues", "Missing values", DropMissingFilter)%>
+									<asp:DropDownList ID="DropMissingFilter" runat="server" AutoPostBack="true" CssClass="form-control" OnSelectedIndexChanged="Filter_Changed"></asp:DropDownList>
+								</div>
 
-                            <%--2--%>
-                            <asp:TemplateField HeaderText="Id">
-                                <ItemTemplate>
-                                    <span class="small">
-                                        <asp:Literal ID="LitResourceId" runat="server"  />
-                                    </span>
-                                </ItemTemplate>
-                            </asp:TemplateField>
+								<div class="form-group col-lg-3 col-md-6">
+									<%=base.GetLabel("LblValuesStartsWith", "Only values that starts with", TxtValuesStartsWithFilter)%>
+									<asp:TextBox runat="server" ID="TxtValuesStartsWithFilter" AutoPostBack="true" CssClass="form-control" MaxLength="20" OnTextChanged="Filter_Changed"></asp:TextBox>
+								</div>
 
-                            <%--3--%>
-                            <asp:TemplateField HeaderText="Text mode">
-                                <ItemTemplate>
-                                    <span class="small text-muted">
-                                        <asp:Literal ID="LitTextMode" runat="server"  />
-                                    </span>
-                                </ItemTemplate>
-                            </asp:TemplateField>
-                    
-                            <%--4--%>
-                            <asp:TemplateField HeaderText="Values">
-                                <ItemTemplate>
-                                    <asp:Image ID="ImgPreview" runat="server" SkinID="ImgPreviewStyle" />
-                                    <span class="small text-muted">
-                                        <asp:Literal ID="LitValue" runat="server"  />                
-                                    <//span>
-                                </ItemTemplate>
-                            </asp:TemplateField>
+								<div class="form-group col-lg-3 col-md-6">
+									<%=base.GetLabel("LblValuesContains", "Only values that contains", TxtValuesContainsFilter)%>
+									<asp:TextBox runat="server" ID="TxtValuesContainsFilter" AutoPostBack="true" CssClass="form-control" MaxLength="20" OnTextChanged="Filter_Changed"></asp:TextBox>
+								</div>
 
-                            <%--5--%>
-                            <asp:TemplateField HeaderText="" ItemStyle-HorizontalAlign="Center" ItemStyle-Width="10">
-                                <ItemTemplate>
+							</div>
+						</div>
+					</div>
+				</div>
 
-                                    <asp:LinkButton ID="BtnDelete" runat="server" CommandName="DeleteRow" 
-                                        CommandArgument='<%#Eval("ResourceId") %>' OnClientClick="return confirm(deleteQuestion);">
-                                        <i class='fa fa-pgn_delete fa-fw'></i>
-                                    </asp:LinkButton>
+				<%--#list--%>
+				<div class="col-lg-12">
 
-                                </ItemTemplate>
-                            </asp:TemplateField>
-                    
-                            <%--values columns used in export--%>
-                            
-                            <%--6--%>
-                            <asp:TemplateField Visible="false">
-                                <ItemTemplate>
-                                    <asp:Literal ID="LitValue1" runat="server"  />                
-                                </ItemTemplate>
-                            </asp:TemplateField>
-                            <%--7--%>
-                            <asp:TemplateField Visible="false">
-                                <ItemTemplate>
-                                    <asp:Literal ID="LitValue2" runat="server"  />                
-                                </ItemTemplate>
-                            </asp:TemplateField>
-                            <%--8--%>
-                            <asp:TemplateField Visible="false">
-                                <ItemTemplate>
-                                    <asp:Literal ID="LitValue3" runat="server"  />                
-                                </ItemTemplate>
-                            </asp:TemplateField>
-                            <%--9--%>
-                            <asp:TemplateField Visible="false">
-                                <ItemTemplate>
-                                    <asp:Literal ID="LitValue4" runat="server"  />                
-                                </ItemTemplate>
-                            </asp:TemplateField>
-                            <%--10--%>
-                            <asp:TemplateField Visible="false">
-                                <ItemTemplate>
-                                    <asp:Literal ID="LitValue5" runat="server"  />                
-                                </ItemTemplate>
-                            </asp:TemplateField>
+					<div class="panel panel-default">
+						<div class="table-modern">
+							<div class="table-modern--wrapper table-modern--mobile table-modern--sortable">
 
-                        </Columns>
-                    </asp:GridView>
+								<div class="table-modern--row table-modern--row-title">
 
-                    </div>
-                </div>
-            </div>
+									<div class="table-modern__col table-modern__col--small"></div>
 
-        </asp:View>
-   
+									<div class="table-modern__col align-left table-modern__col--large"><%=base.GetLabel("ResourceSetId", "Resource Set / Id")%></div>
+									<div class="table-modern__col align-center"><%=base.GetLabel("TextMode", "Text mode")%></div>
+									<div class="table-modern__col align-left table-modern__col--large"><%=base.GetLabel("Values", "Values")%></div>
+									<div class="table-modern__col table-modern__col--small"></div>
 
-        <asp:View ID="ViewInsert" runat="server">
-        
-            <div class="panel panel-default">
+									<%-- values columns used in export--%>
+<%--									<div class="table-modern__col align-left"></div>
+									<div class="table-modern__col align-left"></div>
+									<div class="table-modern__col align-left"></div>
+									<div class="table-modern__col align-left"></div>
+									<div class="table-modern__col align-left"></div>--%>
 
-                <div class="panel-heading clearfix">
-                    <div class="pull-right">
-                        <div class="btn-group">
-                            <asp:Button ID="BtnSave" runat="server" Text="<%$ Resources:PublicLabels, CmdSave %>" CssClass="btn btn-primary" OnClientClick="MyObject.UpdateEditorFormValue();" OnClick="BtnSave_Click" />
-                            <asp:Button ID="BtnCancel" CausesValidation="false" runat="server" Text="<%$ Resources:PublicLabels, CmdCancel %>" CssClass="btn btn-default" OnClick="BtnCancel_Click" />
-                        </div>
-                    </div>
-                </div>
+								</div>
 
-            </div>
-            
-            <div class="panel-body">
-                
-                    <div class="form-group col-md-6">
-                        <%=base.GetLabel("LblResourceSet", "Resource set", LitResourceSet)%>
-                        <asp:TextBox ID="LitResourceSet" CssClass="form-control" Enabled="false" runat="server"></asp:TextBox>
-                   
-                    </div>
+								<asp:Repeater runat="server" ID="Rep1" OnItemDataBound="Rep1_ItemDataBound" OnItemCommand="Rep1_ItemCommand">
+									<ItemTemplate>
 
-                    <div class="form-group col-md-6">
-                        <%=base.GetLabel("LblResourceId", "Resource id", TxtResourceId) %>                        
-                        <asp:TextBox ID="TxtResourceId" runat="server" CssClass="form-control"></asp:TextBox>
-                        <asp:RequiredFieldValidator ID="ReqResourceId" ControlToValidate="TxtResourceId" runat="server" Text="*"></asp:RequiredFieldValidator>
-                    </div>
+										<div class="table-modern--row">
 
-                    <div class="form-group col-lg-12">
-                        <%=base.GetLabel("LblTextMode", "Text mode", DropTextMode) %>
-                        <asp:DropDownList ID="DropTextMode" runat="server" AutoPostBack="true" 
-                            CssClass="form-control" ontextchanged="DropTextMode_TextChanged">
-                        </asp:DropDownList>
-                    </div>
+											<%--#action edit --%>
+											<div class="table-modern__col table-modern__col--small">
+												<asp:Literal runat="server" ID="LitEdit"></asp:Literal>
+											</div>
 
-                    <div class="form-group col-lg-12" style="display:none;">
-                        <asp:HiddenField runat="server" ID="TxtCurrentPath" />
-                        <cc1:AsyncFileUpload
-                            CssClass="action-upload"
-                            OnClientUploadError="uploadError" OnClientUploadComplete="uploadComplete" 
-                            runat="server" ID="File1" UploaderStyle="Modern" ClientIDMode="AutoID"
-                            UploadingBackColor="#CCFFFF" 
-                            onuploadedcomplete="File1_UploadedComplete" 
-                             />
-                    </div>
+											<div class="table-modern__col table-modern__col--large">
+												<div class="table-modern--description" data-menu="set">
+													<div class="table-modern--description--wrapper">
+														<asp:Literal ID="LitResSetId" runat="server" />
+													</div>
+												</div>
+											</div>
 
-                    <div class="form-group col-lg-12">
-                        <%=base.GetLabel("LblValue", "Value", null, true) %>
-                        <asp:Panel runat="server" ID="PanelValue"  Visible="true"></asp:Panel>
-                    </div>
-                    
-                    <asp:PlaceHolder ID="plhOnlyInImg" runat="server" Visible="false">
-                        <img id="myPreview" src="http://placehold.it/300x300/your+img+here!" width="300" height="300" style="display: none" />
-                        <input id="langBox" name="langBox" type="hidden" />
-                    </asp:PlaceHolder>
+											<div class="table-modern__col">
+												<div class="table-modern__col--value" data-menu="mode">
+													<asp:Literal ID="LitTextMode" runat="server" />
+												</div>
+											</div>
 
-                    <div class="form-group col-lg-12">
-                        <%=base.GetLabel("LblComment", "Comment", TxtComment, true) %>
-                        <asp:TextBox ID="TxtComment" CssClass="form-control" Enabled="true" runat="server"></asp:TextBox>
-                    </div>
+											<div class="table-modern__col table-modern__col--large">
+												<div class="table-modern--description" data-menu="value">
+													<div class="table-modern--description--wrapper">
+														<asp:Image ID="ImgPreview" runat="server" SkinID="ImgPreviewStyle" />
+														<asp:Literal ID="LitValue" runat="server" /><br />
+													</div>
+												</div>
+											</div>
 
-                    <div class="form-group col-lg-12">
-                        <%=base.GetLabel("LblResourceParams", "Resource params", null, true)%>
-                        <asp:TextBox ID="TxtResourceParams" CssClass="form-control" Enabled="false" runat="server"></asp:TextBox>
-                    </div>
-                
-            </div>
-            
-        </asp:View>
-    
-    
-        <asp:View ID="ViewImport" runat="server">
+											<div class="table-modern__col" style="display:none;">
+												<div class="table-modern--description" data-menu="value">
+													<div class="table-modern--description--wrapper">
+														<asp:Literal ID="LitValue1" runat="server" /><br />
+														<asp:Literal ID="LitValue2" runat="server" /><br />
+														<asp:Literal ID="LitValue3" runat="server" /><br />
+														<asp:Literal ID="LitValue4" runat="server" /><br />
+														<asp:Literal ID="LitValue5" runat="server" /><br />
+													</div>
+												</div>
+											</div>
+											
+											<%--#action delete --%>
+											<div class="table-modern__col table-modern__col--small" runat="server" id="ColDelete">
+												<a href="#" class="table-modern--media delete-label js-delete" data-title-mobile="DEL"
+													data-msg-title='<%=base.GetLabel("delete", "delete")%>' 
+													data-msg-subtitle='<%=PigeonCms.Utility.GetLabel("RECORD_DELETE_QUESTION")%>' 
+													data-msg-cancel='<%=base.GetLabel("cancel", "cancel")%>' 
+													data-msg-confirm='<%=base.GetLabel("confirm", "confirm")%>'>
+													<div class="table-modern--media--wrapper">
+														<div class="table-modern--media--delete"></div>
+													</div>
+												</a>
+												<asp:Button ID="LnkDel" CommandName="DeleteRow" CommandArgument='<%#Eval("ResourceId")%>' runat="server" style="display:none;"  />
+											</div>
+
+										</div>
+									</ItemTemplate>
+								</asp:Repeater>
+
+								<div class="table-modern--rowpaging ">
+									<asp:Repeater ID="RepPaging" runat="server" OnItemCommand="RepPaging_ItemCommand" OnItemDataBound="RepPaging_ItemDataBound">
+										<ItemTemplate>
+											<div class="table-modern__col col--paging table-modern__col--paging">
+													<asp:LinkButton ID="BtnPage" runat="server" ClientIDMode="AutoID"
+													CommandName="Page" CommandArgument="<%# Container.DataItem %>"><%# Container.DataItem %>
+													</asp:LinkButton>
+											</div>
+										</ItemTemplate>
+									</asp:Repeater>
+								</div>
+
+							</div>
+						</div>
+					</div>
+				</div>
+		
+		</asp:Panel>
+
+
+		<asp:Panel runat="server" ID="PanelInsert" Visible="false">
+
+			<div class="panel panel-default panel-modern--insert">
+
+					<div class="panel-modern--scrollable" onscroll="onScrollEditBtns()">
+
+						<div class="panel-heading">
+							<span><%=base.GetLabel("LblDetails", "Details")%></span>
+							<span class="title-modern-insert"><asp:Literal runat="server" ID="LitInsertTitle"></asp:Literal></span>
+							<div class="btn-group clearfix">
+								<div class="btn-group-follow clearfix">
+									<asp:Button ID="BtnCancel" runat="server" Text="<%$ Resources:PublicLabels, CmdCancel %>" CssClass="btn btn-default btn-xs btn-modern btn-modern--cancel" CausesValidation="false" OnClick="BtnCancel_Click" />
+									<asp:Button ID="BtnSave" runat="server" Text="<%$ Resources:PublicLabels, CmdSave %>" CssClass="btn btn-primary btn-xs btn-modern" OnClick="BtnSave_Click" OnClientClick="MyObject.UpdateEditorFormValue();" />
+									<div class="btn-group-alert">
+										<asp:Label ID="LblErrInsert" runat="server" Text=""></asp:Label>
+										<asp:Label ID="LblOkInsert" runat="server" Text=""></asp:Label>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="panel-body">
+
+							<div class="form-group col-md-4">
+								<%=base.GetLabel("LblResourceSet", "Resource set", LitResourceSet)%>
+								<asp:TextBox ID="LitResourceSet" CssClass="form-control" Enabled="false" runat="server"></asp:TextBox>
+							</div>
+
+							<div class="form-group col-md-4">
+								<%=base.GetLabel("LblResourceId", "Resource id", TxtResourceId)%>                        
+								<asp:TextBox ID="TxtResourceId" runat="server" CssClass="form-control"></asp:TextBox>
+								<asp:RequiredFieldValidator ID="ReqResourceId" ControlToValidate="TxtResourceId" runat="server" Text="*"></asp:RequiredFieldValidator>
+							</div>
+
+							<div class="form-group col-md-4 form-select-wrapper form-select-detail-item">
+								<%=base.GetLabel("LblTextMode", "Text mode", DropTextMode)%>
+								<asp:DropDownList ID="DropTextMode" runat="server" AutoPostBack="true" 
+									CssClass="form-control" ontextchanged="DropTextMode_TextChanged">
+								</asp:DropDownList>
+							</div>
+
+							<div class="form-group col-lg-12" style="display:none;">
+								<asp:HiddenField runat="server" ID="TxtCurrentPath" />
+								<cc1:AsyncFileUpload
+									CssClass="action-upload"
+									OnClientUploadError="uploadError" OnClientUploadComplete="uploadComplete" 
+									runat="server" ID="File1" UploaderStyle="Modern" ClientIDMode="AutoID"
+									UploadingBackColor="#CCFFFF" 
+									onuploadedcomplete="File1_UploadedComplete" 
+									 />
+							</div>
+
+							<div class="form-group col-lg-12 spacing-detail">
+								<div class="form-text-wrapper">
+									<%=base.GetLabel("LblValue", "Value", null, true)%>
+									<asp:Panel runat="server" ID="PanelValue"  Visible="true"></asp:Panel>
+								</div>
+							</div>
+
+							<asp:PlaceHolder ID="plhOnlyInImg" runat="server" Visible="false">
+								<img id="myPreview" src="http://placehold.it/300x300/your+img+here!" width="300" height="300" style="display: none" />
+								<input id="langBox" name="langBox" type="hidden" />
+							</asp:PlaceHolder>
+
+							<div class="form-group col-lg-12">
+								<%=base.GetLabel("LblComment", "Comment", TxtComment, true)%>
+								<asp:TextBox ID="TxtComment" CssClass="form-control" Enabled="true" runat="server"></asp:TextBox>
+							</div>
+
+							<div class="form-group col-lg-12">
+								<%=base.GetLabel("LblResourceParams", "Resource params", null, true)%>
+								<asp:TextBox ID="TxtResourceParams" CssClass="form-control" Enabled="false" runat="server"></asp:TextBox>
+							</div>
+
+						</div>
+
+					</div>
+
+				</div>
+
+		</asp:Panel>
+
+
+		<asp:Panel runat="server" ID="PanelImport" Visible="false">
+
 
             <div class="col-lg-12">
                 <div class="panel panel-default">
@@ -504,7 +523,7 @@
 
                                 <asp:TemplateField HeaderText="Import" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center">
                                     <ItemTemplate>
-                                        <asp:LinkButton ID="ImgEnabledOk" runat="server" CommandName="ImgEnabledOk" Visible="false" CommandArgument='<%#Eval("Id") %>'>
+                                        <asp:LinkButton ID="ImgEnabledOk" runat="server" CommandName="ImgEnabledOk" Visible="false" CommandArgument='<%#Eval("Id")%>'>
                                             <i class='fa fa-pgn_checked fa-fw'></i>
                                         </asp:LinkButton>
                                         <asp:LinkButton ID="ImgEnabledKo" runat="server" CommandName="ImgEnabledKo" Visible="false" CommandArgument='<%#Eval("Id") %>'>
@@ -544,10 +563,12 @@
                 </div>
             </div>
 
-        </asp:View>
-   
-    </asp:MultiView>
-    </div>
+
+		</asp:Panel>
+
+	</div>
+
+
 
 </ContentTemplate>
 </asp:UpdatePanel>

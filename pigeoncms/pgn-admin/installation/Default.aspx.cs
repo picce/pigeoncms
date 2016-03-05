@@ -205,7 +205,8 @@ public partial class Installation_Default : Page
     {
         string cssClass = "";
         string iconClass = "fa-question";
-        string invertedClass = (index % 2 == 0 ? "" : "timeline-inverted");
+        //string invertedClass = (index % 2 == 0 ? "" : "timeline-inverted");
+		string invertedClass = ""; //NEW
 
         if (index == MultiView1.ActiveViewIndex)
             cssClass = "warning";

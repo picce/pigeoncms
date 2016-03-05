@@ -185,8 +185,7 @@ namespace PigeonCms
             List<FormField> fieldsList, List<ResLabel> labelsList)
         {
             string currGroup = "not set";  //current param group label
-            Panel panelContainer = new Panel();
-            Panel panelBody = new Panel();
+            var panelContainer = new Panel();
 
             foreach (FormField currParam in fieldsList)
             {
@@ -197,20 +196,24 @@ namespace PigeonCms
                     var litGroupName = new Literal();
                     if (string.IsNullOrEmpty(currParam.Group))
                     {
-                        litGroupName.Text = "<div class='panel-heading'>" + Utility.GetLabel("LblModule") + "</div>";
+						//litGroupName.Text = "<legend><label>" 
+						//	+ Utility.GetLabel("LblModule") 
+						//	+ "</label></legend>";
                     }
                     else
                     {
-                        litGroupName.Text = "<div class='panel-heading'>" + currParam.Group + "</div>";
+						litGroupName.Text = "<legend><label>" 
+							+ currParam.Group
+							+ "<br></label></legend>";
                     }
 
                     panelContainer = new Panel();   //render table
-                    panelContainer.CssClass = "panel panel-info";
+                    panelContainer.CssClass = "";
                     panelContainer.Controls.Add(litGroupName);
 
-                    panelBody = new Panel();
-                    panelBody.CssClass = "panel-body";
-                    panelContainer.Controls.Add(panelBody);
+					//panelBody = new Panel();
+					//panelBody.CssClass = "form-group";
+					//panelContainer.Controls.Add(panelBody);
                     panel.Controls.Add(panelContainer);
                 }
 
@@ -242,7 +245,8 @@ namespace PigeonCms
                         control2Add = (Control)litErrorParsing;
                     }
                 }
-                addTableRow(panelBody, currParam, control2Add, labelsList);
+
+				addPanelRow(panelContainer, currParam, control2Add, labelsList);
             }
         }
 
@@ -655,40 +659,36 @@ namespace PigeonCms
             }
         }
 
-        //private static void addTableRow(Panel tableParams, FormField currParam,
-        //    Control control2Add, List<ResLabel> labelsList)
-        //{
-        //    var controls2Add = new List<Control>();
-        //    controls2Add.Add(control2Add);
-        //    addTableRow(tableParams, currParam, controls2Add, labelsList); 
-        //}
 
         /// <summary>
         /// add a row with the label and the control for the current param
         /// </summary>
-        /// <param name="tableParams">table in which add the row</param>
+        /// <param name="panelParams">panel in which add the row</param>
         /// <param name="currParam">ModuleParam instance of the param to add</param>
         /// <param name="control2Add">control to add</param>
-        private static void addTableRow(Panel tableParams, FormField currParam,
+        private static void addPanelRow(Panel panelParams, FormField currParam,
             Control control2Add, List<ResLabel> labelsList)
         {
-            //HtmlTableRow row = new HtmlTableRow();
-            //HtmlTableCell cell1 = new HtmlTableCell();
-            //HtmlTableCell cell2 = new HtmlTableCell();
-            Literal litParamError = new Literal();
-            Label lblParamLabel = new Label();
+			var panelInputRow = new Panel();
+			panelInputRow.CssClass = "form-group";
+			if (currParam.Type== FormFieldTypeEnum.Combo)
+				panelInputRow.CssClass += " form-select-wrapper form-select-detail-item";
 
-            //litParamLabel.Text = "<label for='"+ control2Add.ClientID +"' title='"+ currParam.Description +"'>"+ currParam.LabelValue + "</label>";
+            var litParamError = new Literal();
+            var lblParamLabel = new Label();
+
             lblParamLabel.Text = LabelsProvider.GetLocalizedVarFromList(labelsList, currParam.LabelValue); //currParam.LabelValue;
             lblParamLabel.ToolTip = LabelsProvider.GetLocalizedVarFromList(labelsList, currParam.Description); //currParam.Description;
             lblParamLabel.AssociatedControlID = control2Add.ClientID;
 
-            tableParams.Controls.Add(lblParamLabel);
-            tableParams.Controls.Add(control2Add);
+			panelInputRow.Controls.Add(lblParamLabel);
+			panelInputRow.Controls.Add(control2Add);
+
+			panelParams.Controls.Add(panelInputRow);
             if (currParam.Type == FormFieldTypeEnum.Error)
             {
                 litParamError.Text = Utility.GetLabel("ErrParamParsing", "Error parsing [" + currParam.Name + "] param");
-                tableParams.Controls.Add(litParamError);
+				panelParams.Controls.Add(litParamError);
                 //and add an hidden control
             }
             if (currParam.Type == FormFieldTypeEnum.Hidden)

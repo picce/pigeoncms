@@ -102,6 +102,7 @@
     </asp:View>
     
     <asp:View ID="ViewInsert" runat="server">
+		
         <div class="adminToolbar">
             <asp:Button ID="BtnSave" runat="server" Text="<%$ Resources:PublicLabels, CmdSave %>" CssClass="button" OnClientClick="MyObject.UpdateEditorFormValue();" OnClick="BtnSave_Click" />
             <asp:Button ID="BtnCancel" runat="server" Text="<%$ Resources:PublicLabels, CmdCancel %>" CssClass="button" OnClick="BtnCancel_Click" />

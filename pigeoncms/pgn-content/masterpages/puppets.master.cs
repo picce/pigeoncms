@@ -7,33 +7,49 @@ using System.Web.UI.WebControls;
 using PigeonCms;
 using System.Web.Security;
 
-public partial class puppets : System.Web.UI.MasterPage
+public partial class puppets : System.Web.UI.MasterPage, Acme.IMaster
 {
     protected PigeonCms.Engine.BasePage CurrPage;
-    protected string MenuLogout = "";
+
+    private string dataSection = "";
+    public string DataSection
+    {
+        get { return dataSection; }
+        set { this.dataSection = value; }
+    }
+    private string linkFooter = "";
+    public string LinkFooter
+    {
+        get { return linkFooter; }
+        set { this.linkFooter = value; }
+    }
+
+    private string textLinkFooter = "";
+    public string TextLinkFooter
+    {
+        get { return textLinkFooter; }
+        set { this.textLinkFooter = value; }
+    }
+
+    private bool isHomepage = false;
+    public bool IsHomepage 
+    {
+        get { return isHomepage; }
+        set { this.isHomepage = value; }
+    }
+
+    protected const string ClassHidden = "hidden";
+    protected int Count = 1;
+    protected List<PigeonCms.Menu> MenuList;
 
     protected void Page_Load(object sender, EventArgs e)
     {
-        CurrPage = (PigeonCms.Engine.BasePage)this.Page;
-        
-
-        if (Request.QueryString["act"] == "logout")
-            logout();
-        if (Request.QueryString["act"] == "timeout")
-            logout();
-
-        if (PgnUserCurrent.IsAuthenticated)
-        {
-            MenuLogout = "<a href='/default.aspx?act=logout'>Logout " + PgnUserCurrent.UserName + "</a>";
-        }
-    }
-
-    private void logout()
-    {
-        if (PgnUserCurrent.IsAuthenticated)
-        {
-            FormsAuthentication.SignOut();
-            Response.Redirect(Request.Url.ToString());  //cookie removed on second request
-        }
+        //get menu list
+        var menuMan = new MenuManager(true, false);
+        var menuFilter = new MenuFilter();
+        menuFilter.MenuType = "mainmenu";
+        menuFilter.Published = Utility.TristateBool.True;
+        menuFilter.Visible = Utility.TristateBool.True;
+        MenuList = menuMan.GetByFilter(menuFilter, "");
     }
 }

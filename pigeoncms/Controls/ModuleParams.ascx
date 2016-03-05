@@ -1,6 +1,6 @@
 ﻿<%@ Control Language="C#" AutoEventWireup="true" CodeFile="ModuleParams.ascx.cs" Inherits="Controls_ModuleParams" %>
 
-<div class="form-group col-sm-4">
+<div class="form-group col-sm-4 form-select-wrapper form-select-detail-item">
     <%=base.GetLabel("LblUseCache", "Use cache", DropUseCache, true)%>
     <asp:DropDownList ID="DropUseCache" runat="server" CssClass="form-control">
         <asp:ListItem Value="2" Text="Use global"></asp:ListItem>
@@ -9,7 +9,7 @@
     </asp:DropDownList>
 </div>
 
-<div class="form-group col-sm-4">
+<div class="form-group col-sm-4 form-select-wrapper form-select-detail-item">
     <%=base.GetLabel("LblUseLog", "Use log", DropUseLog, true)%>
     <asp:DropDownList ID="DropUseLog" runat="server" CssClass="form-control">
         <asp:ListItem Value="2" Text="Use global"></asp:ListItem>
@@ -33,11 +33,11 @@
     <asp:TextBox ID="TxtCssClass" CssClass="form-control" MaxLength="50" runat="server"></asp:TextBox>
 </div>
 
-<div class="form-group col-sm-12">
+<div class="form-group col-sm-12 checkbox-container">
     <asp:CheckBox ID="ChkDirectEditMode" runat="server" CssClass="" />
     <%=base.GetLabel("LblDirectEditMode", "Direct edit mode", ChkDirectEditMode, true)%>
 </div>
 
-<div class="form-group col-sm-12">
+<div class="form-group col-sm-12 tab-detail-table">
     <asp:Panel ID="PanelParams" runat="server"></asp:Panel>
 </div>

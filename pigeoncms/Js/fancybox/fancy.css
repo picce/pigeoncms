@@ -48,7 +48,8 @@
 	left: 0;
 	bottom: 0;
 	right: 0;
-	background: #000;
+	background: #362f4c !important;
+	opacity: 0.98 !important;
 	z-index: 1100;
 	display: none;
 }
@@ -71,9 +72,14 @@
 	top: 0;
 	left: 0;
 	margin: 0;
-	padding: 20px;
 	z-index: 1101;
 	display: none;
+    width: 100% !important;
+    height: 100% !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
 	-webkit-box-sizing: initial;
 	box-sizing: initial;
 }
@@ -82,19 +88,25 @@
 	position: relative;
 	width: 100%;
 	height: 100%;
-	background: #FFF;
+	/*background: #FFF;*/
+	background: transparent;
 }
 
 #fancybox-inner {
 	position: absolute;
-	top: 0;
-	left: 0;
-	width: 1px;
-	height: 1px;
+	top: 0 !important;
+	left: 0 !important;
+	width: 100% !important;
+	height: 100% !important;
 	padding: 0;
 	margin: 0;
 	outline: none;
 	overflow: hidden;
+
+}
+
+#fancybox-inner:body {
+	background: red !important;
 }
 
 #fancybox-hide-sel-frame {
@@ -108,14 +120,48 @@
 
 #fancybox-close {
 	position: absolute;
-	top: -15px;
-	right: -15px;
+	top: 15px;
+	right: 15px;
 	width: 32px;
 	height: 32px;
-	background: url('fancy_close.png') top left no-repeat;
+	/*background: url('fancy_close.png') top left no-repeat;*/
 	cursor: pointer;
 	z-index: 1103;
 	display: none;
+
+	-webkit-transition: all 0.3s ease 0s;
+    -moz-transition: all 0.3s ease 0s;
+    -ms-transition: all 0.3s ease 0s;
+    -o-transition: all 0.3s ease 0s;
+    transition: all 0.3s ease 0s;
+}
+
+#fancybox-close:hover {
+	text-decoration: none;
+}
+
+#fancybox-close:hover:before {
+
+	/*color: #463d63;*/
+}
+
+
+#fancybox-close:before {
+	font-family: 'icomoonPigeonModern';
+	speak: none;
+	font-style: normal;
+	font-weight: normal;
+	font-variant: normal;
+	text-transform: none;
+	line-height: 1;
+
+	/* Better Font Rendering =========== */
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+
+	content: "\e905";
+	color: #fff;
+	font-size: 20px;
 }
 
 #fancybox_error {
@@ -262,6 +308,8 @@
 	right: 20px;
 }
 
+/*
+
 div.fancy-bg {
 	position: absolute;
 	padding: 0;
@@ -332,4 +380,4 @@ div#fancy-bg-nw {
 	width: 20px;
 	height: 20px;
 	background: transparent url('fancy_shadow_nw.png') no-repeat;
-}
+}*/

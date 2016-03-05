@@ -79,6 +79,26 @@ namespace PigeonCms
             set { ViewState["CurrentKey"] = value; }
         }
 
+		//repeater or list page size in paging mode
+		private int listPageSize = 20;
+		public int ListPageSize
+		{
+			get { return GetIntParam("ListPageSize", listPageSize); }
+		}
+
+		//repeater or list current page selected in paging
+		public int ListCurrentPage
+		{
+			get
+			{
+				int res = 0;
+				if (ViewState["ListCurrentPage"] != null)
+					res = Convert.ToInt32(ViewState["ListCurrentPage"]);
+				return res;
+			}
+			set { ViewState["ListCurrentPage"] = value; }
+		}
+
         public PigeonCms.Module BaseModule { get; set; }
 
         

@@ -44,13 +44,13 @@ function changeView() {
 }
 
 function pageLoad(sender, args) {
-    $("div.fancy a").fancybox({
+    /*$("div.fancy a").fancybox({
         'width': '80%',
         'height': '80%',
         'type': 'iframe',
         'hideOnContentClick': false,
         onClosed: function() { }
-    });
+    });*/
 }
 </script>
 
