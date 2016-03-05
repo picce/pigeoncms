@@ -63,6 +63,7 @@ namespace PigeonCms.Shop.PaymentsProvider
             public IOrder OrderToPay = default(IOrder);
             public Payment PaymentData = null;
             public string MessageName;
+            public string DebugData = "";
             public Exception Exception = null;
 
             //useful in log
@@ -91,6 +92,7 @@ namespace PigeonCms.Shop.PaymentsProvider
                 res += " <br>| MessageName=" + this.MessageName;
                 res += " <br>| payCode=" + paymentDataString;
                 res += " <br>| OrderToPay=[" + orderToPayString + "]";
+                res += " <br>| DebugData=[" + this.DebugData + "]";
                 res += " <br>| Exception=[" + exceptionString + "]";
                 return res;
             }

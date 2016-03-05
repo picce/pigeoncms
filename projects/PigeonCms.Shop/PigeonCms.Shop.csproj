@@ -71,6 +71,7 @@
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Provider\Payments\BankTransfer.cs" />
+    <Compile Include="Provider\Payments\GestPay.cs" />
     <Compile Include="Provider\Payments\PayPal.cs" />
     <Compile Include="Provider\Payments\PaymentsProvider.cs" />
     <Compile Include="Provider\OrdersProvider.cs" />
