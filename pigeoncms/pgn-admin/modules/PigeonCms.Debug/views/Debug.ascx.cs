@@ -14,6 +14,7 @@ using System.Collections.Generic;
 
 public partial class Controls_Debug: PigeonCms.BaseModuleControl
 {
+
     private string hideText = "";
     public string HideText
     {

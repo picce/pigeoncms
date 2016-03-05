@@ -32,8 +32,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="StackExchange.Dapper, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="StackExchange.Dapper">
       <HintPath>..\..\pigeoncms\Bin\StackExchange.Dapper.dll</HintPath>
     </Reference>
     <Reference Include="System" />

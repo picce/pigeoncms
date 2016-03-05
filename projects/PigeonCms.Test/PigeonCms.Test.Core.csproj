@@ -92,10 +92,6 @@
       <Project>{B5680C69-ADE4-4233-AF97-ED41E7C10E13}</Project>
       <Name>PigeonCms.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\StackExchange.Dapper\StackExchange.Dapper.csproj">
-      <Project>{D0FCDB76-2116-49AD-9A31-ECF252A19829}</Project>
-      <Name>StackExchange.Dapper</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Shadow Include="Riferimenti test\PigeonCms.Core.accessor" />

@@ -39,8 +39,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\pigeoncms\Bin\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="StackExchange.Dapper, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="StackExchange.Dapper">
       <HintPath>..\..\pigeoncms\Bin\StackExchange.Dapper.dll</HintPath>
     </Reference>
     <Reference Include="System" />

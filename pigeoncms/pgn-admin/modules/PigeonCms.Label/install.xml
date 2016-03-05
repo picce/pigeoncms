@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<install 
+    installerVersion="1.0.0"
+    type="module" 
+    version="1.0.0" 
+    core="true"
+    namespace="PigeonCms"
+    name="Label"
+    author="picce"
+    creationDate="2015-11-12"
+    copyright="Copyright(C) 2015 Nicola Ridolfi. All rights reserved."
+    license=""
+    authorEmail="picce@yahoo.it"
+    authorUrl="https://github.com/picce/"
+    description="">
+
+  <params>
+      
+      <param name="ResourceSet" type="combo" default="0" label="Resource" description="Labels resource set">
+          <option value="" label="Not set"></option>
+          <datasource SelectMethod="GetResourceSetList" SelectParams=" " TypeName="PigeonCms.LabelsManager" />
+      </param>
+
+      <param name="ResourceId" type="text" default="" label="Resource ID" description="" />
+      <param name="DefaultValue" type="text" default="" label="Default value" description="" />
+
+    </params>  
+</install>
