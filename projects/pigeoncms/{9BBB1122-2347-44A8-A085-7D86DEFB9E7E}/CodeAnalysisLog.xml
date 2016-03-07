@@ -1,0 +1,350 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="c:\program files (x86)\microsoft visual studio 12.0\team tools\static analysis tools\fxcop\Xml\CodeAnalysisReport.xsl"?>
+<FxCopReport Version="12.0">
+ <Targets>
+  <Target Name="C:\Users\Nicola\AppData\Local\Temp\tmp936B.tmp.cadir\bin\App_Code.dll">
+   <Modules>
+    <Module Name="app_code.dll">
+     <Namespaces>
+      <Namespace Name="PayPalIntegration">
+       <Types>
+        <Type Name="TmpOrdersManager" Kind="Class" Accessibility="Public" ExternallyVisible="True">
+         <Members>
+          <Member Name="#GetByKey(System.Int32)" Kind="Method" Static="False" Accessibility="Public" ExternallyVisible="True">
+           <Messages>
+            <Message TypeName="Review SQL queries for security vulnerabilities" Category="Microsoft.Security" CheckId="CA2100" Status="Active" Created="2016-03-05 21:04:04Z" FixCategory="DependsOnFix">
+             <Issue Name="WithNonLiterals" Certainty="75" Level="Warning" Path="c:\inetpub\wwwroot\pigeoncms\code\pigeoncms\App_Code\modules\Westwind.IternetTools" File="PayPalHelper.cs" Line="99">The query string passed to 'DbCommand.CommandText.set(string)' in 'TmpOrdersManager.GetByKey(int)' could contain the following variables 'Database.ParseSql(sSql)'. If any of these variables could come from user input, consider using a stored procedure or a parameterized SQL query instead of building the query with string concatenations.</Issue>
+            </Message>
+           </Messages>
+          </Member>
+          <Member Name="#Insert(PayPalIntegration.TmpOrder)" Kind="Method" Static="False" Accessibility="Public" ExternallyVisible="True">
+           <Messages>
+            <Message TypeName="Review SQL queries for security vulnerabilities" Category="Microsoft.Security" CheckId="CA2100" Status="Active" Created="2016-03-05 21:04:04Z" FixCategory="DependsOnFix">
+             <Issue Name="WithNonLiterals" Certainty="75" Level="Warning" Path="c:\inetpub\wwwroot\pigeoncms\code\pigeoncms\App_Code\modules\Westwind.IternetTools" File="PayPalHelper.cs" Line="185">The query string passed to 'DbCommand.CommandText.set(string)' in 'TmpOrdersManager.Insert(TmpOrder)' could contain the following variables 'Database.ParseSql(sSql)'. If any of these variables could come from user input, consider using a stored procedure or a parameterized SQL query instead of building the query with string concatenations.</Issue>
+            </Message>
+           </Messages>
+          </Member>
+          <Member Name="#Update(PayPalIntegration.TmpOrder)" Kind="Method" Static="False" Accessibility="Public" ExternallyVisible="True">
+           <Messages>
+            <Message TypeName="Review SQL queries for security vulnerabilities" Category="Microsoft.Security" CheckId="CA2100" Status="Active" Created="2016-03-05 21:04:04Z" FixCategory="DependsOnFix">
+             <Issue Name="WithNonLiterals" Certainty="75" Level="Warning" Path="c:\inetpub\wwwroot\pigeoncms\code\pigeoncms\App_Code\modules\Westwind.IternetTools" File="PayPalHelper.cs" Line="146">The query string passed to 'DbCommand.CommandText.set(string)' in 'TmpOrdersManager.Update(TmpOrder)' could contain the following variables 'Database.ParseSql(sSql)'. If any of these variables could come from user input, consider using a stored procedure or a parameterized SQL query instead of building the query with string concatenations.</Issue>
+            </Message>
+           </Messages>
+          </Member>
+         </Members>
+        </Type>
+       </Types>
+      </Namespace>
+      <Namespace Name="Westwind.InternetTools">
+       <Types>
+        <Type Name="wwHttp" Kind="Class" Accessibility="Public" ExternallyVisible="True">
+         <Messages>
+          <Message TypeName="TypesThatOwnDisposableFieldsShouldBeDisposable" Category="Microsoft.Design" CheckId="CA1001" Status="Active" Created="2016-03-05 21:04:04Z" FixCategory="DependsOnFix">
+           <Issue Name="DependsOnFix" Certainty="95" Level="CriticalError">Implement IDisposable on 'wwHttp' because it creates members of the following IDisposable types: 'MemoryStream', 'BinaryWriter'. If 'wwHttp' has previously shipped, adding new members that implement IDisposable to this type is considered a breaking change to existing consumers.</Issue>
+          </Message>
+         </Messages>
+         <Members>
+          <Member Name="#GetUrlResponse(System.String)" Kind="Method" Static="False" Accessibility="Public" ExternallyVisible="True">
+           <Messages>
+            <Message TypeName="RethrowToPreserveStackDetails" Category="Microsoft.Usage" CheckId="CA2200" Status="Active" Created="2016-03-05 21:04:04Z" FixCategory="NonBreaking">
+             <Issue Certainty="95" Level="Error" Path="c:\inetpub\wwwroot\pigeoncms\code\pigeoncms\App_Code\modules\Westwind.IternetTools" File="wwHTTP.cs" Line="623">'wwHttp.GetUrlResponse(string)' rethrows a caught exception and specifies it explicitly as an argument. Use 'throw' without an argument instead, in order to preserve the stack location where the exception was initially raised.</Issue>
+            </Message>
+           </Messages>
+          </Member>
+          <Member Name="#ReceiveData" Kind="Event" Static="False" Accessibility="Public" ExternallyVisible="True">
+           <Messages>
+            <Message TypeName="DeclareEventHandlersCorrectly" Category="Microsoft.Design" CheckId="CA1009" Status="Active" Created="2016-03-05 21:04:04Z" FixCategory="Breaking">
+             <Issue Name="Second" Certainty="95" Level="Error">Declare the second parameter of 'wwHttp.ReceiveDataDelegate' as an EventArgs, or an instance of a type that extends EventArgs, named 'e'.</Issue>
+            </Message>
+           </Messages>
+          </Member>
+          <Member Name="#SendData" Kind="Event" Static="False" Accessibility="Public" ExternallyVisible="True">
+           <Messages>
+            <Message TypeName="DeclareEventHandlersCorrectly" Category="Microsoft.Design" CheckId="CA1009" Status="Active" Created="2016-03-05 21:04:04Z" FixCategory="Breaking">
+             <Issue Name="Second" Certainty="95" Level="Error">Declare the second parameter of 'wwHttp.ReceiveDataDelegate' as an EventArgs, or an instance of a type that extends EventArgs, named 'e'.</Issue>
+            </Message>
+           </Messages>
+          </Member>
+         </Members>
+        </Type>
+       </Types>
+      </Namespace>
+     </Namespaces>
+    </Module>
+   </Modules>
+  </Target>
+  <Target Name="C:\Users\Nicola\AppData\Local\Temp\tmp936B.tmp.cadir\bin\App_Web_1mjc4zpv.dll">
+   <Modules>
+    <Module Name="app_web_1mjc4zpv.dll">
+     <Namespaces>
+      <Namespace Name="">
+       <Types>
+        <Type Name="Installation_Default" Kind="Class" Accessibility="Public" ExternallyVisible="True">
+         <Members>
+          <Member Name="#setData()" Kind="Method" Static="False" Accessibility="Private" ExternallyVisible="False">
+           <Messages>
+            <Message TypeName="Do not dispose objects multiple times" Category="Microsoft.Usage" CheckId="CA2202" Status="Active" Created="2016-03-05 21:04:04Z" FixCategory="DependsOnFix">
+             <Issue Certainty="75" Level="Warning" Path="c:\inetpub\wwwroot\pigeoncms\code\pigeoncms\pgn-admin\installation" File="Default.aspx.cs" Line="440">Object 'myConn' can be disposed more than once in method 'Installation_Default.setData()'. To avoid generating a System.ObjectDisposedException you should not call Dispose more than one time on an object.: Lines: 440</Issue>
+             <Issue Certainty="75" Level="Warning" Path="c:\inetpub\wwwroot\pigeoncms\code\pigeoncms\pgn-admin\installation" File="Default.aspx.cs" Line="439">Object 'myTrans' can be disposed more than once in method 'Installation_Default.setData()'. To avoid generating a System.ObjectDisposedException you should not call Dispose more than one time on an object.: Lines: 439</Issue>
+            </Message>
+            <Message TypeName="Review SQL queries for security vulnerabilities" Category="Microsoft.Security" CheckId="CA2100" Status="Active" Created="2016-03-05 21:04:04Z" FixCategory="DependsOnFix">
+             <Issue Name="WithNonLiterals" Certainty="75" Level="Warning" Path="c:\inetpub\wwwroot\pigeoncms\code\pigeoncms\pgn-admin\installation" File="Default.aspx.cs" Line="407">The query string passed to 'DbCommand.CommandText.set(string)' in 'Installation_Default.setData()' could contain the following variables 'Database.ParseSql(sSql, this.TxtTablesPrefix.Text)'. If any of these variables could come from user input, consider using a stored procedure or a parameterized SQL query instead of building the query with string concatenations.</Issue>
+             <Issue Name="WithNonLiterals" Certainty="75" Level="Warning" Path="c:\inetpub\wwwroot\pigeoncms\code\pigeoncms\pgn-admin\installation" File="Default.aspx.cs" Line="415">The query string passed to 'DbCommand.CommandText.set(string)' in 'Installation_Default.setData()' could contain the following variables 'Database.ParseSql(sSql, this.TxtTablesPrefix.Text)'. If any of these variables could come from user input, consider using a stored procedure or a parameterized SQL query instead of building the query with string concatenations.</Issue>
+             <Issue Name="WithNonLiterals" Certainty="75" Level="Warning" Path="c:\inetpub\wwwroot\pigeoncms\code\pigeoncms\pgn-admin\installation" File="Default.aspx.cs" Line="423">The query string passed to 'DbCommand.CommandText.set(string)' in 'Installation_Default.setData()' could contain the following variables 'Database.ParseSql(sSql, this.TxtTablesPrefix.Text)'. If any of these variables could come from user input, consider using a stored procedure or a parameterized SQL query instead of building the query with string concatenations.</Issue>
+            </Message>
+           </Messages>
+          </Member>
+         </Members>
+        </Type>
+       </Types>
+      </Namespace>
+     </Namespaces>
+    </Module>
+   </Modules>
+  </Target>
+  <Target Name="C:\Users\Nicola\AppData\Local\Temp\tmp936B.tmp.cadir\bin\App_Web_baxgxgtn.dll">
+   <Modules>
+    <Module Name="app_web_baxgxgtn.dll">
+     <Namespaces>
+      <Namespace Name="">
+       <Types>
+        <Type Name="Controls_Default" Kind="Class" Accessibility="Public" ExternallyVisible="True">
+         <Members>
+          <Member Name="#importPreviewFromExcel(System.String,System.Boolean)" Kind="Method" Static="False" Accessibility="Private" ExternallyVisible="False">
+           <Messages>
+            <Message TypeName="Review SQL queries for security vulnerabilities" Category="Microsoft.Security" CheckId="CA2100" Status="Active" Created="2016-03-05 21:04:04Z" FixCategory="DependsOnFix">
+             <Issue Name="WithNonLiterals" Certainty="75" Level="Warning" Path="c:\inetpub\wwwroot\pigeoncms\code\pigeoncms\pgn-admin\modules\PigeonCms.LabelsAdmin\views" File="Default.ascx.cs" Line="1447">The query string passed to 'OleDbCommand.OleDbCommand(string, OleDbConnection)' in 'Controls_Default.importPreviewFromExcel(string, bool)' could contain the following variables 'schemaRow["TABLE_NAME"]'. If any of these variables could come from user input, consider using a stored procedure or a parameterized SQL query instead of building the query with string concatenations.</Issue>
+            </Message>
+           </Messages>
+          </Member>
+         </Members>
+        </Type>
+       </Types>
+      </Namespace>
+     </Namespaces>
+    </Module>
+   </Modules>
+  </Target>
+  <Target Name="C:\Users\Nicola\AppData\Local\Temp\tmp936B.tmp.cadir\bin\App_Web_djtq3gue.dll">
+   <Modules>
+    <Module Name="app_web_djtq3gue.dll">
+     <Namespaces>
+      <Namespace Name="">
+       <Types>
+        <Type Name="Controls_TicketsList" Kind="Class" Accessibility="Public" ExternallyVisible="True">
+         <Members>
+          <Member Name="#Grid1_Sorting(System.Object,System.Web.UI.WebControls.GridViewSortEventArgs)" Kind="Method" Static="False" Accessibility="Family" ExternallyVisible="True">
+           <Messages>
+            <Message TypeName="RethrowToPreserveStackDetails" Category="Microsoft.Usage" CheckId="CA2200" Status="Active" Created="2016-03-05 21:04:04Z" FixCategory="NonBreaking">
+             <Issue Certainty="95" Level="Error" Path="c:\inetpub\wwwroot\pigeoncms\code\pigeoncms\pgn-admin\modules\PigeonCms.ItemsAdmin\views" File="TicketsList.ascx.cs" Line="430">'Controls_TicketsList.Grid1_Sorting(object, GridViewSortEventArgs)' rethrows a caught exception and specifies it explicitly as an argument. Use 'throw' without an argument instead, in order to preserve the stack location where the exception was initially raised.</Issue>
+            </Message>
+           </Messages>
+          </Member>
+         </Members>
+        </Type>
+       </Types>
+      </Namespace>
+     </Namespaces>
+    </Module>
+   </Modules>
+  </Target>
+  <Target Name="C:\Users\Nicola\AppData\Local\Temp\tmp936B.tmp.cadir\bin\App_Web_eqhczklx.dll">
+   <Modules>
+    <Module Name="app_web_eqhczklx.dll">
+     <Namespaces>
+      <Namespace Name="">
+       <Types>
+        <Type Name="Controls_DroidcatalogueCreateNew" Kind="Class" Accessibility="Public" ExternallyVisible="True">
+         <Members>
+          <Member Name="#Page_Load(System.Object,System.EventArgs)" Kind="Method" Static="False" Accessibility="Family" ExternallyVisible="True">
+           <Messages>
+            <Message TypeName="RethrowToPreserveStackDetails" Category="Microsoft.Usage" CheckId="CA2200" Status="Active" Created="2016-03-05 21:04:04Z" FixCategory="NonBreaking">
+             <Issue Certainty="95" Level="Error" Path="c:\inetpub\wwwroot\pigeoncms\code\pigeoncms\pgn-admin\modules\PigeonCms.MembersAdmin\views" File="Droidcatalogue.CreateNew.ascx.cs" Line="181">'Controls_DroidcatalogueCreateNew.Page_Load(object, EventArgs)' rethrows a caught exception and specifies it explicitly as an argument. Use 'throw' without an argument instead, in order to preserve the stack location where the exception was initially raised.</Issue>
+            </Message>
+           </Messages>
+          </Member>
+         </Members>
+        </Type>
+       </Types>
+      </Namespace>
+     </Namespaces>
+    </Module>
+   </Modules>
+  </Target>
+  <Target Name="C:\Users\Nicola\AppData\Local\Temp\tmp936B.tmp.cadir\bin\App_Web_jzo0fis3.dll">
+   <Modules>
+    <Module Name="app_web_jzo0fis3.dll">
+     <Namespaces>
+      <Namespace Name="">
+       <Types>
+        <Type Name="NynfaShop_ImportData_Default" Kind="Class" Accessibility="Public" ExternallyVisible="True">
+         <Members>
+          <Member Name="#getDataTable(NynfaShop_ImportData_Default+DataToImport)" Kind="Method" Static="False" Accessibility="Private" ExternallyVisible="False">
+           <Messages>
+            <Message TypeName="Review SQL queries for security vulnerabilities" Category="Microsoft.Security" CheckId="CA2100" Status="Active" Created="2016-03-05 21:04:04Z" FixCategory="DependsOnFix">
+             <Issue Name="WithNonLiterals" Certainty="75" Level="Warning" Path="c:\inetpub\wwwroot\pigeoncms\code\pigeoncms\pgn-admin\modules\NynfaShop.ImportData\views" File="Default.ascx.cs" Line="301">The query string passed to 'DbCommand.CommandText.set(string)' in 'NynfaShop_ImportData_Default.getDataTable(NynfaShop_ImportData_Default.DataToImport)' could contain the following variables 'Database.ParseSql(sSql)'. If any of these variables could come from user input, consider using a stored procedure or a parameterized SQL query instead of building the query with string concatenations.</Issue>
+            </Message>
+           </Messages>
+          </Member>
+          <Member Name="#removeTempData(NynfaShop_ImportData_Default+DataToImport)" Kind="Method" Static="False" Accessibility="Private" ExternallyVisible="False">
+           <Messages>
+            <Message TypeName="Review SQL queries for security vulnerabilities" Category="Microsoft.Security" CheckId="CA2100" Status="Active" Created="2016-03-05 21:04:04Z" FixCategory="DependsOnFix">
+             <Issue Name="WithNonLiterals" Certainty="75" Level="Warning" Path="c:\inetpub\wwwroot\pigeoncms\code\pigeoncms\pgn-admin\modules\NynfaShop.ImportData\views" File="Default.ascx.cs" Line="255">The query string passed to 'DbCommand.CommandText.set(string)' in 'NynfaShop_ImportData_Default.removeTempData(NynfaShop_ImportData_Default.DataToImport)' could contain the following variables 'Database.ParseSql(sSql)'. If any of these variables could come from user input, consider using a stored procedure or a parameterized SQL query instead of building the query with string concatenations.</Issue>
+            </Message>
+           </Messages>
+          </Member>
+         </Members>
+        </Type>
+       </Types>
+      </Namespace>
+     </Namespaces>
+    </Module>
+   </Modules>
+  </Target>
+  <Target Name="C:\Users\Nicola\AppData\Local\Temp\tmp936B.tmp.cadir\bin\App_Web_qcqsqest.dll">
+   <Modules>
+    <Module Name="app_web_qcqsqest.dll">
+     <Namespaces>
+      <Namespace Name="">
+       <Types>
+        <Type Name="PigeonCms_ExportData_Default" Kind="Class" Accessibility="Public" ExternallyVisible="True">
+         <Members>
+          <Member Name="#getDataTable(System.String)" Kind="Method" Static="False" Accessibility="Private" ExternallyVisible="False">
+           <Messages>
+            <Message TypeName="Review SQL queries for security vulnerabilities" Category="Microsoft.Security" CheckId="CA2100" Status="Active" Created="2016-03-05 21:04:04Z" FixCategory="DependsOnFix">
+             <Issue Name="WithNonLiterals" Certainty="75" Level="Warning" Path="c:\inetpub\wwwroot\pigeoncms\code\pigeoncms\pgn-admin\modules\PigeonCms.ExportData\views" File="Default.ascx.cs" Line="198">The query string passed to 'DbCommand.CommandText.set(string)' in 'PigeonCms_ExportData_Default.getDataTable(string)' could contain the following variables 'Database.ParseSql(resource)'. If any of these variables could come from user input, consider using a stored procedure or a parameterized SQL query instead of building the query with string concatenations.</Issue>
+            </Message>
+           </Messages>
+          </Member>
+         </Members>
+        </Type>
+       </Types>
+      </Namespace>
+     </Namespaces>
+    </Module>
+   </Modules>
+  </Target>
+  <Target Name="C:\Users\Nicola\AppData\Local\Temp\tmp936B.tmp.cadir\bin\App_Web_tkkkmsru.dll">
+   <Modules>
+    <Module Name="app_web_tkkkmsru.dll">
+     <Namespaces>
+      <Namespace Name="">
+       <Types>
+        <Type Name="Controls_DroidCatalogue_ImportDataFile" Kind="Class" Accessibility="Public" ExternallyVisible="True">
+         <Members>
+          <Member Name="#importExcelXLS(System.String,System.Boolean)" Kind="Method" Static="True" Accessibility="Public" ExternallyVisible="True">
+           <Messages>
+            <Message TypeName="Review SQL queries for security vulnerabilities" Category="Microsoft.Security" CheckId="CA2100" Status="Active" Created="2016-03-05 21:04:04Z" FixCategory="DependsOnFix">
+             <Issue Name="WithNonLiterals" Certainty="75" Level="Warning" Path="c:\inetpub\wwwroot\pigeoncms\code\pigeoncms\pgn-admin\modules\DroidCatalogue.ImportDataFile\views" File="Default.ascx.cs" Line="565">The query string passed to 'OleDbCommand.OleDbCommand(string, OleDbConnection)' in 'Controls_DroidCatalogue_ImportDataFile.importExcelXLS(string, bool)' could contain the following variables 'schemaRow["TABLE_NAME"]'. If any of these variables could come from user input, consider using a stored procedure or a parameterized SQL query instead of building the query with string concatenations.</Issue>
+            </Message>
+           </Messages>
+          </Member>
+         </Members>
+        </Type>
+       </Types>
+      </Namespace>
+     </Namespaces>
+    </Module>
+   </Modules>
+  </Target>
+  <Target Name="C:\Users\Nicola\AppData\Local\Temp\tmp936B.tmp.cadir\bin\App_Web_yhq0js1d.dll">
+   <Modules>
+    <Module Name="app_web_yhq0js1d.dll">
+     <Namespaces>
+      <Namespace Name="">
+       <Types>
+        <Type Name="Controls_DroidcatalogueNewUser" Kind="Class" Accessibility="Public" ExternallyVisible="True">
+         <Members>
+          <Member Name="#Page_Load(System.Object,System.EventArgs)" Kind="Method" Static="False" Accessibility="Family" ExternallyVisible="True">
+           <Messages>
+            <Message TypeName="RethrowToPreserveStackDetails" Category="Microsoft.Usage" CheckId="CA2200" Status="Active" Created="2016-03-05 21:04:04Z" FixCategory="NonBreaking">
+             <Issue Certainty="95" Level="Error" Path="c:\inetpub\wwwroot\pigeoncms\code\pigeoncms\pgn-admin\modules\DroidCatalogue.Orders\views" File="NewUser.ascx.cs" Line="59">'Controls_DroidcatalogueNewUser.Page_Load(object, EventArgs)' rethrows a caught exception and specifies it explicitly as an argument. Use 'throw' without an argument instead, in order to preserve the stack location where the exception was initially raised.</Issue>
+            </Message>
+           </Messages>
+          </Member>
+         </Members>
+        </Type>
+       </Types>
+      </Namespace>
+     </Namespaces>
+    </Module>
+   </Modules>
+  </Target>
+ </Targets>
+ <Rules>
+  <Rule TypeName="DeclareEventHandlersCorrectly" Category="Microsoft.Design" CheckId="CA1009">
+   <Name>Declare event handlers correctly</Name>
+   <Description>By convention, .NET events have two parameters that specify the event sender and event data. Event handler signatures should follow this form: void MyEventHandler(object sender, EventArgs e). The 'sender' parameter is always of type System.Object, even if it is possible to employ a more specific type. The 'e' parameter is always of type System.EventArgs. Events that do not provide event data should use the System.EventHandler delegate type. Event handlers return void so that they can send each event to multiple target methods. Any value returned by a target would be lost after the first call.</Description>
+   <Resolution Name="Second">Declare the second parameter of {0} as an EventArgs, or an instance of a type that extends EventArgs, named 'e'.</Resolution>
+   <Owner />
+   <Url>http://msdn.microsoft.com/library/ms182133.aspx</Url>
+   <Email>[none]</Email>
+   <MessageLevel Certainty="95">Error</MessageLevel>
+   <File Name="designrules.dll" Version="12.0.0.0" />
+  </Rule>
+  <Rule TypeName="Do not dispose objects multiple times" Category="Microsoft.Usage" CheckId="CA2202">
+   <Name>Do not dispose objects multiple times</Name>
+   <Description>A correctly implemented Dispose method can be called multiple times without throwing an exception. However, this is not guaranteed and to avoid generating a System.ObjectDisposedException you should not call Dispose more than one time on an object.</Description>
+   <Resolution Name="Default">Object {0} can be disposed more than once in method {1}. To avoid generating a System.ObjectDisposedException you should not call Dispose more than one time on an object.: Lines: 440</Resolution>
+   <Owner>RuleOwner</Owner>
+   <Url>http://msdn.microsoft.com/library/ms182334.aspx</Url>
+   <Email />
+   <MessageLevel Certainty="75">Warning</MessageLevel>
+   <File Name="dataflowrules.dll" Version="12.0.0.0" />
+  </Rule>
+  <Rule TypeName="RethrowToPreserveStackDetails" Category="Microsoft.Usage" CheckId="CA2200">
+   <Name>Rethrow to preserve stack details</Name>
+   <Description>Use the IL rethrow instruction to preserve original stack details when re-raising a caught exception.</Description>
+   <Resolution Name="Default">{0} rethrows a caught exception and specifies it explicitly as an argument. Use 'throw' without an argument instead, in order to preserve the stack location where the exception was initially raised.</Resolution>
+   <Owner />
+   <Url>http://msdn.microsoft.com/library/ms182363.aspx</Url>
+   <Email>[none]</Email>
+   <MessageLevel Certainty="95">Error</MessageLevel>
+   <File Name="usagerules.dll" Version="12.0.0.0" />
+  </Rule>
+  <Rule TypeName="Review SQL queries for security vulnerabilities" Category="Microsoft.Security" CheckId="CA2100">
+   <Name>Review SQL queries for security vulnerabilities</Name>
+   <Description>A SQL command string built from user input is vulnerable to SQL injection attacks. Microsoft SQL Server and other database servers support stored procedures and parameterized SQL queries, which reduce the risk of injection attacks.</Description>
+   <Resolution Name="WithNonLiterals">The query string passed to {0} in {1} could contain the following variables {2}. If any of these variables could come from user input, consider using a stored procedure or a parameterized SQL query instead of building the query with string concatenations.</Resolution>
+   <Owner>RuleOwner</Owner>
+   <Url>http://msdn.microsoft.com/library/ms182310.aspx</Url>
+   <Email />
+   <MessageLevel Certainty="75">Warning</MessageLevel>
+   <File Name="dataflowrules.dll" Version="12.0.0.0" />
+  </Rule>
+  <Rule TypeName="TypesThatOwnDisposableFieldsShouldBeDisposable" Category="Microsoft.Design" CheckId="CA1001">
+   <Name>Types that own disposable fields should be disposable</Name>
+   <Description>Types that declare disposable members should also implement IDisposable. If the type does not own any unmanaged resources, do not implement a finalizer on it.</Description>
+   <Resolution Name="DependsOnFix">Implement IDisposable on {0} because it creates members of the following IDisposable types: {1}. If {0} has previously shipped, adding new members that implement IDisposable to this type is considered a breaking change to existing consumers.</Resolution>
+   <Owner />
+   <Url>http://msdn.microsoft.com/library/ms182172.aspx</Url>
+   <Email>[none]</Email>
+   <MessageLevel Certainty="95">CriticalError</MessageLevel>
+   <File Name="designrules.dll" Version="12.0.0.0" />
+  </Rule>
+ </Rules>
+ <Localized>
+  <String Key="Category">Category</String>
+  <String Key="Certainty">Certainty</String>
+  <String Key="CollapseAll">Collapse All</String>
+  <String Key="CheckId">Check Id</String>
+  <String Key="Error">Error</String>
+  <String Key="Errors">error(s)</String>
+  <String Key="ExpandAll">Expand All</String>
+  <String Key="Help">Help</String>
+  <String Key="Line">Line</String>
+  <String Key="Messages">message(s)</String>
+  <String Key="LocationNotStoredInPdb">[Location not stored in Pdb]</String>
+  <String Key="Project">Project</String>
+  <String Key="Resolution">Resolution</String>
+  <String Key="Rule">Rule</String>
+  <String Key="RuleFile">Rule File</String>
+  <String Key="RuleDescription">Rule Description</String>
+  <String Key="Source">Source</String>
+  <String Key="Status">Status</String>
+  <String Key="Target">Target</String>
+  <String Key="Warning">Warning</String>
+  <String Key="Warnings">warning(s)</String>
+  <String Key="ReportTitle">Code Analysis Report</String>
+ </Localized>
+</FxCopReport>

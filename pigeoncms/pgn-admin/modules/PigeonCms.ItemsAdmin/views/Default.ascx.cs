@@ -27,9 +27,8 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
     const int COL_UPLOADIMAGES_INDEX = 8;
     const int COL_DELETE_INDEX = 9;
 
-    const int VIEW_GRID = 0;
-    const int VIEW_INSERT = 1;
 
+	public string TitleItem = "";
 
     protected DateTime ItemDate
     {
@@ -42,7 +41,7 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
             DateTime res;
             DateTime.TryParse(TxtItemDate.Text, culture, styles, out res);
             return res.Date;
-            
+
         }
         set
         {
@@ -118,6 +117,10 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
             pan1.CssClass = "form-group input-group";
             PanelTitle.Controls.Add(pan1);
 
+            Literal lit1 = new Literal();
+            if (!this.ShowOnlyDefaultCulture)
+                lit1.Text = "<div class='input-group-addon'><span>" + item.Value.Substring(0, 3) + "</span></div>";
+            pan1.Controls.Add(lit1);
             TextBox txt1 = new TextBox();
             txt1.ID = "TxtTitle" + item.Value;
             txt1.MaxLength = 200;
@@ -125,25 +128,22 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
             txt1.ToolTip = item.Key;
             LabelsProvider.SetLocalizedControlVisibility(this.ShowOnlyDefaultCulture, item.Key, txt1);
             pan1.Controls.Add(txt1);
-            Literal lit1 = new Literal();
-            if (!this.ShowOnlyDefaultCulture)
-                lit1.Text = "<span class='input-group-addon'>" + item.Value + "</span>";
-            pan1.Controls.Add(lit1);
             if (item.Key == Config.CultureDefault)
                 titleId = txt1.ClientID;
 
             //description
+            Literal lit2 = new Literal();
+            if (!this.ShowOnlyDefaultCulture)
+                lit2.Text = "<span class='lang-description'>- <i>" + item.Value + "</i> -</span>";
+            PanelDescription.Controls.Add(lit2);
+
             var txt2 = (Controls_ContentEditorControl)LoadControl("~/Controls/ContentEditorControl.ascx");
             txt2.ID = "TxtDescription" + item.Value;
-            //txt2.CssClass = "adminMediumText";
             txt2.Configuration = base.ContentEditorConfig;
             LabelsProvider.SetLocalizedControlVisibility(this.ShowOnlyDefaultCulture, item.Key, txt2);
             PanelDescription.Controls.Add(txt2);
 
-            Literal lit2 = new Literal();
-            if (!this.ShowOnlyDefaultCulture)
-                lit2.Text = "&nbsp;[<i>" + item.Value + "</i>]<br /><br />";
-            PanelDescription.Controls.Add(lit2);
+
         }
 
         if (this.BaseModule.DirectEditMode)
@@ -153,16 +153,16 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
         TxtAlias.Attributes.Add("onfocus", "preloadAlias('" + titleId + "', this)");
 
         //restrictions
-        Grid1.AllowSorting = false;
-        Grid1.Columns[COL_ORDER_ARROWS_INDEX].Visible = this.AllowOrdering;
-        Grid1.Columns[COL_UPLOADFILES_INDEX].Visible = this.TargetFilesUpload > 0;
-        Grid1.Columns[COL_UPLOADIMAGES_INDEX].Visible = this.TargetImagesUpload > 0;
-        Grid1.Columns[COL_DELETE_INDEX].Visible = base.AllowDelete;
+		//Grid1.AllowSorting = false;
+		//Grid1.Columns[COL_ORDER_ARROWS_INDEX].Visible = this.AllowOrdering;
+		//Grid1.Columns[COL_UPLOADFILES_INDEX].Visible = this.TargetFilesUpload > 0;
+		//Grid1.Columns[COL_UPLOADIMAGES_INDEX].Visible = this.TargetImagesUpload > 0;
+		//Grid1.Columns[COL_DELETE_INDEX].Visible = base.AllowDelete;
+		//Grid1.Columns[COL_ALIAS_INDEX].Visible = this.ShowAlias;
+		//Grid1.Columns[COL_ACCESSTYPE_INDEX].Visible = this.ShowSecurity;
+		
+		TxtAlias.Visible = this.ShowAlias;
 
-        Grid1.Columns[COL_ALIAS_INDEX].Visible = this.ShowAlias;
-        TxtAlias.Visible = this.ShowAlias;
-
-        Grid1.Columns[COL_ACCESSTYPE_INDEX].Visible = this.ShowSecurity;
         PermissionsControl1.Visible = this.ShowSecurity;
 
         TxtItemDate.Visible = this.ShowDates;
@@ -179,9 +179,8 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
 
     protected void Page_Load(object sender, EventArgs e)
     {
-        LblOk.Text = RenderSuccess("");
-        LblErr.Text = RenderError("");
-
+		setSuccess("");
+		setError("");
 
         if (this.BaseModule.DirectEditMode)
         {
@@ -190,9 +189,6 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
             if (new ItemsManager<Item, ItemsFilter>(true, true).GetByKey(base.CurrItem.Id).Id == 0)
                 throw new ArgumentException();
         }
-
-        //Tree1.NodeClick += new PigeonCms.Modules.CategoriesAdminControl.NodeClickDelegate(Tree_NodeClick);
-        //initTree();
 
         if (!Page.IsPostBack)
         {
@@ -203,14 +199,22 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
                 int.TryParse(DropSectionsFilter.SelectedValue, out secId);
                 loadDropCategoriesFilter(secId);
             }
-            //Tree1.BindTree(this.CurrentSectionId);
             loadDropsItemTypes();
+			loadList();
         }
         else
         {
+			//var partial = Upd1.IsInPartialRendering;
+
             string eventArg = HttpContext.Current.Request["__EVENTARGUMENT"];
-            if (eventArg == "items")
-                Grid1.DataBind();
+			if (eventArg == "items")
+				loadList();
+			else if (eventArg == "sortcomplete")
+			{
+				updateSortedTable();
+				loadList();
+			}
+			
 
             //reload params on every postback, because cannot manage dinamically fields
             var currentItem = new PigeonCms.Item();
@@ -236,28 +240,15 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
         {
             DropNew.Visible = false;
             BtnNew.Visible = false;
-            BtnCancel.OnClientClick = "closePopup();";
+            //BtnCancel.OnClientClick = "closePopup();";
 
             editRow(base.CurrItem.Id);
         }
     }
 
-    //protected void Tree_NodeClick(object sender, PigeonCms.Modules.CategoriesAdminControl.NodeClickEventArgs e)
-    //{
-    //    LblOk.Text = RenderSuccess(e.Command.ToString() + " " + e.CategoryId.ToString());
-
-    //    switch (e.Command)
-    //    {
-    //        case PigeonCms.Modules.CategoriesAdminControl.NodeClickCommandEnum.Select:
-    //            LblOk.Text = RenderSuccess(e.Command.ToString() + " " + e.CategoryId.ToString());
-    //            break;
-    //    }
-
-    //}
-
     protected void DropEnabledFilter_SelectedIndexChanged(object sender, EventArgs e)
     {
-        Grid1.DataBind();
+		loadList();
     }
 
     protected void DropSectionsFilter_SelectedIndexChanged(object sender, EventArgs e)
@@ -267,8 +258,8 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
 
         loadDropCategoriesFilter(secID);
         loadDropCategories(secID);
-        //Tree1.BindTree(secID);
-        Grid1.DataBind();
+		loadList();
+
         base.LastSelectedSectionId = secID;
     }
 
@@ -277,13 +268,14 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
         int catID = 0;
         int.TryParse(DropCategoriesFilter.SelectedValue, out catID);
 
-        Grid1.DataBind();
+		loadList();
+
         base.LastSelectedCategoryId = catID;
     }
 
     protected void DropItemTypesFilter_SelectedIndexChanged(object sender, EventArgs e)
     {
-        Grid1.DataBind();
+		loadList();
     }
 
     protected void DropNew_SelectedIndexChanged(object sender, EventArgs e)
@@ -293,7 +285,10 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
         else
         {
             try { editRow(0); }
-            catch (Exception e1) { LblErr.Text = RenderError(e1.Message); }
+			catch (Exception e1) 
+            { 
+                setError(e1.Message); 
+            }
         }
     }
 
@@ -307,189 +302,9 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
                 editRow(0);
             }
         }
-        catch (Exception e1) { LblErr.Text = RenderError(e1.Message); }
-    }
-
-    protected void ObjDs1_ObjectCreating(object sender, ObjectDataSourceEventArgs e)
-    {
-        var typename = new ItemsManager<Item, ItemsFilter>(true, true);
-        e.ObjectInstance = typename;
-    }
-
-    protected void ObjDs1_Selecting(object sender, ObjectDataSourceSelectingEventArgs e)
-    {
-        //see http://msdn.microsoft.com/en-us/library/w3f99sx1.aspx
-        //for use generics with ObjDs TypeName
-        var filter = new ItemsFilter();
-
-        filter.Enabled = Utility.TristateBool.NotSet;
-        switch (DropEnabledFilter.SelectedValue)
-        {
-            case "1":
-                filter.Enabled = Utility.TristateBool.True;
-                break;
-            case "0":
-                filter.Enabled = Utility.TristateBool.False;
-                break;
-            default:
-                filter.Enabled = Utility.TristateBool.NotSet;
-                break;
-        }
-
-        if (DropItemTypesFilter.SelectedValue != "")
-            filter.ItemType = DropItemTypesFilter.SelectedValue;
-        if (this.ItemId > 0)
-            filter.Id = this.ItemId;
-
-        int secId = -1;
-        int.TryParse(DropSectionsFilter.SelectedValue, out secId);
-
-        int catId = -1;
-        int.TryParse(DropCategoriesFilter.SelectedValue, out catId);
-
-
-        if (base.SectionId > 0)
-            filter.SectionId = base.SectionId;
-        else
-            filter.SectionId = secId;
-        filter.CategoryId = catId;
-
-        e.InputParameters["filter"] = filter;
-        e.InputParameters["sort"] = "";
-    }
-
-    protected void Grid1_RowCommand(object sender, GridViewCommandEventArgs e)
-    {
-        if (e.CommandName == "Select")
-        {
-            try
-            {
-                editRow(int.Parse(e.CommandArgument.ToString()));
-            }
-            catch (Exception e1) { LblErr.Text = RenderError(e1.Message); }
-        }
-        if (e.CommandName == "DeleteRow")
-        {
-            deleteRow(int.Parse(e.CommandArgument.ToString()));
-        }
-        //Enabled
-        if (e.CommandName == "ImgEnabledOk")
-        {
-            setFlag(Convert.ToInt32(e.CommandArgument), false, "enabled");
-            Grid1.DataBind();
-        }
-        if (e.CommandName == "ImgEnabledKo")
-        {
-            setFlag(Convert.ToInt32(e.CommandArgument), true, "enabled");
-            Grid1.DataBind();
-        }
-        //Ordering
-        if (e.CommandName == "MoveDown")
-        {
-            moveRecord(int.Parse(e.CommandArgument.ToString()), Database.MoveRecordDirection.Down);
-        }
-        if (e.CommandName == "MoveUp")
-        {
-            moveRecord(int.Parse(e.CommandArgument.ToString()), Database.MoveRecordDirection.Up);
-        }
-    }
-
-    protected void Grid1_RowCreated(object sender, GridViewRowEventArgs e)
-    {
-        if (e.Row.RowType == DataControlRowType.Header)
-            Utility.AddGlyph(Grid1, e.Row);
-    }
-
-    GridViewRow lastRowDataboundRoot;
-
-    protected void Grid1_RowDataBound(object sender, GridViewRowEventArgs e)
-    {
-        if (e.Row.RowType == DataControlRowType.DataRow)
-        {
-            var item = (PigeonCms.Item)e.Row.DataItem;
-
-            if (item.IsThreadRoot)
-                lastRowDataboundRoot = e.Row;
-            else
-            {
-                if (lastRowDataboundRoot != null)
-                    e.Row.RowState = lastRowDataboundRoot.RowState; //keeps same style of thread root
-            }
-
-            var LnkTitle = (LinkButton)e.Row.FindControl("LnkTitle");
-            LnkTitle.Text = "<i class='fa fa-pgn_edit fa-fw'></i>";
-            if (!item.IsThreadRoot)
-                LnkTitle.Text += "--";
-            LnkTitle.Text += Utility.Html.GetTextPreview(item.Title, 50, "");
-            if (string.IsNullOrEmpty(item.Title))
-                LnkTitle.Text += Utility.GetLabel("NO_VALUE", "<no value>");
-
-            if (base.ShowSecurity && Roles.IsUserInRole("debug"))
-                LnkTitle.Text += " ["+ item.Id.ToString() +"]";
-
-            var LitItemInfo = (Literal)e.Row.FindControl("LitItemInfo");
-            if (!string.IsNullOrEmpty(item.ExtId))
-                LitItemInfo.Text += "extId: " + item.ExtId + "<br>";
-            if (this.ShowType)
-                LitItemInfo.Text += item.ItemTypeName + "<br>";
-            if (!string.IsNullOrEmpty(item.CssClass))
-                LitItemInfo.Text += "class: " + item.CssClass;
-
-
-            if (item.CategoryId > 0)
-            {
-                var mgr = new CategoriesManager();
-                var cat = mgr.GetByKey(item.CategoryId);
-                var LitCategoryTitle = (Literal)e.Row.FindControl("LitCategoryTitle");
-                LitCategoryTitle.Text = cat.Title;
-            }
-
-            if (item.Enabled)
-            {
-                var img1 = e.Row.FindControl("ImgEnabledOk");
-                img1.Visible = true;
-            }
-            else
-            {
-                var img1 = e.Row.FindControl("ImgEnabledKo");
-                img1.Visible = true;
-            }
-
-            //permissions
-            var LitAccessTypeDesc = (Literal)e.Row.FindControl("LitAccessTypeDesc");
-            LitAccessTypeDesc.Text = RenderAccessTypeSummary(item);
-
-            //files upload
-            var LnkUploadFiles = (HyperLink)e.Row.FindControl("LnkUploadFiles");
-            LnkUploadFiles.NavigateUrl = this.FilesUploadUrl
-                + "?type=items&id=" + item.Id.ToString();
-            LnkUploadFiles.Visible = this.TargetFilesUpload > 0;
-            if (this.IsMobileDevice == false)
-                LnkUploadFiles.CssClass = "fancyRefresh";
-            var LitFilesCount = (Literal)e.Row.FindControl("LitFilesCount");
-            int filesCount = item.Files.Count;
-            if (filesCount > 0)
-            {
-                LitFilesCount.Text = filesCount.ToString();
-                LitFilesCount.Text += filesCount == 1 ? " file" : " files";
-                LitFilesCount.Text += "<br />(" + Utility.GetFileHumanLength(item.FilesSize) + ")";
-            }
-
-            //images upload
-            var LnkUploadImg = (HyperLink)e.Row.FindControl("LnkUploadImg");
-            LnkUploadImg.NavigateUrl = this.ImagesUploadUrl
-                + "?type=items&id=" + item.Id.ToString();
-            LnkUploadImg.Visible = this.TargetImagesUpload > 0;
-            if (this.IsMobileDevice == false)
-                LnkUploadImg.CssClass = "fancyRefresh";
-            var LitImgCount = (Literal)e.Row.FindControl("LitImgCount");
-            int imgCount = item.Images.Count;
-            if (imgCount > 0)
-            {
-                LitImgCount.Text = imgCount.ToString();
-                LitImgCount.Text += imgCount == 1 ? " file" : " files";
-                LitImgCount.Text += "<br />(" + Utility.GetFileHumanLength(item.ImagesSize) + ")";
-            }
+		catch (Exception e1) 
+        { 
+            setError(e1.Message); 
         }
     }
 
@@ -498,38 +313,170 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
         if (checkForm())
         {
             if (saveForm())
-                MultiView1.ActiveViewIndex = VIEW_GRID;
+                showInsertPanel(false);
         }
     }
 
     protected void BtnCancel_Click(object sender, EventArgs e)
     {
-        LblErr.Text = RenderError("");
-        LblOk.Text = RenderSuccess("");
-        MultiView1.ActiveViewIndex = VIEW_GRID;
+        setError("");
+        setSuccess("");
+        showInsertPanel(false);
     }
 
-    protected void MultiView1_ActiveViewChanged(object sender, EventArgs e)
-    {
-        if (this.BaseModule.DirectEditMode)
-        {
-            //list view not allowed (in case of js hacking)
-            if (MultiView1.ActiveViewIndex == VIEW_GRID)
-                MultiView1.ActiveViewIndex = VIEW_INSERT;
-        }
+	protected void RepPaging_ItemDataBound(object sender, RepeaterItemEventArgs e)
+	{
+		if (e.Item.ItemType == ListItemType.Header)
+		{
+			return;
+		}
 
-        if (MultiView1.ActiveViewIndex == VIEW_GRID)    //list view
-        {
-            Utility.SetDropByValue(DropNew, "");
-        }
-    }
+		int page = int.Parse(e.Item.DataItem.ToString());
+		if (page - 1 == base.ListCurrentPage)
+		{
+			var BtnPage = (LinkButton)e.Item.FindControl("BtnPage");
+			BtnPage.CssClass = "selected";
+		}
+	}
+
+	protected void RepPaging_ItemCommand(object source, RepeaterCommandEventArgs e)
+	{
+		if (e.CommandName == "Page")
+		{
+			base.ListCurrentPage = int.Parse(e.CommandArgument.ToString()) - 1;
+			loadList();
+		}
+	}
+
+	protected void Rep1_ItemDataBound(object sender, RepeaterItemEventArgs e)
+	{
+		if (e.Item.ItemType == ListItemType.Header)
+		{
+			return;
+		}
+
+		var item = (PigeonCms.Item)e.Item.DataItem;
+
+
+		var LitEnabled = (Literal)e.Item.FindControl("LitEnabled");
+		string enabledClass = "";
+		if (item.Enabled)
+			enabledClass = "checked";
+		LitEnabled.Text = "<span class='table-modern--checkbox--square " + enabledClass + "'></span>";
+
+
+		var LnkEnabled = (LinkButton)e.Item.FindControl("LnkEnabled");
+		LnkEnabled.CssClass = "table-modern--checkbox " + enabledClass;
+		LnkEnabled.CommandName = item.Enabled ? "Enabled0" : "Enabled1";
+
+
+		var LitTitle = (Literal)e.Item.FindControl("LitTitle");
+		if (!item.IsThreadRoot)
+			LitTitle.Text += "--";
+		LitTitle.Text += Utility.Html.GetTextPreview(item.Title, 50, "");
+		if (string.IsNullOrEmpty(item.Title))
+			LitTitle.Text += Utility.GetLabel("NO_VALUE", "<no value>");
+		if (base.ShowSecurity && Roles.IsUserInRole("debug"))
+			LitTitle.Text += " [" + item.Id.ToString() + "]";
+
+
+		var LitItemDate = (Literal)e.Item.FindControl("LitItemDate");
+		LitItemDate.Text = item.DateUpdated.ToString();
+
+		var LitItemInfo = (Literal)e.Item.FindControl("LitItemInfo");
+		if (!string.IsNullOrEmpty(item.ExtId))
+			LitItemInfo.Text += "extId: <strong>" + item.ExtId + "</strong><br>";
+		if (this.ShowType)
+			LitItemInfo.Text += item.ItemTypeName + "<br>";
+		if (!string.IsNullOrEmpty(item.CssClass))
+			LitItemInfo.Text += "class: " + item.CssClass;
+
+
+		if (item.CategoryId > 0)
+		{
+			var mgr = new CategoriesManager();
+			var cat = mgr.GetByKey(item.CategoryId);
+			var LitCategoryTitle = (Literal)e.Item.FindControl("LitCategoryTitle");
+			LitCategoryTitle.Text = cat.Title;
+		}
+
+		//permissions
+		var LitAccessTypeDesc = (Literal)e.Item.FindControl("LitAccessTypeDesc");
+		LitAccessTypeDesc.Text = RenderAccessTypeSummary(item);
+
+		//files upload
+		var LnkUploadFiles = (HyperLink)e.Item.FindControl("LnkUploadFiles");
+		LnkUploadFiles.NavigateUrl = this.FilesUploadUrl
+			+ "?type=items&id=" + item.Id.ToString();
+		LnkUploadFiles.Visible = this.TargetFilesUpload > 0;
+
+
+		var LitFilesCount = (Literal)e.Item.FindControl("LitFilesCount");
+		int filesCount = item.Files.Count;
+		LitFilesCount.Text = "&nbsp;";
+		if (filesCount > 0)
+		{
+			LitFilesCount.Text = filesCount.ToString();
+			LitFilesCount.Text += filesCount == 1 ? " file" : " files";
+			LitFilesCount.Text += " / " + Utility.GetFileHumanLength(item.FilesSize);
+		}
+
+		//images upload
+		var LnkUploadImg = (HyperLink)e.Item.FindControl("LnkUploadImg");
+		LnkUploadImg.NavigateUrl = this.ImagesUploadUrl
+			+ "?type=items&id=" + item.Id.ToString();
+		LnkUploadImg.Visible = this.TargetImagesUpload > 0;
+
+
+		var LitImgCount = (Literal)e.Item.FindControl("LitImgCount");
+		int imgCount = item.Images.Count;
+		LitImgCount.Text = "&nbsp;";
+		if (imgCount > 0)
+		{
+			LitImgCount.Text = imgCount.ToString();
+			LitImgCount.Text += imgCount == 1 ? " file" : " files";
+			LitImgCount.Text += " / " + Utility.GetFileHumanLength(item.ImagesSize);
+		}
+
+	}
+
+
+	protected void Rep1_ItemCommand(object source, RepeaterCommandEventArgs e)
+	{
+		if (e.CommandName == "Select")
+		{
+			try
+			{
+				editRow(int.Parse(e.CommandArgument.ToString()));
+			}
+			catch (Exception e1) 
+            { 
+                setError(e1.Message); 
+            }
+		}
+		if (e.CommandName == "DeleteRow")
+		{
+			deleteRow(int.Parse(e.CommandArgument.ToString()));
+		}
+		//Enabled
+		if (e.CommandName == "Enabled0")
+		{
+			setFlag(Convert.ToInt32(e.CommandArgument), false, "enabled");
+			loadList();
+		}
+		if (e.CommandName == "Enabled1")
+		{
+			setFlag(Convert.ToInt32(e.CommandArgument), true, "enabled");
+			loadList();
+		}
+	}
 
     #region private methods
 
     private bool checkForm()
     {
-        LblErr.Text = RenderError("");
-        LblOk.Text = RenderSuccess("");
+		setError("");
+        setSuccess("");
         bool res = true;
         string err = "";
 
@@ -547,7 +494,7 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
             var list = new List<PigeonCms.Item>();
 
             filter.Alias = TxtAlias.Text;
-            list = new ItemsManager<Item,ItemsFilter>().GetByFilter(filter, "");
+            list = new ItemsManager<Item, ItemsFilter>().GetByFilter(filter, "");
             if (list.Count > 0)
             {
                 if (this.CurrentId == 0)
@@ -565,15 +512,15 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
                 }
             }
         }
-        LblErr.Text = RenderError(err);
+		setError(err);
         return res;
     }
 
     private bool saveForm()
     {
         bool res = false;
-        LblErr.Text = RenderError("");
-        LblOk.Text = RenderSuccess("");
+		setError("");
+		setSuccess("");
 
         try
         {
@@ -592,20 +539,20 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
             }
             removeFromCache();
 
-            Grid1.DataBind();
-            LblOk.Text = RenderSuccess(Utility.GetLabel("RECORD_SAVED_MSG"));
+			loadList();
+			setSuccess(Utility.GetLabel("RECORD_SAVED_MSG"));
             res = true;
         }
         catch (CustomException e1)
         {
             if (e1.CustomMessage == ItemsManager<Item, ItemsFilter>.MaxItemsException)
-                LblErr.Text = RenderError(base.GetLabel("LblMaxItemsReached", "you have reached the maximum number of elements"));
+				setError(base.GetLabel("LblMaxItemsReached", "you have reached the maximum number of elements"));
             else
-                LblErr.Text = RenderError(e1.CustomMessage);
+				setError(e1.CustomMessage);
         }
         catch (Exception e1)
         {
-            LblErr.Text = RenderError(Utility.GetLabel("RECORD_ERR_MSG") + "<br />" + e1.ToString());
+			setError(Utility.GetLabel("RECORD_ERR_MSG") + "<br />" + e1.ToString());
         }
         finally
         {
@@ -615,6 +562,7 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
 
     private void clearForm()
     {
+        TitleItem = "";
         LblId.Text = "";
         LblOrderId.Text = "";
         LitSection.Text = "";
@@ -637,9 +585,6 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
             var txt2 = new Controls_ContentEditorControl();
             txt2 = Utility.FindControlRecursive<Controls_ContentEditorControl>(this, "TxtDescription" + item.Value);
             txt2.Text = "";
-            //FCKeditor t2 = new FCKeditor();
-            //t2 = (FCKeditor)PanelDescription.FindControl("TxtDescription" + item.Value);
-            //t2.Value = "";
         }
         PermissionsControl1.ClearForm();
     }
@@ -697,6 +642,10 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
             obj.TitleTranslations.TryGetValue(item.Key, out sTitleTranslation);
             t1.Text = sTitleTranslation;
 
+			//Set title edit item
+			if (string.IsNullOrEmpty(TitleItem)) 
+                TitleItem = sTitleTranslation;
+
             string sDescriptionTraslation = "";
             var txt2 = new Controls_ContentEditorControl();
             txt2 = Utility.FindControlRecursive<Controls_ContentEditorControl>(this, "TxtDescription" + item.Value);
@@ -716,7 +665,7 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
         PermissionsControl1.Obj2form(obj);
         LitSection.Text = obj.Category.Section.Title;
         LitItemType.Text = obj.ItemTypeName;
-        
+
         this.ItemDate = obj.ItemDate;
         this.ValidFrom = obj.ValidFrom;
         this.ValidTo = obj.ValidTo;
@@ -725,8 +674,8 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
     private void editRow(int recordId)
     {
         var obj = new PigeonCms.Item();
-        LblOk.Text = RenderSuccess("");
-        LblErr.Text = RenderError("");
+		setSuccess("");
+		setError("");
 
         if (!PgnUserCurrent.IsAuthenticated)
             throw new Exception("user not authenticated");
@@ -742,7 +691,6 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
             obj.ItemDate = DateTime.Now;
             obj.ValidFrom = DateTime.Now;
             obj.ValidTo = DateTime.MinValue;
-
             int defaultCategoryId = 0;
             int.TryParse(DropCategoriesFilter.SelectedValue, out defaultCategoryId);
             if (defaultCategoryId == 0)
@@ -756,7 +704,6 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
                     defaultCategoryId = clist[0].Id;
             }
             obj.CategoryId = defaultCategoryId;
-
             obj2form(obj);
             LitItemType.Text = DropNew.SelectedValue;
         }
@@ -766,13 +713,13 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
             loadDropCategories(obj.SectionId);
             obj2form(obj);
         }
-        MultiView1.ActiveViewIndex = VIEW_INSERT;
+        showInsertPanel(true);
     }
 
     private void deleteRow(int recordId)
     {
-        LblOk.Text = RenderSuccess("");
-        LblErr.Text = RenderError("");
+		setSuccess("");
+		setError("");
 
         try
         {
@@ -784,10 +731,72 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
         }
         catch (Exception e)
         {
-            LblErr.Text = RenderError(e.Message);
+			setError(e.Message);
         }
-        Grid1.DataBind();
+		loadList();
     }
+
+	private void loadList()
+	{
+		var man = new ItemsManager<Item, ItemsFilter>(true, true);
+		var filter = new ItemsFilter();
+
+		filter.Enabled = Utility.TristateBool.NotSet;
+		switch (DropEnabledFilter.SelectedValue)
+		{
+			case "1":
+				filter.Enabled = Utility.TristateBool.True;
+				break;
+			case "0":
+				filter.Enabled = Utility.TristateBool.False;
+				break;
+			default:
+				filter.Enabled = Utility.TristateBool.NotSet;
+				break;
+		}
+
+		if (DropItemTypesFilter.SelectedValue != "")
+			filter.ItemType = DropItemTypesFilter.SelectedValue;
+		if (this.ItemId > 0)
+			filter.Id = this.ItemId;
+
+		int secId = -1;
+		int.TryParse(DropSectionsFilter.SelectedValue, out secId);
+
+		int catId = -1;
+		int.TryParse(DropCategoriesFilter.SelectedValue, out catId);
+
+		filter.SectionId = secId;
+		if (base.SectionId > 0)
+			filter.SectionId = base.SectionId;
+
+		filter.CategoryId = catId;
+		if (base.CategoryId > 0)
+			filter.CategoryId = base.CategoryId;
+
+		var list = man.GetByFilter(filter, "");
+		var ds = new PagedDataSource();
+		ds.DataSource = list;
+		ds.AllowPaging = true;
+		ds.PageSize = base.ListPageSize;
+		ds.CurrentPageIndex = base.ListCurrentPage;
+
+		RepPaging.Visible = false;
+		if (ds.PageCount > 1)
+		{
+			RepPaging.Visible = true;
+			ArrayList pages = new ArrayList();
+			for (int i = 0; i <= ds.PageCount - 1; i++)
+			{
+				pages.Add((i + 1).ToString());
+			}
+			RepPaging.DataSource = pages;
+			RepPaging.DataBind();
+		}
+
+		Rep1.DataSource = ds;
+		Rep1.DataBind();
+	}
 
     private void loadDropEnabledFilter()
     {
@@ -820,14 +829,18 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
 
         var catFilter = new CategoriesFilter();
         catFilter.SectionId = sectionId;
-        if (catFilter.SectionId == 0) 
+		catFilter.Id = base.CategoryId;
+        if (catFilter.SectionId == 0)
             catFilter.Id = -1;
-        
+
         var list = new CategoriesManager(true, true).GetByFilter(catFilter, "");
         loadListCategories(DropCategoriesFilter, list, 0, 0, base.ShowItemsCount);
 
         if (base.LastSelectedCategoryId > 0)
             Utility.SetDropByValue(DropCategoriesFilter, base.LastSelectedCategoryId.ToString());
+
+		if (base.CategoryId > 0)
+			Utility.SetDropByValue(DropCategoriesFilter, base.CategoryId.ToString());
     }
 
     private void loadDropCategories(int sectionId)
@@ -836,13 +849,14 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
 
         var catFilter = new CategoriesFilter();
         catFilter.SectionId = sectionId;
-        if (catFilter.SectionId == 0) 
+		catFilter.Id = base.CategoryId;
+        if (catFilter.SectionId == 0)
             catFilter.Id = -1;
         var list = new CategoriesManager().GetByFilter(catFilter, "");
         loadListCategories(DropCategories, list, 0, 0);
     }
 
-    private void loadListCategories(DropDownList drop, 
+    private void loadListCategories(DropDownList drop,
         List<Category> list, int parentId, int level, bool showItemsCount = false)
     {
         var nodes = list.Where(x => x.ParentId == parentId);
@@ -864,7 +878,7 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
                 ifilter.CategoryId = item.Id;
                 int count = iman.GetByFilter(ifilter, "").Count;
                 if (count > 0)
-                    listItem.Text += " ("+ count.ToString() +")";
+                    listItem.Text += " (" + count.ToString() + ")";
             }
             drop.Items.Add(listItem);
 
@@ -929,59 +943,67 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
         }
         catch (Exception e1)
         {
-            LblErr.Text = RenderError(Utility.GetLabel("RECORD_ERR_MSG") + "<br />" + e1.ToString());
+			setError(Utility.GetLabel("RECORD_ERR_MSG") + "<br />" + e1.ToString());
         }
         finally { }
     }
 
-    protected void moveRecord(int recordId, Database.MoveRecordDirection direction)
-    {
-        LblErr.Text = RenderError("");
-        LblOk.Text = RenderSuccess("");
+	private void updateSortedTable()
+	{
+		//<input type="hidden" name="RowId" value='<%# Eval("Id") %>' />
+		string[] rowIds = Request.Form.GetValues("RowId");
+		int ordering = 1;
 
-        try
-        {
-            if (!PgnUserCurrent.IsAuthenticated)
-                throw new Exception("user not authenticated");
+		foreach (string sid in rowIds)
+		{
+			int id = 0;
+			int.TryParse(sid, out id);
+			sortRecord(id, ordering);
+			ordering++;
+		}
+	}
 
-            new ItemsManager<Item, ItemsFilter>(true, true).MoveRecord(recordId, direction);
-            removeFromCache();
-            Grid1.DataBind();
-            MultiView1.ActiveViewIndex = VIEW_GRID;
-        }
-        catch (Exception e1)
-        {
-            LblErr.Text = RenderError(Utility.GetLabel("RECORD_ERR_MSG") + "<br />" + e1.ToString());
-        }
-        finally { }
-    }
-
-    //private void initTree()
-    //{
-    //    Tree1.TargetImagesUpload = 0;
-    //    Tree1.TargetFilesUpload = 0;
-    //    Tree1.SectionId = base.SectionId;
-
-    //    Tree1.ShowSecurity = base.ShowSecurity;
-    //    Tree1.ShowOnlyDefaultCulture = base.ShowOnlyDefaultCulture;
-    //    Tree1.ShowItemsCount = true;
-    //    Tree1.AllowOrdering = false;
-    //    Tree1.AllowEdit = false;
-    //    Tree1.AllowDelete = false;
-    //    Tree1.AllowNew = false;
-    //    Tree1.AllowSelection = true;
-    //}
+	public void sortRecord(int id, int ordering)
+	{
+		var man = new ItemsManager<Item, ItemsFilter>(true, false);
+		var item = man.GetByKey(id);
+		item.Ordering = ordering;
+		man.Update(item);
+	}
 
     private bool checkAddNewFilters()
     {
         bool res = true;
         if (DropSectionsFilter.SelectedValue == "0" || DropSectionsFilter.SelectedValue == "")
         {
-            LblErr.Text = RenderError(base.GetLabel("ChooseSection", "Choose a section before"));
+			setError(base.GetLabel("ChooseSection", "Choose a section before"));
             res = false;
         }
 
         return res;
+    }
+
+    /// function for display insert panel
+    /// <summary>
+    /// </summary>
+    private void showInsertPanel(bool toShow) {
+
+		PigeonCms.Utility.Script.RegisterStartupScript(Upd1, "bodyBlocked", "bodyBlocked("+ toShow.ToString().ToLower() +");");
+
+		if (toShow)
+			PanelInsert.Visible = true;
+		else
+			PanelInsert.Visible = false;
+    }
+
+    private void setError(string content)
+    {
+        LblErrInsert.Text = LblErrSee.Text = RenderError(content);
+    }
+
+    private void setSuccess(string content)
+    {
+        LblOkInsert.Text = LblOkSee.Text = RenderSuccess(content);
     }
 
     /// <summary>
@@ -1004,6 +1026,7 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
         //return ClientScript.GetPostBackEventReference(this, null);
         //__doPostBack('__Page', 'MyCustomArgument')
     }
+
 
     #endregion
 }

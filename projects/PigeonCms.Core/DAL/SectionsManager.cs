@@ -411,6 +411,8 @@ namespace PigeonCms
                 result.Id = (int)myRd["Id"];
             if (!Convert.IsDBNull(myRd["Enabled"]))
                 result.Enabled = (bool)myRd["Enabled"];
+            if (!Convert.IsDBNull(myRd["CssClass"]))
+                result.CssClass = (string)myRd["CssClass"];
             if (!Convert.IsDBNull(myRd["ItemType"]))
                 result.ItemType = (string)myRd["ItemType"];
             if (!Convert.IsDBNull(myRd["ExtId"]))

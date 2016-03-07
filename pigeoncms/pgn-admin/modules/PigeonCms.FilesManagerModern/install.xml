@@ -67,8 +67,8 @@
 				<option value="items-files" label="Items files (/public/files/items/#id)"></option>
 				<option value="categories-images" label="Categories images (/public/gallery/categories/#id)"></option>
 				<option value="categories-files" label="Categories files (/public/files/categories/#id)"></option>
-				<option value="sections-images" label="Categories images (/public/gallery/sections/#id)"></option>
-				<option value="sections-files" label="Categories files (/public/files/sections/#id)"></option>
+				<option value="sections-images" label="Sections images (/public/gallery/sections/#id)"></option>
+				<option value="sections-files" label="Sections files (/public/files/sections/#id)"></option>
 				<option value="temp" label="Temporary files path (/public/temp/#sessionid)"></option>
 			</param>			
 			
