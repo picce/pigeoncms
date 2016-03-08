@@ -204,12 +204,11 @@
 
 								<div class="table-modern--row table-modern--row-title">
 
-									<div class="table-modern__col table-modern__col--small"></div>
-
-									<div class="table-modern__col align-left table-modern__col--large"><%=base.GetLabel("ResourceSetId", "Resource Set / Id")%></div>
-									<div class="table-modern__col align-center"><%=base.GetLabel("TextMode", "Text mode")%></div>
-									<div class="table-modern__col align-left table-modern__col--large"><%=base.GetLabel("Values", "Values")%></div>
-									<div class="table-modern__col table-modern__col--small"></div>
+									<div class="table-modern__col col-md-1"></div>
+									<div class="table-modern__col align-left col-md-3"><%=base.GetLabel("ResourceSetId", "Resource Set / Id")%></div>
+									<div class="table-modern__col align-center col-md-1"><%=base.GetLabel("TextMode", "Text mode")%></div>
+									<div class="table-modern__col align-left col-md-6"><%=base.GetLabel("Values", "Values")%></div>
+									<div class="table-modern__col col-md-1"></div>
 
 									<%-- values columns used in export--%>
 <%--									<div class="table-modern__col align-left"></div>
@@ -226,11 +225,11 @@
 										<div class="table-modern--row">
 
 											<%--#action edit --%>
-											<div class="table-modern__col table-modern__col--small">
+											<div class="table-modern__col col-md-1">
 												<asp:Literal runat="server" ID="LitEdit"></asp:Literal>
 											</div>
 
-											<div class="table-modern__col table-modern__col--large">
+											<div class="table-modern__col col-md-3">
 												<div class="table-modern--description" data-menu="set">
 													<div class="table-modern--description--wrapper">
 														<asp:Literal ID="LitResSetId" runat="server" />
@@ -238,13 +237,13 @@
 												</div>
 											</div>
 
-											<div class="table-modern__col">
+											<div class="table-modern__col col-md-1">
 												<div class="table-modern__col--value" data-menu="mode">
 													<asp:Literal ID="LitTextMode" runat="server" />
 												</div>
 											</div>
 
-											<div class="table-modern__col table-modern__col--large">
+											<div class="table-modern__col col-md-6">
 												<div class="table-modern--description" data-menu="value">
 													<div class="table-modern--description--wrapper">
 														<asp:Image ID="ImgPreview" runat="server" SkinID="ImgPreviewStyle" />
@@ -266,7 +265,7 @@
 											</div>
 											
 											<%--#action delete --%>
-											<div class="table-modern__col table-modern__col--small" runat="server" id="ColDelete">
+											<div class="table-modern__col col-md-1" runat="server" id="ColDelete">
 												<a href="#" class="table-modern--media delete-label js-delete" data-title-mobile="DEL"
 													data-msg-title='<%=base.GetLabel("delete", "delete")%>' 
 													data-msg-subtitle='<%=PigeonCms.Utility.GetLabel("RECORD_DELETE_QUESTION")%>' 
