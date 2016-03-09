@@ -125,7 +125,7 @@ namespace PigeonCms
 
         #region fields
 
-        public string ImagesPath
+        public virtual string ImagesPath
         {
             get { return "~/public/gallery/items/"; }
         }
