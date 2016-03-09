@@ -2526,7 +2526,6 @@ body.blocked {
 }
 .page-wrapper--modern .table-modern .table-modern__col {
   display: inline-block;
-  width: 200px;
   height: 125px;
   font-family: 'ralewayregular';
   font-size: 14px;
@@ -2590,15 +2589,6 @@ body.blocked {
   position: absolute;
   top: 50%;
   left: 0;
-}
-.page-wrapper--modern .table-modern .table-modern__col--large {
-  width: 400px;
-}
-.page-wrapper--modern .table-modern .table-modern__col--square {
-  width: 125px;
-}
-.page-wrapper--modern .table-modern .table-modern__col--small {
-  width: 80px;
 }
 .page-wrapper--modern .table-modern .table-modern__col--paging {
   width: 47px;
