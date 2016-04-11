@@ -73,94 +73,90 @@
 				<%--#list--%>
 				<div class="col-lg-12">
 
-					<div class="panel panel-default">
+					    <div class="table-modern">
+						    <div class="table-modern--wrapper table-modern--mobile table-modern--sortable">
 
-						<div class="table-modern">
-							<div class="table-modern--wrapper table-modern--mobile table-modern--sortable">
+							    <div class="table-modern--row table-modern--row-title">
 
-								<div class="table-modern--row table-modern--row-title">
+								    <div class="table-modern__col col-sm-1"></div>
+								    <div class="table-modern__col col-sm-2">IP / Session</div>
+								    <div class="table-modern__col col-sm-4">ID - User / Module / Url</div>
+								    <div class="table-modern__col col-sm-5">Data</div>
 
-									<div class="table-modern__col table-modern__col--small"></div>
-									<div class="table-modern__col align-left">IP / Session</div>
-									<div class="table-modern__col align-left table-modern__col--large">ID - User / Module / Url</div>
-									<div class="table-modern__col align-left table-modern__col--large">Data</div>
+							    </div>
 
-								</div>
+							    <asp:Repeater runat="server" ID="Rep1" OnItemDataBound="Rep1_ItemDataBound" OnItemCommand="Rep1_ItemCommand">
+								    <ItemTemplate>
 
-								<asp:Repeater runat="server" ID="Rep1" OnItemDataBound="Rep1_ItemDataBound" OnItemCommand="Rep1_ItemCommand">
-									<ItemTemplate>
+									    <div class="table-modern--row">
 
-										<div class="table-modern--row">
+										    <%--#action edit --%>
+										    <div class="table-modern__col col-sm-1">
 
-											<%--#action edit --%>
-											<div class="table-modern__col table-modern__col--small">
+											    <asp:LinkButton runat="server" ID="LnkEdit" CausesValidation="false" CommandName="Select" 
+												    CommandArgument='<%#Eval("Id") %>' class="table-modern--media" ClientIDMode="AutoID" data-title-mobile="EDIT">
+												    <div class="table-modern--media--wrapper">
+													    <div class="table-modern--media--show"></div>
+												    </div>
+											    </asp:LinkButton>
 
-												<asp:LinkButton runat="server" ID="LnkEdit" CausesValidation="false" CommandName="Select" 
-													CommandArgument='<%#Eval("Id") %>' class="table-modern--media" ClientIDMode="AutoID" data-title-mobile="EDIT">
-													<div class="table-modern--media--wrapper">
-														<div class="table-modern--media--show"></div>
-													</div>
-												</asp:LinkButton>
+										    </div>
 
-											</div>
-
-											<div class="table-modern__col">
-												<div class="table-modern--description" data-menu="IP/SESSION">
-													<div class="table-modern--description--wrapper">
-														<span class="table-modern--date">
-															<asp:Literal runat="server" ID="LitDateInserted"></asp:Literal>	
-														</span>
-														<asp:Literal ID="LitItemInfo" runat="server" />
-													</div>
-												</div>
-											</div>
+										    <div class="table-modern__col col-sm-2">
+											    <div class="table-modern--description" data-menu="IP/SESSION">
+												    <div class="table-modern--description--wrapper">
+													    <span class="table-modern--date">
+														    <asp:Literal runat="server" ID="LitDateInserted"></asp:Literal>	
+													    </span>
+													    <asp:Literal ID="LitItemInfo" runat="server" />
+												    </div>
+											    </div>
+										    </div>
 
 
-											<div class="table-modern__col table-modern__col--large">
-												<div class="table-modern--description" data-menu="usr/mod/url">
-													<div class="table-modern--description--wrapper">
-														<span class="table-modern--smallcontent">
-															<asp:Literal runat="server" ID="LitType"></asp:Literal>
-															<strong><asp:Literal ID="LitId" runat="server" Text=""></asp:Literal></strong><br>
-															<asp:Literal ID="LitModule" runat="server" Text=""></asp:Literal><br>
-															<asp:Literal ID="LitUrl" runat="server" Text=""></asp:Literal>
-														</span>
-													</div>
-												</div>
-											</div>
+										    <div class="table-modern__col col-sm-4">
+											    <div class="table-modern--description" data-menu="usr/mod/url">
+												    <div class="table-modern--description--wrapper">
+													    <span class="table-modern--smallcontent">
+														    <asp:Literal runat="server" ID="LitType"></asp:Literal>
+														    <strong><asp:Literal ID="LitId" runat="server" Text=""></asp:Literal></strong><br>
+														    <asp:Literal ID="LitModule" runat="server" Text=""></asp:Literal><br>
+														    <asp:Literal ID="LitUrl" runat="server" Text=""></asp:Literal>
+													    </span>
+												    </div>
+											    </div>
+										    </div>
 
 
-											<div class="table-modern__col table-modern__col--large">
-												<div class="table-modern--description" data-menu="data">
-													<div class="table-modern--description--wrapper">
-														<span class="table-modern--smallcontent">
-															<asp:Literal ID="LitDescription" runat="server" Text=""></asp:Literal>
-														</span>
-													</div>
-												</div>
-											</div>
+										    <div class="table-modern__col col-sm-5">
+											    <div class="table-modern--description" data-menu="data">
+												    <div class="table-modern--description--wrapper">
+													    <span class="table-modern--smallcontent">
+														    <asp:Literal ID="LitDescription" runat="server" Text=""></asp:Literal>
+													    </span>
+												    </div>
+											    </div>
+										    </div>
 
 
-										</div>
-									</ItemTemplate>
-								</asp:Repeater>
+									    </div>
+								    </ItemTemplate>
+							    </asp:Repeater>
 
-								<div class="table-modern--rowpaging ">
-									<asp:Repeater ID="RepPaging" runat="server" OnItemCommand="RepPaging_ItemCommand" OnItemDataBound="RepPaging_ItemDataBound">
-										<ItemTemplate>
-											<div class="table-modern__col col--paging table-modern__col--paging">
-													<asp:LinkButton ID="BtnPage" runat="server" ClientIDMode="AutoID"
-													CommandName="Page" CommandArgument="<%# Container.DataItem %>"><%# Container.DataItem %>
-													</asp:LinkButton>
-											</div>
-										</ItemTemplate>
-									</asp:Repeater>
-								</div>
+							    <div class="table-modern--rowpaging ">
+								    <asp:Repeater ID="RepPaging" runat="server" OnItemCommand="RepPaging_ItemCommand" OnItemDataBound="RepPaging_ItemDataBound">
+									    <ItemTemplate>
+										    <div class="table-modern__col col--paging table-modern__col--paging">
+												    <asp:LinkButton ID="BtnPage" runat="server" ClientIDMode="AutoID"
+												    CommandName="Page" CommandArgument="<%# Container.DataItem %>"><%# Container.DataItem %>
+												    </asp:LinkButton>
+										    </div>
+									    </ItemTemplate>
+								    </asp:Repeater>
+							    </div>
 
-							</div>
-						</div>
-					</div>
-				
+						    </div>
+					    </div>
 				</div>
 
 		</asp:Panel>

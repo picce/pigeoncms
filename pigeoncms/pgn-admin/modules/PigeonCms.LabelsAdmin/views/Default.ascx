@@ -198,7 +198,6 @@
 				<%--#list--%>
 				<div class="col-lg-12">
 
-					<div class="panel panel-default">
 						<div class="table-modern">
 							<div class="table-modern--wrapper table-modern--mobile table-modern--sortable">
 
@@ -296,8 +295,8 @@
 
 							</div>
 						</div>
-					</div>
-				</div>
+				
+                </div>
 		
 		</asp:Panel>
 

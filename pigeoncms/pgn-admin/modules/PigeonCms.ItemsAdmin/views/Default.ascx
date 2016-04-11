@@ -144,8 +144,6 @@
 				<%--#list--%>
 				<div class="col-lg-12">
 
-					<div class="panel panel-default">
-
 						<%--NO MOBILE - not used in itemsAdmin--%>
 						<%--
 						<div class="table-modern">
@@ -399,13 +397,13 @@
 								<div class="table-modern--row table-modern--row-title">
 
 									<a href="javascript:void(0)" class="table-modern-edit"><span></span></a>
-									<div class="table-modern__col table-modern__col--square align-center"><%=base.GetLabel("Enabled", "Enabled") %></div>
-									<div class="table-modern__col align-left"><%=base.GetLabel("Title", "Title") %></div>
-									<div class="table-modern__col align-left"><%=base.GetLabel("Category", "Category") %></div>
-									<div class="table-modern__col align-left"><%=base.GetLabel("Info", "Info") %></div>
-									<div class="table-modern__col align-center"><%=base.GetLabel("Images", "Images") %></div>
-									<div class="table-modern__col align-center"><%=base.GetLabel("Files", "Files") %></div>
-									<div class="table-modern__col align-center"><%=base.GetLabel("Permissions", "Permissions") %></div>
+									<div class="col-sm-1 table-modern__col align-center"><%=base.GetLabel("Enabled", "Enabled") %></div>
+									<div class="col-sm-2 table-modern__col align-left"><%=base.GetLabel("Title", "Title") %></div>
+									<div class="col-sm-2 table-modern__col align-left"><%=base.GetLabel("Category", "Category") %></div>
+									<div class="col-sm-2 table-modern__col align-left"><%=base.GetLabel("Info", "Info") %></div>
+									<div class="col-sm-2 table-modern__col align-center"><%=base.GetLabel("Images", "Images") %></div>
+									<div class="col-sm-2 table-modern__col align-center"><%=base.GetLabel("Files", "Files") %></div>
+									<div class="col-sm-1 table-modern__col align-center"><%=base.GetLabel("Permissions", "Permissions") %></div>
 									<div class="table-modern--hover">
 										<a href="javascript:void(0)" class="table-modern-edit--close">
 											<span></span>
@@ -422,13 +420,13 @@
 											<a href="javascript:void(0)" class="table-modern-edit"><span></span></a>
 											<input type="hidden" name="RowId" value='<%# Eval("Id") %>' />
 
-											<div class="table-modern__col table-modern__col--square">
+											<div class="col-sm-1 table-modern__col">
 												<div class="table-modern--checkbox" data-menu="enab">
 													<asp:Literal runat="server" ID="LitEnabled"></asp:Literal>
 												</div>
 											</div>
 
-											<div class="table-modern__col">
+											<div class="col-sm-2 table-modern__col">
 												<div class="table-modern--description" data-menu="tit">
 													<div class="table-modern--description--wrapper">
 														<strong><%# Eval("Alias") %></strong><br />
@@ -437,7 +435,7 @@
 												</div>
 											</div>
 
-											<div class="table-modern__col">
+											<div class="col-sm-2 table-modern__col">
 												<div class="table-modern--description" data-menu="cat">
 													<div class="table-modern--description--wrapper">
 														<asp:Literal ID="LitCategoryTitle" runat="server" /><br />
@@ -445,7 +443,7 @@
 												</div>
 											</div>
 
-											<div class="table-modern__col">
+											<div class="col-sm-2 table-modern__col">
 												<div class="table-modern--description" data-menu="info">
 													<div class="table-modern--description--wrapper">
 														<span class="table-modern--date">
@@ -456,7 +454,7 @@
 												</div>
 											</div>
 
-											<div class="table-modern__col align-center">
+											<div class="col-sm-2 table-modern__col align-center">
 												<div class="table-modern--media" data-menu="img">
 													<div class="table-modern--media--wrapper">
 														<div class="table-modern--media--images"></div>
@@ -467,7 +465,7 @@
 												</div>
 											</div>
 
-											<div class="table-modern__col align-center">
+											<div class="col-sm-2 table-modern__col align-center">
 												<div class="table-modern--media" data-menu="file">
 													<div class="table-modern--media--wrapper">
 														<div class="table-modern--media--files"></div>
@@ -478,7 +476,7 @@
 												</div>
 											</div>
 											
-											<div class="table-modern__col">
+											<div class="col-sm-1 table-modern__col">
 												<div class="table-modern__col--value" data-menu="sec">
 													<asp:Literal ID="LitAccessTypeDesc" runat="server" Text=""></asp:Literal>
 
@@ -569,8 +567,6 @@
 
 							</div>
 						</div>
-
-					</div>
 
 				</div>
 

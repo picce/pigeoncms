@@ -1284,10 +1284,10 @@ body.blocked {
 }
 @media (max-width: 768px) {
   .btn.btn-modern.btn-modern--wizard {
-    width: 133.33333333px;
+    width: 133.33333333333334px;
   }
   .btn.btn-modern.btn-modern--wizard.btn-modern--wizard-cancel {
-    width: 133.33333333px;
+    width: 133.33333333333334px;
   }
 }
 .btn.btn-primary {
@@ -2550,7 +2550,6 @@ body.blocked {
   height: 100%;
 }
 .page-wrapper--modern .table-modern .table-modern__col .table-modern--description .table-modern--description--wrapper {
-  padding: 0 2%;
   white-space: initial;
   text-align: left;
   font-size: 14px;
@@ -3120,6 +3119,7 @@ body.blocked {
     height: auto;
     border-bottom: 0;
     margin-bottom: 20px;
+    float: none;
   }
   .page-wrapper--modern .table-modern .table-modern--wrapper.table-modern--mobile .table-modern--row .table-modern__col .table-modern--checkbox,
   .page-wrapper--modern .table-modern .table-modern--wrapper.table-modern--mobile .table-modern--row .table-modern__col .table-modern--description,
