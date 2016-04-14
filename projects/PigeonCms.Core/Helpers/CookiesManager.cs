@@ -1,4 +1,14 @@
-﻿using System;
+﻿/***************************************************
+PigeonCms - Open source Content Management System 
+https://github.com/picce/pigeoncms
+Copyright © 2016 Nicola Ridolfi - picce@yahoo.it
+Licensed under the terms of "GNU General Public License v3"
+For the full license text see license.txt or
+visit "http://www.gnu.org/licenses/gpl.html"
+***************************************************/
+
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -31,14 +41,28 @@ namespace PigeonCms.Core.Helpers
             get { return cookieName; }
         }
 
-        public CookiesManager(string cookieName) : this(cookieName, false)
-        {
-        }
+		private int minutesToExpire = 0;
+		public int MinutesToExpire
+		{
+			[DebuggerStepThrough()]
+			get { return minutesToExpire; }
+		}
 
-        public CookiesManager(string cookieName, bool secure)
+		//public CookiesManager(string cookieName) : this(cookieName, false)
+		//{
+		//}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="cookieName">name of the cookie</param>
+		/// <param name="secure">crypt or not the cookie content</param>
+		/// <param name="minutesToExpire">cookie live in minutes. Default set to 7 days</param>
+        public CookiesManager(string cookieName, bool secure = false, int minutesToExpire = 60 * 24 * 7)
         {
             this.cookieName = cookieName;
             this.secure = secure;
+			this.minutesToExpire = minutesToExpire;
 
             if (ConfigurationManager.AppSettings["EncryptKey"] != null)
                 encryptionKey = ConfigurationManager.AppSettings["EncryptKey"];
@@ -81,10 +105,11 @@ namespace PigeonCms.Core.Helpers
             if (value != null)
             {
                 var cook = new HttpCookie(this.CookieName);
-                //cook.Expires = 
+				cook.Expires = DateTime.Now.AddMinutes(this.MinutesToExpire);
+
                 try
                 {
-                    cook[key] = encrypt(value);
+                    cook.Values[key] = encrypt(value);
                     HttpContext.Current.Response.Cookies.Add(cook);
                     Tracer.Log("CookiesManager.SetValue: key=" + this.CookieName + "_" + key + "; Time=" + DateTime.Now, TracerItemType.Info);
                 }
@@ -98,15 +123,6 @@ namespace PigeonCms.Core.Helpers
             }
         }
 
-        /// <summary>
-        /// TODO
-        /// remove cache entry with current key (and keyprefix)
-        /// </summary>
-        /// <param name="key">cookie entry key</param>
-        //public void Remove(string key)
-        //{
-        //    this.remove(key, false);
-        //}
 
         /// <summary>
         /// remove current cookie
@@ -118,24 +134,6 @@ namespace PigeonCms.Core.Helpers
             Tracer.Log("CookiesManager.Clear: cookie=" + this.CookieName + "; Time=" + DateTime.Now, TracerItemType.Info);
         }
 
-        /// <summary>
-        /// todo
-        /// </summary>
-        /// <param name="key"></param>
-        /// <param name="isFullKey"></param>
-        private void remove(string key, bool isFullKey)
-        {
-            throw new NotImplementedException();
-
-            string fullKey = "";
-            if (!isFullKey)
-                fullKey = this.CookieName + "_" + key;
-            else
-                fullKey = key;
-            //HttpContext.Current.Response.Cookies.Remove(
-            HttpContext.Current.Session.Remove(fullKey);
-            Tracer.Log("CookiesManager.Remove: key=" + fullKey, TracerItemType.Info);
-        }
 
         private string getValue(string key, bool writeLog)
         {
@@ -145,13 +143,13 @@ namespace PigeonCms.Core.Helpers
             try
             {
                 if (cook != null)
-                    res = decrypt(cook[key], this.Secure);
+                    res = decrypt(cook.Values[key], this.Secure);
             }
-            catch (FormatException)
-            {
-                //try to read plain version
-                res = decrypt(cook[key], false);
-            }
+			//catch (FormatException)
+			//{
+			//	//try to read plain version --> 20160414 removed for security reason
+			//	res = decrypt(cook[key], false); 
+			//}
             catch (Exception ex)
             {
                 Tracer.Log("CookiesManager.GetValue: key=" + this.CookieName + "_" + key + "; err=" + ex.ToString(),
