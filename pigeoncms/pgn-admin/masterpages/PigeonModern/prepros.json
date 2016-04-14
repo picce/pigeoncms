@@ -45,132 +45,6 @@
         "sourcemaps": false
       }
     },
-    "cf143820": {
-      "id": "cf143820",
-      "pid": "77ccb8be",
-      "name": "dataTables.bootstrap.js",
-      "input": "js\\plugins\\dataTables\\dataTables.bootstrap.js",
-      "customOutput": false,
-      "type": "Js",
-      "config": {
-        "autoCompile": true,
-        "uglify": true,
-        "mangle": true,
-        "sourcemaps": false
-      }
-    },
-    "33a4b4e0": {
-      "id": "33a4b4e0",
-      "pid": "77ccb8be",
-      "name": "jquery.dataTables.js",
-      "input": "js\\plugins\\dataTables\\jquery.dataTables.js",
-      "customOutput": false,
-      "type": "Js",
-      "config": {
-        "autoCompile": true,
-        "uglify": true,
-        "mangle": true,
-        "sourcemaps": false
-      }
-    },
-    "c8792ab8": {
-      "id": "c8792ab8",
-      "pid": "77ccb8be",
-      "name": "flot-data.js",
-      "input": "js\\plugins\\flot\\flot-data.js",
-      "customOutput": false,
-      "type": "Js",
-      "config": {
-        "autoCompile": true,
-        "uglify": true,
-        "mangle": true,
-        "sourcemaps": false
-      }
-    },
-    "f6f66956": {
-      "id": "f6f66956",
-      "pid": "77ccb8be",
-      "name": "jquery.flot.js",
-      "input": "js\\plugins\\flot\\jquery.flot.js",
-      "customOutput": false,
-      "type": "Js",
-      "config": {
-        "autoCompile": true,
-        "uglify": true,
-        "mangle": true,
-        "sourcemaps": false
-      }
-    },
-    "7029b938": {
-      "id": "7029b938",
-      "pid": "77ccb8be",
-      "name": "jquery.flot.pie.js",
-      "input": "js\\plugins\\flot\\jquery.flot.pie.js",
-      "customOutput": false,
-      "type": "Js",
-      "config": {
-        "autoCompile": true,
-        "uglify": true,
-        "mangle": true,
-        "sourcemaps": false
-      }
-    },
-    "15e00b55": {
-      "id": "15e00b55",
-      "pid": "77ccb8be",
-      "name": "jquery.flot.resize.js",
-      "input": "js\\plugins\\flot\\jquery.flot.resize.js",
-      "customOutput": false,
-      "type": "Js",
-      "config": {
-        "autoCompile": true,
-        "uglify": true,
-        "mangle": true,
-        "sourcemaps": false
-      }
-    },
-    "9ceae84f": {
-      "id": "9ceae84f",
-      "pid": "77ccb8be",
-      "name": "metisMenu.js",
-      "input": "js\\plugins\\metisMenu\\metisMenu.js",
-      "customOutput": false,
-      "type": "Js",
-      "config": {
-        "autoCompile": true,
-        "uglify": true,
-        "mangle": true,
-        "sourcemaps": false
-      }
-    },
-    "6e290d8f": {
-      "id": "6e290d8f",
-      "pid": "77ccb8be",
-      "name": "morris-data.js",
-      "input": "js\\plugins\\morris\\morris-data.js",
-      "customOutput": false,
-      "type": "Js",
-      "config": {
-        "autoCompile": true,
-        "uglify": true,
-        "mangle": true,
-        "sourcemaps": false
-      }
-    },
-    "86726adf": {
-      "id": "86726adf",
-      "pid": "77ccb8be",
-      "name": "morris.js",
-      "input": "js\\plugins\\morris\\morris.js",
-      "customOutput": false,
-      "type": "Js",
-      "config": {
-        "autoCompile": true,
-        "uglify": true,
-        "mangle": true,
-        "sourcemaps": false
-      }
-    },
     "ee4e7b64": {
       "id": "ee4e7b64",
       "pid": "77ccb8be",
@@ -190,23 +64,6 @@
         "autoprefixer": false
       }
     },
-    "8da580d7": {
-      "id": "8da580d7",
-      "pid": "77ccb8be",
-      "name": "main.less",
-      "input": "less\\main.less",
-      "customOutput": false,
-      "type": "Less",
-      "config": {
-        "autoCompile": true,
-        "compress": false,
-        "sourcemaps": false,
-        "cleancss": false,
-        "strictMath": false,
-        "strictUnits": false,
-        "autoprefixer": false
-      }
-    },
     "cf67d3c4": {
       "id": "cf67d3c4",
       "pid": "77ccb8be",
@@ -221,11 +78,11 @@
         "sourcemaps": false
       }
     },
-    "788ff050": {
-      "id": "788ff050",
+    "cf143820": {
+      "id": "cf143820",
       "pid": "77ccb8be",
-      "name": "jquery.easing.pack.js",
-      "input": "js\\plugins\\fancybox\\jquery.easing.pack.js",
+      "name": "dataTables.bootstrap.js",
+      "input": "js\\plugins\\dataTables\\dataTables.bootstrap.js",
       "customOutput": false,
       "type": "Js",
       "config": {
@@ -263,11 +120,154 @@
         "sourcemaps": false
       }
     },
+    "33a4b4e0": {
+      "id": "33a4b4e0",
+      "pid": "77ccb8be",
+      "name": "jquery.dataTables.js",
+      "input": "js\\plugins\\dataTables\\jquery.dataTables.js",
+      "customOutput": false,
+      "type": "Js",
+      "config": {
+        "autoCompile": true,
+        "uglify": true,
+        "mangle": true,
+        "sourcemaps": false
+      }
+    },
+    "788ff050": {
+      "id": "788ff050",
+      "pid": "77ccb8be",
+      "name": "jquery.easing.pack.js",
+      "input": "js\\plugins\\fancybox\\jquery.easing.pack.js",
+      "customOutput": false,
+      "type": "Js",
+      "config": {
+        "autoCompile": true,
+        "uglify": true,
+        "mangle": true,
+        "sourcemaps": false
+      }
+    },
+    "8da580d7": {
+      "id": "8da580d7",
+      "pid": "77ccb8be",
+      "name": "main.less",
+      "input": "less\\main.less",
+      "customOutput": false,
+      "type": "Less",
+      "config": {
+        "autoCompile": true,
+        "compress": false,
+        "sourcemaps": false,
+        "cleancss": false,
+        "strictMath": false,
+        "strictUnits": false,
+        "autoprefixer": false
+      }
+    },
     "4a4336fd": {
       "id": "4a4336fd",
       "pid": "77ccb8be",
       "name": "jquery-ui.js",
       "input": "js\\plugins\\jquery-ui\\jquery-ui.js",
+      "customOutput": false,
+      "type": "Js",
+      "config": {
+        "autoCompile": true,
+        "uglify": true,
+        "mangle": true,
+        "sourcemaps": false
+      }
+    },
+    "86726adf": {
+      "id": "86726adf",
+      "pid": "77ccb8be",
+      "name": "morris.js",
+      "input": "js\\plugins\\morris\\morris.js",
+      "customOutput": false,
+      "type": "Js",
+      "config": {
+        "autoCompile": true,
+        "uglify": true,
+        "mangle": true,
+        "sourcemaps": false
+      }
+    },
+    "6e290d8f": {
+      "id": "6e290d8f",
+      "pid": "77ccb8be",
+      "name": "morris-data.js",
+      "input": "js\\plugins\\morris\\morris-data.js",
+      "customOutput": false,
+      "type": "Js",
+      "config": {
+        "autoCompile": true,
+        "uglify": true,
+        "mangle": true,
+        "sourcemaps": false
+      }
+    },
+    "9ceae84f": {
+      "id": "9ceae84f",
+      "pid": "77ccb8be",
+      "name": "metisMenu.js",
+      "input": "js\\plugins\\metisMenu\\metisMenu.js",
+      "customOutput": false,
+      "type": "Js",
+      "config": {
+        "autoCompile": true,
+        "uglify": true,
+        "mangle": true,
+        "sourcemaps": false
+      }
+    },
+    "f6f66956": {
+      "id": "f6f66956",
+      "pid": "77ccb8be",
+      "name": "jquery.flot.js",
+      "input": "js\\plugins\\flot\\jquery.flot.js",
+      "customOutput": false,
+      "type": "Js",
+      "config": {
+        "autoCompile": true,
+        "uglify": true,
+        "mangle": true,
+        "sourcemaps": false
+      }
+    },
+    "15e00b55": {
+      "id": "15e00b55",
+      "pid": "77ccb8be",
+      "name": "jquery.flot.resize.js",
+      "input": "js\\plugins\\flot\\jquery.flot.resize.js",
+      "customOutput": false,
+      "type": "Js",
+      "config": {
+        "autoCompile": true,
+        "uglify": true,
+        "mangle": true,
+        "sourcemaps": false
+      }
+    },
+    "c8792ab8": {
+      "id": "c8792ab8",
+      "pid": "77ccb8be",
+      "name": "flot-data.js",
+      "input": "js\\plugins\\flot\\flot-data.js",
+      "customOutput": false,
+      "type": "Js",
+      "config": {
+        "autoCompile": true,
+        "uglify": true,
+        "mangle": true,
+        "sourcemaps": false
+      }
+    },
+    "7029b938": {
+      "id": "7029b938",
+      "pid": "77ccb8be",
+      "name": "jquery.flot.pie.js",
+      "input": "js\\plugins\\flot\\jquery.flot.pie.js",
       "customOutput": false,
       "type": "Js",
       "config": {
