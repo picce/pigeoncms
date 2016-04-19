@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using PigeonCms.Core.Helpers;
+using System.Web;
 
 
 namespace PigeonCms.UT.Core
@@ -9,6 +10,7 @@ namespace PigeonCms.UT.Core
     [TestClass()]
     public class CookiesManagerTest
     {
+		//http://caioproiete.net/en/fake-mock-httpcontext-without-any-special-mocking-framework/
 
 
         private TestContext testContextInstance;
