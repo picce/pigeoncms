@@ -332,9 +332,9 @@ public partial class Controls_FilesManagerModern_default : PigeonCms.BaseModuleC
             int count = files.Count;
 
 			if (fileUploadProvider.NumOfFilesAllowed > 0 && count >= fileUploadProvider.NumOfFilesAllowed)
-                FileUpload1.Visible = false;
+				BoxContainer.Visible = false;
             else
-                FileUpload1.Visible = true;
+				BoxContainer.Visible = true;
         }
     }
 
@@ -356,10 +356,14 @@ public partial class Controls_FilesManagerModern_default : PigeonCms.BaseModuleC
 
 		if (fileUploadProvider.MaxFileSizeKB > 0)
 			LitRestrictions.Text += GetLabel("MaxSize", "Max file size") + " "
-				+ Utility.GetFileHumanLength(fileUploadProvider.MaxFileSizeKB * 1024);
+				+ Utility.GetFileHumanLength(fileUploadProvider.MaxFileSizeKB * 1024) + "<br>";
 
 		if (fileUploadProvider.MaxFileSizeKB < 0)
-			LitRestrictions.Text += GetLabel("DiskQuotaExceeded", "Disk quota exceeded");
+			LitRestrictions.Text += GetLabel("DiskQuotaExceeded", "Disk quota exceeded") + "<br>";
+
+		if (fileUploadProvider.NumOfFilesAllowed > 0)
+			LitRestrictions.Text += GetLabel("NumOfFilesAllowed", "Max files allowed") 
+				+ " " + fileUploadProvider.NumOfFilesAllowed.ToString() + "<br>";
 
 		if (string.IsNullOrEmpty(LitRestrictions.Text))
 			LitRestrictions.Text = GetLabel("all", "all");

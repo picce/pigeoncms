@@ -14,8 +14,8 @@ using PigeonCms;
 
 public partial class Controls_Default : PigeonCms.MemberEditorControl
 {
-    private const int View_Grid_Index = 0;
-    private const int View_Insert_Index = 1;
+	const int PANEL_SEE_IDX = 0;
+	const int PANEL_INS_IDX = 1;
 
 
     protected void Page_Load(object sender, EventArgs e)
@@ -25,124 +25,145 @@ public partial class Controls_Default : PigeonCms.MemberEditorControl
 
         if (!Page.IsPostBack)
         {
-            loadGrid();
+            loadList();
         }
     }
 
     protected void TxtUserNameFilter_TextChanged(object sender, EventArgs e)
     {
-        try { loadGrid(); }
+		try { loadList(); }
         catch (Exception ex)
         {
-            LblErr.Text = RenderError(ex.Message);
+            setError(ex.Message);
         }
     }
 
-    protected void Grid1_RowCommand(object sender, GridViewCommandEventArgs e)
-    {
-        if (e.CommandName == "Select")
-        {
-            editRow(e.CommandArgument.ToString());
-        }
-        if (e.CommandName == "Password")
-        {
-            editPwd(e.CommandArgument.ToString());
-        }
-        if (e.CommandName == "Roles")
-        {
-            editRoles(e.CommandArgument.ToString());
-        }
-        if (e.CommandName == "DeleteRow")
-        {
-            deleteRow(e.CommandArgument.ToString());
-        }
-    }
+	protected void RepPaging_ItemDataBound(object sender, RepeaterItemEventArgs e)
+	{
+		if (e.Item.ItemType == ListItemType.Header)
+		{
+			return;
+		}
 
-    protected void Grid1_RowCreated(object sender, GridViewRowEventArgs e)
-    {
-        if (e.Row.RowType == DataControlRowType.Header)
-            Utility.AddGlyph(Grid1, e.Row);
-    }
+		int page = int.Parse(e.Item.DataItem.ToString());
+		if (page - 1 == base.ListCurrentPage)
+		{
+			var BtnPage = (LinkButton)e.Item.FindControl("BtnPage");
+			BtnPage.CssClass = "selected";
+		}
+	}
 
-    protected void Grid1_RowDataBound(object sender, GridViewRowEventArgs e)
-    {
-        if (e.Row.RowType == DataControlRowType.DataRow)
-        {
-            var currItem = PgnUserCurrent.GetUser(((MembershipUser)e.Row.DataItem).UserName);
+	protected void RepPaging_ItemCommand(object source, RepeaterCommandEventArgs e)
+	{
+		if (e.CommandName == "Page")
+		{
+			base.ListCurrentPage = int.Parse(e.CommandArgument.ToString()) - 1;
+			loadList();
+		}
+	}
 
-            CheckBox ChkEnabled = (CheckBox)e.Row.FindControl("ChkEnabled");
-            CheckBox ChkApproved = (CheckBox)e.Row.FindControl("ChkApproved");
-            CheckBox ChkIsCore = (CheckBox)e.Row.FindControl("ChkIsCore");
-            LinkButton LnkUserName = (LinkButton)e.Row.FindControl("LnkUserName");
-            Literal LitEmail = (Literal)e.Row.FindControl("LitEmail");
-            Literal LitName = (Literal)e.Row.FindControl("LitName");
-            Literal LitRolesForUser = (Literal)e.Row.FindControl("LitRolesForUser");
+	protected void Rep1_ItemCommand(object source, RepeaterCommandEventArgs e)
+	{
+		if (e.CommandName == "Select")
+		{
+			editRow(e.CommandArgument.ToString());
+		}
+		if (e.CommandName == "Password")
+		{
+			editPwd(e.CommandArgument.ToString());
+		}
+		if (e.CommandName == "Roles")
+		{
+			editRoles(e.CommandArgument.ToString());
+		}
+		if (e.CommandName == "DeleteRow")
+		{
+			deleteRow(e.CommandArgument.ToString());
+		}
+	}
 
-            LnkUserName.Text = "<i class='fa fa-pgn_edit fa-fw'></i>";
-            LnkUserName.Text += Utility.Html.GetTextPreview(currItem.UserName, 30, "");
+	protected void Rep1_ItemDataBound(object sender, RepeaterItemEventArgs e)
+	{
+		if (e.Item.ItemType == ListItemType.Header)
+		{
+			return;
+		}
 
-            ChkEnabled.Checked = currItem.Enabled;
-            ChkApproved.Checked = currItem.IsApproved;
-            ChkIsCore.Checked = currItem.IsCore;
-            LitEmail.Text = "<a href='mailto:" + currItem.Email + "'>" 
-                + Utility.Html.GetTextPreview(currItem.Email, 30, "") 
-                + "</a>";
+		var currItem = PgnUserCurrent.GetUser(((MembershipUser)e.Item.DataItem).UserName);
 
-            LitName.Text = "";
-            if (!string.IsNullOrEmpty(currItem.CompanyName))
-                LitName.Text += currItem.CompanyName + "<br />";
-            if (!string.IsNullOrEmpty(currItem.FirstName+currItem.SecondName))
-                LitName.Text += currItem.FirstName + " " + currItem.SecondName + "<br />";
+		//var LitEdit = (Literal)e.Item.FindControl("LitEdit");
+		//LitEdit.Text = ""
+		//+ "<a href='javascript:void(0)' onclick=\"editRow('edit__" + item.ResourceSet + "|" + item.ResourceId + "');\" class='table-modern--media' data-title-mobile='edit'>"
+		//+ "  <div class='table-modern--media--wrapper'>"
+		//+ "    <div class='table-modern--media--modify'></div>"
+		//+ "  </div>"
+		//+ "</a>";
 
-            string rolesForUser = "";
-            foreach (string item in Roles.GetRolesForUser(currItem.UserName))
-            {
-                rolesForUser += item + ", ";
-            }
-            if (rolesForUser.Length > 0)
-            {
-                rolesForUser = rolesForUser.Remove(rolesForUser.Length - 2);
-            }
-            LitRolesForUser.Text = rolesForUser;
 
-            Literal LitAccessLevel = (Literal)e.Row.FindControl("LitAccessLevel");
-            LitAccessLevel.Text = currItem.AccessCode;
-            if (currItem.AccessLevel > 0)
-            {
-                LitAccessLevel.Text += " " + currItem.AccessLevel.ToString();
-            }
+		var LitName = (Literal)e.Item.FindControl("LitName");
+		LitName.Text = "";
+		if (!string.IsNullOrEmpty(currItem.CompanyName))
+			LitName.Text += currItem.CompanyName + "<br />";
+		if (!string.IsNullOrEmpty(currItem.FirstName + currItem.SecondName))
+			LitName.Text += currItem.FirstName + " " + currItem.SecondName + "<br />";
+		if (string.IsNullOrEmpty(LitName.Text))
+			LitName.Text = "<br>" + LitName.Text;
 
-            //Delete            
-            if (currItem.IsCore)
-            {
-                var img1 = e.Row.FindControl("LnkDel");
-                img1.Visible = false;
-            }
-            else
-            {
-                var img1 = e.Row.FindControl("LnkDel");
-                img1.Visible = true;
-            }
-        }
-    }
 
-    protected void Grid1_PageIndexChanging(object sender, GridViewPageEventArgs e)
-    {
-        Grid1.PageIndex = e.NewPageIndex;
-        loadGrid();
-    }
+		var LitEmail = (Literal)e.Item.FindControl("LitEmail");
+		LitEmail.Text = "<a href='mailto:" + currItem.Email + "'>"
+			+ Utility.Html.GetTextPreview(currItem.Email, 30, "")
+			+ "</a>";
 
-    protected void Grid1_Sorting(object sender, GridViewSortEventArgs e)
-    {
-        //DataTable dt = GridView1.DataSource as DataTable;
-        //if (dt != null)
-        //{
-        //    DataView dv = new DataView(dt);
-        //    dv.Sort = String.Format("{0} {1}", e.SortExpression, ConvertSort(e.SortDirection));
-        //    GridView1.DataSource = dv;
-        //    GridView1.DataBind();
-        //}
-    }
+
+		var LitPermissions = (Literal)e.Item.FindControl("LitPermissions");
+		string rolesForUser = "";
+		foreach (string item in Roles.GetRolesForUser(currItem.UserName))
+		{
+			rolesForUser += item + ", ";
+		}
+		if (rolesForUser.Length > 0)
+		{
+			rolesForUser = rolesForUser.Remove(rolesForUser.Length - 2);
+		}
+		LitPermissions.Text = rolesForUser + "<br>";
+		LitPermissions.Text += currItem.AccessCode;
+		if (currItem.AccessLevel > 0)
+		{
+			LitPermissions.Text += " " + currItem.AccessLevel.ToString();
+		}
+
+		{
+			var LitEnabled = (Literal)e.Item.FindControl("LitEnabled");
+			string chkClass = "";
+			if (currItem.Enabled)
+				chkClass = "checked";
+			LitEnabled.Text = "<span class='table-modern--checkbox--square " + chkClass + "'></span>";
+		}
+
+		{
+			var LitApproved = (Literal)e.Item.FindControl("LitApproved");
+			string chkClass = "";
+			if (currItem.IsApproved)
+				chkClass = "checked";
+			LitApproved.Text = "<span class='table-modern--checkbox--square " + chkClass + "'></span>";
+		}
+
+		{
+			var LitIsCore = (Literal)e.Item.FindControl("LitIsCore");
+			string chkClass = "";
+			if (currItem.IsCore)
+				chkClass = "checked";
+			LitIsCore.Text = "<span class='table-modern--checkbox--square " + chkClass + "'></span>";
+		}
+
+		if (currItem.IsCore)
+		{
+			//var ColDelete = (HtmlAnchor)e.Item.FindControl("ColDelete");
+			//ColDelete.Visible = false;
+		}
+
+	}
 
     protected void BtnNew_Click(object sender, EventArgs e)
     {
@@ -151,41 +172,42 @@ public partial class Controls_Default : PigeonCms.MemberEditorControl
 
     protected void BtnSave_Click(object sender, EventArgs e)
     {
-        LblOk.Text = "";
-        LblErr.Text = "";
+		setSuccess("");
+		setError("");
 
         initMemberEditor();
         if (MemberEditor1.CheckForm())
         {
             if (MemberEditor1.SaveForm())
             {
-                loadGrid();
-                MultiView1.ActiveViewIndex = 0;
+                loadList();
+				showInsertPanel(false);
             }
             else
-                LblErr.Text = RenderError(MemberEditor1.LastMessage);
+                setError(MemberEditor1.LastMessage);
         }
         else
-            LblErr.Text = RenderError(MemberEditor1.LastMessage);
+            setError(MemberEditor1.LastMessage);
     }
 
     protected void BtnCancel_Click(object sender, EventArgs e)
     {
-        LblErr.Text = "";
-        LblOk.Text = "";
-        MultiView1.ActiveViewIndex = View_Grid_Index;
+		setError();
+		setSuccess();
+		showInsertPanel(false);
     }
 
-    protected void MultiView1_ActiveViewChanged(object sender, EventArgs e)
-    { }
 
     #region private methods
 
 
     private void editRow(string userName)
     {
-        LblOk.Text = "";
-        LblErr.Text = "";
+		setError();
+		setSuccess();
+
+		if (!PgnUserCurrent.IsAuthenticated)
+			throw new Exception("user not authenticated");
 
         initMemberEditor();
         MemberEditor1.ClearForm();
@@ -195,22 +217,20 @@ public partial class Controls_Default : PigeonCms.MemberEditorControl
         {
             LitTitle.Text = base.GetLabel("LblNewUser", "New user");
             MemberEditor1.EditorMode = Controls_MemberEditorControl.MemberEditorMode.InsertMode;
-            MemberEditor1.Obj2form();
-            MultiView1.ActiveViewIndex = View_Insert_Index;
         }
         else
         {
             LitTitle.Text = base.GetLabel("LblUpdateUser", "Update user");
             MemberEditor1.EditorMode = Controls_MemberEditorControl.MemberEditorMode.UpdateMode;
-            MemberEditor1.Obj2form();
-            MultiView1.ActiveViewIndex = View_Insert_Index;
         }
+		MemberEditor1.Obj2form();
+		showInsertPanel(true);
     }
 
     private void editPwd(string userName)
     {
-        LblOk.Text = "";
-        LblErr.Text = "";
+		setSuccess();
+		setError();
 
         initMemberEditor();
         MemberEditor1.ClearForm();
@@ -221,14 +241,14 @@ public partial class Controls_Default : PigeonCms.MemberEditorControl
             LitTitle.Text = base.GetLabel("LblChangePassword", "Change password");
             MemberEditor1.EditorMode = Controls_MemberEditorControl.MemberEditorMode.ChangePasswordMode;
             MemberEditor1.Obj2form();
-            MultiView1.ActiveViewIndex = View_Insert_Index;
+			showInsertPanel(true);
         }
     }
 
     private void editRoles(string userName)
     {
-        LblOk.Text = "";
-        LblErr.Text = "";
+		setSuccess();
+		setError();
 
         initMemberEditor();
         MemberEditor1.ClearForm();
@@ -239,14 +259,14 @@ public partial class Controls_Default : PigeonCms.MemberEditorControl
             LitTitle.Text = base.GetLabel("LblChangeRoles", "Change roles");
             MemberEditor1.EditorMode = Controls_MemberEditorControl.MemberEditorMode.ChangeRolesMode;
             MemberEditor1.Obj2form();
-            MultiView1.ActiveViewIndex = View_Insert_Index;
+			showInsertPanel(true);
         }
     }
 
     private void deleteRow(string userName)
     {
-        LblOk.Text = "";
-        LblErr.Text = "";
+		setSuccess();
+		setError();
 
         try
         {
@@ -259,34 +279,42 @@ public partial class Controls_Default : PigeonCms.MemberEditorControl
         }
         catch (Exception e)
         {
-            LblErr.Text = RenderError(e.Message);
+            setError(e.Message);
         }
-        loadGrid();
+        loadList();
     }
 
 
-    private void loadGrid()
+    private void loadList()
     {
+		MembershipUserCollection list;
+
         if (!string.IsNullOrEmpty(TxtUserNameFilter.Text))
-            Grid1.DataSource = Membership.FindUsersByName(TxtUserNameFilter.Text);
+            list = Membership.FindUsersByName(TxtUserNameFilter.Text);
         else
-            Grid1.DataSource = Membership.GetAllUsers();
-        Grid1.DataBind();
-    }
+            list = Membership.GetAllUsers();
 
-    private string convertSort(SortDirection sortDirection)
-    {
-        string m_SortDirection = String.Empty;
-        switch (sortDirection)
-        {
-            case SortDirection.Ascending:
-                m_SortDirection = "ASC";
-                break;
-            case SortDirection.Descending:
-                m_SortDirection = "DESC";
-                break;
-        }
-        return m_SortDirection;
+		var ds = new PagedDataSource();
+		ds.DataSource = list;
+		ds.AllowPaging = true;
+		ds.PageSize = base.ListPageSize;
+		ds.CurrentPageIndex = base.ListCurrentPage;
+
+		RepPaging.Visible = false;
+		if (ds.PageCount > 1)
+		{
+			RepPaging.Visible = true;
+			ArrayList pages = new ArrayList();
+			for (int i = 0; i <= ds.PageCount - 1; i++)
+			{
+				pages.Add((i + 1).ToString());
+			}
+			RepPaging.DataSource = pages;
+			RepPaging.DataBind();
+		}
+
+		Rep1.DataSource = ds;
+		Rep1.DataBind();
     }
 
     private void initMemberEditor()
@@ -299,6 +327,30 @@ public partial class Controls_Default : PigeonCms.MemberEditorControl
         me.BaseModule.CssClass = base.BaseModule.CssClass;
         me.BaseModule.UseLog = base.BaseModule.UseLog;
     }
+
+	/// function for display insert panel
+	/// <summary>
+	/// </summary>
+	private void showInsertPanel(bool toShow)
+	{
+
+		PigeonCms.Utility.Script.RegisterStartupScript(Upd1, "bodyBlocked", "bodyBlocked(" + toShow.ToString().ToLower() + ");");
+
+		if (toShow)
+			PanelInsert.Visible = true;
+		else
+			PanelInsert.Visible = false;
+	}
+
+	private void setError(string content = "")
+	{
+		LblErrInsert.Text = LblErrSee.Text = RenderError(content);
+	}
+
+	private void setSuccess(string content = "")
+	{
+		LblOkInsert.Text = LblOkSee.Text = RenderSuccess(content);
+	}
 
     #endregion
 }
