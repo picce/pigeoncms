@@ -86,11 +86,10 @@
 
 												<div class="table-modern--row table-modern--row-title">
 
-													<div class="table-modern__col table-modern__col--small align-left"></div>
-													<div class="table-modern__col align-left"><%=base.GetLabel("Key", "Key")%></div>
-													<div class="table-modern__col align-left"><%=base.GetLabel("Title", "Title")%></div>
-													<div class="table-modern__col align-left table-modern__col--large"><%=base.GetLabel("Value", "Value")%></div>
-													<div class="table-modern__col align-left table-modern__col--small"></div>
+													<div class="table-modern__col col-sm-1 align-left"></div>
+													<div class="table-modern__col align-left col-sm-5"><%=base.GetLabel("Key", "Key")%></div>
+													<div class="table-modern__col align-left col-sm-5"><%=base.GetLabel("Value", "Value")%></div>
+													<div class="table-modern__col align-left col-sm-1"></div>
 
 												</div>
 
@@ -100,7 +99,7 @@
 														<div class="table-modern--row">
 
 															<%--#action edit --%>
-															<div class="table-modern__col table-modern__col--small">
+															<div class="table-modern__col col-sm-1">
 																<asp:LinkButton runat="server" ID="LnkEdit" CausesValidation="false" CommandName="Select" class="table-modern--media" ClientIDMode="AutoID" data-title-mobile="EDIT">
 																	<div class="table-modern--media--wrapper">
 																		<div class="table-modern--media--modify"></div>
@@ -109,23 +108,18 @@
 																</asp:LinkButton>
 															</div>
 
-															<div class="table-modern__col">
+															<div class="table-modern__col col-sm-5">
 																<div class="table-modern--description" data-menu="key">
 																	<div class="table-modern--description--wrapper">
-																		<strong><%#Eval("KeyName") %></strong>
+																		<strong><%#Eval("KeyName") %></strong><br />
+																		<span class="table-modern--smallcontent">
+																			<%#Eval("KeyTitle") %>
+																		</span>
 																	</div>
 																</div>
 															</div>
 
-															<div class="table-modern__col">
-																<div class="table-modern--description" data-menu="title">
-																	<div class="table-modern--description--wrapper">
-																		<%#Eval("KeyTitle") %>
-																	</div>
-																</div>
-															</div>
-
-															<div class="table-modern__col table-modern__col--large">
+															<div class="table-modern__col col-sm-5">
 																<div class="table-modern--description" data-menu="value">
 																	<div class="table-modern--description--wrapper">
 																		<asp:Literal ID="LblKeyValue" runat="server" /><br />
@@ -134,7 +128,7 @@
 															</div>
 											
 															<%--#action delete --%>
-															<div class="table-modern__col table-modern__col--small" runat="server" id="ColDelete">
+															<div class="table-modern__col col-sm-1" runat="server" id="ColDelete">
 																<a href="#" class="table-modern--media delete-label js-delete" data-title-mobile="DEL"
 																	data-msg-title='<%=base.GetLabel("delete", "delete")%>' 
 																	data-msg-subtitle='<%=PigeonCms.Utility.GetLabel("RECORD_DELETE_QUESTION")%>' 

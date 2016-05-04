@@ -238,7 +238,7 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
         }
         if (this.BaseModule.DirectEditMode)
         {
-            DropNew.Visible = false;
+			DivDropNewContainer.Visible = false;
             BtnNew.Visible = false;
             //BtnCancel.OnClientClick = "closePopup();";
 
@@ -911,13 +911,13 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
         if (!string.IsNullOrEmpty(this.ItemType))
         {
             BtnNew.Visible = true;
-            DropNew.Visible = false;
+			DivDropNewContainer.Visible = false;
             DropItemTypesFilter.Visible = false;
         }
         else
         {
             BtnNew.Visible = false;
-            DropNew.Visible = true;
+			DivDropNewContainer.Visible = true;
             DropItemTypesFilter.Visible = true;
         }
     }

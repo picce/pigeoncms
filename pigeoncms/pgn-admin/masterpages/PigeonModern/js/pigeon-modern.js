@@ -8,7 +8,7 @@ $(function() {
         menuMobile = $('.navbar-header > .navbar-toggle'),
         searchIco = $('.search-modern'),
         textboxSearch = $('.textbox--search'),
-        sidebarModernVoice = $('.sidebar-modern .menulist:first-child > li'),
+        sidebarModernVoice = $('.sidebar-modern .menulist:first-child > li:has(ul)'),
         sidebarModernVoiceLink = sidebarModernVoice.find('> a'),
         btnEditFollow = $('.btn-group-follow'),
         tableModern =  $('.table-modern--wrapper'),
@@ -40,6 +40,8 @@ $(function() {
 
     //rotation icon menu admin on click
     if (sidebarModernVoice.length > 0) {
+
+    	sidebarModernVoiceLink.addClass('has-childs');
 
         sidebarModernVoiceLink.on('click', function(e) {
 

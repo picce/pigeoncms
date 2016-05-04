@@ -1284,10 +1284,10 @@ body.blocked {
 }
 @media (max-width: 768px) {
   .btn.btn-modern.btn-modern--wizard {
-    width: 133.33333333333334px;
+    width: 133.33333333px;
   }
   .btn.btn-modern.btn-modern--wizard.btn-modern--wizard-cancel {
-    width: 133.33333333333334px;
+    width: 133.33333333px;
   }
 }
 .btn.btn-primary {
@@ -1297,9 +1297,7 @@ body.blocked {
   padding: 20px 0;
 }
 .checkbox-container input[type='checkbox'] {
-  position: absolute;
-  top: -9999px;
-  left: -9999px;
+  display: none;
 }
 .checkbox-container input[type='checkbox']:checked + label::before {
   content: '\e900';
@@ -1674,31 +1672,7 @@ body.blocked {
 .sidebar-modern .nav li {
   border-bottom: 1px solid #302a44;
 }
-.sidebar-modern .nav li a {
-  -webkit-transition: all 0.3s ease 0s;
-  -moz-transition: all 0.3s ease 0s;
-  -ms-transition: all 0.3s ease 0s;
-  -o-transition: all 0.3s ease 0s;
-  transition: all 0.3s ease 0s;
-  color: rgba(255, 255, 255, 0.5);
-  font-family: 'ralewayregular';
-  text-transform: uppercase;
-  font-size: 10px;
-  letter-spacing: 0.2em;
-  padding: 23px 15px;
-  position: relative;
-}
-.sidebar-modern .nav li a.active {
-  background-color: #2f2942;
-  color: #ffffff;
-}
-.sidebar-modern .nav li a.active::after {
-  color: #ffffff;
-}
-.sidebar-modern .nav li a:focus {
-  background-color: transparent;
-}
-.sidebar-modern .nav li a::after {
+.sidebar-modern .nav li a.has-childs::after {
   -webkit-transition: all 0.3s ease 0s;
   -moz-transition: all 0.3s ease 0s;
   -ms-transition: all 0.3s ease 0s;
@@ -1733,6 +1707,30 @@ body.blocked {
   right: 15px;
   color: rgba(255, 255, 255, 0.5);
   font-size: 5px;
+}
+.sidebar-modern .nav li a {
+  -webkit-transition: all 0.3s ease 0s;
+  -moz-transition: all 0.3s ease 0s;
+  -ms-transition: all 0.3s ease 0s;
+  -o-transition: all 0.3s ease 0s;
+  transition: all 0.3s ease 0s;
+  color: rgba(255, 255, 255, 0.5);
+  font-family: 'ralewayregular';
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  padding: 23px 15px;
+  position: relative;
+}
+.sidebar-modern .nav li a.active {
+  background-color: #2f2942;
+  color: #ffffff;
+}
+.sidebar-modern .nav li a.active::after {
+  color: #ffffff;
+}
+.sidebar-modern .nav li a:focus {
+  background-color: transparent;
 }
 .sidebar-modern .nav li a.rotate-ico::after {
   transform: rotate(0deg);

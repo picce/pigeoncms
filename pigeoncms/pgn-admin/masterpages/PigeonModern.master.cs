@@ -208,18 +208,6 @@ public partial class Masterpages_PigeonModern : BaseMasterPage
         return res;
     }
 
-    protected string RenderMenu()
-    {
-        string res = "";
-        var page = (BasePage)this.Page;
-        string currAlias = page.MenuEntry.Alias.ToLower();
-
-        res += renderRow("hospitality", "Hospitality", currAlias);
-        res += renderRow("wines", "Grapes & Wines", currAlias);
-
-        return res;
-    }
-
     private string renderRow(string alias, string title, string currAlias)
     {
         string ROW = @"

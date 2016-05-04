@@ -25,12 +25,7 @@ public partial class Modules_PigeonModernAdminMenu : PigeonCms.TopMenuControl
         style.ItemSelectedClass = "active";
 
         Template = new MenuTemplate(style);
-        //Template.ItemHeader = "<li class='[[ItemCssClass]]'>"
-        //    + "<a href='[[ItemHref]]' onclick='[[ItemOnClick]]' class='{{ItemCssClass}} [[ItemCssClass]]' "
-        //    + "style='{{ItemStyle}} [[ItemStyle]]'>"
-        //    + "<i class='[[ItemCssClass]]'></i>"
-        //    + "[[ItemContent]]"
-        //    + "</a>";
+
         Template.ItemHeader = "<li class='[[ItemSelectedClass]]'>"
             + "<a href='[[ItemHref]]' class='[[ItemSelectedClass]]' onclick='[[ItemOnClick]]' "
             + "style='{{ItemStyle}} [[ItemStyle]]'>"
@@ -39,7 +34,6 @@ public partial class Modules_PigeonModernAdminMenu : PigeonCms.TopMenuControl
             + "</a>";
         Template.ReBuild(style);
 
-        //base.Page_Load(sender, e);
         LblContent = base.GetContent();
     }
 }

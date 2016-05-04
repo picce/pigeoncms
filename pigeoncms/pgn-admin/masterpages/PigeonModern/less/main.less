@@ -1363,9 +1363,8 @@ body {
 
     //CSS TRICK
     input[type='checkbox'] {
-        position: absolute;
-        top: -9999px;
-        left: -9999px;
+
+		display: none;
 
         &:checked + label {
 
@@ -1734,10 +1733,26 @@ body {
         border-color: @purple-menu-border;
     }
 
+
     .nav {
 
         li {
             border-bottom: 1px solid @purple-menu-border;
+
+            a.has-childs::after{
+
+                .transition(all, @default-timing, ease);
+                .translate(0, -50%);
+                .rotate(-90deg);
+                .icon;
+                .icon-arrow2;
+                position: absolute;
+                top: 50%;
+                right: 15px;
+                color: @white-opacity-50;
+                font-size: 5px;
+                
+            }
 
             a {
                 .transition(all, @default-timing, ease);
@@ -1756,24 +1771,12 @@ body {
                     &::after {
                         color: @white;
                     }
-                }
+                }                
 
                 &:focus {
                     background-color: transparent;
                 }
 
-                &::after {
-                    .transition(all, @default-timing, ease);
-                    .translate(0, -50%);
-                    .rotate(-90deg);
-                    .icon;
-                    .icon-arrow2;
-                    position: absolute;
-                    top: 50%;
-                    right: 15px;
-                    color: @white-opacity-50;
-                    font-size: 5px;
-                }
 
                 &.rotate-ico {
                     &::after {

@@ -83,7 +83,7 @@
 							</div>
 							<div class="pull-right">
 								<div class="btn-group adminToolbar">
-									<div class="form-select-wrapper select-right">
+									<div class="form-select-wrapper select-right" runat="server" id="DivDropNewContainer">
 										<asp:DropDownList runat="server" ID="DropNew" AutoPostBack="true" CssClass="form-control"
 											OnSelectedIndexChanged="DropNew_SelectedIndexChanged">
 										</asp:DropDownList>

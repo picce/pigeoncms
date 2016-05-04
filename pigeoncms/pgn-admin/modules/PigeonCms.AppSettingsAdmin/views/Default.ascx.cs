@@ -313,6 +313,7 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         TxtKeyTitle.Text = "";
         //TxtKeyValue.Text = "";
         TxtKeyInfo.Text = "";
+		LitInsertTitle.Text = "";
     }
 
     private void form2obj(AppSetting obj)
@@ -331,8 +332,12 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         Utility.SetDropByValue(DropKeySet, obj.KeySet);
         TxtKeyName.Text = obj.KeyName;
         TxtKeyTitle.Text = obj.KeyTitle;
-        //TxtKeyValue.Text = obj.KeyValue;
         TxtKeyInfo.Text = obj.KeyInfo;
+
+		if (string.IsNullOrEmpty(obj.KeyName))
+			LitInsertTitle.Text = "<new item>";
+		else
+			LitInsertTitle.Text = obj.KeySet + " > " + obj.KeyName;
 
         PanelValue.Controls.Clear();
         Control control2Add = FormBuilder.RenderControl(
