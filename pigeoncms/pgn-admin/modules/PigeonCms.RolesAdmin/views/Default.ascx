@@ -1,7 +1,8 @@
 <%@ Control Language="C#" AutoEventWireup="true" CodeFile="Default.ascx.cs" Inherits="Controls_Default" %>
+<%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="cc1" %>
 
 
-<asp:ScriptManager ID="ScriptManager1" runat="server"></asp:ScriptManager>
+<cc1:ToolkitScriptManager ID="ScriptManager1" runat="server" EnablePageMethods="true"></cc1:ToolkitScriptManager>
 <asp:UpdateProgress ID="UpdateProgress1" runat="server" DisplayAfter="1" AssociatedUpdatePanelID="Upd1">
     <ProgressTemplate>
         <div class="loading"><%=PigeonCms.Utility.GetLabel("LblLoading", "loading") %></div>
@@ -60,159 +61,236 @@
     }
 </script>
     
+
 <asp:UpdatePanel ID="Upd1" runat="server">
 <ContentTemplate>
     
-    <div class="row">
-        <div class="col-lg-12">
-            <asp:Label ID="LblErr" runat="server" Text=""></asp:Label>
-            <asp:Label ID="LblOk" runat="server" Text=""></asp:Label>
-        </div>
-    </div>
+	<%--pigeonmodern--%>
+	<div class="row">
 
-    <div class="row">
-    <asp:MultiView ID="MultiView1" runat="server" ActiveViewIndex="0" OnActiveViewChanged="MultiView1_ActiveViewChanged">
-    
-        <asp:View ID="ViewSee" runat="server">
+		<asp:Panel runat="server" ID="PanelSee">
 
-            <div class="col-lg-12">
-                <div class="panel panel-default">
-                    <div class="panel-body"> 
-                        <div class="pull-right">
-                            <div class="btn-group adminToolbar">
-                                <asp:Button ID="BtnNew" runat="server" Text="<%$ Resources:PublicLabels, CmdNew %>" 
-                                    CssClass="btn btn-primary btn-xs" OnClick="BtnNew_Click" />
-                            </div>
-                        </div> 
-                    </div>
+				<%--#toolbar--%>
+				<div class="col-lg-12">
+					<div class="panel panel-default panel-filter panel-filer--new clearfix">
+						<div class="panel-body">
+							<div>
+								<asp:Label ID="LblErrSee" runat="server" Text=""></asp:Label>
+								<asp:Label ID="LblOkSee" runat="server" Text=""></asp:Label>
+							</div>
+
+							<div class="pull-right">
+								<div class="btn-group adminToolbar">
+
+									<asp:Button ID="BtnNew" runat="server" Text="<%$ Resources:PublicLabels, CmdNew %>" 
+										CssClass="btn btn-primary clearfix" OnClick="BtnNew_Click" />
+
+								</div>
+							</div>
+
+						</div>
+					</div>
+				</div>
+
+				<%--#list--%>
+				<div class="col-lg-12">
+
+						<div class="table-modern">
+							<div class="table-modern--wrapper table-modern--mobile table-modern--sortable">
+
+								<div class="table-modern--row table-modern--row-title">
+
+									<div class="table-modern__col col-md-1"></div><%--edit--%>
+									<div class="table-modern__col col-md-3 align-left"><%=base.GetLabel("Role", "Role")%></div>
+									<div class="table-modern__col col-md-6 align-left"><%=base.GetLabel("Users", "Users")%></div>
+									<div class="table-modern__col align-right col-md-1"><%=base.GetLabel("UsersCount", "# Users")%></div>
+									<div class="table-modern__col col-md-1"></div><%--del--%>
+
+								</div>
+
+								<asp:Repeater runat="server" ID="Rep1" OnItemDataBound="Rep1_ItemDataBound" OnItemCommand="Rep1_ItemCommand">
+									<ItemTemplate>
+
+										<div class="table-modern--row">
+
+											<%--#action edit --%>
+
+											<div class="table-modern__col col-md-1">
+												<asp:LinkButton runat="server" ID="LnkEdit" CausesValidation="false" CommandName="Select" CommandArgument='<%#Eval("Role") %>' class="table-modern--media" ClientIDMode="AutoID" data-title-mobile="EDIT">
+													<div class="table-modern--media--wrapper">
+														<div class="table-modern--media--modify"></div>
+													</div>
+												</asp:LinkButton>
+											</div>
+
+											<div class="table-modern__col align-left col-md-3">
+
+												<div class="table-modern--description" data-menu="role">
+													<div class="table-modern--description--wrapper">
+														<%#Eval("Role")%>
+													</div>
+												</div>
+
+											</div>
+
+											<div class="table-modern__col col-md-6">
+												<div class="table-modern--description" data-menu="users">
+													<div class="table-modern--description--wrapper">
+														<span class="table-modern--smallcontent">
+															<asp:Literal ID="LitUsersInRole" runat="server" />
+														</span>
+													</div>
+												</div>
+											</div>
+
+
+											<div class="col-sm-1 table-modern__col align-right">
+												<div class="table-modern--checkbox" data-menu="count">
+													<asp:Literal runat="server" ID="LitNumUsersInRole"></asp:Literal>
+												</div>
+											</div>
+											
+											<%--#action delete --%>
+											<div class="table-modern__col col-md-1">
+												<a href="#" class="table-modern--media delete-label js-delete" data-title-mobile="DEL"
+													data-msg-title='<%=base.GetLabel("delete", "delete")%>' 
+													data-msg-subtitle='<%=PigeonCms.Utility.GetLabel("RECORD_DELETE_QUESTION")%>' 
+													data-msg-cancel='<%=base.GetLabel("cancel", "cancel")%>' 
+													data-msg-confirm='<%=base.GetLabel("confirm", "confirm")%>'>
+													<div class="table-modern--media--wrapper">
+														<div class="table-modern--media--delete"></div>
+													</div>
+												</a>
+												<asp:Button ID="LnkDel" CommandName="DeleteRow" CommandArgument='<%#Eval("Role")%>' runat="server" style="display:none;"  />
+											</div>
+
+										</div>
+									</ItemTemplate>
+								</asp:Repeater>
+
+								<div class="table-modern--rowpaging ">
+									<asp:Repeater ID="RepPaging" runat="server" OnItemCommand="RepPaging_ItemCommand" OnItemDataBound="RepPaging_ItemDataBound">
+										<ItemTemplate>
+											<div class="table-modern__col col--paging table-modern__col--paging">
+													<asp:LinkButton ID="BtnPage" runat="server" ClientIDMode="AutoID"
+													CommandName="Page" CommandArgument="<%# Container.DataItem %>"><%# Container.DataItem %>
+													</asp:LinkButton>
+											</div>
+										</ItemTemplate>
+									</asp:Repeater>
+								</div>
+
+							</div>
+						</div>
+				
                 </div>
-            </div>
+		
+		</asp:Panel>
 
-            <div class="col-lg-12">
+		<asp:Panel runat="server" ID="PanelInsert" Visible="false">
 
-                <div class="panel panel-default">
-                    <div class="table-responsive">
+			<div class="panel panel-default panel-modern--insert">
 
-                        <asp:GridView ID="Grid1" runat="server" Width="100%" AllowPaging="True" AllowSorting="false" AutoGenerateColumns="False"
-                            DataKeyNames="Role" OnRowCommand="Grid1_RowCommand" OnRowCreated="Grid1_RowCreated" 
-                            OnPageIndexChanging="Grid1_PageIndexChanging" OnRowDataBound="Grid1_RowDataBound">
-                            <Columns>
+					<div class="panel-modern--scrollable" onscroll="onScrollEditBtns()">
 
-                                <asp:TemplateField HeaderText="Role" SortExpression="UserName">
-                                    <ItemTemplate>
-                                        <asp:LinkButton ID="LnkRole" runat="server" CausesValidation="false" CommandName="Select" CommandArgument='<%#Eval("Role") %>'>
-                                        </asp:LinkButton>
-                                    </ItemTemplate>
-                                </asp:TemplateField>
-                    
-                                <asp:TemplateField HeaderText="Users">
-                                    <ItemTemplate>
-                                        <asp:Literal ID="LitUsersInRole" runat="server"></asp:Literal>
-                                    </ItemTemplate>
-                                </asp:TemplateField>
-                    
-                                <asp:TemplateField ItemStyle-Width="10" ItemStyle-HorizontalAlign="Right" HeaderText="#Users">
-                                    <ItemTemplate>
-                                        <asp:Literal ID="LitNumUsersInRole" runat="server"></asp:Literal>
-                                    </ItemTemplate>
-                                </asp:TemplateField>
-                    
-                                <asp:TemplateField ItemStyle-HorizontalAlign="Right" HeaderStyle-Width="10">
-                                    <ItemTemplate>
-                                        <asp:LinkButton ID="LnkDel" runat="server" CommandName="DeleteRow" 
-                                            CommandArgument='<%#Eval("Role") %>' OnClientClick="return confirm(deleteQuestion);">
-                                            <i class='fa fa-pgn_delete fa-fw'></i>
-                                        </asp:LinkButton>
-                                    </ItemTemplate>
-                                </asp:TemplateField>
-                            </Columns>
-                        </asp:GridView>
+						<div class="panel-heading">
+							<span><%=base.GetLabel("LblDetails", "Details")%></span>
+							<span class="title-modern-insert"><asp:Literal runat="server" ID="LitTitle"></asp:Literal></span>
+							<div class="btn-group clearfix">
+								<div class="btn-group-follow clearfix">
+									<asp:Button ID="BtnCancel" runat="server" Text="<%$ Resources:PublicLabels, CmdCancel %>" CssClass="btn btn-default btn-xs btn-modern btn-modern--cancel" CausesValidation="false" OnClick="BtnCancel_Click" />
+									<asp:Button ID="BtnSave" runat="server" Text="<%$ Resources:PublicLabels, CmdSave %>" CssClass="btn btn-primary btn-xs btn-modern" OnClick="BtnSave_Click" OnClientClick="MyObject.UpdateEditorFormValue();" />
+									<div class="btn-group-alert">
+										<asp:Label ID="LblErrInsert" runat="server" Text=""></asp:Label>
+										<asp:Label ID="LblOkInsert" runat="server" Text=""></asp:Label>
+									</div>
+								</div>
+							</div>
+						</div>
 
-                    </div>
-                </div>
+						<div class="panel-body">
 
-        </asp:View>
-   
+							<div class="form-group col-md-12">
 
-        <asp:View ID="ViewInsert" runat="server">
-        
-            <div class="panel panel-default">
-            
-                <div class="panel-heading">
-                    <%=base.GetLabel("LblNewRole", "New role") %>
-                    <div class="pull-right">
-                        <div class="btn-group">
-                            <asp:Button ID="BtnInsSave" runat="server" Text="<%$ Resources:PublicLabels, CmdSave %>" CssClass="btn btn-primary btn-xs" OnClick="BtnSave_Click" />
-                            <asp:Button ID="BtnInsCancel" runat="server" Text="<%$ Resources:PublicLabels, CmdCancel %>" CssClass="btn btn-default btn-xs" CausesValidation="false" OnClick="BtnCancel_Click" />
-                        </div>
-                    </div>
-                </div>
-        
-                <div class="panel-body">
-                    <div class="form-group col-sm-12">
-                        <%=PigeonCms.Utility.GetLabel("LblRolename", "Rolename", TxtRolename)%>
-                        <asp:TextBox ID="TxtRolename" MaxLength="255" runat="server" CssClass="form-control"></asp:TextBox>
-                    </div>
-                </div>
+								<%=base.GetLabel("LblRoleName", "Rolename", TxtRolename)%>                        
+								<asp:TextBox ID="TxtRolename" MaxLength="255" runat="server" CssClass="form-control"></asp:TextBox>
 
-            </div>
+							</div>
 
-        </asp:View>
-        
-        <asp:View ID="ViewUsers" runat="server">
-        
-            <div class="panel panel-default">
 
-                <div class="panel-heading">
-                    <%=base.GetLabel("LblUsersInRole", "Users in role") %>
-                    <div class="pull-right">
-                        <div class="btn-group">
-                            <asp:Button ID="Button1" runat="server" Text="<%$ Resources:PublicLabels, CmdSave %>" CssClass="btn btn-primary btn-xs" OnClick="BtnSave_Click" />
-                            <asp:Button ID="Button2" runat="server" Text="<%$ Resources:PublicLabels, CmdCancel %>" CssClass="btn btn-default btn-xs" CausesValidation="false" OnClick="BtnCancel_Click" />
-                        </div>
-                    </div>
-                </div>
-        
-                <div class="panel-body">
+						</div>
 
-                    <table class="table table-striped">
-                    <tr>
-                        <td colspan="3">
-                            <%=PigeonCms.Utility.GetLabel("LblRolename", "Ruolo", null)%>
-                            <asp:Literal ID="LitRolename" runat="server"></asp:Literal>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <%=PigeonCms.Utility.GetLabel("LblUsers", "Users", null)%><br />
-                            <asp:ListBox ID="ListUsersNotInRole" SelectionMode="Multiple" Rows="18" 
-                                CssClass="form-group form-control" runat="server">
-                            </asp:ListBox>
-                        </td>
-                        <td style="vertical-align:middle;" align="center">
-                            <input type="button" id="BtnAddUser" onclick="addUser();" value=">>>" class="btn btn-default btn-md" />
-                            <br /><br />
-                            <input type="button" id="BtnRemoveUser" onclick="removeUser();" value="<<<" class="btn btn-default btn-md" />
-                        </td>
-                        <td>
-                            <%=PigeonCms.Utility.GetLabel("LblUsersInRole", "Users in role", null)%><br />
-                            <asp:ListBox ID="ListUsersInRole" SelectionMode="Multiple" Rows="18" 
-                                CssClass="form-group form-control" runat="server">
-                            </asp:ListBox>
-                            <asp:HiddenField ID="HiddenUsersInRole" runat="server" />
-                        </td>                    
-                    </tr>
-                    </table>
-                
-                    </fieldset>
-                </div>
+					</div>
 
-            </div>
+			</div>
 
-        </asp:View>
-        
-    </asp:MultiView>
-    </div>
+		</asp:Panel>
+
+		<asp:Panel runat="server" ID="PanelUsers" Visible="false">
+
+			<div class="panel panel-default panel-modern--insert">
+
+					<div class="panel-modern--scrollable" onscroll="onScrollEditBtns()">
+
+						<div class="panel-heading">
+							<span>
+								<%=base.GetLabel("LblUsersInRole", "Users in role") %>
+							</span>
+							<span class="title-modern-insert"><asp:Literal runat="server" ID="Literal1"></asp:Literal></span>
+							<div class="btn-group clearfix">
+								<div class="btn-group-follow clearfix">
+									<asp:Button ID="Button3" runat="server" Text="<%$ Resources:PublicLabels, CmdCancel %>" CssClass="btn btn-default btn-xs btn-modern btn-modern--cancel" CausesValidation="false" OnClick="BtnCancel_Click" />
+									<asp:Button ID="Button4" runat="server" Text="<%$ Resources:PublicLabels, CmdSave %>" CssClass="btn btn-primary btn-xs btn-modern" OnClick="BtnSave_Click" />
+									<div class="btn-group-alert">
+										<asp:Label ID="LblErrUser" runat="server" Text=""></asp:Label>
+										<asp:Label ID="LblOkUser" runat="server" Text=""></asp:Label>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="panel-body">
+
+							<div class="form-group col-md-12">
+								<%=base.GetLabel("LblRoleName", "Rolename", TxtRolenameUser)%>                        
+								<asp:TextBox ID="TxtRolenameUser" MaxLength="255" runat="server" Enabled="false" CssClass="form-control"></asp:TextBox>
+							</div>
+
+							<div class="form-group col-md-6 align-center">
+
+								<label><%=base.GetLabel("LblUsers", "Users")%></label>
+
+								<asp:ListBox ID="ListUsersNotInRole" SelectionMode="Multiple" Height="250" Rows="18" 
+									CssClass="form-control" runat="server">
+								</asp:ListBox>
+								<br />
+								<br />
+								<input type="button" id="BtnAddUser" onclick="addUser();" value=">>>" class="btn btn-primary btn-xs btn-modern" />
+							</div>
+
+							<div class="form-group col-md-6 align-center">
+
+								<label><%=base.GetLabel("LblUsersInRole", "Users in roles")%></label>
+
+								<asp:ListBox ID="ListUsersInRole" SelectionMode="Multiple" Height="250" Rows="18" 
+									CssClass="form-group form-control" runat="server">
+								</asp:ListBox>
+								<asp:HiddenField ID="HiddenUsersInRole" runat="server" />
+
+								<br />
+								<br />
+								<input type="button" id="BtnRemoveUser" onclick="removeUser();" value="<<<" class="btn btn-primary btn-xs btn-modern" />
+							</div>
+
+						</div>
+
+					</div>
+
+			</div>
+
+		</asp:Panel>
+
+	</div>
 
 </ContentTemplate>
 </asp:UpdatePanel>

@@ -14,9 +14,24 @@ using PigeonCms;
 
 public partial class Controls_Default : PigeonCms.BaseModuleControl
 {
-    private const int View_Grid_Index = 0;
-    private const int View_Insert_Index = 1;
-    private const int View_Users_Index = 2;
+	const int PANEL_SEE_IDX = 0;
+	const int PANEL_INS_IDX = 1;
+	const int PANEL_USERS_IDX = 2;
+
+	/// <summary>
+	/// pkey, current role
+	/// </summary>
+	protected int CurrentPanelIdx
+	{
+		get
+		{
+			int res = 0;
+			if (ViewState["CurrentPanelIdx"] != null)
+				res = (int)ViewState["CurrentPanelIdx"];
+			return res;
+		}
+		set { ViewState["CurrentPanelIdx"] = value; }
+	}
 
     /// <summary>
     /// pkey, current role
@@ -44,62 +59,77 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
 
     protected void Page_Load(object sender, EventArgs e)
     {
+		if (!Roles.IsUserInRole("admin"))
+			throw new HttpException(404, "Page not found");
+
         if (!Page.IsPostBack)
         {
-            loadGrid();
+			loadList();
         }
     }
 
-    protected void Grid1_RowCommand(object sender, GridViewCommandEventArgs e)
+	protected void RepPaging_ItemDataBound(object sender, RepeaterItemEventArgs e)
+	{
+		if (e.Item.ItemType == ListItemType.Header)
+		{
+			return;
+		}
+
+		int page = int.Parse(e.Item.DataItem.ToString());
+		if (page - 1 == base.ListCurrentPage)
+		{
+			var BtnPage = (LinkButton)e.Item.FindControl("BtnPage");
+			BtnPage.CssClass = "selected";
+		}
+	}
+
+	protected void RepPaging_ItemCommand(object source, RepeaterCommandEventArgs e)
+	{
+		if (e.CommandName == "Page")
+		{
+			base.ListCurrentPage = int.Parse(e.CommandArgument.ToString()) - 1;
+			loadList();
+		}
+	}
+
+
+	protected void Rep1_ItemCommand(object source, RepeaterCommandEventArgs e)
+	{
+		if (e.CommandName == "Select")
+		{
+			editRow(e.CommandArgument.ToString());
+		}
+		if (e.CommandName == "DeleteRow")
+		{
+			deleteRow(e.CommandArgument.ToString());
+		}
+	}
+
+	protected void Rep1_ItemDataBound(object sender, RepeaterItemEventArgs e)
     {
-        if (e.CommandName == "Select")
+		if (e.Item.ItemType == ListItemType.Header)
+		{
+			return;
+		}
+
+        var currItem = (RoleName)e.Item.DataItem;
+
+		var LnkRole = (LinkButton)e.Item.FindControl("LnkRole");
+		var LitNumUsersInRole = (Literal)e.Item.FindControl("LitNumUsersInRole");
+		var LitUsersInRole = (Literal)e.Item.FindControl("LitUsersInRole");
+
+        LitNumUsersInRole.Text = Roles.GetUsersInRole(currItem.Role).Length.ToString();
+
+        string usersInRole = "";
+        foreach (string item in Roles.GetUsersInRole(currItem.Role))
         {
-            editRow(e.CommandArgument.ToString());
+            usersInRole += item + ", ";
         }
-        if (e.CommandName == "DeleteRow")
+        if (usersInRole.Length > 0)
         {
-            deleteRow(e.CommandArgument.ToString());
+            usersInRole = usersInRole.Remove(usersInRole.Length - 2);
         }
-    }
-
-    protected void Grid1_RowCreated(object sender, GridViewRowEventArgs e)
-    {
-        if (e.Row.RowType == DataControlRowType.Header)
-            Utility.AddGlyph(Grid1, e.Row);
-    }
-
-    protected void Grid1_RowDataBound(object sender, GridViewRowEventArgs e)
-    {
-        if (e.Row.RowType == DataControlRowType.DataRow)
-        {
-            RoleName currItem = (RoleName)e.Row.DataItem;
-
-            LinkButton LnkRole = (LinkButton)e.Row.FindControl("LnkRole");
-            Literal LitNumUsersInRole = (Literal)e.Row.FindControl("LitNumUsersInRole");
-            Literal LitUsersInRole = (Literal)e.Row.FindControl("LitUsersInRole");
-
-            LnkRole.Text = "<i class='fa fa-pgn_edit fa-fw'></i>";
-            LnkRole.Text += Utility.Html.GetTextPreview(currItem.Role, 30, "");
-
-            LitNumUsersInRole.Text = Roles.GetUsersInRole(currItem.Role).Length.ToString();
-
-            string usersInRole = "";
-            foreach (string item in Roles.GetUsersInRole(currItem.Role))
-            {
-                usersInRole += item + ", ";
-            }
-            if (usersInRole.Length > 0)
-            {
-                usersInRole = usersInRole.Remove(usersInRole.Length - 2);
-            }
-            LitUsersInRole.Text = Utility.Html.GetTextPreview(usersInRole, 500, "");
-        }
-    }
-
-    protected void Grid1_PageIndexChanging(object sender, GridViewPageEventArgs e)
-    {
-        Grid1.PageIndex = e.NewPageIndex;
-        loadGrid();
+        LitUsersInRole.Text = Utility.Html.GetTextPreview(usersInRole, 500, "");
     }
 
     protected void BtnNew_Click(object sender, EventArgs e)
@@ -111,52 +141,47 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
     {
         if (checkForm())
         {
-            if (saveForm())
-                MultiView1.ActiveViewIndex = View_Grid_Index;
+			if (saveForm())
+				showPanel(PANEL_SEE_IDX);
         }
     }
 
     protected void BtnCancel_Click(object sender, EventArgs e)
     {
-        LblErr.Text = "";
-        LblOk.Text = "";
-        MultiView1.ActiveViewIndex = View_Grid_Index;
+		setError();
+		setSuccess();
+		showPanel(PANEL_SEE_IDX);
     }
 
-    protected void MultiView1_ActiveViewChanged(object sender, EventArgs e)
-    { }
 
     #region private methods
 
     private bool checkForm()
     {
-        LblErr.Text = "";
-        LblOk.Text = "";
+		setError();
+		setSuccess();
         bool res = true;
 
-        if (MultiView1.ActiveViewIndex == View_Insert_Index)    //insert
+		if (CurrentPanelIdx == PANEL_INS_IDX)    //insert
         {
             if (string.IsNullOrEmpty(TxtRolename.Text))
             {
                 res = false;
-                LblErr.Text += RenderError(base.GetLabel("InsRoleName", "Insert role name"));
+				setError(base.GetLabel("InsRoleName", "Insert role name"));
             }
-        }
-        else if (MultiView1.ActiveViewIndex == View_Users_Index)    //users in role
-        {
         }
         return res;
     }
 
     private bool saveForm()
     {
-        LblErr.Text = "";
-        LblOk.Text = "";
+		setError();
+		setSuccess();
         bool res = false;
 
         try
         {
-            if (MultiView1.ActiveViewIndex == View_Insert_Index)    //insert
+			if (CurrentPanelIdx == PANEL_INS_IDX)    //insert
             {
                 if (CurrentRole == "")
                 {
@@ -164,7 +189,7 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
                     res = true;
                 }
             }
-            if (MultiView1.ActiveViewIndex == View_Users_Index)    //users in role
+			if (CurrentPanelIdx == PANEL_USERS_IDX)    //users in role
             {
                 if (CurrentRole != "")
                 {
@@ -185,14 +210,14 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
 
             if (res)
             {
-                loadGrid();
-                LblOk.Text = RenderSuccess( Utility.GetLabel("RECORD_SAVED_MSG"));
-                MultiView1.ActiveViewIndex = View_Grid_Index;
+                loadList();
+				setSuccess(Utility.GetLabel("RECORD_SAVED_MSG"));
+				showPanel(PANEL_SEE_IDX);
             }
         }
         catch (Exception e1)
         {
-            LblErr.Text = RenderError( Utility.GetLabel("RECORD_ERR_MSG") + "<br />" + e1.Message);
+			setError(Utility.GetLabel("RECORD_ERR_MSG") + "<br />" + e1.Message);
         }
         finally
         {
@@ -207,19 +232,19 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
 
     private void editRow(string rolename)
     {
-        LblOk.Text = "";
-        LblErr.Text = "";
+		setError();
+		setSuccess();
 
         clearForm();
         CurrentRole = rolename;
 
         if (rolename == string.Empty)
         {
-            MultiView1.ActiveViewIndex = View_Insert_Index;
+			showPanel(PANEL_INS_IDX);
         }
         else
         {
-            LitRolename.Text = CurrentRole;
+			TxtRolenameUser.Text = CurrentRole;
             PgnUserHelper.LoadListUsersInRole(ListUsersInRole, CurrentRole);
             PgnUserHelper.LoadListUsersNotInRole(ListUsersNotInRole, CurrentRole);
             //load hidden field with current roles
@@ -232,14 +257,14 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
                 HiddenUsersInRole.Value =
                     HiddenUsersInRole.Value.Remove(HiddenUsersInRole.Value.Length - 1);
 
-            MultiView1.ActiveViewIndex = View_Users_Index;
+			showPanel(PANEL_USERS_IDX);
         }
     }
 
     private void deleteRow(string rolename)
     {
-        LblOk.Text = "";
-        LblErr.Text = "";
+		setError();
+		setSuccess();
 
         try
         {
@@ -247,28 +272,82 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         }
         catch (Exception e)
         {
-            LblErr.Text = RenderError( e.Message);
+            setError( e.Message);
         }
-        loadGrid();
+        loadList();
     }
 
     private void clearForm()
     {
         TxtRolename.Text = "";
-        LitRolename.Text = "";
+		TxtRolenameUser.Text = "";
     }
 
-    private void loadGrid()
+    private void loadList()
     {
-        string[] roles = Roles.GetAllRoles();
-        List<RoleName> rolenames = new List<RoleName>();
-        foreach (string role in roles)
-        {
-            rolenames.Add(new RoleName(role));
-        }
-        Grid1.DataSource = rolenames;
-        Grid1.DataBind();
+		string[] roles = Roles.GetAllRoles();
+		var list = new List<RoleName>();
+		foreach (string role in roles)
+		{
+			list.Add(new RoleName(role));
+		}
+
+
+
+		var ds = new PagedDataSource();
+		ds.DataSource = list;
+		ds.AllowPaging = true;
+		ds.PageSize = base.ListPageSize;
+		ds.CurrentPageIndex = base.ListCurrentPage;
+
+		RepPaging.Visible = false;
+		if (ds.PageCount > 1)
+		{
+			RepPaging.Visible = true;
+			ArrayList pages = new ArrayList();
+			for (int i = 0; i <= ds.PageCount - 1; i++)
+			{
+				pages.Add((i + 1).ToString());
+			}
+			RepPaging.DataSource = pages;
+			RepPaging.DataBind();
+		}
+
+		Rep1.DataSource = ds;
+		Rep1.DataBind();
     }
+
+	/// function for display insert panel
+	/// <summary>
+	/// </summary>
+	private void showPanel(int panelIdx)
+	{
+		bool toShow = (panelIdx != PANEL_SEE_IDX);
+
+		PigeonCms.Utility.Script.RegisterStartupScript(Upd1, 
+			"bodyBlocked", "bodyBlocked(" + toShow.ToString().ToLower() + ");");
+
+		CurrentPanelIdx = panelIdx;
+
+		PanelInsert.Visible = false;
+		PanelUsers.Visible = false;
+
+		if (panelIdx == PANEL_INS_IDX)
+			PanelInsert.Visible = true;
+		else if (panelIdx == PANEL_USERS_IDX)
+			PanelUsers.Visible = true;
+
+	}
+
+	private void setError(string content = "")
+	{
+		LblErrInsert.Text = LblErrSee.Text = RenderError(content);
+	}
+
+	private void setSuccess(string content = "")
+	{
+		LblOkInsert.Text = LblOkSee.Text = RenderSuccess(content);
+	}
 
     #endregion
 }
