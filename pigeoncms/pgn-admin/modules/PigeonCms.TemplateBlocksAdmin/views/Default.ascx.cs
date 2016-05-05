@@ -16,35 +16,46 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
 {
     protected void Page_Load(object sender, EventArgs e)
     {
-        LblOk.Text = "";
-        LblErr.Text = "";
+		setSuccess("");
+		setError("");
+
+		if (!Page.IsPostBack)
+		{
+			loadDropEnabledFilter();
+			loadList();
+		}
     }
 
     protected void DropEnabledFilter_SelectedIndexChanged(object sender, EventArgs e)
     {
-        Grid1.DataBind();
+		loadList();
     }
 
-    protected void ObjDs1_Selecting(object sender, ObjectDataSourceSelectingEventArgs e)
-    {
-        TemplateBlockFilter filter = new TemplateBlockFilter();
-        switch (DropEnabledFilter.SelectedValue)
-        {
-            case "1":
-                filter.Enabled = Utility.TristateBool.True;
-                break;
-            case "0":
-                filter.Enabled = Utility.TristateBool.False;
-                break;
-            default:
-                filter.Enabled = Utility.TristateBool.NotSet;
-                break;
-        }
-        filter.Name = "";
-        e.InputParameters["filter"] = filter;
-    }
+	protected void RepPaging_ItemDataBound(object sender, RepeaterItemEventArgs e)
+	{
+		if (e.Item.ItemType == ListItemType.Header)
+		{
+			return;
+		}
 
-    protected void Grid1_RowCommand(object sender, GridViewCommandEventArgs e)
+		int page = int.Parse(e.Item.DataItem.ToString());
+		if (page - 1 == base.ListCurrentPage)
+		{
+			var BtnPage = (LinkButton)e.Item.FindControl("BtnPage");
+			BtnPage.CssClass = "selected";
+		}
+	}
+
+	protected void RepPaging_ItemCommand(object source, RepeaterCommandEventArgs e)
+	{
+		if (e.CommandName == "Page")
+		{
+			base.ListCurrentPage = int.Parse(e.CommandArgument.ToString()) - 1;
+			loadList();
+		}
+	}
+
+	protected void Rep1_ItemCommand(object sender, RepeaterCommandEventArgs e)
     {
         if (e.CommandName == "Select")
         {
@@ -54,44 +65,34 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         {
             delete(e.CommandArgument.ToString());
         }
-        if (e.CommandName == "MoveDown")
-        {
-            moveRecord(e.CommandArgument.ToString(), Database.MoveRecordDirection.Down);
-        }
-        if (e.CommandName == "MoveUp")
-        {
-            moveRecord(e.CommandArgument.ToString(), Database.MoveRecordDirection.Up);
-        }
     }
 
-    protected void Grid1_RowCreated(object sender, GridViewRowEventArgs e)
+	protected void Rep1_ItemDataBound(object sender, RepeaterItemEventArgs e)
     {
-        if (e.Row.RowType == DataControlRowType.Header)
-            Utility.AddGlyph(Grid1, e.Row);
-    }
+		if (e.Item.ItemType == ListItemType.Header)
+			return;
 
-    protected void Grid1_RowDataBound(object sender, GridViewRowEventArgs e)
-    {
-        if (e.Row.RowType == DataControlRowType.DataRow)
-        {
-            var item = new TemplateBlock();
-            item = (TemplateBlock)e.Row.DataItem;
+		var currItem = new TemplateBlock();
+		currItem = (TemplateBlock)e.Item.DataItem;
 
-            LinkButton LnkName = (LinkButton)e.Row.FindControl("LnkName");
-            LnkName.Text = "<i class='fa fa-pgn_edit fa-fw'></i>";
-            LnkName.Text += item.Name;
-        }
+		{
+			var LitEnabled = (Literal)e.Item.FindControl("LitEnabled");
+			string chkClass = "";
+			if (currItem.Enabled)
+				chkClass = "checked";
+			LitEnabled.Text = "<span class='table-modern--checkbox--square " + chkClass + "'></span>";
+		}
     }
 
     protected void BtnSave_Click(object sender, EventArgs e)
     {
-        LblErr.Text = "";
-        LblOk.Text = "";
+		setSuccess("");
+		setError("");
 
         try
         {
-            TemplateBlock p1 = new TemplateBlock();
-            if (TxtId.Text == string.Empty)
+            var p1 = new TemplateBlock();
+            if (this.CurrentKey == string.Empty)
             {
                 form2obj(p1);
                 p1 = new TemplateBlocksManager().Insert(p1);
@@ -102,13 +103,13 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
                 form2obj(p1);
                 new TemplateBlocksManager().Update(p1);
             }
-            Grid1.DataBind();
-            LblOk.Text = Utility.GetLabel("RECORD_SAVED_MSG");
-            MultiView1.ActiveViewIndex = 0;
+			loadList();
+            setSuccess(Utility.GetLabel("RECORD_SAVED_MSG"));
+			showInsertPanel(false);
         }
         catch (Exception e1)
         {
-            LblErr.Text = Utility.GetLabel("RECORD_ERR_MSG") + "<br />" + e1.ToString();
+            setError(Utility.GetLabel("RECORD_ERR_MSG") + "<br />" + e1.ToString());
         }
         finally
         {
@@ -117,7 +118,7 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
 
     protected void BtnCancel_Click(object sender, EventArgs e)
     {
-        MultiView1.ActiveViewIndex = 0;
+		showInsertPanel(false);
     }
 
     protected void BtnNew_Click(object sender, EventArgs e)
@@ -127,6 +128,7 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
 
 
     #region private methods
+
     private void form2obj(TemplateBlock obj1)
     {
         obj1.Name = TxtName.Text;
@@ -141,31 +143,32 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         ChkEnabled.Checked = obj1.Enabled;
     }
 
-    private void edit(string name)
+    private void edit(string recordId)
     {
-        LblOk.Text = "";
-        LblErr.Text = "";
+		setSuccess("");
+		setError("");
 
-        TxtName.Text = name;
+		base.CurrentKey = recordId;
+
+		TxtName.Text = recordId;
         TxtName.Enabled = true;
         TxtTitle.Text = "";
         ChkEnabled.Checked = true;
-        TxtId.Text = "";
-        if (name != "")
+        
+		if (recordId != "")
         {
-            TxtId.Text = "1";
             TxtName.Enabled = false;
-            TemplateBlock currObj = new TemplateBlock();
-            currObj = new TemplateBlocksManager().GetByKey(name);
+            var currObj = new TemplateBlock();
+			currObj = new TemplateBlocksManager().GetByKey(recordId);
             obj2form(currObj);
         }
-        MultiView1.ActiveViewIndex = 1;
+		showInsertPanel(true);
     }
 
     private void delete(string name)
     {
-        LblOk.Text = "";
-        LblErr.Text = "";
+		setSuccess("");
+		setError("");
 
         try
         {
@@ -173,12 +176,86 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         }
         catch (Exception e)
         {
-            LblErr.Text = e.Message;
+            setError(e.Message);
         }
-        Grid1.DataBind();
+		loadList();
     }
 
-    protected void moveRecord(string pageName, Database.MoveRecordDirection direction)
-    { }
+	private void loadList()
+	{
+		var man = new TemplateBlocksManager();
+		var filter = new TemplateBlockFilter();
+
+		filter.Enabled = Utility.TristateBool.NotSet;
+		switch (DropEnabledFilter.SelectedValue)
+		{
+			case "1":
+				filter.Enabled = Utility.TristateBool.True;
+				break;
+			case "0":
+				filter.Enabled = Utility.TristateBool.False;
+				break;
+			default:
+				filter.Enabled = Utility.TristateBool.NotSet;
+				break;
+		}
+
+		var list = man.GetByFilter(filter, "");
+		var ds = new PagedDataSource();
+		ds.DataSource = list;
+		ds.AllowPaging = true;
+		ds.PageSize = base.ListPageSize;
+		ds.CurrentPageIndex = base.ListCurrentPage;
+
+		RepPaging.Visible = false;
+		if (ds.PageCount > 1)
+		{
+			RepPaging.Visible = true;
+			ArrayList pages = new ArrayList();
+			for (int i = 0; i <= ds.PageCount - 1; i++)
+			{
+				pages.Add((i + 1).ToString());
+			}
+			RepPaging.DataSource = pages;
+			RepPaging.DataBind();
+		}
+
+		Rep1.DataSource = ds;
+		Rep1.DataBind();
+	}
+
+	private void loadDropEnabledFilter()
+	{
+		DropEnabledFilter.Items.Clear();
+		DropEnabledFilter.Items.Add(new ListItem(Utility.GetLabel("LblSelectState", "Select state"), ""));
+		DropEnabledFilter.Items.Add(new ListItem("On-line", "1"));
+		DropEnabledFilter.Items.Add(new ListItem("Off-line", "0"));
+	}
+
+	/// function for display insert panel
+	/// <summary>
+	/// </summary>
+	private void showInsertPanel(bool toShow)
+	{
+
+		PigeonCms.Utility.Script.RegisterStartupScript(Upd1, "bodyBlocked", "bodyBlocked(" + toShow.ToString().ToLower() + ");");
+
+		if (toShow)
+			PanelInsert.Visible = true;
+		else
+			PanelInsert.Visible = false;
+	}
+
+	private void setError(string content)
+	{
+		LblErrInsert.Text = LblErrSee.Text = RenderError(content);
+	}
+
+	private void setSuccess(string content)
+	{
+		LblOkInsert.Text = LblOkSee.Text = RenderSuccess(content);
+	}
+
+
     #endregion
 }
