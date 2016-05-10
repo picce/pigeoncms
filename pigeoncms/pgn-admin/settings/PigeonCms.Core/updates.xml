@@ -2851,4 +2851,28 @@ GO
 ]]>
 
   </item>
+
+	<item id="4" date="2016-05-10" dev="https://github.com/picce/" notes="added shortCode field in table #__cultures">
+		<![CDATA[
+
+		--20160510
+		--added shortCode field 
+		ALTER TABLE #__cultures ADD
+			shortCode nvarchar(10) NULL
+		GO
+		
+		UPDATE #__cultures SET shortCode = LEFT(cultureCode, 2) WHERE shortCode is null
+		GO
+		
+    --version fallback for manual db upgrade
+    INSERT INTO #__dbVersion(componentFullName, versionId, versionDate, versionDev, versionNotes, dateUpdated, userUpdated)
+    VALUES('PigeonCms.Core', 4/*version*/, GETDATE(), '', '', GETDATE(), 'MANUAL')
+    GO
+
+]]>
+
+	</item>
 </updates>
+
+
+

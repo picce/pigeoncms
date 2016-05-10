@@ -125,7 +125,7 @@
 									<div class="col-sm-1 table-modern__col align-center"><%=base.GetLabel("Published", "Published") %></div>
 									<div class="col-sm-1 table-modern__col align-center"><%=base.GetLabel("UseSsl", "UseSsl") %></div>
 									<div class="col-sm-1 table-modern__col align-center"><%=base.GetLabel("Core", "Core") %></div>
-									<div class="col-sm-1 table-modern__col align-center"><%=base.GetLabel("ID", "ID") %></div>
+									<div class="col-sm-1 table-modern__col align-left"><%=base.GetLabel("ID", "ID") %></div>
 									<div class="table-modern--hover">
 										<a href="javascript:void(0)" class="table-modern-edit--close">
 											<span></span>
@@ -143,7 +143,7 @@
 											<input type="hidden" name="RowId" value='<%# Eval("Id") %>' />
 
 											<div class="col-sm-4 table-modern__col">
-												<div class="table-modern--description" data-menu="tit">
+												<div class="table-modern--description" data-menu="name">
 													<div class="table-modern--description--wrapper">
 														<strong><%# Eval("Name") %></strong><br />
 														<%# Eval("Pattern") %>
@@ -152,7 +152,7 @@
 											</div>
 
 											<div class="col-sm-2 table-modern__col">
-												<div class="table-modern--description" data-menu="cat">
+												<div class="table-modern--description" data-menu="theme">
 													<div class="table-modern--description--wrapper">
 														<%# Eval("CurrTheme") %>
 													</div>
@@ -160,7 +160,7 @@
 											</div>
 
 											<div class="col-sm-2 table-modern__col">
-												<div class="table-modern--description" data-menu="cat">
+												<div class="table-modern--description" data-menu="master">
 													<div class="table-modern--description--wrapper">
 														<%# Eval("CurrMasterpage") %>
 													</div>
@@ -186,7 +186,7 @@
 											</div>
 
 											<div class="col-sm-1 table-modern__col">
-												<div class="table-modern--description" data-menu="cat">
+												<div class="table-modern--description" data-menu="id">
 													<div class="table-modern--description--wrapper">
 														<%# Eval("Id") %>
 													</div>
