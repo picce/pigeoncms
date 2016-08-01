@@ -90,9 +90,19 @@ namespace PigeonCms.Shop.PaymentsProvider
             string strResponse = "";
             try
             {
+                //TOCHECK
+                //https://github.com/paypal/TLS-update/blob/master/net/TlsCheck/Source/Program.cs
+                //http://stackoverflow.com/questions/35309193/paypal-ipn-issue-the-request-was-aborted-could-not-create-ssl-tls-secure-chan
+                //System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+                ServicePointManager.Expect100Continue = true;
+                ServicePointManager.SecurityProtocol = (SecurityProtocolType)3072;//Tls12
+                ServicePointManager.DefaultConnectionLimit = 9999;
+
+
                 HttpWebRequest req = (HttpWebRequest)WebRequest.Create(base.PaymentData.PaySubmitUrl);
                 req.Method = "POST";
                 req.ContentType = "application/x-www-form-urlencoded";
+                //req.ClientCertificates = 
                 byte[] param = HttpContext.Current.Request.BinaryRead(HttpContext.Current.Request.ContentLength);
                 string strRequest = Encoding.ASCII.GetString(param);
                 strRequest += "&cmd=_notify-validate";
