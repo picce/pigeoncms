@@ -58,7 +58,7 @@
 
                                     <div class="pull-right">
                                         <div class="btn-group">
-                                            <asp:Button runat="server" ID="BtnUpdateDbVersion" CssClass="btn btn-default btn-xs" 
+                                            <asp:Button runat="server" ID="BtnUpdateDbVersion" CssClass="" 
                                                 CommandName="UpdateVersion"
                                                 Visible="false" Text="Upgrade version" />
                                         </div>

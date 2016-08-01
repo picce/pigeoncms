@@ -217,7 +217,7 @@ public partial class Controls_ModuleParams : PigeonCms.BaseModuleControl
         RenderParamsOnPanel(PanelParams, currentModule.Params, modType.Params, labelsList);
         if (viewType != null)
             //NEW METHOD
-            FormBuilder.RenderParamsOnPanel(PanelParams, currentModule.Params, viewType.Params, labelsList);
+            //FormBuilder.RenderParamsOnPanel(PanelParams, currentModule.Params, viewType.Params, labelsList);
             RenderParamsOnPanel(PanelParams, currentModule.Params, viewType.Params, labelsList);
     }
 }

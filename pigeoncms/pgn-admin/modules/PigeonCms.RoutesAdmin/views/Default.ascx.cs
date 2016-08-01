@@ -16,145 +16,144 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
 {
     protected void Page_Load(object sender, EventArgs e)
     {
-        LblOk.Text = "";
-        LblErr.Text = "";
+		setSuccess("");
+		setError("");
 
         if (!Page.IsPostBack)
         {
             loadDropMasterPages();
             loadDropThemes();
-        }
+			loadList();
+		}
+		else
+		{
+			string eventArg = HttpContext.Current.Request["__EVENTARGUMENT"];
+			if (eventArg == "sortcomplete")
+			{
+				updateSortedTable();
+				loadList();
+			}
+		}
     }
 
     protected void DropPublishedFilter_SelectedIndexChanged(object sender, EventArgs e)
     {
-        Grid1.DataBind();
+		loadList();
     }
 
-    protected void ObjDs1_Selecting(object sender, ObjectDataSourceSelectingEventArgs e)
-    {
-        MvcRoutesFilter filter = new MvcRoutesFilter();
+	protected void RepPaging_ItemDataBound(object sender, RepeaterItemEventArgs e)
+	{
+		if (e.Item.ItemType == ListItemType.Header)
+		{
+			return;
+		}
 
-        filter.Published = Utility.TristateBool.NotSet;
-        switch (DropPublishedFilter.SelectedValue)
-        {
-            case "1":
-                filter.Published = Utility.TristateBool.True;
-                break;
-            case "0":
-                filter.Published = Utility.TristateBool.False;
-                break;
-            default:
-                filter.Published = Utility.TristateBool.NotSet;
-                break;
-        }
-        e.InputParameters["filter"] = filter;
-    }
+		int page = int.Parse(e.Item.DataItem.ToString());
+		if (page - 1 == base.ListCurrentPage)
+		{
+			var BtnPage = (LinkButton)e.Item.FindControl("BtnPage");
+			BtnPage.CssClass = "selected";
+		}
+	}
 
-    protected void Grid1_RowCommand(object sender, GridViewCommandEventArgs e)
-    {
-        if (e.CommandName == "Select")
-        {
-            editRow(int.Parse(e.CommandArgument.ToString()));
-        }
-        if (e.CommandName == "DeleteRow")
-        {
-            deleteRow(int.Parse(e.CommandArgument.ToString()));
-        }
-        //Enabled
-        if (e.CommandName == "ImgEnabledOk")
-        {
-            setFlag(Convert.ToInt32(e.CommandArgument), false, "published");
-            Grid1.DataBind();
-        }
-        if (e.CommandName == "ImgEnabledKo")
-        {
-            setFlag(Convert.ToInt32(e.CommandArgument), true, "published");
-            Grid1.DataBind();
-        }
-        //Use SSL
-        if (e.CommandName == "ImgUseSslOk")
-        {
-            setFlag(Convert.ToInt32(e.CommandArgument), false, "usessl");
-            Grid1.DataBind();
-        }
-        if (e.CommandName == "ImgUseSslKo")
-        {
-            setFlag(Convert.ToInt32(e.CommandArgument), true, "usessl");
-            Grid1.DataBind();
-        }
-        //Ordering
-        if (e.CommandName == "MoveDown")
-        {
-            moveRecord(int.Parse(e.CommandArgument.ToString()), Database.MoveRecordDirection.Down);
-        }
-        if (e.CommandName == "MoveUp")
-        {
-            moveRecord(int.Parse(e.CommandArgument.ToString()), Database.MoveRecordDirection.Up);
-        }
-    }
+	protected void RepPaging_ItemCommand(object source, RepeaterCommandEventArgs e)
+	{
+		if (e.CommandName == "Page")
+		{
+			base.ListCurrentPage = int.Parse(e.CommandArgument.ToString()) - 1;
+			loadList();
+		}
+	}
 
-    protected void Grid1_RowCreated(object sender, GridViewRowEventArgs e)
-    {
-        if (e.Row.RowType == DataControlRowType.Header)
-            Utility.AddGlyph(Grid1, e.Row);
-    }
+	protected void Rep1_ItemDataBound(object sender, RepeaterItemEventArgs e)
+	{
+		if (e.Item.ItemType == ListItemType.Header)
+			return;
 
-    protected void Grid1_RowDataBound(object sender, GridViewRowEventArgs e)
-    {
-        if (e.Row.RowType == DataControlRowType.DataRow)
-        {
-            MvcRoute item = new MvcRoute();
-            item = (MvcRoute)e.Row.DataItem;
 
-            LinkButton LnkName = (LinkButton)e.Row.FindControl("LnkName");
-            LnkName.Text = "<i class='fa fa-pgn_edit fa-fw'></i>";
-            LnkName.Text += item.Name;
-            if (string.IsNullOrEmpty(item.Name))
-                LnkName.Text += Utility.GetLabel("NO_VALUE", "<no value>");
+		var item = (MvcRoute)e.Item.DataItem;
 
-            //Published
-            if (item.Published)
-            {
-                var img1 = e.Row.FindControl("ImgEnabledOk");
-                img1.Visible = true;
-            }
-            else
-            {
-                var img1 = e.Row.FindControl("ImgEnabledKo");
-                img1.Visible = true;
-            }
+		{
+			var LitPublished = (Literal)e.Item.FindControl("LitPublished");
+			string enabledClass = "";
+			if (item.Published)
+				enabledClass = "checked";
+			LitPublished.Text = "<span class='table-modern--checkbox--square " + enabledClass + "'></span>";
 
-            //Use ssl
-            if (item.UseSsl)
-            {
-                var img1 = e.Row.FindControl("ImgUseSslOk");
-                img1.Visible = true;
-            }
-            else
-            {
-                var img1 = e.Row.FindControl("ImgUseSslKo");
-                img1.Visible = true;
-            }
+			var LnkPublished = (LinkButton)e.Item.FindControl("LnkPublished");
+			LnkPublished.CssClass = "table-modern--checkbox " + enabledClass;
+			LnkPublished.CommandName = item.Published ? "Enabled0" : "Enabled1";
+		}
 
-            //Delete            
-            if (item.IsCore)
-            {
-                var img1 = e.Row.FindControl("LnkDel");
-                img1.Visible = false;
-            }
-            else
-            {
-                var img1 = e.Row.FindControl("LnkDel");
-                img1.Visible = true;
-            }
-        }
-    }
+
+		{
+			var LitUseSsl = (Literal)e.Item.FindControl("LitUseSsl");
+			string enabledClass = "";
+			if (item.UseSsl)
+				enabledClass = "checked";
+			LitUseSsl.Text = "<span class='table-modern--checkbox--square " + enabledClass + "'></span>";
+
+			var LnkUseSsl = (LinkButton)e.Item.FindControl("LnkUseSsl");
+			LnkUseSsl.CssClass = "table-modern--checkbox " + enabledClass;
+			LnkUseSsl.CommandName = item.Published ? "UseSsl0" : "UseSsl1";
+		}
+
+		{
+			var LitCore = (Literal)e.Item.FindControl("LitCore");
+			string enabledClass = "";
+			if (item.IsCore)
+				enabledClass = "checked";
+			LitCore.Text = "<span class='table-modern--checkbox--square " + enabledClass + "'></span>";
+		}
+	}
+
+	protected void Rep1_ItemCommand(object source, RepeaterCommandEventArgs e)
+	{
+		if (e.CommandName == "Select")
+		{
+			try
+			{
+				editRow(int.Parse(e.CommandArgument.ToString()));
+			}
+			catch (Exception e1)
+			{
+				setError(e1.Message);
+			}
+		}
+		if (e.CommandName == "DeleteRow")
+		{
+			deleteRow(int.Parse(e.CommandArgument.ToString()));
+		}
+		//Enabled
+		if (e.CommandName == "Enabled0")
+		{
+			setFlag(Convert.ToInt32(e.CommandArgument), false, "enabled");
+			loadList();
+		}
+		if (e.CommandName == "Enabled1")
+		{
+			setFlag(Convert.ToInt32(e.CommandArgument), true, "enabled");
+			loadList();
+		}
+
+		//Use SSL
+		if (e.CommandName == "UseSsl0")
+		{
+			setFlag(Convert.ToInt32(e.CommandArgument), false, "usessl");
+			loadList();
+		}
+		if (e.CommandName == "UseSsl1")
+		{
+			setFlag(Convert.ToInt32(e.CommandArgument), true, "usessl");
+			loadList();
+		}
+	}
+
 
     protected void BtnApply_Click(object sender, EventArgs e)
     {
-        LblErr.Text = "";
-        LblOk.Text = "";
+		setError("");
+		setSuccess("");
 
         try
         {
@@ -162,12 +161,12 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         }
         catch (Exception ex)
         {
-            LblErr.Text = RenderError("Error updating routes table:" + ex.ToString());
+            setError("Error updating routes table:" + ex.ToString());
             PigeonCms.Trace.Warn("Error", "Error updating routes table", ex);
         }
         finally
         {
-            LblOk.Text = RenderSuccess("Routes list updated sucessfully");
+            setSuccess("Routes list updated sucessfully");
         }
     }
 
@@ -178,12 +177,12 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
 
     protected void BtnSave_Click(object sender, EventArgs e)
     {
-        LblErr.Text = "";
-        LblOk.Text = "";
+		setError("");
+		setSuccess("");
 
         try
         {
-            MvcRoute o1 = new MvcRoute();
+            var o1 = new MvcRoute();
             if (base.CurrentId == 0)
             {
                 form2obj(o1);
@@ -195,13 +194,13 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
                 form2obj(o1);
                 new MvcRoutesManager().Update(o1);
             }
-            Grid1.DataBind();
-            LblOk.Text = RenderSuccess(Utility.GetLabel("RECORD_SAVED_MSG"));
-            MultiView1.ActiveViewIndex = 0;
+			loadList();
+            setSuccess(Utility.GetLabel("RECORD_SAVED_MSG"));
+			showInsertPanel(false);
         }
         catch (Exception e1)
         {
-            LblErr.Text = RenderError(Utility.GetLabel("RECORD_ERR_MSG") + "<br />" + e1.ToString());
+            setError(Utility.GetLabel("RECORD_ERR_MSG") + "<br />" + e1.ToString());
         }
         finally
         {
@@ -210,15 +209,15 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
 
     protected void BtnCancel_Click(object sender, EventArgs e)
     {
-        LblErr.Text = "";
-        LblOk.Text = "";
-        MultiView1.ActiveViewIndex = 0;
+		setError("");
+		setSuccess("");
+		showInsertPanel(false);
     }
 
     #region private methods
+
     private void clearForm()
     {
-        LitId.Text = "";
         TxtName.Text = "";
         TxtName.Enabled = true;
         TxtPattern.Text = "";
@@ -247,7 +246,6 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         TxtPattern.Text = obj.Pattern;
         ChkPublished.Checked = obj.Published;
         ChkUseSsl.Checked = obj.UseSsl;
-        LitId.Text = obj.Id.ToString();
         ChkIsCore.Checked = obj.IsCore;
         Utility.SetDropByValue(DropMasterPage, obj.CurrMasterPage);
         Utility.SetDropByValue(DropTheme, obj.CurrTheme);
@@ -256,24 +254,24 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
 
     private void editRow(int recordId)
     {
-        LblOk.Text = "";
-        LblErr.Text = "";
+		setError("");
+		setSuccess("");
 
         clearForm();
         base.CurrentId = recordId;
         if (base.CurrentId > 0)
         {
-            MvcRoute obj = new MvcRoute();
+            var obj = new MvcRoute();
             obj = new MvcRoutesManager().GetByKey(base.CurrentId);
             obj2form(obj);
         }
-        MultiView1.ActiveViewIndex = 1;
+		showInsertPanel(true);
     }
 
     private void deleteRow(int recordId)
     {
-        LblOk.Text = "";
-        LblErr.Text = "";
+		setError("");
+		setSuccess("");
 
         try
         {
@@ -281,20 +279,20 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         }
         catch (Exception e)
         {
-            LblErr.Text = RenderError(e.Message);
+            setError(e.Message);
         }
-        Grid1.DataBind();
+		loadList();
     }
 
     private void setFlag(int recordId, bool value, string flagName)
     {
         try
         {
-            PigeonCms.MvcRoute o1 = new PigeonCms.MvcRoute();
+            var o1 = new PigeonCms.MvcRoute();
             o1 = new MvcRoutesManager().GetByKey(recordId);
             switch (flagName.ToLower())
             {
-                case "published":
+				case "enabled":
                     o1.Published = value;
                     break;
                 case "usessl":
@@ -307,28 +305,33 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         }
         catch (Exception e1)
         {
-            LblErr.Text = RenderError(Utility.GetLabel("RECORD_ERR_MSG") + "<br />" + e1.ToString());
+            setError(Utility.GetLabel("RECORD_ERR_MSG") + "<br />" + e1.ToString());
         }
         finally { }
     }
 
-    protected void moveRecord(int recordId, Database.MoveRecordDirection direction)
-    {
-        LblErr.Text = "";
-        LblOk.Text = "";
+	private void updateSortedTable()
+	{
+		//<input type="hidden" name="RowId" value='<%# Eval("Id") %>' />
+		string[] rowIds = Request.Form.GetValues("RowId");
+		int ordering = 1;
 
-        try
-        {
-            new MvcRoutesManager().MoveRecord(recordId, direction);
-            Grid1.DataBind();
-            MultiView1.ActiveViewIndex = 0;
-        }
-        catch (Exception e1)
-        {
-            LblErr.Text = RenderError(Utility.GetLabel("RECORD_ERR_MSG") + "<br />" + e1.ToString());
-        }
-        finally { }
-    }
+		foreach (string sid in rowIds)
+		{
+			int id = 0;
+			int.TryParse(sid, out id);
+			sortRecord(id, ordering);
+			ordering++;
+		}
+	}
+
+	public void sortRecord(int id, int ordering)
+	{
+		var man = new MvcRoutesManager();
+		var item = man.GetByKey(id);
+		item.Ordering = ordering;
+		man.Update(item);
+	}
 
     private void loadDropMasterPages()
     {
@@ -353,5 +356,71 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
             DropTheme.Items.Add(new ListItem(item.Value, item.Key));
         }
     }
+
+	private void loadList()
+	{
+		var man = new MvcRoutesManager();
+		var filter = new MvcRoutesFilter();
+
+		filter.Published = Utility.TristateBool.NotSet;
+		switch (DropPublishedFilter.SelectedValue)
+		{
+			case "1":
+				filter.Published = Utility.TristateBool.True;
+				break;
+			case "0":
+				filter.Published = Utility.TristateBool.False;
+				break;
+		}
+
+		var list = man.GetByFilter(filter, "");
+		
+		var ds = new PagedDataSource();
+		ds.DataSource = list;
+		ds.AllowPaging = true;
+		ds.PageSize = base.ListPageSize;
+		ds.CurrentPageIndex = base.ListCurrentPage;
+
+		RepPaging.Visible = false;
+		if (ds.PageCount > 1)
+		{
+			RepPaging.Visible = true;
+			ArrayList pages = new ArrayList();
+			for (int i = 0; i <= ds.PageCount - 1; i++)
+			{
+				pages.Add((i + 1).ToString());
+			}
+			RepPaging.DataSource = pages;
+			RepPaging.DataBind();
+		}
+
+		Rep1.DataSource = ds;
+		Rep1.DataBind();
+	}
+
+	/// function for display insert panel
+	/// <summary>
+	/// </summary>
+	private void showInsertPanel(bool toShow)
+	{
+
+		PigeonCms.Utility.Script.RegisterStartupScript(Upd1, "bodyBlocked", "bodyBlocked(" + toShow.ToString().ToLower() + ");");
+
+		if (toShow)
+			PanelInsert.Visible = true;
+		else
+			PanelInsert.Visible = false;
+	}
+
+	private void setError(string content)
+	{
+		LblErrInsert.Text = LblErrSee.Text = RenderError(content);
+	}
+
+	private void setSuccess(string content)
+	{
+		LblOkInsert.Text = LblOkSee.Text = RenderSuccess(content);
+	}
+
     #endregion
 }

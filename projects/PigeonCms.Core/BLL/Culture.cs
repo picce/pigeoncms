@@ -24,6 +24,7 @@ namespace PigeonCms
         private string displayName = "";
         private bool enabled = true;
         private int ordering = 0;
+		private string shortCode = "";
 
 
         /// <summary>
@@ -65,6 +66,15 @@ namespace PigeonCms
             set { ordering = value; }
         }
 
+		[DataObjectField(false)]
+		public string ShortCode
+		{
+			[DebuggerStepThrough()]
+			get { return shortCode; }
+			[DebuggerStepThrough()]
+			set { shortCode = value; }
+		}
+
 
 
         #region public methods
@@ -83,7 +93,8 @@ namespace PigeonCms
     {
         #region fields definition
 
-        private string cultureCode = "";
+		private string cultureCode = "";
+		private string shortCode = "";
         private Utility.TristateBool enabled = Utility.TristateBool.NotSet;
 
         [DataObjectField(true)]
@@ -94,6 +105,14 @@ namespace PigeonCms
             [DebuggerStepThrough()]
             set { cultureCode = value; }
         }
+
+		public string ShortCode
+		{
+			[DebuggerStepThrough()]
+			get { return shortCode; }
+			[DebuggerStepThrough()]
+			set { shortCode = value; }
+		}
 
         [DataObjectField(false)]
         public Utility.TristateBool Enabled

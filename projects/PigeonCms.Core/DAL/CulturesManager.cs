@@ -63,6 +63,11 @@ namespace PigeonCms
                     sSql += " AND t.CultureCode = @CultureCode ";
                     myCmd.Parameters.Add(Database.Parameter(myProv, "CultureCode", filter.CultureCode));
                 }
+				if (!string.IsNullOrEmpty(filter.ShortCode))
+				{
+					sSql += " AND t.ShortCode = @ShortCode ";
+					myCmd.Parameters.Add(Database.Parameter(myProv, "ShortCode", filter.ShortCode));
+				}
                 if (filter.Enabled != Utility.TristateBool.NotSet)
                 {
                     sSql += " AND t.Enabled = @Enabled ";
@@ -109,7 +114,7 @@ namespace PigeonCms
                 myConn.Open();
                 myCmd.Connection = myConn;
 
-                sSql = "SELECT CultureCode, DisplayName, Enabled, Ordering "
+                sSql = "SELECT CultureCode, DisplayName, Enabled, Ordering, ShortCode "
                 + " FROM [#__cultures] "
                 + " WHERE CultureCode = @CultureCode ";
                 myCmd.CommandText = Database.ParseSql(sSql);
@@ -125,6 +130,8 @@ namespace PigeonCms
                         result.Enabled = (bool)myRd["Enabled"];
                     if (!Convert.IsDBNull(myRd["Ordering"]))
                         result.Ordering = (int)myRd["Ordering"];
+					if (!Convert.IsDBNull(myRd["ShortCode"]))
+						result.ShortCode = myRd["ShortCode"].ToString();
                 }
                 myRd.Close();
             }
@@ -155,13 +162,14 @@ namespace PigeonCms
                 }
 
                 sSql = "UPDATE [#__cultures] "
-                + " SET DisplayName=@DisplayName, Enabled=@Enabled, Ordering=@Ordering "
+				+ " SET DisplayName=@DisplayName, Enabled=@Enabled, Ordering=@Ordering, ShortCode=@ShortCode "
                 + " WHERE CultureCode = @CultureCode";
                 myCmd.CommandText = Database.ParseSql(sSql);
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CultureCode", theObj.CultureCode));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "DisplayName", theObj.DisplayName));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "Enabled", theObj.Enabled));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "Ordering", theObj.Ordering));
+				myCmd.Parameters.Add(Database.Parameter(myProv, "ShortCode", theObj.ShortCode));
 
                 result = myCmd.ExecuteNonQuery();
             }
@@ -193,13 +201,14 @@ namespace PigeonCms
                 result = newObj;
                 result.Ordering = base.GetNextOrdering();
 
-                sSql = "INSERT INTO [#__cultures](CultureCode, DisplayName, Enabled, Ordering) "
-                + " VALUES(@CultureCode, @DisplayName, @Enabled, @Ordering) ";
+				sSql = "INSERT INTO [#__cultures](CultureCode, DisplayName, Enabled, Ordering, ShortCode) "
+				+ " VALUES(@CultureCode, @DisplayName, @Enabled, @Ordering, @ShortCode) ";
                 myCmd.CommandText = Database.ParseSql(sSql);
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CultureCode", result.CultureCode));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "DisplayName", result.DisplayName));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "Enabled", result.Enabled));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "Ordering", result.Ordering));
+				myCmd.Parameters.Add(Database.Parameter(myProv, "ShortCode", result.ShortCode));
 
                 myCmd.ExecuteNonQuery();
             }

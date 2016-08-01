@@ -21,11 +21,10 @@ public partial class Masterpages_PigeonModernBlank : BaseMasterPage
 		get
 		{
 			string res = "<script src='" + THEME_FOLDER + "/js/min/pigeon-modern.min.js'></script>";
-			if (Roles.IsUserInRole("debug"))
-				res = "<script src='" + THEME_FOLDER + "/js/pigeon-modern.js'></script>";
+			/*if (Roles.IsUserInRole("debug"))
+				res = "<script src='" + THEME_FOLDER + "/js/pigeon-modern.js'></script>";*/
 
 			return res;
-			return "";
 		}
 	}
 
