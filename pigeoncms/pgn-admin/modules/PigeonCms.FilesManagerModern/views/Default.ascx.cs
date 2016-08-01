@@ -235,8 +235,9 @@ public partial class Controls_FilesManagerModern_default : PigeonCms.BaseModuleC
 				}
 
 			}
-			else if (imagesExtensions.Contains(file.FileExtension))
+			else if (imagesExtensions.Contains(file.FileExtension.ToLower()))
             {
+                //20160801 - closed issue #63 - FileUploadModern problem with JPG images (uppercase ext)
 				//image
 				lblFileName.Text = file.FileExtension.ToUpper().Replace(".", "");
 				Box.Style.Add("background-image", "url('" + file.FileUrl + "')");
