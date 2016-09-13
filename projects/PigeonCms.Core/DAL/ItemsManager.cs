@@ -505,8 +505,8 @@ namespace PigeonCms
                 theObj.Ordering = this.GetNextOrdering();
             }
             theObj.DateUpdated = DateTime.Now;
-            if (string.IsNullOrEmpty(theObj.UserUpdated))
-                theObj.UserUpdated = PgnUserCurrent.UserName;
+			//20160719 - always set userUpdated
+            theObj.UserUpdated = PgnUserCurrent.UserName;
             if (theObj.DateInserted == DateTime.MinValue)
                 theObj.DateInserted = DateTime.Now;
             try
