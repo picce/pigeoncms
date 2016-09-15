@@ -55,6 +55,10 @@
 			<option value="1" label="Yes"></option>
 			<option value="0" label="No"></option>
 		</param>
+		<param name="ShowSeo" type="combo" default="1" label="Show Seo panel">
+			<option value="1" label="Yes"></option>
+			<option value="0" label="No"></option>
+		</param>
 		<param name="ShowFieldsPanel" type="combo" default="1" label="Show fields panel">
 			<option value="1" label="Yes"></option>
 			<option value="0" label="No"></option>

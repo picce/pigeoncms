@@ -295,7 +295,7 @@ namespace PigeonCms
 			{
 				if (seo == null)
 				{
-					var provider = new SeoProvider(this.ItemTypeName);
+					var provider = new SeoProvider("items");
 					seo = provider.Get(this);
 				}
 				return seo;

@@ -43,7 +43,7 @@ namespace PigeonCms
 			}
 			else
 			{
-				obj.SeoId = man.Update(obj.Seo);
+				man.Update(obj.Seo);
 			}
         }
 

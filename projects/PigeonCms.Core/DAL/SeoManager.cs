@@ -49,15 +49,16 @@ namespace PigeonCms
 				myCmd.Connection = myConn;
 
 				sSql = "SELECT t.Id, t.ResourceSet, t.DateUpdated, t.UserUpdated, "
-					+ " t.NoIndex, t.NoFollow, c.title, c.description "
+					+ " t.NoIndex, t.NoFollow, c.CultureName, c.Title, c.Description "
 					+ " FROM [" + this.TableName + "] t "
 					+ " LEFT JOIN [" + this.TableName + "_Culture] c ON t.Id = c.SeoId "
-					+ " WHERE t.Id @Id ";
+					+ " WHERE t.Id = @Id ";
 				
 				myCmd.Parameters.Add(Database.Parameter(myProv, "Id", id));
 
 				if (!string.IsNullOrEmpty(this.resourceSet))
 				{
+					sSql += " AND t.ResourceSet=@ResourceSet ";
 					myCmd.Parameters.Add(Database.Parameter(myProv, "ResourceSet", resourceSet));
 				}
 
@@ -124,7 +125,7 @@ namespace PigeonCms
             return result;
         }
 
-        public Seo Insert(Seo newObj)
+        public override Seo Insert(Seo newObj)
         {
             DbProviderFactory myProv = Database.ProviderFactory;
             DbConnection myConn = myProv.CreateConnection();
@@ -144,15 +145,13 @@ namespace PigeonCms
                 if (string.IsNullOrEmpty(result.UserUpdated))
                     result.UserUpdated = PgnUserCurrent.UserName;
 
-				sSql = "INSERT INTO [" + this.TableName + "](/*Id,*/ ResourceSet, DateUpdated, UserUpdated, "
-                + " NoIndex, NoFollow) "
-				+ " VALUES(/*@Id,*/ @ResourceSet, @DateUpdated, @UserUpdated, "
-				+ " @NoIndex, @NoFollow) "
+				sSql = "INSERT INTO [" + this.TableName + "](ResourceSet, DateUpdated, UserUpdated, NoIndex, NoFollow) "
+				+ " VALUES(@ResourceSet, @DateUpdated, @UserUpdated, @NoIndex, @NoFollow) "
                 + " SELECT SCOPE_IDENTITY()";
                 myCmd.CommandText = Database.ParseSql(sSql);
 
                 //myCmd.Parameters.Add(Database.Parameter(myProv, "Id", result.Id));//IDENTITY
-				myCmd.Parameters.Add(Database.Parameter(myProv, "ResourceSet", result.ResourceSet));
+				myCmd.Parameters.Add(Database.Parameter(myProv, "ResourceSet", this.resourceSet));
 				myCmd.Parameters.Add(Database.Parameter(myProv, "DateUpdated", result.DateUpdated));
 				myCmd.Parameters.Add(Database.Parameter(myProv, "UserUpdated", result.UserUpdated));
 				myCmd.Parameters.Add(Database.Parameter(myProv, "NoIndex", result.NoIndex));
@@ -169,11 +168,50 @@ namespace PigeonCms
             return result;
         }
 
+		public override int DeleteById(int recordId)
+		{
+			DbProviderFactory myProv = Database.ProviderFactory;
+			DbConnection myConn = myProv.CreateConnection();
+			DbCommand myCmd = myProv.CreateCommand();
+			int res = 0;
+			string sSql = "";
+
+			try
+			{
+				myConn.ConnectionString = Database.ConnString;
+				myConn.Open();
+				myCmd.Connection = myConn;
+
+				//item
+				sSql = "DELETE FROM [" + this.TableName + "] WHERE Id = @Id ";
+				myCmd.CommandText = Database.ParseSql(sSql);
+				myCmd.Parameters.Clear();
+				myCmd.Parameters.Add(Database.Parameter(myProv, "Id", recordId));
+				myCmd.ExecuteNonQuery();
+
+				//culture
+				sSql = "DELETE FROM [" + this.TableName + "_Culture] WHERE SeoId = @SeoId ";
+				myCmd.CommandText = Database.ParseSql(sSql);
+				myCmd.Parameters.Clear();
+				myCmd.Parameters.Add(Database.Parameter(myProv, "SeoId", recordId));
+				myCmd.ExecuteNonQuery();
+			}
+			catch (Exception e)
+			{
+				throw e;
+			}
+			finally
+			{
+				myConn.Dispose();
+			}
+			return res;
+		}
+
         protected override void FillObject(Seo result, DbDataReader myRd)
         {
             if (!Convert.IsDBNull(myRd["Id"]))
                 result.Id = (int)myRd["Id"];
-			if (!Convert.IsDBNull(myRd["TableName"]))
+			if (!Convert.IsDBNull(myRd["ResourceSet"]))
 				result.ResourceSet = (string)myRd["ResourceSet"];
             if (!Convert.IsDBNull(myRd["DateUpdated"]))
                 result.DateUpdated = (DateTime)myRd["DateUpdated"];
@@ -203,7 +241,7 @@ namespace PigeonCms
                 myCmd.CommandText = Database.ParseSql(sSql);
                 myCmd.Parameters.Clear();
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CultureName", item.Key));
-                myCmd.Parameters.Add(Database.Parameter(myProv, "ItemId", theObj.Id));
+				myCmd.Parameters.Add(Database.Parameter(myProv, "SeoId", theObj.Id));
                 myCmd.ExecuteNonQuery();
 
                 //insert current culture entry

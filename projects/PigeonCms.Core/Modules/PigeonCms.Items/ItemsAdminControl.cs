@@ -91,6 +91,12 @@ namespace PigeonCms
             get { return GetBoolParam("ShowSecurity", showSecurity); }
         }
 
+		private bool showSeo = true;
+		public bool ShowSeo
+		{
+			get { return GetBoolParam("ShowSeo", showSeo); }
+		}
+
         private bool showFieldsPanel = true;
         public bool ShowFieldsPanel
         {

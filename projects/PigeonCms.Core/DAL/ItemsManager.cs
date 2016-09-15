@@ -111,7 +111,7 @@ namespace PigeonCms
                     + " t.CustomString1, t.CustomString2, t.CustomString3, t.CustomString4, "
                     + " t.ItemParams, t.AccessType, t.PermissionId, t.AccessCode, t.AccessLevel, "
                     + " t.CommentsGroupId, t.WriteAccessType, t.WritePermissionId, t.WriteAccessCode, t.WriteAccessLevel, "
-                    + " t.ThreadId, t.CssClass, t.ExtId, "
+                    + " t.ThreadId, t.CssClass, t.ExtId, t.SeoId, "
                     + " categ.AccessType categAccessType, categ.PermissionId categPermissionId, "
                     + " categ.AccessCode categAccessCode, categ.AccessLevel categAccessLevel, "
                     + " categ.WriteAccessType categWriteAccessType, categ.WritePermissionId categWritePermissionId, "
@@ -309,7 +309,7 @@ namespace PigeonCms
                     + " t.CustomString1, t.CustomString2, t.CustomString3, t.CustomString4, "
                     + " t.ItemParams, t.AccessType, t.PermissionId, t.AccessCode, t.AccessLevel, "
                     + " t.CommentsGroupId, t.WriteAccessType, t.WritePermissionId, t.WriteAccessCode, t.WriteAccessLevel, "
-                    + " t.ThreadId, t.CssClass, t.ExtId, "
+                    + " t.ThreadId, t.CssClass, t.ExtId, t.SeoId, "
                     + " categ.AccessType, categ.PermissionId, "
                     + " categ.AccessCode, categ.AccessLevel, "
                     + " categ.WriteAccessType, categ.WritePermissionId, "
@@ -516,6 +516,7 @@ namespace PigeonCms
             {
                 //fill ReadPermissionId and WritePermissionId before trans
                 new PermissionProvider().UpdatePermissionObj(theObj);
+				seoProvider.Save(theObj);
 
                 myConn.ConnectionString = Database.ConnString;
                 myConn.Open();
@@ -538,7 +539,7 @@ namespace PigeonCms
                 + " [ItemParams]=@ItemParams, AccessType=@AccessType, PermissionId=@PermissionId, "
                 + " [AccessCode]=@AccessCode, AccessLevel=@AccessLevel, CommentsGroupId=@CommentsGroupId, "
                 + " WriteAccessType=@WriteAccessType, WritePermissionId=@WritePermissionId, [WriteAccessCode]=@WriteAccessCode, "
-                + " WriteAccessLevel=@WriteAccessLevel, ThreadId=@ThreadId, CssClass=@CssClass, ExtId=@ExtId "
+                + " WriteAccessLevel=@WriteAccessLevel, ThreadId=@ThreadId, CssClass=@CssClass, ExtId=@ExtId, SeoId=@SeoId "
                 + " WHERE Id = @Id";
                 myCmd.CommandText = Database.ParseSql(sSql);
                 myCmd.Parameters.Add(Database.Parameter(myProv, "Id", theObj.Id));
@@ -623,6 +624,7 @@ namespace PigeonCms
                 myCmd.Parameters.Add(Database.Parameter(myProv, "ThreadId", theObj.ThreadId));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CssClass", theObj.CssClass));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "ExtId", theObj.ExtId));
+				myCmd.Parameters.Add(Database.Parameter(myProv, "SeoId", theObj.SeoId));
 
                 result = myCmd.ExecuteNonQuery();
                 updateCultureText(theObj, myCmd, myProv);
@@ -674,7 +676,9 @@ namespace PigeonCms
             {
                 //create read/write permission
                 new PermissionProvider().CreatePermissionObj(newObj);
-				seop
+
+				seoProvider.Save(newObj);
+
 
                 myConn.ConnectionString = Database.ConnString;
                 myConn.Open();
@@ -709,7 +713,7 @@ namespace PigeonCms
                 + " CustomString1, CustomString2, CustomString3, CustomString4, "
                 + " ItemParams, AccessType, PermissionId, AccessCode, AccessLevel, CommentsGroupId, "
                 + " WriteAccessType, WritePermissionId, WriteAccessCode, WriteAccessLevel, "
-                + " ThreadId, CssClass, ExtId) "
+                + " ThreadId, CssClass, ExtId, SeoId) "
                 + " VALUES(/*@Id,*/ @ItemType, @CategoryId, @Enabled, "
                 + " @Alias, @Ordering, @DefaultImageName, "
                 + " @DateInserted, @UserInserted, @DateUpdated, @UserUpdated, "
@@ -721,7 +725,7 @@ namespace PigeonCms
                 + " @CustomString1, @CustomString2, @CustomString3, @CustomString4, "
                 + " @ItemParams, @AccessType, @PermissionId, @AccessCode, @AccessLevel, @CommentsGroupId, "
                 + " @WriteAccessType, @WritePermissionId, @WriteAccessCode, @WriteAccessLevel, "
-                + " @ThreadId, @CssClass, @ExtId) "
+                + " @ThreadId, @CssClass, @ExtId, @SeoId) "
                 + " SELECT SCOPE_IDENTITY()";
                 myCmd.CommandText = Database.ParseSql(sSql);
 
@@ -808,6 +812,7 @@ namespace PigeonCms
                 myCmd.Parameters.Add(Database.Parameter(myProv, "ThreadId", result.ThreadId));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CssClass", result.CssClass));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "ExtId", result.ExtId));
+				myCmd.Parameters.Add(Database.Parameter(myProv, "SeoId", result.SeoId));
 
                 result.Id = (int)(decimal)myCmd.ExecuteScalar();
 

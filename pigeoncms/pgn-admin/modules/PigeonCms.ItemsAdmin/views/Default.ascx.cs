@@ -167,6 +167,7 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
 		TxtAlias.Visible = this.ShowAlias;
 
         PermissionsControl1.Visible = this.ShowSecurity;
+		SeoControl1.Visible = this.ShowSeo;
 
         TxtItemDate.Visible = this.ShowDates;
         TxtValidFrom.Visible = this.ShowDates;
@@ -590,6 +591,7 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
             txt2.Text = "";
         }
         PermissionsControl1.ClearForm();
+		SeoControl1.ClearForm();
     }
 
     private void form2obj(Item obj)
@@ -623,6 +625,7 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
         string fieldsString = FormBuilder.GetParamsString(obj.ItemType.Fields, ItemFields1);
         obj.LoadCustomFieldsFromString(fieldsString);
         PermissionsControl1.Form2obj(obj);
+		SeoControl1.Form2obj(obj);
     }
 
     private void obj2form(Item obj)
@@ -666,6 +669,7 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
         ItemParams1.LoadParams(obj);
         ItemFields1.LoadFields(obj);
         PermissionsControl1.Obj2form(obj);
+		SeoControl1.Obj2form(obj);
         LitSection.Text = obj.Category.Section.Title;
         LitItemType.Text = obj.ItemTypeName;
 
