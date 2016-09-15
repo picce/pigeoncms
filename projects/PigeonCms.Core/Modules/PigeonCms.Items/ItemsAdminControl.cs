@@ -309,7 +309,7 @@ namespace PigeonCms
 
             Literal lit = new Literal();
             if (!this.ShowOnlyDefaultCulture)
-                lit.Text = "<span class=\"input-group-addon\">" + cultureItem.Value + "</span>";
+                lit.Text = "<div class=\"input-group-addon\"><span>" + cultureItem.Value.Substring(0, 3) + "</span></div>";
             group.Controls.Add(lit);
             panel.Controls.Add(group);
         }

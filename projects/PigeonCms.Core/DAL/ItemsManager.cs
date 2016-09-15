@@ -27,6 +27,7 @@ namespace PigeonCms
 
         private bool checkUserContext = false;
         private bool writeMode = false;
+		private SeoProvider seoProvider;
 
         public bool CheckUserContext
         {
@@ -53,6 +54,8 @@ namespace PigeonCms
             this.checkUserContext = checkUserContext;
             this.writeMode = writeMode;
             if (this.writeMode) this.checkUserContext = true;    //forced
+
+			seoProvider = new SeoProvider("items");
         }
 
         public override Dictionary<string, string> GetList()
@@ -671,6 +674,7 @@ namespace PigeonCms
             {
                 //create read/write permission
                 new PermissionProvider().CreatePermissionObj(newObj);
+				seop
 
                 myConn.ConnectionString = Database.ConnString;
                 myConn.Open();
@@ -885,6 +889,7 @@ namespace PigeonCms
             currObj.DeleteFiles();
             new PermissionProvider().RemovePermissionById(currObj.ReadPermissionId);
             new PermissionProvider().RemovePermissionById(currObj.WritePermissionId);
+			seoProvider.Remove(currObj);
 
             var iman = new ItemAttributesValuesManager();
             iman.DeleteByItemId(currObj.Id);
@@ -1136,6 +1141,8 @@ namespace PigeonCms
                 result.CssClass = (string)myRd["CssClass"];
             if (!Convert.IsDBNull(myRd["ExtId"]))
                 result.ExtId = (string)myRd["ExtId"];
+			if (!Convert.IsDBNull(myRd["SeoId"]))
+				result.SeoId = (int)myRd["SeoId"];
         }
 
         protected override int GetPreviousRecordInOrder(int ordering, int currentRecordId)

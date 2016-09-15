@@ -61,7 +61,8 @@ namespace PigeonCms
     }
 
     public class Item: ITableWithPermissions,
-        ITableWithOrdering, ITableWithComments, ITableExternalId
+        ITableWithOrdering, ITableWithComments, 
+		ITableExternalId, ITableWithSeo
     {
         const string DefaultItemType = "PigeonCms.Item";
 
@@ -278,6 +279,33 @@ namespace PigeonCms
             [DebuggerStepThrough()]
             set { extId = value; }
         }
+
+		/// <summary>
+		/// external key to seo table
+		/// </summary>
+		public int SeoId { get; set; }
+
+		private Seo seo = null;
+		/// <summary>
+		/// seo informations
+		/// </summary>
+		Seo ITableWithSeo.Seo
+		{
+			get
+			{
+				if (seo == null)
+				{
+					var provider = new SeoProvider(this.ItemTypeName);
+					seo = provider.Get(this);
+				}
+				return seo;
+			}
+
+			set
+			{
+				this.seo = value;
+			}
+		}
 
         /// <summary>
         /// Title in current culture

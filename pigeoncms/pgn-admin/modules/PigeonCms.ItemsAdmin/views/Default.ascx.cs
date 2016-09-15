@@ -113,7 +113,10 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
         foreach (KeyValuePair<string, string> item in Config.CultureList)
         {
             //title
-            Panel pan1 = new Panel();
+			base.AddTransText("TxtTitle", PanelTitle, base.ContentEditorConfig, item, 200, "form-control");
+
+
+            /*Panel pan1 = new Panel();
             pan1.CssClass = "form-group input-group";
             PanelTitle.Controls.Add(pan1);
 
@@ -129,7 +132,7 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
             LabelsProvider.SetLocalizedControlVisibility(this.ShowOnlyDefaultCulture, item.Key, txt1);
             pan1.Controls.Add(txt1);
             if (item.Key == Config.CultureDefault)
-                titleId = txt1.ClientID;
+                titleId = txt1.ClientID;*/
 
             //description
             Literal lit2 = new Literal();

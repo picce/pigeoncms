@@ -2872,7 +2872,82 @@ GO
 ]]>
 
 	</item>
-</updates>
 
+	<item id="5" date="2016-09-13" dev="https://github.com/picce/" notes="added seo management tables">
+		<![CDATA[
+
+	CREATE TABLE #__seo
+	(
+		id int NOT NULL IDENTITY (1, 1),
+		resourceSet nvarchar(100) NULL,
+		dateUpdated datetime NULL,
+		userUpdated varchar(50) NULL,		
+		noIndex bit NULL,
+		noFollow bit NULL
+	)  ON [PRIMARY]
+	GO
+	ALTER TABLE #__seo ADD CONSTRAINT
+	PK_#__seo PRIMARY KEY CLUSTERED
+	(
+		id
+	) WITH( STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+	GO
+	
+	
+	CREATE TABLE #__seo_Culture
+		(
+			cultureName varchar(50) NOT NULL,
+			seoId int NOT NULL,
+			title nvarchar(200) NULL,
+			description ntext NULL
+		)  ON [PRIMARY]
+		 TEXTIMAGE_ON [PRIMARY]
+	GO
+	ALTER TABLE #__seo_Culture ADD CONSTRAINT
+		PK_#__seo_Culture PRIMARY KEY CLUSTERED 
+		(
+			cultureName,
+			seoId
+		) WITH( STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+	GO	
+	
+    --version fallback for manual db upgrade
+    INSERT INTO #__dbVersion(componentFullName, versionId, versionDate, versionDev, versionNotes, dateUpdated, userUpdated)
+    VALUES('PigeonCms.Core', 5/*version*/, GETDATE(), '', '', GETDATE(), 'MANUAL')
+    GO
+
+]]>
+
+	</item>
+
+	<item id="6" date="2016-09-14" dev="https://github.com/picce/" notes="added seoId to items, categories, sections, menu ">
+		<![CDATA[
+
+		ALTER TABLE #__items ADD
+			seoId int NULL
+		GO
+		
+		ALTER TABLE #__categories ADD
+			seoId int NULL
+		GO
+		
+		ALTER TABLE #__sections ADD
+			seoId int NULL
+		GO
+		
+		ALTER TABLE #__menu ADD
+			seoId int NULL
+		GO
+		
+    --version fallback for manual db upgrade
+    INSERT INTO #__dbVersion(componentFullName, versionId, versionDate, versionDev, versionNotes, dateUpdated, userUpdated)
+    VALUES('PigeonCms.Core', 6/*version*/, GETDATE(), '', '', GETDATE(), 'MANUAL')
+    GO
+
+]]>
+
+	</item>
+
+</updates>
 
 
