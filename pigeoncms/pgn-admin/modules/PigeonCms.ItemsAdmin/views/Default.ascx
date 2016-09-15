@@ -2,6 +2,7 @@
 <%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="cc1" %>
 <%@ Register Src="~/Controls/ItemParams.ascx" TagName="ItemParams" TagPrefix="uc1" %>
 <%@ Register Src="~/Controls/PermissionsControl.ascx" TagName="PermissionsControl" TagPrefix="uc1" %>
+<%@ Register Src="~/Controls/SeoControl.ascx" TagName="SeoControl" TagPrefix="uc1" %>
 <%@ Register Src="~/Controls/ContentEditorControl.ascx" TagName="ContentEditorControl" TagPrefix="uc1" %>
 <%@ Register Src="~/Controls/CategoriesTreeControl.ascx" TagName="CategoriesTreeControl" TagPrefix="uc1" %>
 
@@ -597,6 +598,7 @@
 
 							<ul class="nav nav-pills">
 								<li class="active"><a href="#tab-main" data-toggle="tab"><%=base.GetLabel("Main", "Main") %></a></li>
+								<li><a href="#tab-seo" data-toggle="tab"><%=base.GetLabel("Seo", "Seo") %></a></li>
 								<li><a href="#tab-security" data-toggle="tab"><%=base.GetLabel("Security", "Security") %></a></li>
 								<li><a href="#tab-parameters" data-toggle="tab"><%=base.GetLabel("Parameters", "Parameters") %></a></li>
 							</ul>
@@ -671,6 +673,12 @@
 											<asp:Panel runat="server" ID="PanelDescription"></asp:Panel>
 										</div>
 									</div>
+
+								</div>
+
+								<div class="tab-pane fade " id="tab-seo">
+
+									<uc1:SeoControl ID="SeoControl1" runat="server" />
 
 								</div>
 

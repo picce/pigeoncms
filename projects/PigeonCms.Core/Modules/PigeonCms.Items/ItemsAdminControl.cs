@@ -91,6 +91,12 @@ namespace PigeonCms
             get { return GetBoolParam("ShowSecurity", showSecurity); }
         }
 
+		private bool showSeo = true;
+		public bool ShowSeo
+		{
+			get { return GetBoolParam("ShowSeo", showSeo); }
+		}
+
         private bool showFieldsPanel = true;
         public bool ShowFieldsPanel
         {
@@ -309,7 +315,7 @@ namespace PigeonCms
 
             Literal lit = new Literal();
             if (!this.ShowOnlyDefaultCulture)
-                lit.Text = "<span class=\"input-group-addon\">" + cultureItem.Value + "</span>";
+                lit.Text = "<div class=\"input-group-addon\"><span>" + cultureItem.Value.Substring(0, 3) + "</span></div>";
             group.Controls.Add(lit);
             panel.Controls.Add(group);
         }

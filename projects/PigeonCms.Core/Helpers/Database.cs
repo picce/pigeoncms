@@ -726,6 +726,16 @@ namespace PigeonCms
         int WriteAccessLevel { get; set; }
     }
 
+	/// <summary>
+	/// seo enabled class
+	/// </summary>
+	public interface ITableWithSeo : ITable
+	{
+		int SeoId { get; set; }
+		Seo Seo { get; set; }
+	}
+
+
     public interface ITableManager
     {
         //*** not implemented
