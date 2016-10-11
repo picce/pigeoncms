@@ -289,7 +289,7 @@ namespace PigeonCms
 		/// <summary>
 		/// seo informations
 		/// </summary>
-		Seo ITableWithSeo.Seo
+		public Seo Seo
 		{
 			get
 			{
