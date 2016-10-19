@@ -18,7 +18,10 @@ using System.Threading;
 
 namespace PigeonCms
 {
-    public class Section : ITableWithPermissions, ITableExternalId
+    public class Section : 
+        ITableWithPermissions, 
+        ITableExternalId,
+        ITableWithSeo
     {
         private int id = 0;
         private bool enabled = true;
@@ -87,6 +90,34 @@ namespace PigeonCms
             get { return extId; }
             [DebuggerStepThrough()]
             set { extId = value; }
+        }
+
+
+        /// <summary>
+        /// external key to seo table
+        /// </summary>
+        public int SeoId { get; set; }
+
+        private Seo seo = null;
+        /// <summary>
+        /// seo informations
+        /// </summary>
+        public Seo Seo
+        {
+            get
+            {
+                if (seo == null)
+                {
+                    var provider = new SeoProvider("sections");
+                    seo = provider.Get(this);
+                }
+                return seo;
+            }
+
+            set
+            {
+                this.seo = value;
+            }
         }
 
         /// <summary>
