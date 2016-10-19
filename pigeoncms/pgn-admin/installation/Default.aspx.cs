@@ -330,11 +330,6 @@ public partial class Installation_Default : Page
             res = false;
             LblErr.Text += "create.sql file not found<br />";
         }
-        if (!File.Exists(filePath + "bulk.sql"))
-        {
-            res = false;
-            LblErr.Text += "bulk.sql file not found<br />";
-        }
 
         LblErr.Text = renderError(LblErr.Text);
 
@@ -360,7 +355,7 @@ public partial class Installation_Default : Page
             myTrans = myConn.BeginTransaction();
             myCmd.Transaction = myTrans;
 
-            //tables structure creation
+            //tables structure and bulk data
             TextReader tr = new StreamReader(
                 HttpContext.Current.Request.MapPath(Config.InstallationPath + "sql/create.sql"));
             sSql = tr.ReadToEnd();
@@ -368,13 +363,6 @@ public partial class Installation_Default : Page
             sSql = Database.ParseSql(sSql, TxtTablesPrefix.Text);
             sResult = Database.ExecuteQuery(myRd, myCmd, sSql);
 
-            //bulk data
-            tr = new StreamReader(
-                HttpContext.Current.Request.MapPath(Config.InstallationPath + "sql/bulk.sql"));
-            sSql = tr.ReadToEnd();
-            tr.Close();
-            sSql = Database.ParseSql(sSql, TxtTablesPrefix.Text);
-            sResult = Database.ExecuteQuery(myRd, myCmd, sSql);
 
             myTrans.Commit();
         }
