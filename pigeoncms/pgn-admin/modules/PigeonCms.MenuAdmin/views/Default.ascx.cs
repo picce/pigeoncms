@@ -500,6 +500,7 @@ public partial class Controls_MenuAdmin : PigeonCms.BaseModuleControl
         Utility.SetDropByValue(DropUseSsl, "2");
 
         PermissionsControl1.ClearForm();
+        SeoControl1.ClearForm();
 
         lockControl(TxtLink, true);
         lockControl(TxtAlias, true);
@@ -564,6 +565,7 @@ public partial class Controls_MenuAdmin : PigeonCms.BaseModuleControl
         obj.UseSsl = (Utility.TristateBool)int.Parse(DropUseSsl.SelectedValue);
         
         PermissionsControl1.Form2obj(obj);
+        SeoControl1.Form2obj(obj);
 
         //route
         obj.RouteId = 1;
@@ -647,6 +649,8 @@ public partial class Controls_MenuAdmin : PigeonCms.BaseModuleControl
         ChkIsCore.Checked = obj.IsCore;
 
         PermissionsControl1.Obj2form(obj);
+        SeoControl1.Obj2form(obj);
+
 
         Module currModule = new Module();
         if (obj.ContentType == MenuContentType.Module)

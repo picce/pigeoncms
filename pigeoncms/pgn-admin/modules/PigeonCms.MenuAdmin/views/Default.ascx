@@ -2,6 +2,8 @@
 <%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="cc1" %>
 <%@ Register src="~/Controls/ModuleParams.ascx" tagname="ModuleParams" tagprefix="uc1" %>
 <%@ Register src="~/Controls/PermissionsControl.ascx" tagname="PermissionsControl" tagprefix="uc1" %>
+<%@ Register Src="~/Controls/SeoControl.ascx" TagName="SeoControl" TagPrefix="uc1" %>
+
 
 
 <script type="text/javascript">
@@ -355,6 +357,7 @@
                             <ul class="nav nav-pills">
                                 <li class="active"><a href="#tab-main" data-toggle="tab"><%=base.GetLabel("Main", "Main") %></a></li>
                                 <li><a href="#tab-options" data-toggle="tab"><%=base.GetLabel("Options", "Options") %></a></li>
+                                <li><a href="#tab-seo" data-toggle="tab"><%=base.GetLabel("Seo", "Seo") %></a></li>
                                 <li><a href="#tab-security" data-toggle="tab"><%=base.GetLabel("Security", "Security") %></a></li>
                                 <li><a href="#tab-parameters" data-toggle="tab"><%=base.GetLabel("Parameters", "Parameters") %></a></li>
                             </ul>
@@ -483,6 +486,13 @@
 
                                 </div>   
                         
+                                <%--tab seo --%>
+                                <div class="tab-pane fade " id="tab-seo">
+
+									<uc1:SeoControl ID="SeoControl1" runat="server" />
+
+								</div>
+
                                 <%--tab-security--%>
                                 <div class="tab-pane fade tab-detail-item" id="tab-security">
                                     
