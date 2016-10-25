@@ -7,6 +7,13 @@
 <script type="text/javascript">
     // <!CDATA[
 
+    function preloadTitle(sourceControlName, targetControl)
+    {
+        if (targetControl.value == "")
+            targetControl.value = document.getElementById(sourceControlName).value;
+    }
+
+
     function preloadAlias(sourceControlName, targetControl) {
         var res = document.getElementById(sourceControlName).value;
         if (targetControl.value == "") {
@@ -37,6 +44,21 @@
 	        __doPostBack(upd1, 'items');
 	    }
 	}
+
+    function changeModueleTypes() {
+        var elemname = '#<%=DropModuleTypes.ClientID %>';
+        $(elemname).removeAttr('disabled');
+        $(elemname).removeClass('locked');
+        $('#lnkchange').hide();
+    }
+    
+    function changeView() {
+        var elemname = '#<%=DropViews.ClientID %>';
+        $(elemname).removeAttr('disabled');
+        $(elemname).removeClass('locked');
+        $('#lnkChangeView').hide();
+    }
+
 
 
 	function onSuccess(result) { }
@@ -350,7 +372,7 @@
                                     <div class="form-group col-sm-6 form-select-wrapper form-select-detail-item">
                                         <%=base.GetLabel("LblContentType", "Content type", DropModuleTypes, true)%>
                                         <a href="javascript:void(0)" onclick="changeModueleTypes();" id="lnkchange" runat="server">
-                                            <%=base.GetLabel("LblChange", "change", null, true) %>
+                                            <span><%=base.GetLabel("LblChange", "change") %></span>
                                         </a>
                                         <asp:DropDownList ID="DropModuleTypes" CssClass="form-control" runat="server"
                                             AutoPostBack="true" OnSelectedIndexChanged="DropModuleTypes_SelectedIndexChanged"></asp:DropDownList>
@@ -415,11 +437,11 @@
 
                                     <div class="form-group col-md-6 form-select-wrapper form-select-detail-item">
                                         <%=base.GetLabel("LblViews", "Views", DropViews, true)%>
+                                        <a href="javascript:void(0)" onclick="changeView();" id="lnkChangeView" runat="server">
+                                            <span><%=base.GetLabel("LblChange", "change") %></span>
+                                        </a>
                                         <asp:DropDownList ID="DropViews" runat="server" CssClass="form-control"
                                             AutoPostBack="true" OnSelectedIndexChanged="DropViews_SelectedIndexChanged"></asp:DropDownList>
-                                        <a href="javascript:void(0)" onclick="changeView();" id="lnkChangeView" runat="server">
-                                            <%=base.GetLabel("LblChange", "change", null, true) %>
-                                        </a>
                                     </div>
 
                                     <div class="form-group col-md-6 form-select-wrapper form-select-detail-item">
