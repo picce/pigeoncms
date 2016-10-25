@@ -65,10 +65,12 @@ namespace PigeonCms
         /// <param name="requestContext">current context</param>
         /// <param name="assemblyPath">
         /// dll path in mvc project. 
-        /// example: ~/bin/mymvchandler.dll 
+        /// example: ~/bin/mynamespace.mymvchandler.dll 
         /// example: c:\inetpub\myhandlers\customhandler.dll</param>
-        /// <param name="handlerName"></param>
-        /// <returns>class full name that handle mvc controller</returns>
+        /// <param name="handlerName">
+        /// class full name that handle mvc controller
+        /// example: mynamespace.MyMvchHndler</param>
+        /// <returns></returns>
         IHttpHandler LoadMVCHandler(RequestContext requestContext, string assemblyPath, string handlerName)
         {
             string resolvedAssemblyPath = assemblyPath.StartsWith("~") ? requestContext.HttpContext.Server.MapPath(assemblyPath) : assemblyPath;
