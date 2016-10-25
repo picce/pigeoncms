@@ -120,8 +120,8 @@
 
 									<a href="javascript:void(0)" class="table-modern-edit"><span></span></a>
 									<div class="col-sm-4 table-modern__col align-left"><%=base.GetLabel("Name-Patter", "Name / Pattern") %></div>
-									<div class="col-sm-2 table-modern__col align-left"><%=base.GetLabel("Theme", "Theme") %></div>
-									<div class="col-sm-2 table-modern__col align-left"><%=base.GetLabel("Masterpage", "Masterpage") %></div>
+									<div class="col-sm-2 table-modern__col align-left"><%=base.GetLabel("Theme-MasterPage", "Theme/Masterpage") %></div>
+									<div class="col-sm-2 table-modern__col align-left"><%=base.GetLabel("PageHandler", "Page Handler") %></div>
 									<div class="col-sm-1 table-modern__col align-center"><%=base.GetLabel("Published", "Published") %></div>
 									<div class="col-sm-1 table-modern__col align-center"><%=base.GetLabel("UseSsl", "UseSsl") %></div>
 									<div class="col-sm-1 table-modern__col align-center"><%=base.GetLabel("Core", "Core") %></div>
@@ -154,7 +154,9 @@
 											<div class="col-sm-2 table-modern__col">
 												<div class="table-modern--description" data-menu="theme">
 													<div class="table-modern--description--wrapper">
-														<%# Eval("CurrTheme") %>
+                                                        <span class="table-modern--smallcontent">
+                                                            <asp:Literal runat="server" ID="LitTheme"></asp:Literal>
+                                                        </span>
 													</div>
 												</div>
 											</div>
@@ -162,7 +164,9 @@
 											<div class="col-sm-2 table-modern__col">
 												<div class="table-modern--description" data-menu="master">
 													<div class="table-modern--description--wrapper">
-														<%# Eval("CurrMasterpage") %>
+                                                        <span class="table-modern--smallcontent">
+                                                            <asp:Literal runat="server" ID="LitHandler"></asp:Literal>
+                                                        </span>
 													</div>
 												</div>
 											</div>
@@ -319,6 +323,16 @@
 							<div class="form-group col-md-6 form-select-wrapper form-select-detail-item">
 								<%=base.GetLabel("LblMasterpage", "Masterpage", DropMasterPage, true)%>
 								<asp:DropDownList ID="DropMasterPage" CssClass="form-control" runat="server"></asp:DropDownList>
+							</div>
+
+							<div class="form-group col-md-6">
+								<%=base.GetLabel("LblAssemblyPath", "Assembly path", TxtAssemblyPath, true)%>
+								<asp:TextBox ID="TxtAssemblyPath" MaxLength="255" runat="server" CssClass="form-control"></asp:TextBox>
+							</div>
+
+							<div class="form-group col-md-6">
+								<%=base.GetLabel("LblHandlerName", "Handler name", TxtHandlerName, true)%>
+								<asp:TextBox ID="TxtHandlerName" MaxLength="255" runat="server" CssClass="form-control"></asp:TextBox>
 							</div>
 
 							<div class="form-group col-md-12 checkbox-container">

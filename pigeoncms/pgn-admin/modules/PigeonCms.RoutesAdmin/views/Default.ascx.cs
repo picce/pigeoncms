@@ -73,6 +73,24 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
 
 		var item = (MvcRoute)e.Item.DataItem;
 
+        {
+            var LitTheme = (Literal)e.Item.FindControl("LitTheme");
+            LitTheme.Text = "";
+            if (!string.IsNullOrEmpty(item.CurrTheme))
+                LitTheme.Text += "<strong>T: </strong>" + item.CurrTheme + "<br>";
+            if (!string.IsNullOrEmpty(item.CurrMasterPage))
+                LitTheme.Text += "<strong>M: </strong>" + item.CurrMasterPage;
+        }
+
+        {
+            var LitHandler = (Literal)e.Item.FindControl("LitHandler");
+            LitHandler.Text =  "";
+            if (!string.IsNullOrEmpty(item.AssemblyPath))
+                LitHandler.Text += "<strong>Assembly path: </strong>" + item.AssemblyPath + "<br>";
+            if (!string.IsNullOrEmpty(item.HandlerName))
+                LitHandler.Text += "<strong>Handler name: </strong>" + item.HandlerName;
+        }
+
 		{
 			var LitPublished = (Literal)e.Item.FindControl("LitPublished");
 			string enabledClass = "";
@@ -221,6 +239,8 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         TxtName.Text = "";
         TxtName.Enabled = true;
         TxtPattern.Text = "";
+        TxtAssemblyPath.Text = "";
+        TxtHandlerName.Text = "";
         ChkPublished.Checked = true;
         ChkUseSsl.Checked = false;
         ChkIsCore.Checked = false;
@@ -235,6 +255,8 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         obj.UseSsl = ChkUseSsl.Checked;
         obj.Name = TxtName.Text;
         obj.Pattern = TxtPattern.Text;
+        obj.AssemblyPath = TxtAssemblyPath.Text;
+        obj.HandlerName = TxtHandlerName.Text;
         obj.IsCore = ChkIsCore.Checked;
         obj.CurrMasterPage = DropMasterPage.SelectedValue;
         obj.CurrTheme = DropTheme.SelectedValue;
@@ -244,6 +266,8 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
     {
         TxtName.Text = obj.Name;
         TxtPattern.Text = obj.Pattern;
+        TxtAssemblyPath.Text = obj.AssemblyPath;
+        TxtHandlerName.Text = obj.HandlerName;
         ChkPublished.Checked = obj.Published;
         ChkUseSsl.Checked = obj.UseSsl;
         ChkIsCore.Checked = obj.IsCore;
@@ -275,7 +299,13 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
 
         try
         {
-            new MvcRoutesManager().DeleteById(recordId);
+            var man = new MvcRoutesManager();
+            var route = man.GetByKey(recordId);
+
+            if (route.IsCore)
+                throw new InvalidOperationException("Cannot delete core routes");
+
+            man.DeleteById(recordId);
         }
         catch (Exception e)
         {

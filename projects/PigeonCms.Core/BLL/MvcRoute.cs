@@ -31,7 +31,9 @@ namespace PigeonCms
         private bool isCore = false;
         private bool useSsl = false;
         private List<MvcRouteParam> paramsList = new List<MvcRouteParam>();
-        
+        private string assemblyPath = string.Empty;
+        private string handlerName = string.Empty;
+
 
         /// <summary>
         /// Automatic Id as PKey
@@ -113,6 +115,22 @@ namespace PigeonCms
             get { return useSsl; }
             [DebuggerStepThrough()]
             set { useSsl = value; }
+        }
+
+        public string AssemblyPath
+        {
+            [DebuggerStepThrough()]
+            get { return assemblyPath; }
+            [DebuggerStepThrough()]
+            set { assemblyPath = value; }
+        }
+
+        public string HandlerName
+        {
+            [DebuggerStepThrough()]
+            get { return handlerName; }
+            [DebuggerStepThrough()]
+            set { handlerName = value; }
         }
 
         public List<MvcRouteParam> ParamsList

@@ -2948,6 +2948,30 @@ GO
 
 	</item>
 
+  <item id="7" date="2016-10-18" dev="https://github.com/picce/" notes="added handler info in routes table">
+    <![CDATA[
+
+		ALTER TABLE #__routes ADD
+			assemblyPath nvarchar(255) NULL,
+			handlerName nvarchar(255) NULL
+		GO
+    
+    update #__routes set assemblyPath='' where assemblyPath is null
+    GO
+    
+    update #__routes set handlerName='' where handlerName is null
+    GO
+    
+		
+    --version fallback for manual db upgrade
+    INSERT INTO #__dbVersion(componentFullName, versionId, versionDate, versionDev, versionNotes, dateUpdated, userUpdated)
+    VALUES('PigeonCms.Core', 7/*version*/, GETDATE(), '', '', GETDATE(), 'MANUAL')
+    GO
+
+]]>
+
+  </item>
+
 </updates>
 
 
