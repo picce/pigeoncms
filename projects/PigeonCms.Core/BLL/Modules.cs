@@ -91,22 +91,23 @@ namespace PigeonCms
         }
 
 
-        string titleOld = "";
+        string name = "";
         /// <summary>
-        /// module title to mantain compatibility.
+        /// module name
         /// </summary>
-        public string TitleOld
+        public string Name
         {
             [DebuggerStepThrough()]
-            get { return titleOld; }
+            get { return name; }
             [DebuggerStepThrough()]
-            set { titleOld = value; }
+            set { name = value; }
         }
 
         /// <summary>
         /// Module Title in current culture
         /// </summary>
         [DataObjectField(false)]
+        [Obsolete("Use Module.Name instead")]
         public string Title
         {
             get
@@ -116,7 +117,7 @@ namespace PigeonCms
                 if (string.IsNullOrEmpty(res))
                     titleTranslations.TryGetValue(Config.CultureDefault, out res);
                 if (string.IsNullOrEmpty(res))
-                    res = this.TitleOld;
+                    res = this.Name;
                 if (string.IsNullOrEmpty(res))
                     res = this.ModuleFullName;
                 return res;
@@ -128,6 +129,7 @@ namespace PigeonCms
         /// Title in different culture
         /// </summary>
         [DataObjectField(false)]
+        [Obsolete("Use Module.Name instead")]
         public Dictionary<string, string> TitleTranslations
         {
             [DebuggerStepThrough()]

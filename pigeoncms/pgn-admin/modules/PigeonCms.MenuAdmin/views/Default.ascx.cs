@@ -1,16 +1,11 @@
 using System;
-using System.Data;
-using System.Configuration;
 using System.Collections;
 using System.Web;
-using System.Web.Security;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-using System.Web.UI.WebControls.WebParts;
-using System.Web.UI.HtmlControls;
-using System.Web.Caching;
 using System.Collections.Generic;
 using PigeonCms;
+
 
 public partial class Controls_MenuAdmin : PigeonCms.BaseModuleControl
 {
@@ -296,8 +291,6 @@ public partial class Controls_MenuAdmin : PigeonCms.BaseModuleControl
 
     }
 
-
-
     protected void Rep1_ItemCommand(object source, RepeaterCommandEventArgs e)
     {
         if (e.CommandName == "Select")
@@ -532,7 +525,7 @@ public partial class Controls_MenuAdmin : PigeonCms.BaseModuleControl
                     currModule.ModuleParams += "|" + FormBuilder.GetParamsString(viewType.Params, ModuleParams1);
             }
 
-
+            currModule.Name = menu.Name;
             currModule.TitleTranslations = menu.TitleTranslations;
             currModule.ShowTitle = ChkShowModuleTitle.Checked;
             currModule.TemplateBlockName = ModuleHelper.ContentTemplateBlock;
@@ -830,7 +823,14 @@ public partial class Controls_MenuAdmin : PigeonCms.BaseModuleControl
 
         try
         {
-            new MenuManager().DeleteById(recordId);
+            var man = new MenuManager(true, true);
+            var item = man.GetByKey(recordId);
+
+            if (item.IsCore)
+                throw new InvalidOperationException("Cannot delete core menu entries");
+
+
+            man.DeleteById(recordId);
             base.CurrentId = 0;
         }
         catch (Exception e)
