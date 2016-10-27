@@ -697,7 +697,7 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
     {
         System.Threading.Thread.Sleep(500);
 
-        string destFilename = e.filename;
+        string destFilename = e.FileName;
         if (!(sender is AjaxControlToolkit.AsyncFileUpload))
             return;
 
@@ -738,7 +738,7 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
     protected void UploadPreview_UploadedFileError(object sender, AjaxControlToolkit.AsyncFileUploadEventArgs e)
     {
         LogProvider.Write(this.BaseModule,
-            "UploadPreview_UploadedFileError: state=" + e.state + "; message=" + e.statusMessage,
+            "UploadPreview_UploadedFileError: state=" + e.State + "; message=" + e.StatusMessage,
             TracerItemType.Error);
     }
 

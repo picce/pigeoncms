@@ -17,7 +17,7 @@
 // ]]>
 </script>
 
-<cc1:ToolkitScriptManager ID="ToolkitScriptManager1" runat="server" EnablePageMethods="true"></cc1:ToolkitScriptManager>
+<asp:ScriptManager runat="server" EnablePageMethods="true"></asp:ScriptManager>
 <asp:UpdateProgress ID="UpdateProgress1" runat="server" DisplayAfter="1" AssociatedUpdatePanelID="Upd1">
     <ProgressTemplate>
         <div class="loading"><%=PigeonCms.Utility.GetLabel("LblLoading", "loading") %></div>
