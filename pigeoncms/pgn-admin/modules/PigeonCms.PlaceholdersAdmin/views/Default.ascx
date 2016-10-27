@@ -146,7 +146,7 @@
 						<div class="btn-group clearfix">
 							<div class="btn-group-follow clearfix">
 								<asp:Button ID="BtnCancel" runat="server" Text="<%$ Resources:PublicLabels, CmdCancel %>" CssClass="btn btn-default btn-xs btn-modern btn-modern--cancel" CausesValidation="false" OnClick="BtnCancel_Click" />
-								<asp:Button ID="BtnSave" runat="server" Text="<%$ Resources:PublicLabels, CmdSave %>" CssClass="btn btn-primary btn-xs btn-modern" OnClick="BtnSave_Click" OnClientClick="MyObject.UpdateEditorFormValue();" />
+								<asp:Button ID="BtnSave" runat="server" Text="<%$ Resources:PublicLabels, CmdSave %>" CssClass="btn btn-primary btn-xs btn-modern" OnClick="BtnSave_Click" />
 								<div class="btn-group-alert">
 									<asp:Label ID="LblErrInsert" runat="server" Text=""></asp:Label>
 									<asp:Label ID="LblOkInsert" runat="server" Text=""></asp:Label>
