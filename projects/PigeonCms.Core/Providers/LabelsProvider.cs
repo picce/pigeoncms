@@ -225,6 +225,8 @@ namespace PigeonCms
             string forcedCultureCode)
         {
             string res = "";
+            ResLabel reslbl = null;
+            bool found = false;
 
             //20150512
             if (string.IsNullOrEmpty(forcedCultureCode))
@@ -236,69 +238,105 @@ namespace PigeonCms
                 try
                 {
                     //try current culture
-                    res = labelsList.Find(
-                        delegate(ResLabel labelToFind)
+                    reslbl = labelsList.Find(
+                        delegate (ResLabel labelToFind)
                         {
                             if (labelToFind.ResourceId.ToLower() == resourceId.ToLower() &&
                                 labelToFind.CultureName.ToLower() == forcedCultureCode.ToLower())
                                 return true;
                             else
                                 return false;
-                        }).Value;
+                        });
+
+                    if (reslbl != null)
+                    {
+                        found = true;
+                        res = reslbl.Value;
+
+                        Trace.Write(
+                            "Pigeon LabelsProvider",
+                            "GetLocalizedLabelFromList() found-1; resourceSet:" + resourceSet + "; "
+                            + " resourceId:" + resourceId + "; forcedCultureCode:" + forcedCultureCode + "; res:" + res + ")");
+                    }
 
                     //added 20150701
                     //try default culture
-                    if (string.IsNullOrEmpty(res) && Config.CultureDefault.ToLower() != forcedCultureCode.ToLower())
+                    if (!found 
+                        && Config.CultureDefault.ToLower() != forcedCultureCode.ToLower())
                     {
-                        try
+                        reslbl = labelsList.Find(
+                            delegate(ResLabel labelToFind)
+                            {
+                                if (labelToFind.ResourceId.ToLower() == resourceId.ToLower() &&
+                                    labelToFind.CultureName.ToLower() == Config.CultureDefault.ToLower())
+                                    return true;
+                                else
+                                    return false;
+                            });
+
+                        if (reslbl != null)
                         {
-                            res = labelsList.Find(
-                                delegate(ResLabel labelToFind)
-                                {
-                                    if (labelToFind.ResourceId.ToLower() == resourceId.ToLower() &&
-                                        labelToFind.CultureName.ToLower() == Config.CultureDefault.ToLower())
-                                        return true;
-                                    else
-                                        return false;
-                                }).Value;
+                            found = true;
+                            res = reslbl.Value;
+
+                            Trace.Write(
+                                "Pigeon LabelsProvider",
+                                "GetLocalizedLabelFromList() found-2; resourceSet:" + resourceSet + "; "
+                                + " resourceId:" + resourceId + "; forcedCultureCode:" + forcedCultureCode + "; res:" + res + ")");
                         }
-                        catch (NullReferenceException)
-                        { res = ""; }
                     }
-                }
-                catch (NullReferenceException)
-                {
+
                     //try default culture
-                    if (Config.CultureDefault.ToLower() != forcedCultureCode.ToLower())
+                    if (!found 
+                        && Config.CultureDefault.ToLower() != forcedCultureCode.ToLower())
                     {
-                        try
+                        reslbl = labelsList.Find(
+                            delegate (ResLabel labelToFind)
+                            {
+                                if (labelToFind.ResourceId.ToLower() == resourceId.ToLower() &&
+                                    labelToFind.CultureName.ToLower() == Config.CultureDefault.ToLower())
+                                    return true;
+                                else
+                                    return false;
+                            });
+
+                        if (reslbl != null)
                         {
-                            res = labelsList.Find(
-                                delegate(ResLabel labelToFind)
-                                {
-                                    if (labelToFind.ResourceId.ToLower() == resourceId.ToLower() &&
-                                        labelToFind.CultureName.ToLower() == Config.CultureDefault.ToLower())
-                                        return true;
-                                    else
-                                        return false;
-                                }).Value;
+                            found = true;
+                            res = reslbl.Value;
+
+                            Trace.Write(
+                                "Pigeon LabelsProvider",
+                                "GetLocalizedLabelFromList() found-3; resourceSet:" + resourceSet + "; "
+                                + " resourceId:" + resourceId + "; forcedCultureCode:" + forcedCultureCode + "; res:" + res + ")");
                         }
-                        catch (NullReferenceException)
-                        { res = ""; }
                     }
 
                     //##20140519
                     //auto insert new label with default value for current culture
-                    if (string.IsNullOrEmpty(res)
+                    if (!found
                         && !string.IsNullOrEmpty(defaultValue)
                         && !string.IsNullOrEmpty(resourceSet))
                     {
+                        Trace.Write(
+                            "Pigeon LabelsProvider",
+                            "GetLocalizedLabelFromList() insertDefaultValue; resourceSet:" + resourceSet + "; "
+                            + " resourceId:" + resourceId + "; forcedCultureCode:" + forcedCultureCode + "; res:" + res + ")");
+
+
                         if (insertDefaultValue(resourceSet, resourceId, defaultValue, textMode))
                         {
                             //cause label cache reload
                             ClearCacheByResourceSet(resourceSet);
                         }
                     }
+                }
+                catch (NullReferenceException e)
+                {
+                    Trace.Warn(
+                        "Pigeon LabelsProvider",
+                        "GetLocalizedLabelFromList() err; resourceSet:" + resourceSet + "; resourceId:" + resourceId + "; forcedCultureCode:" + forcedCultureCode + ")",
+                        e);
                 }
             }
             return res;
