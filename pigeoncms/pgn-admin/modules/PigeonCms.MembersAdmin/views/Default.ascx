@@ -3,13 +3,6 @@
 <%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="cc1" %>
 
 
-<script type="text/javascript">
-    // <!CDATA[
-    var deleteQuestion = '<%=PigeonCms.Utility.GetLabel("RECORD_DELETE_QUESTION") %>';
-    // ]]>
-</script>
-
-
 <asp:ScriptManager runat="server" EnablePageMethods="true"></asp:ScriptManager>
 <asp:UpdateProgress ID="UpdateProgress1" runat="server" DisplayAfter="1" AssociatedUpdatePanelID="Upd1">
     <ProgressTemplate>
@@ -235,7 +228,7 @@
 
 					</div>
 
-				</div>
+			</div>
 
 		</asp:Panel>
 

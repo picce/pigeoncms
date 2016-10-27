@@ -22,8 +22,13 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
 
     protected void Page_Load(object sender, EventArgs e)
     {
-        LblOk.Text = "";
-        LblErr.Text = "";
+        setSuccess("");
+        setError("");
+
+        if (!Page.IsPostBack)
+        {
+            loadList();
+        }
 
         if (this.BaseModule.DirectEditMode)
         {
@@ -34,96 +39,97 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
                 throw new ArgumentException();
 
             BtnNew.Visible = false;
-            //BtnSave.OnClientClick = "closePopup();";
             BtnCancel.OnClientClick = "closePopup();";
-            edit(this.Name);
+            editRow(this.Name);
         }
     }
 
-    protected void ObjDs1_Selecting(object sender, ObjectDataSourceSelectingEventArgs e)
+    protected void RepPaging_ItemDataBound(object sender, RepeaterItemEventArgs e)
     {
-        PlaceholderFilter filter = new PlaceholderFilter();
-        filter.Visible = Utility.TristateBool.NotSet;
-        if (!string.IsNullOrEmpty(this.Name))
-            filter.Name = this.Name;
-
-        e.InputParameters["filter"] = filter;
-    }
-
-    protected void Grid1_RowDataBound(object sender, GridViewRowEventArgs e)
-    {
-        if (e.Row.RowType == DataControlRowType.DataRow)
+        if (e.Item.ItemType == ListItemType.Header)
         {
-            var item = new PigeonCms.Placeholder();
-            item = (PigeonCms.Placeholder)e.Row.DataItem;
+            return;
+        }
 
-            LinkButton LnkName = (LinkButton)e.Row.FindControl("LnkName");
-            LnkName.Text = "<i class='fa fa-pgn_edit fa-fw'></i>";
-            LnkName.Text += Utility.Html.GetTextPreview(item.Name, 30, "");
-            if (string.IsNullOrEmpty(item.Name))
-                LnkName.Text += Utility.GetLabel("NO_VALUE", "<no value>");
-
+        int page = int.Parse(e.Item.DataItem.ToString());
+        if (page - 1 == base.ListCurrentPage)
+        {
+            var BtnPage = (LinkButton)e.Item.FindControl("BtnPage");
+            BtnPage.CssClass = "selected";
         }
     }
 
-    protected void Grid1_RowCommand(object sender, GridViewCommandEventArgs e)
+    protected void RepPaging_ItemCommand(object source, RepeaterCommandEventArgs e)
+    {
+        if (e.CommandName == "Page")
+        {
+            base.ListCurrentPage = int.Parse(e.CommandArgument.ToString()) - 1;
+            loadList();
+        }
+    }
+
+    protected void Rep1_ItemDataBound(object sender, RepeaterItemEventArgs e)
+    {
+        if (e.Item.ItemType == ListItemType.Header)
+            return;
+
+        var item = (PigeonCms.Placeholder)e.Item.DataItem;
+
+        {
+            var LitContent = (Literal)e.Item.FindControl("LitContent");
+            LitContent.Text = Utility.Html.GetTextPreview(item.Content, 100, "");
+
+
+            var LitEnabled = (Literal)e.Item.FindControl("LitEnabled");
+            string enabledClass = "";
+            if (item.Visible)
+                enabledClass = "checked";
+            LitEnabled.Text = "<span class='table-modern--checkbox--square " + enabledClass + "'></span>";
+        }
+    }
+
+
+    protected void Rep1_ItemCommand(object source, RepeaterCommandEventArgs e)
     {
         if (e.CommandName == "Select")
         {
-            edit(e.CommandArgument.ToString());
+            editRow(e.CommandArgument.ToString());
         }
         if (e.CommandName == "DeleteRow")
         {
-            delete(e.CommandArgument.ToString());
-        }
-    }
-
-    protected void Grid1_RowCreated(object sender, GridViewRowEventArgs e)
-    {
-        if (e.Row.RowType == DataControlRowType.Header)
-            Utility.AddGlyph(Grid1, e.Row);
-    }
-
-    protected void MultiView1_ActiveViewChanged(object sender, EventArgs e)
-    {
-        if (this.BaseModule.DirectEditMode)
-        {
-            //list view not allowed (in case of js hacking)
-            if (MultiView1.ActiveViewIndex == 0)
-                MultiView1.ActiveViewIndex = 1;
-
+            deleteRow(e.CommandArgument.ToString());
         }
     }
 
     protected void BtnSave_Click(object sender, EventArgs e)
     {
         //rempoved 20130610 OnClientClick="MyObject.UpdateEditorFormValue();"
-        LblErr.Text = "";
-        LblOk.Text = "";
+        setSuccess("");
+        setError("");
 
         try
         {
-            Placeholder p1 = new Placeholder();
-            if (TxtId.Text == string.Empty)
+            var o1 = new Placeholder();
+            if (base.CurrentKey == "")
             {
-                form2obj(p1);
-                p1 = new PlaceholdersManager().Insert(p1);
+                form2obj(o1);
+                o1 = new PlaceholdersManager().Insert(o1);
             }
             else
             {
-                p1 = new PlaceholdersManager().GetByName(TxtName.Text);//precarico i campi esistenti e nn gestiti dal form
-                form2obj(p1);
-                new PlaceholdersManager().Update(p1);
+                o1 = new PlaceholdersManager().GetByName(base.CurrentKey);//precarico i campi esistenti e nn gestiti dal form
+                form2obj(o1);
+                new PlaceholdersManager().Update(o1);
             }
-            new CacheManager<Placeholder>("PigeonCms.Placeholder").Remove(p1.Name);
+            new CacheManager<Placeholder>("PigeonCms.Placeholder").Remove(base.CurrentKey);
 
-            Grid1.DataBind();
-            LblOk.Text = RenderSuccess(Utility.GetLabel("RECORD_SAVED_MSG"));
-            MultiView1.ActiveViewIndex = 0;
+            loadList();
+            setSuccess(Utility.GetLabel("RECORD_SAVED_MSG"));
+            showInsertPanel(false);
         }
         catch (Exception e1)
         {
-            LblErr.Text = RenderError(Utility.GetLabel("RECORD_ERR_MSG") + "<br />" + e1.ToString());
+            setError(Utility.GetLabel("RECORD_ERR_MSG") + "<br />" + e1.ToString());
         }
         finally
         {
@@ -132,16 +138,25 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
 
     protected void BtnCancel_Click(object sender, EventArgs e)
     {
-        MultiView1.ActiveViewIndex = 0;
+        showInsertPanel(false);
     }
 
     protected void BtnNew_Click(object sender, EventArgs e)
     {
-        edit("");
+        editRow("");
     }
 
 
     #region private methods
+
+    private void clearForm()
+    {
+        TxtName.Text = "";
+        TxtContent.Text = "";
+        ChkVisibile.Checked = true;
+        TxtName.Enabled = true;
+    }
+
     private void form2obj(Placeholder obj1)
     {
         obj1.Name = TxtName.Text;
@@ -156,42 +171,96 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         TxtContent.Text = obj1.Content;
     }
 
-    private void edit(string name)
+    private void editRow(string recordId)
     {
-        LblOk.Text = "";
-        LblErr.Text = "";
+        setSuccess("");
+        setError("");
 
-        TxtName.Text = name;
-        TxtName.Enabled = true;
-        ChkVisibile.Checked = true;
-        TxtId.Text = "";
-        TxtContent.Text = "";
-        if (name != "")
+        clearForm();
+        base.CurrentKey = recordId;
+
+        if (base.CurrentKey != "")
         {
-            TxtId.Text = "1";
             TxtName.Enabled = false;
-            Placeholder currObj = new Placeholder();
-            currObj = new PlaceholdersManager().GetByName(name);
+            var currObj = new Placeholder();
+            currObj = new PlaceholdersManager().GetByName(base.CurrentKey);
             obj2form(currObj);
         }
-        MultiView1.ActiveViewIndex = 1;
+        showInsertPanel(true);
     }
 
-    private void delete(string name)
+    private void deleteRow(string recordId)
     {
-        LblOk.Text = "";
-        LblErr.Text = "";
+        setSuccess("");
+        setError("");
 
         try
         {
-            new PlaceholdersManager().Delete(name);
-            new CacheManager<Placeholder>("PigeonCms.Placeholder").Remove(name);
+            new PlaceholdersManager().DeleteById(recordId);
+            new CacheManager<Placeholder>("PigeonCms.Placeholder").Remove(recordId);
         }
         catch (Exception e)
         {
-            LblErr.Text = RenderError(e.Message);
+            setError(e.Message);
         }
-        Grid1.DataBind();
+        loadList();
+    }
+
+    private void loadList()
+    {
+        var man = new PigeonCms.PlaceholdersManager();
+        var filter = new PlaceholderFilter();
+
+        if (!string.IsNullOrEmpty(this.Name))
+            filter.Name = this.Name;
+
+        var list = man.GetByFilter(filter, "");
+
+        var ds = new PagedDataSource();
+        ds.DataSource = list;
+        ds.AllowPaging = true;
+        ds.PageSize = base.ListPageSize;
+        ds.CurrentPageIndex = base.ListCurrentPage;
+
+        RepPaging.Visible = false;
+        if (ds.PageCount > 1)
+        {
+            RepPaging.Visible = true;
+            ArrayList pages = new ArrayList();
+            for (int i = 0; i <= ds.PageCount - 1; i++)
+            {
+                pages.Add((i + 1).ToString());
+            }
+            RepPaging.DataSource = pages;
+            RepPaging.DataBind();
+        }
+
+        Rep1.DataSource = ds;
+        Rep1.DataBind();
+    }
+
+    /// function for display insert panel
+    /// <summary>
+    /// </summary>
+    private void showInsertPanel(bool toShow)
+    {
+
+        PigeonCms.Utility.Script.RegisterStartupScript(Upd1, "bodyBlocked", "bodyBlocked(" + toShow.ToString().ToLower() + ");");
+
+        if (toShow)
+            PanelInsert.Visible = true;
+        else
+            PanelInsert.Visible = false;
+    }
+
+    private void setError(string content)
+    {
+        LblErrInsert.Text = LblErrSee.Text = RenderError(content);
+    }
+
+    private void setSuccess(string content)
+    {
+        LblOkInsert.Text = LblOkSee.Text = RenderSuccess(content);
     }
     #endregion
 }
