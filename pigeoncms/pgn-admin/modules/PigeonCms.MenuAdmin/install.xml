@@ -19,6 +19,8 @@
 
     <params>
 
+        <param name="ListPageSize" type="text" default="20" label="List page size" description="Set 0 to avoid pagination" />
+      
         <param name="AllowEditContentUrl" type="combo" default="1" 
                label="Allow edit content link"
                description="Disable with large items list for faster page load">

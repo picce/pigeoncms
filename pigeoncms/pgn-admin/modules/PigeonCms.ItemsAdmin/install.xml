@@ -48,6 +48,7 @@
 			<option value="" label="All"></option>
 			<datasource SelectMethod="GetList" TypeName="PigeonCms.ItemTypeManager" />
 		</param>
+    <param name="ListPageSize" type="text" default="20" label="List page size" description="Set 0 to avoid pagination" />
 	</params>
 
 	<params group="restrictions">

@@ -26,5 +26,8 @@
 			<option value="0" label="Not set"></option>
 			<datasource SelectMethod="GetList" SelectParams="PigeonCms.FilesManager" TypeName="PigeonCms.MenuManager" />
 		</param>
+
+    <param name="ListPageSize" type="text" default="20" label="List page size" description="Set 0 to avoid pagination" />
+    
 	</params>
 </install>
