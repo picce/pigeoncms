@@ -56,23 +56,24 @@
 				<option value="3" label="Force filename"></option>
 			</param>
 			<param name="FilePrefix" type="text" default="file_" label="File prefix" description="" />
-			<param name="FilePath" type="text" default="/public/docs" label="File path" description="" />
 			<param name="ForcedFilename" type="text" default="" label="Forced filename" description="Only when FileNameType is Force filename" />
 			
 			<!--NEW in modern template-->
 			<param name="FileFolderType" type="combo" default="custom" label="File folder type" description="">
 				<option value="custom" label="Custom file path (#FilePath or /public/docs if empty)"></option>
 				<option value="documents" label="Shared docs path (/public/docs)"></option>
-				<option value="items-images" label="Items images (/public/gallery/items/#id)"></option>
-				<option value="items-files" label="Items files (/public/files/items/#id)"></option>
-				<option value="categories-images" label="Categories images (/public/gallery/categories/#id)"></option>
-				<option value="categories-files" label="Categories files (/public/files/categories/#id)"></option>
-				<option value="sections-images" label="Sections images (/public/gallery/sections/#id)"></option>
-				<option value="sections-files" label="Sections files (/public/files/sections/#id)"></option>
+				<option value="items-images" label="Items images (/public/gallery/items/#id) or custom File Path"></option>
+				<option value="items-files" label="Items files (/public/files/items/#id) or custom File Path"></option>
+				<option value="categories-images" label="Categories images (/public/gallery/categories/#id) or custom File Path"></option>
+				<option value="categories-files" label="Categories files (/public/files/categories/#id) or custom File Path"></option>
+				<option value="sections-images" label="Sections images (/public/gallery/sections/#id) or custom File Path"></option>
+				<option value="sections-files" label="Sections files (/public/files/sections/#id) or custom File Path"></option>
 				<option value="temp" label="Temporary files path (/public/temp/#sessionid)"></option>
-			</param>			
-			
+			</param>
+
+      <param name="FilePath" type="text" default="" label="File path" description="" />
 			<param name="NumOfFilesAllowed" type="text" default="0" label="Number of files" description="Max number of files allowed (0 for no limit)" />
+      
 			<param name="ShowWorkingPath" type="combo" default="1" label="Show working path" description="">
 				<option value="0" label="No"></option>
 				<option value="1" label="Yes"></option>

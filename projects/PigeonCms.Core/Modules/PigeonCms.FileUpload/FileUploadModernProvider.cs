@@ -360,7 +360,7 @@ namespace PigeonCms
 		{
 			get
 			{
-				string res = getStringParam(this.moduleParams, "FilePath", "/public/docs");
+				string res = getStringParam(this.moduleParams, "FilePath", "");
 				return res;
 			}
 		}
@@ -405,6 +405,16 @@ namespace PigeonCms
 			}
 		}
 
+        private string setCustomFolderId(string currentFinalPath, string customFolder)
+        {
+            string res = currentFinalPath;
+            if (customFolder.Contains("#id") || customFolder != "/public/docs")
+            {
+                res = customFolder;
+            }
+            return res;
+        }
+
 		public string getFinalPath = null;
 		public string GetFinalPath
 		{
@@ -419,20 +429,23 @@ namespace PigeonCms
 					string folder = this.customFolder;
 					getFinalPath = fileFoldersList[fileFolderType];
 
-					int customId = 0;
+                    int customId = 0;
 					int.TryParse(folder, out customId);
 
 					if (fileFolderType == IFolderTypes.ItemsImages || fileFolderType == IFolderTypes.ItemsFiles)
 					{
+                        getFinalPath = setCustomFolderId(getFinalPath, this.FilePath);
 						getFinalPath = getFinalPath.Replace("#id", customId.ToString());
 					}
 					else if (fileFolderType == IFolderTypes.CategoriesImages || fileFolderType == IFolderTypes.CategoriesFiles)
 					{
-						getFinalPath = getFinalPath.Replace("#id", customId.ToString());
+                        getFinalPath = setCustomFolderId(getFinalPath, this.FilePath);
+                        getFinalPath = getFinalPath.Replace("#id", customId.ToString());
 					}
 					else if (fileFolderType == IFolderTypes.SectionsImages || fileFolderType == IFolderTypes.SectionsFiles)
 					{
-						getFinalPath = getFinalPath.Replace("#id", customId.ToString());
+                        getFinalPath = setCustomFolderId(getFinalPath, this.FilePath);
+                        getFinalPath = getFinalPath.Replace("#id", customId.ToString());
 					}
 					else if (fileFolderType == IFolderTypes.Temp)
 					{
@@ -444,7 +457,7 @@ namespace PigeonCms
 					}
 					else if (fileFolderType == IFolderTypes.Custom)
 					{
-						getFinalPath = Path.Combine(getFinalPath, folder);
+                        getFinalPath = Path.Combine(getFinalPath, this.FilePath);
 					}
 				
 				}
@@ -572,7 +585,8 @@ namespace PigeonCms
 			}
 			else if (fileFolderType == IFolderTypes.Custom)
 			{
-				//TODO
+                //TOCHECK
+                res = true;
 			}
 
 
