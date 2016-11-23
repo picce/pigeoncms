@@ -60,16 +60,33 @@ a.editContent img
 
 }
 
+@font-face {
+    font-family: 'ralewaylight';
+    src: url('/pgn-admin/masterpages/PigeonModern/fonts/raleway-light-webfont.eot');
+    src: url('/pgn-admin/masterpages/PigeonModern/fonts/raleway-light-webfont.eot?#iefix') format('embedded-opentype'),
+         url('/pgn-admin/masterpages/PigeonModern/fonts/raleway-light-webfont.woff') format('woff'),
+         url('/pgn-admin/masterpages/PigeonModern/fonts/raleway-light-webfont.ttf') format('truetype'),
+         url('/pgn-admin/masterpages/PigeonModern/fonts/raleway-light-webfont.svg#ralewayregular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
 /*tiny override */
 hr.system-readmore { border: 1px dashed #95ddac; }
 hr.system-pagebreak { border: 1px dashed #9f9f9f; }
 body.mce-content-body {
     background-color: #463d63;
-    color: rgba(255,255,255,0.8);
-    font-family: 'ralewayregular';
+    color: rgba(255,255,255,0.7);
+    font-family: 'ralewaylight';
     font-size: 13px;
     letter-spacing: 0.1em;
 }
+
+    body.mce-content-body strong {
+        font-family:'ralewayregular';
+        color: rgba(255,255,255,1);
+    }
 
 .mce-container,
 .mce-container *,
