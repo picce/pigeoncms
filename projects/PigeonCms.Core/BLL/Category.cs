@@ -18,6 +18,7 @@ using System.Threading;
 
 namespace PigeonCms
 {
+    [DebuggerDisplay("Id={id}, ExtId={extId}, ParentId={parentId}, Alias={Alias}")]
     public class Category : 
         ITableWithOrdering, 
         ITableWithPermissions,

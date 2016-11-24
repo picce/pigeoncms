@@ -6,11 +6,30 @@ using System.Web.UI.WebControls;
 using System.Collections.Generic;
 using PigeonCms;
 using System.Web;
+using System.Web.Security;
+using System.Collections;
+using System.Diagnostics;
 
 public partial class Controls_CategoriesAdmin : PigeonCms.Modules.CategoriesAdminControl
 {
+    [DebuggerDisplay("Id={Id}, Level={Level}, Name={Name}")]
+    public class CategoryListItem
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public int Level { get; set; }
+        public Category Category;
 
-	public string TitleItem = "";
+        public CategoryListItem(Category category, string name, int level)
+        {
+            this.Category = category;
+            this.Name = name;
+            this.Level = level;
+            this.Id = category.Id;
+        }
+    }
+
+    public string TitleItem = "";
     private CategoriesManager man = new CategoriesManager(true, true);
 
     protected int CurrentSectionId
@@ -124,128 +143,110 @@ public partial class Controls_CategoriesAdmin : PigeonCms.Modules.CategoriesAdmi
             return;
         }
 
-        var item = (PigeonCms.Category)e.Item.DataItem;
+        var item = (CategoryListItem)e.Item.DataItem;
 
 
         var LitEnabled = (Literal)e.Item.FindControl("LitEnabled");
         string enabledClass = "";
-        if (item.Enabled)
+        if (item.Category.Enabled)
             enabledClass = "checked";
         LitEnabled.Text = "<span class='table-modern--checkbox--square " + enabledClass + "'></span>";
 
 
         var LnkEnabled = (LinkButton)e.Item.FindControl("LnkEnabled");
         LnkEnabled.CssClass = "table-modern--checkbox " + enabledClass;
-        LnkEnabled.CommandName = item.Enabled ? "Enabled0" : "Enabled1";
+        LnkEnabled.CommandName = item.Category.Enabled ? "Enabled0" : "Enabled1";
 
 
         var LitTitle = (Literal)e.Item.FindControl("LitTitle");
-        if (!item.IsThreadRoot)
-            LitTitle.Text += "--";
-        LitTitle.Text += Utility.Html.GetTextPreview(item.Title, 50, "");
-        if (string.IsNullOrEmpty(item.Title))
+        //if (!item.IsThreadRoot)
+        //    LitTitle.Text += "--";
+        LitTitle.Text += Utility.Html.GetTextPreview(item.Category.Title, 50, "");
+        if (string.IsNullOrEmpty(item.Category.Title))
             LitTitle.Text += Utility.GetLabel("NO_VALUE", "<no value>");
         if (base.ShowSecurity && Roles.IsUserInRole("debug"))
-            LitTitle.Text += " [" + item.Id.ToString() + "]";
+            LitTitle.Text += " [" + item.Category.Id.ToString() + "]";
 
 
-        var LitItemDate = (Literal)e.Item.FindControl("LitItemDate");
-        LitItemDate.Text = item.DateUpdated.ToString();
 
         var LitItemInfo = (Literal)e.Item.FindControl("LitItemInfo");
-        if (!string.IsNullOrEmpty(item.ExtId))
-            LitItemInfo.Text += "extId: <strong>" + item.ExtId + "</strong><br>";
-        if (this.ShowType)
-            LitItemInfo.Text += item.ItemTypeName + "<br>";
-        if (!string.IsNullOrEmpty(item.CssClass))
-            LitItemInfo.Text += "class: " + item.CssClass;
+        if (!string.IsNullOrEmpty(item.Category.ExtId))
+            LitItemInfo.Text += "extId: <strong>" + item.Category.ExtId + "</strong><br>";
+        //if (this.ShowType)
+        //    LitItemInfo.Text += item.ItemTypeName + "<br>";
+        if (!string.IsNullOrEmpty(item.Category.CssClass))
+            LitItemInfo.Text += "class: " + item.Category.CssClass;
 
-
-        if (item.CategoryId > 0)
-        {
-            var mgr = new CategoriesManager();
-            var cat = mgr.GetByKey(item.CategoryId);
-            var LitCategoryTitle = (Literal)e.Item.FindControl("LitCategoryTitle");
-            LitCategoryTitle.Text = cat.Title;
-        }
 
         //permissions
         var LitAccessTypeDesc = (Literal)e.Item.FindControl("LitAccessTypeDesc");
-        LitAccessTypeDesc.Text = RenderAccessTypeSummary(item);
+        LitAccessTypeDesc.Text = RenderAccessTypeSummary(item.Category);
 
         //files upload
         var LnkUploadFiles = (HyperLink)e.Item.FindControl("LnkUploadFiles");
         LnkUploadFiles.NavigateUrl = this.FilesUploadUrl
-            + "?type=items&id=" + item.Id.ToString();
+            + "?type=items&id=" + item.Category.Id.ToString();
         LnkUploadFiles.Visible = this.TargetFilesUpload > 0;
 
 
         var LitFilesCount = (Literal)e.Item.FindControl("LitFilesCount");
-        int filesCount = item.Files.Count;
+        int filesCount = item.Category.Files.Count;
         LitFilesCount.Text = "&nbsp;";
         if (filesCount > 0)
         {
             LitFilesCount.Text = filesCount.ToString();
             LitFilesCount.Text += filesCount == 1 ? " file" : " files";
-            LitFilesCount.Text += " / " + Utility.GetFileHumanLength(item.FilesSize);
         }
 
         //images upload
         var LnkUploadImg = (HyperLink)e.Item.FindControl("LnkUploadImg");
         LnkUploadImg.NavigateUrl = this.ImagesUploadUrl
-            + "?type=items&id=" + item.Id.ToString();
+            + "?type=items&id=" + item.Category.Id.ToString();
         LnkUploadImg.Visible = this.TargetImagesUpload > 0;
 
 
         var LitImgCount = (Literal)e.Item.FindControl("LitImgCount");
-        int imgCount = item.Images.Count;
+        int imgCount = item.Category.Images.Count;
         LitImgCount.Text = "&nbsp;";
         if (imgCount > 0)
         {
             LitImgCount.Text = imgCount.ToString();
             LitImgCount.Text += imgCount == 1 ? " file" : " files";
-            LitImgCount.Text += " / " + Utility.GetFileHumanLength(item.ImagesSize);
         }
 
     }
 
-    protected void Tree_NodeClick(object sender, NodeClickEventArgs e)
+    protected void Rep1_ItemCommand(object source, RepeaterCommandEventArgs e)
     {
-        LblOk.Text = RenderSuccess(e.Command.ToString() + " " + e.CategoryId.ToString());
-
-        switch (e.Command)
+        if (e.CommandName == "Select")
         {
-            case NodeClickCommandEnum.Select:
-            case NodeClickCommandEnum.Edit:
-                editRow(e.CategoryId);
-                break;
-
-            case NodeClickCommandEnum.Enabled:
-                bool enabledValue = bool.Parse(e.CustomCommand);
-                setFlag(e.CategoryId, enabledValue, "enabled");
-                Tree1.BindTree(this.CurrentSectionId);
-                break;
-
-            case NodeClickCommandEnum.MoveUp:
-                moveRecord(e.CategoryId, Database.MoveRecordDirection.Up);
-                break;
-            
-            case NodeClickCommandEnum.MoveDown:
-                moveRecord(e.CategoryId, Database.MoveRecordDirection.Down);
-                break;
-            
-            case NodeClickCommandEnum.Delete:
-                deleteRow(e.CategoryId);
-                break;
-
-            case NodeClickCommandEnum.Custom:
-                break;
-
-            default:
-                break;
+            try
+            {
+                editRow(int.Parse(e.CommandArgument.ToString()));
+            }
+            catch (Exception e1)
+            {
+                setError(e1.Message);
+            }
         }
-
+        if (e.CommandName == "DeleteRow")
+        {
+            deleteRow(int.Parse(e.CommandArgument.ToString()));
+        }
+        //Enabled
+        if (e.CommandName == "Enabled0")
+        {
+            setFlag(Convert.ToInt32(e.CommandArgument), false, "enabled");
+            loadList();
+        }
+        if (e.CommandName == "Enabled1")
+        {
+            setFlag(Convert.ToInt32(e.CommandArgument), true, "enabled");
+            loadList();
+        }
     }
+
+
 
     protected void DropSectionsFilter_SelectedIndexChanged(object sender, EventArgs e)
     {
@@ -461,6 +462,65 @@ public partial class Controls_CategoriesAdmin : PigeonCms.Modules.CategoriesAdmi
         }
         if (this.LastSelectedSectionId > 0)
             Utility.SetDropByValue(DropSectionsFilter, this.LastSelectedSectionId.ToString());
+    }
+
+    private void loadList()
+    {
+        var filter = new CategoriesFilter();
+        filter.Enabled = Utility.TristateBool.NotSet;
+
+        int secId = -1;
+        int.TryParse(DropSectionsFilter.SelectedValue, out secId);
+
+
+        filter.SectionId = secId;
+        if (base.SectionId > 0)
+            filter.SectionId = base.SectionId;
+
+
+        var resList = new List<CategoryListItem>();
+        var fullList = man.GetByFilter(filter, "");
+
+        bindTree(resList, fullList, 0, 0);
+
+        var ds = new PagedDataSource();
+        ds.DataSource = resList;
+        ds.AllowPaging = true;
+        ds.PageSize = base.ListPageSize;
+        ds.CurrentPageIndex = base.ListCurrentPage;
+
+        RepPaging.Visible = false;
+        if (ds.PageCount > 1)
+        {
+            RepPaging.Visible = true;
+            ArrayList pages = new ArrayList();
+            for (int i = 0; i <= ds.PageCount - 1; i++)
+            {
+                pages.Add((i + 1).ToString());
+            }
+            RepPaging.DataSource = pages;
+            RepPaging.DataBind();
+        }
+
+        Rep1.DataSource = ds;
+        Rep1.DataBind();
+    }
+
+    private void bindTree(List<CategoryListItem> resList, List<Category>fullList, int parentId, int level)
+    {
+        var nodes = fullList.Where(x => x.ParentId == parentId);
+        foreach (var node in nodes)
+        {
+            string levelString = "";
+            for (int i = 0; i < level; i++)
+            {
+                levelString += "--";
+            }
+
+            var itemToAdd = new CategoryListItem(node, levelString + node.Title, level);
+            resList.Add(itemToAdd);
+            bindTree(resList, fullList, node.Id, ++level);
+        }
     }
 
     private void loadListParentId()

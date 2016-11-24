@@ -145,7 +145,7 @@
 											<div class="col-sm-2 table-modern__col">
 												<div class="table-modern--description" data-menu="tit">
 													<div class="table-modern--description--wrapper">
-														<strong><%# Eval("Alias") %></strong><br />
+														<strong><%# Eval("Name") %></strong><br />
 														<asp:Literal ID="LitTitle" runat="server" /><br />
 													</div>
 												</div>
@@ -154,9 +154,6 @@
 											<div class="col-sm-2 table-modern__col">
 												<div class="table-modern--description" data-menu="info">
 													<div class="table-modern--description--wrapper">
-														<span class="table-modern--date">
-															<asp:Literal ID="LitItemDate" runat="server" />
-														</span>
 														<asp:Literal ID="LitItemInfo" runat="server" />
 													</div>
 												</div>
