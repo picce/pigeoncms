@@ -408,7 +408,8 @@ namespace PigeonCms
         private string setCustomFolderId(string currentFinalPath, string customFolder)
         {
             string res = currentFinalPath;
-            if (customFolder.Contains("#id") || customFolder != "/public/docs")
+            //if (customFolder.Contains("#id") || customFolder != "/public/docs" || customFolder != "")
+            if (customFolder.Contains("#id") || customFolder != "")
             {
                 res = customFolder;
             }

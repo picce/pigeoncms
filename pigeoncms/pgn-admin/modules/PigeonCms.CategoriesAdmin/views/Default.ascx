@@ -315,31 +315,32 @@
 
 								<div class="tab-pane fade in active" id="tab-main">
 
-									<div class="form-group col-md-6 col-lg-3">
+									<div class="form-group col-md-12">
 										<%=base.GetLabel("LblSection", "Section", LitSection, true)%>
 										<asp:TextBox ID="LitSection" runat="server" Enabled="false" CssClass="form-control"></asp:TextBox>
 									</div>
 
-									<div class="form-group col-md-6 col-lg-3">
+                                    <div class="form-group col-md-12">
+                                        <%=base.GetLabel("LblParentItem", "Parent category", ListParentId, true)%>
+                                        <asp:ListBox ID="ListParentId" SelectionMode="Single" Rows="10" runat="server" CssClass="form-control double-height"></asp:ListBox>
+                                    </div>
+
+
+									<div class="form-group col-md-4">
 										<%=base.GetLabel("LblExtId", "External Id", TxtExtId, true)%>
 										<asp:TextBox ID="TxtExtId" runat="server" Enabled="true" CssClass="form-control"></asp:TextBox>
 									</div>
 
-                                    <div class="form-group col-md-6 col-lg-3">
+                                    <div class="form-group col-md-4">
                                         <%=base.GetLabel("LblCssClass", "Css class", TxtCssClass, true)%>
                                         <asp:TextBox ID="TxtCssClass" runat="server" MaxLength="50" CssClass="form-control"></asp:TextBox>
                                     </div>
 
-									<div class="form-group col-md-6 col-lg-3 checkbox-container">
+									<div class="form-group col-md-4 checkbox-container">
 										<span><%=base.GetLabel("LblEnabled", "Enabled")%></span>
 										<asp:CheckBox ID="ChkEnabled" runat="server" Enabled="true" Text="" />
 										<%=base.GetLabel("LblEnabledLabel", "Abilita elemento", ChkEnabled, true)%>
 									</div>
-
-                                    <div class="form-group col-sm-12">
-                                        <%=base.GetLabel("LblParentItem", "Parent category", ListParentId, true)%>
-                                        <asp:ListBox ID="ListParentId" SelectionMode="Single" Rows="10" runat="server" CssClass="form-control"></asp:ListBox>
-                                    </div>
 
 									<div class="form-group col-md-12 col-lg-12 spacing-detail">
 										<%=base.GetLabel("LblTitle", "Title", null, true)%>
@@ -360,16 +361,6 @@
 									<div class="form-group col-sm-12 no-padding">
 										<strong><%=base.GetLabel("LblRecordId", "ID") %>:</strong>&nbsp;
                                             <asp:Label ID="LblId" runat="server" Text=""></asp:Label>
-									</div>
-
-									<div class="form-group col-sm-12 no-padding">
-										<strong><%=base.GetLabel("LblCreated", "Created") %>:</strong>&nbsp;
-                                            <asp:Label ID="LblCreated" runat="server" Text=""></asp:Label>
-									</div>
-
-									<div class="form-group col-sm-12 no-padding">
-										<strong><%=base.GetLabel("LblLastUpdate", "Last update") %>:</strong>&nbsp;
-                                            <asp:Label ID="LblUpdated" runat="server" Text=""></asp:Label>
 									</div>
 
 									<div class="form-group col-sm-12 no-padding">
