@@ -4,7 +4,6 @@
 <%@ Register Src="~/Controls/PermissionsControl.ascx" TagName="PermissionsControl" TagPrefix="uc1" %>
 <%@ Register Src="~/Controls/SeoControl.ascx" TagName="SeoControl" TagPrefix="uc1" %>
 <%@ Register Src="~/Controls/ContentEditorControl.ascx" TagName="ContentEditorControl" TagPrefix="uc1" %>
-<%@ Register Src="~/Controls/CategoriesTreeControl.ascx" TagName="CategoriesTreeControl" TagPrefix="uc1" %>
 
 
 <script type="text/javascript">

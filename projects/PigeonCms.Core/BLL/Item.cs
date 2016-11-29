@@ -60,6 +60,7 @@ namespace PigeonCms
         }
     }
 
+    [DebuggerDisplay("Id={id}, ExtId={extId}, Alias={Alias}")]
     public class Item: ITableWithPermissions,
         ITableWithOrdering, ITableWithComments, 
 		ITableExternalId, ITableWithSeo
