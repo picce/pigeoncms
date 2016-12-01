@@ -72,10 +72,10 @@
 						<div class="table-modern--row table-modern--row-title">
 
 							<div class="table-modern__col col-md-1"></div><%--edit--%>
-									<div class="table-modern__col col-md-3 align-left"><%=base.GetLabel("Name", "Name")%></div>
-									<div class="table-modern__col col-md-6 align-left"><%=base.GetLabel("Title", "Title")%></div>
-									<div class="table-modern__col align-right col-md-1"><%=base.GetLabel("Enabled", "Enabled")%></div>
-									<div class="table-modern__col col-md-1"></div><%--del--%>
+							<div class="table-modern__col col-md-3 align-left"><%=base.GetLabel("Name", "Name")%></div>
+							<div class="table-modern__col col-md-6 align-left"><%=base.GetLabel("Title", "Title")%></div>
+							<div class="table-modern__col align-right col-md-1"><%=base.GetLabel("Enabled", "Enabled")%></div>
+							<div class="table-modern__col col-md-1"></div><%--del--%>
 
 						</div>
 
