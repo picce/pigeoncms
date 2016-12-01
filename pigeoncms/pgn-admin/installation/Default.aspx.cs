@@ -363,8 +363,14 @@ public partial class Installation_Default : Page
             sSql = Database.ParseSql(sSql, TxtTablesPrefix.Text);
             sResult = Database.ExecuteQuery(myRd, myCmd, sSql);
 
-
             myTrans.Commit();
+
+            //20161201 picce
+            //upgrade PigeonCms.Core if needed
+            string upgradeLogResult = "";
+            var dbManProvider = new PigeonCms.DatabaseUpdateProvider("PigeonCms.Core");
+            dbManProvider.ApplyPendingUpdates(out upgradeLogResult);
+
         }
         catch (SqlException ex)
         {
