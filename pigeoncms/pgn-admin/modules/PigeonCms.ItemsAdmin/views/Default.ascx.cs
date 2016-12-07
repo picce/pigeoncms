@@ -720,6 +720,7 @@ public partial class Controls_ItemsAdmin : PigeonCms.ItemsAdminControl
             loadDropCategories(obj.SectionId);
             obj2form(obj);
         }
+        Utility.SetDropByValue(DropNew, "");
         showInsertPanel(true);
     }
 

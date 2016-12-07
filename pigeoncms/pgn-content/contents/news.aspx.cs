@@ -14,14 +14,14 @@ public partial class contents_news : Acme.BasePage
     protected void Page_Load(object sender, EventArgs e)
     {
         CurrentMasterPage.DataSection = "news";
-		CurrentMasterPage.LinkFooter = "/contents/examples";
-		CurrentMasterPage.TextLinkFooter = "examples";
+		//CurrentMasterPage.LinkFooter = "/contents/examples";
+		//CurrentMasterPage.TextLinkFooter = "examples";
 
         //get news list
         var newsMan = new ItemsManager<Item, ItemsFilter>(true, false);
         var filter = new ItemsFilter();
-		filter.SectionId = Acme.Settings.NewsSectionId;
-		filter.CategoryId = Acme.Settings.ArchiveCategoryId;
+		filter.SectionId = SiteSettings.ContentsSectionId;
+		filter.CategoryId = SiteSettings.NewsCatId;
         filter.Enabled = PigeonCms.Utility.TristateBool.True;
         ListNews = newsMan.GetByFilter(filter, "");
 

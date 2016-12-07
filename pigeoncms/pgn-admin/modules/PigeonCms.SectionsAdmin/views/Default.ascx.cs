@@ -302,12 +302,11 @@ public partial class Controls_SectionsAdmin : PigeonCms.BaseModuleControl
         itemsAllowed = " / " + maxItems;
 
         numOfItems = item.NumOfItems.ToString();
-        LitItems.Text = numOfItems + itemsAllowed;
-        if (LitItems.Text == "0") LitItems.Text = "";
+        LitItems.Text = "items: " + numOfItems + itemsAllowed;
 
         //space used/allowed
         var LitDiskSpace = (Literal)e.Item.FindControl("LitDiskSpace");
-        LitDiskSpace.Text = Utility.GetFileHumanLength(item.SizeOfItems);
+        LitDiskSpace.Text ="disk: " + Utility.GetFileHumanLength(item.SizeOfItems);
         string maxDiskSpace = "unlimited";
         if (item.MaxAttachSizeKB > 0)
             maxDiskSpace = Utility.GetFileHumanLength(item.MaxAttachSizeKB * 1024);

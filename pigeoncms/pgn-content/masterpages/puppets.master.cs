@@ -49,7 +49,7 @@ public partial class puppets : System.Web.UI.MasterPage, Acme.IMaster
             //get menu list
             var menuMan = new MenuManager(true, false);
             var menuFilter = new MenuFilter();
-            menuFilter.MenuType = "mainmenu";
+            menuFilter.MenuType = "frontmenu";
             menuFilter.Published = Utility.TristateBool.True;
             menuFilter.Visible = Utility.TristateBool.True;
             MenuList = menuMan.GetByFilter(menuFilter, "");

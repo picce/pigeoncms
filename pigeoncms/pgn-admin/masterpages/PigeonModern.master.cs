@@ -70,7 +70,8 @@ public partial class Masterpages_PigeonModern : BaseMasterPage
     {
         get
         {
-            string res = AppSettingsManager.GetValue("MetaSiteTitle");
+            var settings = new PigeonCms.AppSettingsProvider();
+            string res = settings.GetValue("MetaSiteTitle");
             return res;
         }
     }
@@ -79,7 +80,8 @@ public partial class Masterpages_PigeonModern : BaseMasterPage
     {
         get
         {
-            string res = AppSettingsManager.GetValue("PgnVersion");
+            var settings = new PigeonCms.AppSettingsProvider();
+            string res = settings.GetValue("PgnVersion");
             if (!string.IsNullOrEmpty(res))
             {
                 res = "v" + res;
