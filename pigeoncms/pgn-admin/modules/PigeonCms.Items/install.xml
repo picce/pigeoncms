@@ -1,0 +1,128 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<install
+    installerVersion="1.0.0"
+    type="module"
+    version="1.1.0"
+    core="true"
+    namespace="PigeonCms"
+    name="Items"
+    author="p-ice"
+    creationDate="2010-09-16"
+    copyright="Copyright(C) 2009 Nicola Ridolfi. All rights reserved."
+    license=""
+    authorEmail="picce@yahoo.it"
+    authorUrl="www.pigeoncms.com"
+    description="show a list of items">
+  <files>
+  </files>
+
+  <params>
+    <param name="SourceType" type="combo" default="category" label="Source type" description="Source of the list">
+      <option value="section" label="section source"></option>
+      <option value="category" label="category source"></option>
+    </param>
+    <param name="SectionId" type="combo" default="0" label="Section" description="">
+      <option value="0" label="No section"></option>
+      <datasource SelectMethod="GetList" TypeName="PigeonCms.SectionsManager" />
+    </param>
+    <param name="CategoryId" type="combo" default="0" label="Category" description="">
+      <option value="0" label="No category"></option>
+      <datasource SelectMethod="GetList" TypeName="PigeonCms.CategoriesManager" />
+    </param>
+    <param name="ItemTarget" type="combo" default="0" label="Item target route" description="">
+      <option value="0" label="Not set"></option>
+      <datasource SelectMethod="GetList" SelectParams="PigeonCms.Item" TypeName="PigeonCms.MenuManager" />
+    </param>
+    <param name="StaticFilesTracking" type="combo" default="2" label="Google analytics static files tracking" description="Enable google analytics tracking for static files such pdf, images etc..">
+      <option value="2" label="Use global"></option>
+      <option value="0" label="No"></option>
+      <option value="1" label="Yes"></option>
+    </param>
+  </params>
+
+  <params group="order">
+    <param name="SortDirection" type="combo" default="ASC" label="Sort direction" description="Set the list sort deirection">
+      <option value="ASC" label="Ascendent"></option>
+      <option value="DESC" label="Descendent"></option>
+    </param>
+    <param name="SortParam" type="combo" default="t.Ordering" label="Sort direction" description="Set the list sort criteria">
+      <option value="t.Ordering" label="Custom"></option>
+      <option value="t.ItemDate" label="Item date"></option>
+      <option value="t.ValidFrom" label="Validity start date"></option>
+      <option value="t.ValidTo" label="Validity end date"></option>
+      <option value="t.DateUpdated" label="Update date"></option>
+      <option value="t.DateInserted" label="Insert date"></option>
+    </param>
+  </params>
+
+  <params group="style">
+    <param name="NumOfItems" type="combo" default="0" label="Number of items" description="Number of items to show">
+      <option value="0" label="All items"></option>
+      <option value="1" label="1"></option>
+      <option value="2" label="2"></option>
+      <option value="3" label="3"></option>
+      <option value="4" label="4"></option>
+      <option value="5" label="5"></option>
+      <option value="10" label="10"></option>
+      <option value="20" label="20"></option>
+      <option value="30" label="30"></option>
+    </param>
+    <param name="RepeatColumns" type="combo" default="3" label="Number of columns">
+      <option value="0" label="0"></option>
+      <option value="1" label="1"></option>
+      <option value="2" label="2"></option>
+      <option value="3" label="3"></option>
+      <option value="4" label="4"></option>
+      <option value="5" label="5"></option>
+      <option value="6" label="6"></option>
+      <option value="7" label="7"></option>
+      <option value="8" label="8"></option>
+      <option value="9" label="9"></option>
+      <option value="10" label="10"></option>
+    </param>
+    <param name="AllowSearch" type="combo" default="0" label="Allow search" description="">
+      <option value="1" label="Yes"></option>
+      <option value="0" label="No"></option>
+    </param>
+    <param name="MinSearchChars" type="combo" default="0" label="Min search letters" description="When allow search is enabled">
+      <option value="0" label="Allow empty search"></option>
+      <option value="1" label="1"></option>
+      <option value="2" label="2"></option>
+      <option value="3" label="3"></option>
+      <option value="4" label="4"></option>
+      <option value="5" label="5"></option>
+    </param>    
+    <param name="ShowDescription" type="combo" default="0" label="Show item description">
+      <option value="1" label="Yes"></option>
+      <option value="0" label="No"></option>
+    </param>
+    <param name="ShortDescLen" type="text" default="" label="Short desc length" description="" />
+  </params>
+
+  <params group="files">
+    <param name="ShowFiles" type="combo" default="0" label="Show files">
+      <option value="1" label="Yes"></option>
+      <option value="0" label="No"></option>
+    </param>
+    <param name="ShowImages" type="combo" default="0" label="Show images">
+      <option value="1" label="Yes"></option>
+      <option value="0" label="No"></option>
+    </param>
+    <param name="PreviewSize" type="combo" default="s" label="Images preview size">
+      <option value="s" label="Small"></option>
+      <option value="m" label="Medium"></option>
+      <option value="l" label="Large"></option>
+      <option value="xl" label="Extra Large"></option>
+      <option value="custom" label="Custom"></option>
+      <option value="o" label="Original"></option>
+      <option value="percentage" label="Custom Percentage"></option>
+    </param>
+    <param name="CustomWidth" type="text" default="" label="Image width" description="Resize images to given width (in px or percentage)" />
+    <param name="CustomHeight" type="text" default="" label="Image height" description="Resize images to given height (in px or percentage)" />
+  </params>
+
+  <params group="text">
+    <param name="HeaderText" type="text" rows="3" cols="40" default="" label="Header Text" description="" />
+    <param name="FooterText" type="text" rows="3" cols="40" default="" label="Footer Text" description="" />
+  </params>
+</install>

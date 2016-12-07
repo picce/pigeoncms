@@ -363,7 +363,6 @@ public partial class Installation_Default : Page
             sSql = Database.ParseSql(sSql, TxtTablesPrefix.Text);
             sResult = Database.ExecuteQuery(myRd, myCmd, sSql);
 
-
             myTrans.Commit();
         }
         catch (SqlException ex)
@@ -377,6 +376,23 @@ public partial class Installation_Default : Page
         {
             myTrans.Dispose();
             myConn.Dispose();
+        }
+
+        if (res)
+        {
+            //20161201 picce
+            //upgrade PigeonCms.Core if needed
+            string upgradeLogResult = "";
+            var dbManProvider = new PigeonCms.DatabaseUpdateProvider("PigeonCms.Core");
+            dbManProvider.ConnString = getConnString();
+            dbManProvider.TabPrefix = TxtTablesPrefix.Text;
+            res = dbManProvider.ApplyPendingUpdates(out upgradeLogResult);
+
+            if (!res)
+            {
+                LblErr.Text += "Error upgrading PigeonCms.Core database<br />";
+                LblErr.Text += upgradeLogResult + "<br />";
+            }
         }
 
         //set custom data with direct sql because web.config settings reload at next request

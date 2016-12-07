@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<install
+    installerVersion="1.0.0"
+    type="plugin"
+    version="1.0.0"
+    core="true"
+    namespace="Acme"
+    name="Site"
+    author="p-ice"
+    creationDate="2016-12-06"
+    copyright="Copyright(C) 2016 Nicola Ridolfi. All rights reserved."
+    license=""
+    authorEmail="picce@yahoo.it"
+    authorUrl="https://github.com/picce/pigeoncms"
+    description="Acme website sample settings"
+    iconClass="fa fa-desktop"
+    panelClass="panel-success"
+    >
+
+  <params group="">
+
+    <param name="ContentsSectionId" cssClass="" type="combo" default="1" label="Contents section" description="Section that contains website contents">
+      <option value="0" label="Not set"></option>
+      <datasource SelectMethod="GetList" TypeName="PigeonCms.SectionsManager" />
+      <!--<datasource SelectMethod="GetListByItemType" SelectParams="Acme.MyItem" TypeName="PigeonCms.SectionsManager" />-->
+    </param>
+
+    <param name="StaticPagesCatId" cssClass="" type="combo" default="1" label="Static pages category" description="">
+      <option value="0" label="Not set"></option>
+      <datasource SelectMethod="GetList" TypeName="PigeonCms.CategoriesManager" />
+    </param>
+
+    <param name="NewsCatId" cssClass="" type="combo" default="2" label="News category" description="">
+      <option value="0" label="Not set"></option>
+      <datasource SelectMethod="GetList" TypeName="PigeonCms.CategoriesManager" />
+    </param>
+
+    <param name="BlogCatId" cssClass="" type="combo" default="4" label="Blog category" description="">
+      <option value="0" label="Not set"></option>
+      <datasource SelectMethod="GetList" TypeName="PigeonCms.CategoriesManager" />
+    </param>    
+    
+  </params>
+
+</install>

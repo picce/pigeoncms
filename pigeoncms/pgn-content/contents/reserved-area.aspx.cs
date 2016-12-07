@@ -15,8 +15,8 @@ public partial class contents_reserved_area : Acme.BasePage
     protected void Page_Load(object sender, EventArgs e)
     {
         CurrentMasterPage.DataSection = "reserved area";
-        CurrentMasterPage.LinkFooter = "#";
-        CurrentMasterPage.TextLinkFooter = "documents";
+        //CurrentMasterPage.LinkFooter = "#";
+        //CurrentMasterPage.TextLinkFooter = "documents";
 
         fakeModule.UseCache = Utility.TristateBool.True;
     }

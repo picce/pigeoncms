@@ -200,13 +200,12 @@ public partial class Controls_MenuAdmin : PigeonCms.BaseModuleControl
 
 
         var LitAlias = (Literal)e.Item.FindControl("LitAlias");
-        string alias = item.Alias + "<br>";
+        LitAlias.Text = item.Alias + "<br>" + item.RoutePattern;
         if (item.ContentType == MenuContentType.Url && !string.IsNullOrEmpty(item.Link))
         {
-            alias = "<a href='" + item.Link + "' target='_blank' title='" + item.Link + "'>" +
-                item.Alias + "</a><br>";
+            LitAlias.Text = item.Link;
         }
-        LitAlias.Text += alias + item.RoutePattern;
+        
         if (item.IsCore)
             LitAlias.Text += "<br>CORE";
 

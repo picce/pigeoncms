@@ -12,6 +12,8 @@ namespace Acme
     public class BasePage : PigeonCms.Engine.BasePage
     {
 
+        protected Settings SiteSettings = new Settings();
+
         protected IMaster CurrentMasterPage
         {
             get { return (IMaster)this.Page.Master; }

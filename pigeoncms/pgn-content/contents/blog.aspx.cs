@@ -20,8 +20,8 @@ public partial class pgn_content_contents_blog : Acme.BasePage
         //get blog list
         var man = new ItemsManager<Item, ItemsFilter>(true, false);
         var filter = new ItemsFilter();
-        filter.SectionId = 2; //blog id
-        filter.CategoryId = 3; //archivio - category id
+        filter.SectionId = SiteSettings.ContentsSectionId;
+        filter.CategoryId = SiteSettings.BlogCatId;
         filter.Enabled = PigeonCms.Utility.TristateBool.True;
         ListBlog = man.GetByFilter(filter, "");
     }

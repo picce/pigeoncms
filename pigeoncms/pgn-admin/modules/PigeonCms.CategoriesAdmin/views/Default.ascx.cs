@@ -418,6 +418,10 @@ public partial class Controls_CategoriesAdmin : PigeonCms.Modules.CategoriesAdmi
 
         if (base.CurrentId > 0)
             obj = man.GetByKey(base.CurrentId);
+        else
+        {
+            obj.SectionId = this.CurrentSectionId;
+        }
 
         obj2form(obj);
         showInsertPanel(true);
@@ -481,7 +485,7 @@ public partial class Controls_CategoriesAdmin : PigeonCms.Modules.CategoriesAdmi
         var resList = new List<CategoryListItem>();
         var fullList = man.GetByFilter(filter, "");
 
-        bindTree(resList, fullList, 0, 0);
+        bindTree(resList, fullList, 0, -1);
 
         var ds = new PagedDataSource();
         ds.DataSource = resList;
@@ -508,6 +512,7 @@ public partial class Controls_CategoriesAdmin : PigeonCms.Modules.CategoriesAdmi
 
     private void bindTree(List<CategoryListItem> resList, List<Category>fullList, int parentId, int level)
     {
+        level++;
         var nodes = fullList.Where(x => x.ParentId == parentId);
         foreach (var node in nodes)
         {
@@ -519,7 +524,7 @@ public partial class Controls_CategoriesAdmin : PigeonCms.Modules.CategoriesAdmi
 
             var itemToAdd = new CategoryListItem(node, levelString + node.Title, level);
             resList.Add(itemToAdd);
-            bindTree(resList, fullList, node.Id, ++level);
+            bindTree(resList, fullList, node.Id, level);
         }
     }
 

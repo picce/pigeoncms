@@ -44,12 +44,20 @@ public partial class puppets : System.Web.UI.MasterPage, Acme.IMaster
 
     protected void Page_Load(object sender, EventArgs e)
     {
-        //get menu list
-        var menuMan = new MenuManager(true, false);
-        var menuFilter = new MenuFilter();
-        menuFilter.MenuType = "mainmenu";
-        menuFilter.Published = Utility.TristateBool.True;
-        menuFilter.Visible = Utility.TristateBool.True;
-        MenuList = menuMan.GetByFilter(menuFilter, "");
+        try
+        {
+            //get menu list
+            var menuMan = new MenuManager(true, false);
+            var menuFilter = new MenuFilter();
+            menuFilter.MenuType = "frontmenu";
+            menuFilter.Published = Utility.TristateBool.True;
+            menuFilter.Visible = Utility.TristateBool.True;
+            MenuList = menuMan.GetByFilter(menuFilter, "");
+        }
+        catch (System.Data.SqlClient.SqlException ex)
+        {
+            //no connstring set, probably cms not configured. redirect to install page
+            Response.Redirect(Config.InstallationPath);
+        }
     }
 }
