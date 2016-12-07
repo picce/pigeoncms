@@ -14,6 +14,36 @@ namespace PigeonCms
     {
         private string componentFullName = "";
 
+        private string _connString = "";
+        public string ConnString {
+            get
+            {
+                if (string.IsNullOrEmpty(_connString))
+                    _connString = Database.ConnString;
+
+                return _connString;
+            }
+
+            set { _connString = value; }
+        }
+
+        private string _tabPrefix = "";
+        public string TabPrefix
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_tabPrefix))
+                    _tabPrefix = Config.TabPrefix;
+
+                return _tabPrefix;
+            }
+
+            set
+            {
+                _tabPrefix = value;
+            }
+        }
+
         [DebuggerStepThrough()]
         public DbVersionsManager(string componentFullName)
         {
@@ -35,7 +65,7 @@ namespace PigeonCms
 
             try
             {
-                myConn.ConnectionString = Database.ConnString;
+                myConn.ConnectionString = this.ConnString;
                 myConn.Open();
 
                 if (!string.IsNullOrEmpty(componentFullName))
@@ -65,7 +95,7 @@ namespace PigeonCms
                 }
 
                 result = (List<PigeonCms.DbVersion>)myConn.Query
-                    <PigeonCms.DbVersion>(Database.ParseSql(sSql), p);
+                    <PigeonCms.DbVersion>(Database.ParseSql(sSql, this.TabPrefix), p);
             }
             finally
             {
@@ -83,7 +113,7 @@ namespace PigeonCms
 
             try
             {
-                myConn.ConnectionString = Database.ConnString;
+                myConn.ConnectionString = this.ConnString;
                 myConn.Open();
 
                 string sSql = "SELECT MAX(versionId)maxVersion "
@@ -91,7 +121,7 @@ namespace PigeonCms
                 + " WHERE ComponentFullName=@ComponentFullName ";
 
                 p.Add("ComponentFullName", componentFullName, null, null, null);
-                res = (int)myConn.ExecuteScalar<decimal>(Database.ParseSql(sSql), p, null, null, null);
+                res = (int)myConn.ExecuteScalar<decimal>(Database.ParseSql(sSql, this.TabPrefix), p, null, null, null);
             }
             finally
             {
@@ -135,7 +165,7 @@ namespace PigeonCms
 
             try
             {
-                myConn.ConnectionString = Database.ConnString;
+                myConn.ConnectionString = this.ConnString;
                 myConn.Open();
 
                 sSql = "UPDATE [" + this.TableName + "] "
@@ -154,7 +184,7 @@ namespace PigeonCms
                 p.Add("DateUpdated", theObj.DateUpdated, null, null, null);
                 p.Add("UserUpdated", theObj.UserUpdated, null, null, null);
 
-                result = myConn.Execute(Database.ParseSql(sSql), p);
+                result = myConn.Execute(Database.ParseSql(sSql, this.TabPrefix), p);
             }
             finally
             {
@@ -176,7 +206,7 @@ namespace PigeonCms
 
             try
             {
-                myConn.ConnectionString = Database.ConnString;
+                myConn.ConnectionString = this.ConnString;
                 myConn.Open();
 
                 sSql = "INSERT INTO [" + this.TableName + "]"
@@ -193,7 +223,7 @@ namespace PigeonCms
                 p.Add("DateUpdated", theObj.DateUpdated, null, null, null);
                 p.Add("UserUpdated", theObj.UserUpdated, null, null, null);
 
-                int count = myConn.Execute(Database.ParseSql(sSql), p);
+                int count = myConn.Execute(Database.ParseSql(sSql, this.TabPrefix), p);
             }
             finally
             {
@@ -215,7 +245,7 @@ namespace PigeonCms
             {
                 var currObj = this.GetByKey(versionId);
 
-                myConn.ConnectionString = Database.ConnString;
+                myConn.ConnectionString = this.ConnString;
                 myConn.Open();
 
                 sSql = "DELETE FROM [" + this.TableName + "] "
@@ -224,7 +254,7 @@ namespace PigeonCms
                 p.Add("ComponentFullName", componentFullName, null, null, null);
                 p.Add("VersionId", versionId, null, null, null);
 
-                myConn.Execute(Database.ParseSql(sSql), p);
+                myConn.Execute(Database.ParseSql(sSql, this.TabPrefix), p);
             }
             finally
             {
