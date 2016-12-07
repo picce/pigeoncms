@@ -7,11 +7,11 @@ using PigeonCms;
 
 namespace Acme
 {
-    /// <summary>
-    /// settings for ACME sample project
-    /// </summary>
-    public class Settings
-    {
+	/// <summary>
+	/// settings for ACME sample project
+	/// </summary>
+	public class Settings
+	{
         private PigeonCms.AppSettingsProvider provider = new AppSettingsProvider("Acme.Site");
 
 
