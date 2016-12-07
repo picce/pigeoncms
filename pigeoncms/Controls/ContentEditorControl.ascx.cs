@@ -57,6 +57,16 @@ public partial class Controls_ContentEditorControl : PigeonCms.BaseModuleControl
         set { Txt1.Text = value; }
     }
 
+	/// <summary>
+	/// css class for editor text
+	/// </summary>
+	public string CssClass
+	{
+		get { return Txt1.CssClass; }
+		set { Txt1.CssClass = value; }
+	}
+
+
     protected new void Page_Init(object sender, EventArgs e)
     {
         this.BaseModule = new Module();
@@ -83,10 +93,14 @@ public partial class Controls_ContentEditorControl : PigeonCms.BaseModuleControl
         {
             var btn = new HtmlInputButton();
             btn.Value = base.GetLabel("File", "File");
-            btn.Attributes["onclick"] = "insertFile();";
-            btn.Attributes["class"] = "button";
+			btn.Attributes["data-href"] = configuration.FilesUploadUrl;
+			btn.Attributes["class"] = "button js-open-fancy";
             this.PanelButtons.Controls.Add(btn);
         }
+		if (!string.IsNullOrEmpty(this.Configuration.CssClass))
+		{
+			this.CssClass = this.Configuration.CssClass;
+		}
         //if (this.Configuration.ToggleEditor)
         //{
         //    var btn = new HtmlInputButton();

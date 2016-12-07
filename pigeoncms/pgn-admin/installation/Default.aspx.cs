@@ -205,7 +205,8 @@ public partial class Installation_Default : Page
     {
         string cssClass = "";
         string iconClass = "fa-question";
-        string invertedClass = (index % 2 == 0 ? "" : "timeline-inverted");
+        //string invertedClass = (index % 2 == 0 ? "" : "timeline-inverted");
+		string invertedClass = ""; //NEW
 
         if (index == MultiView1.ActiveViewIndex)
             cssClass = "warning";
@@ -329,11 +330,6 @@ public partial class Installation_Default : Page
             res = false;
             LblErr.Text += "create.sql file not found<br />";
         }
-        if (!File.Exists(filePath + "bulk.sql"))
-        {
-            res = false;
-            LblErr.Text += "bulk.sql file not found<br />";
-        }
 
         LblErr.Text = renderError(LblErr.Text);
 
@@ -359,17 +355,9 @@ public partial class Installation_Default : Page
             myTrans = myConn.BeginTransaction();
             myCmd.Transaction = myTrans;
 
-            //tables structure creation
+            //tables structure and bulk data
             TextReader tr = new StreamReader(
                 HttpContext.Current.Request.MapPath(Config.InstallationPath + "sql/create.sql"));
-            sSql = tr.ReadToEnd();
-            tr.Close();
-            sSql = Database.ParseSql(sSql, TxtTablesPrefix.Text);
-            sResult = Database.ExecuteQuery(myRd, myCmd, sSql);
-
-            //bulk data
-            tr = new StreamReader(
-                HttpContext.Current.Request.MapPath(Config.InstallationPath + "sql/bulk.sql"));
             sSql = tr.ReadToEnd();
             tr.Close();
             sSql = Database.ParseSql(sSql, TxtTablesPrefix.Text);
@@ -388,6 +376,23 @@ public partial class Installation_Default : Page
         {
             myTrans.Dispose();
             myConn.Dispose();
+        }
+
+        if (res)
+        {
+            //20161201 picce
+            //upgrade PigeonCms.Core if needed
+            string upgradeLogResult = "";
+            var dbManProvider = new PigeonCms.DatabaseUpdateProvider("PigeonCms.Core");
+            dbManProvider.ConnString = getConnString();
+            dbManProvider.TabPrefix = TxtTablesPrefix.Text;
+            res = dbManProvider.ApplyPendingUpdates(out upgradeLogResult);
+
+            if (!res)
+            {
+                LblErr.Text += "Error upgrading PigeonCms.Core database<br />";
+                LblErr.Text += upgradeLogResult + "<br />";
+            }
         }
 
         //set custom data with direct sql because web.config settings reload at next request

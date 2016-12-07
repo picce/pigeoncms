@@ -84,6 +84,7 @@
     <Compile Include="BLL\AttributeValue.cs" />
     <Compile Include="BLL\FormField.cs" />
     <Compile Include="BLL\Comment.cs" />
+    <Compile Include="BLL\Seo.cs" />
     <Compile Include="BLL\ItemAttributeValue.cs" />
     <Compile Include="BLL\Geo\Zone.cs" />
     <Compile Include="BLL\Geo\Country.cs" />
@@ -125,6 +126,7 @@
     <Compile Include="DAL\ItemAttributesValuesManager.cs" />
     <Compile Include="DAL\Geo\ZonesManager.cs" />
     <Compile Include="DAL\Geo\CountriesManager.cs" />
+    <Compile Include="DAL\SeoManager.cs" />
     <Compile Include="DAL\ItemTagsManager.cs" />
     <Compile Include="DAL\TagTypesManager.cs" />
     <Compile Include="DAL\TagsManager.cs" />
@@ -171,6 +173,7 @@
     <Compile Include="Modules\PigeonCms.CategoriesAdmin\CategoriesAdminControl.cs">
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
+    <Compile Include="Modules\PigeonCms.FileUpload\FileUploadModernProvider.cs" />
     <Compile Include="Modules\PigeonCms.Items\ItemsAdminControl.cs">
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
@@ -219,6 +222,7 @@
     <Compile Include="Providers\MessageProvider.cs" />
     <Compile Include="Providers\LogProvider.cs" />
     <Compile Include="Providers\LabelsProvider.cs" />
+    <Compile Include="Providers\SeoProvider.cs" />
     <Compile Include="Providers\PermissionProvider.cs" />
     <Compile Include="Providers\PgnRoleProvider.cs" />
     <Compile Include="Providers\PgnUser.cs" />

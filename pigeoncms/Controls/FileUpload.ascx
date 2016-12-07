@@ -2,12 +2,12 @@
 
 <%=HeaderText%>
 
-<div class="pgn-fileUpload-litFolder">
-<%=LitFolder %>
-</div>
-
 <div class="pgn-fileUpload-litAllowedFiles">
 <%=base.GetLabel("Allowedfiles", "Allowed files")%>: <%=LitRestrictions%>
+</div>
+
+<div class="pgn-fileUpload-litFolder">
+<%=LitFolder %>
 </div>
 
 <div class="pgn-fileUpload-panelFields">

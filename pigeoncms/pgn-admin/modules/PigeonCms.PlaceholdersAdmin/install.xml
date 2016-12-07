@@ -18,5 +18,6 @@
     </files>
 
     <params>
+      <param name="ListPageSize" type="text" default="20" label="List page size" description="Set 0 to avoid pagination" />
     </params>
 </install>

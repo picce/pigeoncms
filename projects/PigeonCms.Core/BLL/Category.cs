@@ -18,10 +18,12 @@ using System.Threading;
 
 namespace PigeonCms
 {
+    [DebuggerDisplay("Id={id}, ExtId={extId}, ParentId={parentId}, Alias={Alias}")]
     public class Category : 
         ITableWithOrdering, 
         ITableWithPermissions,
-        ITableExternalId
+        ITableExternalId,
+        ITableWithSeo
     {
         const string imagesPath = "~/public/gallery/categories/";
         const string filesPath = "~/public/files/categories/";
@@ -318,6 +320,35 @@ namespace PigeonCms
             [DebuggerStepThrough()]
             set { extId = value; }
         }
+
+
+        /// <summary>
+        /// external key to seo table
+        /// </summary>
+        public int SeoId { get; set; }
+  
+        private Seo seo = null;
+        /// <summary>
+        /// seo informations
+        /// </summary>
+        public Seo Seo
+        {
+            get
+            {
+                if (seo == null)
+                {
+                    var provider = new SeoProvider("categories");
+                    seo = provider.Get(this);
+                }
+                return seo;
+            }
+  
+            set
+            {
+                this.seo = value;
+            }
+        }
+
 
 
         private FileMetaInfo defaultImage = new FileMetaInfo();

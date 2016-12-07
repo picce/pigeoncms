@@ -26,6 +26,8 @@ namespace PigeonCms
     {
         private bool checkUserContext = false;
         private bool writeMode = false;
+        private SeoProvider seoProvider;
+
 
         public bool CheckUserContext
         {
@@ -48,6 +50,9 @@ namespace PigeonCms
             this.checkUserContext = checkUserContext;
             this.writeMode = writeMode;
             if (this.writeMode) this.checkUserContext = true;    //forced
+
+            seoProvider = new SeoProvider("sections");
+
         }
 
         public override Dictionary<string, string> GetList()
@@ -86,7 +91,7 @@ namespace PigeonCms
                 sSql = "SELECT t.Id, t.Enabled, " 
                     + " t.AccessType, t.PermissionId, t.AccessCode, t.AccessLevel, "
                     + " t.WriteAccessType, t.WritePermissionId, t.WriteAccessCode, t.WriteAccessLevel, "
-                    + " t.MaxItems, t.MaxAttachSizeKB, t.CssClass, t.ItemType, t.ExtId "
+                    + " t.MaxItems, t.MaxAttachSizeKB, t.CssClass, t.ItemType, t.ExtId, t.SeoId "
                     + " FROM ["+ this.TableName +"] t "
                     + " WHERE t.Id > 0 ";
                 if (filter.Id > 0 || filter.Id == -1)
@@ -207,6 +212,7 @@ namespace PigeonCms
             {
                 //fill ReadPermissionId and WritePermissionId before trans
                 new PermissionProvider().UpdatePermissionObj(theObj);
+                seoProvider.Save(theObj);
 
                 myConn.ConnectionString = Database.ConnString;
                 myConn.Open();
@@ -222,7 +228,7 @@ namespace PigeonCms
                 + " WriteAccessType=@WriteAccessType, WritePermissionId=@WritePermissionId, "
                 + " [WriteAccessCode]=@WriteAccessCode, WriteAccessLevel=@WriteAccessLevel, "
                 + " [MaxItems]=@MaxItems, MaxAttachSizeKB=@MaxAttachSizeKB, "
-                + " CssClass=@CssClass, ItemType=@ItemType, ExtId=@ExtId "
+                + " CssClass=@CssClass, ItemType=@ItemType, ExtId=@ExtId, SeoId=@SeoId "
                 + " WHERE Id = @Id";
                 myCmd.CommandText = Database.ParseSql(sSql);
                 myCmd.Parameters.Add(Database.Parameter(myProv, "Id", theObj.Id));
@@ -230,6 +236,7 @@ namespace PigeonCms
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CssClass", theObj.CssClass));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "ItemType", theObj.ItemType));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "ExtId", theObj.ExtId));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "SeoId", theObj.SeoId));
                 //read permissions
                 myCmd.Parameters.Add(Database.Parameter(myProv, "AccessType", theObj.ReadAccessType));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "PermissionId", theObj.ReadPermissionId));
@@ -275,6 +282,8 @@ namespace PigeonCms
                 //create read/write permission
                 new PermissionProvider().CreatePermissionObj(newObj);
 
+                seoProvider.Save(newObj);
+
                 myConn.ConnectionString = Database.ConnString;
                 myConn.Open();
                 myCmd.Connection = myConn;
@@ -288,11 +297,11 @@ namespace PigeonCms
                 sSql = "INSERT INTO [" + this.TableName + "](/*Id,*/ Enabled, "
                 + " AccessType, PermissionId, AccessCode, AccessLevel, "
                 + " WriteAccessType, WritePermissionId, WriteAccessCode, WriteAccessLevel, "
-                + " MaxItems, MaxAttachSizeKB, CssClass, ItemType, ExtId) "
+                + " MaxItems, MaxAttachSizeKB, CssClass, ItemType, ExtId, SeoId) "
                 + " VALUES(/*@Id,*/ @Enabled, "
                 + " @AccessType, @PermissionId, @AccessCode, @AccessLevel, "
                 + " @WriteAccessType, @WritePermissionId, @WriteAccessCode, @WriteAccessLevel, "
-                + " @MaxItems, @MaxAttachSizeKB, @CssClass, @ItemType, @ExtId) "
+                + " @MaxItems, @MaxAttachSizeKB, @CssClass, @ItemType, @ExtId, @SeoId) "
                 + " SELECT SCOPE_IDENTITY()";
                 myCmd.CommandText = Database.ParseSql(sSql);
 
@@ -301,6 +310,7 @@ namespace PigeonCms
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CssClass", newObj.CssClass));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "ItemType", newObj.ItemType));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "ExtId", newObj.ExtId));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "SeoId", newObj.SeoId));
                 //read permissions
                 myCmd.Parameters.Add(Database.Parameter(myProv, "AccessType", (int)newObj.ReadAccessType));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "PermissionId", newObj.ReadPermissionId));
@@ -366,6 +376,8 @@ namespace PigeonCms
                 currObj.DeleteFiles();
                 new PermissionProvider().RemovePermissionById(currObj.ReadPermissionId);
                 new PermissionProvider().RemovePermissionById(currObj.WritePermissionId);
+                seoProvider.Remove(currObj);
+
 
                 myConn.ConnectionString = Database.ConnString;
                 myConn.Open();
@@ -411,10 +423,14 @@ namespace PigeonCms
                 result.Id = (int)myRd["Id"];
             if (!Convert.IsDBNull(myRd["Enabled"]))
                 result.Enabled = (bool)myRd["Enabled"];
+            if (!Convert.IsDBNull(myRd["CssClass"]))
+                result.CssClass = (string)myRd["CssClass"];
             if (!Convert.IsDBNull(myRd["ItemType"]))
                 result.ItemType = (string)myRd["ItemType"];
             if (!Convert.IsDBNull(myRd["ExtId"]))
                 result.ExtId = (string)myRd["ExtId"];
+            if (!Convert.IsDBNull(myRd["SeoId"]))
+                result.SeoId = (int)myRd["SeoId"];
 
             //read permissions
             if (!Convert.IsDBNull(myRd["AccessType"]))

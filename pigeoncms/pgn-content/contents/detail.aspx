@@ -1,118 +1,91 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="detail.aspx.cs" Inherits="_detail" MasterPageFile="~/pgn-content/masterpages/puppets.master" %>
+﻿<%@ Page Title="" Language="C#" MasterPageFile="~/pgn-content/masterpages/puppets.master" AutoEventWireup="true" CodeFile="detail.aspx.cs" Inherits="contents_detail" %>
 
-<asp:Content ID="Content1" ContentPlaceHolderID="CphHead" Runat="Server">
+<asp:Content ID="Content1" ContentPlaceHolderID="CphHead" runat="Server">
 </asp:Content>
 
-<asp:Content ID="Content2" ContentPlaceHolderID="CphMain" Runat="Server">
+<asp:Content ID="Content2" ContentPlaceHolderID="CphMain" runat="Server">
 
-    <h1>
-        <%=GetLabel("AQ_detail", "Title", "Prodotto Singolo")%>    
-    </h1>
+    <div class="o-container">
 
-    <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
-    <script type="text/javascript">
+        <div class="o-row o-row--small u-table u-table--full u-pad-tb--5">
 
-        (function ($) {
+            <div class="o-title o-title--small o-col o-col--35 u-table-cell">
+                detail
+            </div>
 
-            $(document).on('ready', function () {
+            <div class="o-title o-subtitle--big o-col o-col--50 u-table-cell">
+                Learn how to use and extend items. Example using <code class="o-code">asp:Repeater</code>
+            </div>
 
-                function nextAttributeValues(values) {
-                    return $.ajax({
-                        url: '/pgn-content/contents/ajax.aspx/GetNextValues',
-                        type: 'POST',
-                        dataType: 'json',
-                        contentType: "application/json; charset=utf-8",
-                        data: JSON.stringify({ values: values.join(','), productId: parseInt($('#PanelDropVariants').attr('data-product-id'))})
-                    }).then(function (response) {
-                        return response.d;
-                    });
+        </div>
 
-                }
+        <div class="o-row o-row--medium u-table u-table--full u-pad-b--5">
 
-                var $selects = $('select[data-select-id]');
-                var $last = $('select[data-last]');
+            <div class="o-col o-col--50 u-table-cell o-detail-blog">
 
-                $selects.each(function (i, select) {
+                <div class="o-title o-title--big">Detail</div>
 
-                    var $select = $(select);
-                    var id = $select.data('select-id');
-                    var parents = $select.attr('data-select-parent').split(',');
+                <%--<div class="o-text">
+                    Using <code class="o-code o-code--strong">getLabel</code> method.
+                    <br />
+                    <br />
+                    Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa.
+                </div>--%>
 
+                <div class="c-slider">
 
-                    var $parents = $selects.filter(function (i, el) {
-                        var selectId = $.attr(el, 'data-select-id');
-                        return jQuery.inArray(selectId, parents) !== -1;
-                    });
+                    <div class="owl-carousel owl-theme">
+                        <%  foreach (var image in SingleItem.Images) {    %>
+                                <div class="item o-media-fullscreen" style="background-image: url('<%=image.FileFullUrl %>');"></div>      
+                        <%  }   %>
+                    </div>
 
+                </div>
 
-                    $parents.on('change', function (e) {
+                <div class="o-detail-blog--category u-pad-t--5">
+                    <%=SingleItem.Category.Title  %>
+                </div>
 
-                        var values = $.map($parents.get(), function (el) {
-                            return $(el).val();
-                        });
+                <h2 class="o-title o-detail-blog--title u-pad-tb--5"><%=SingleItem.Title  %></h2>
 
-                        values = $.grep(values, function (v) { return !!v; });
+                <div class="o-text o-detail-blog--text">
+                    <%=DescriptionItem  %>
+                </div>
 
-                        var completed = values.length === $parents.length;
+                <div class="u-table u-table--full o-detail-blog--attachments u-pad-tb--5">
 
-                        if (values.length === $parents.length) {
-  
-                            select.innerHTML = '';
-                            $.when(nextAttributeValues(values)).then(function (options) {
+                    <%  foreach (var attachment in SingleItem.Files) {    %>
+                            <div class="u-table-cell o-detail-blog--attachments-wrapper">
+                                <a href="<%=attachment.FileFullUrl  %>" target="_blank" class="o-detail-blog--attachments-single">
+                                    <span><%=attachment.FileExtension   %></span>
+                                    <span class="o-icon-arrow"></span>
+                                    <div class="o-detail-blog--attachments-download">download now</div>
+                                </a>
+                            </div>
+                    <%  }   %>
 
-                                var html = $.map(options, function (el) {
-                                    return '<option value="' + el.value + '">' + el.label + '</option>';
-                                });
-                                $select.html('<option></option>' + html.join(''));
+                </div>
 
-                            });
-                        }
+            </div>
 
-                    });
+            <div class="o-col o-col--50 u-table-cell o-code--cont">
 
-                });
+                <div class="o-title o-title--big">
+                    &nbsp;
+                </div>
 
+                <div class="o-wrapper-pre o-triangle">
+                    <pre>
+                        <code class="cs html hljs">
+                            <%=CodeSource %>
+                        </code>
+                    </pre>
+                </div>
 
-                $last.on('change', function (e) {
+            </div>
 
-                    var values = $.map($selects.get(), function (select) {
-                        return $(select).val();
-                    });
+        </div>
 
-                    $.ajax({
-                        url: '/pgn-content/contents/ajax.aspx/GetThread',
-                        type: 'POST',
-                        dataType: 'json',
-                        contentType: "application/json; charset=utf-8",
-                        data: JSON.stringify({ values: values.join(','), productId: parseInt($('#PanelDropVariants').attr('data-product-id')) })
-                    }).then(function (response) {
-                        console.log(response.d);
-                        $('#productTitle').html(response.d.title);
-                        $('#productDescription').html(response.d.description);
-                        $('#productRegPrice').html(response.d.regPrice);
-                        $('#productSalePrice').html(response.d.salePrice);
-                    });
-
-                    return false;
-                });
-
-            });
-
-        })(jQuery);
-
-
-    </script>
-
-
-    <div class="product-box">
-        <h2 id="productTitle"><asp:Literal ID="LitTitle" runat="server" /></h2>
-        <p id="productDescription"><asp:Literal ID="LitDescription" runat="server" /></p>
-        <p id="productRegPrice"><asp:Literal ID="LitRegPrice" runat="server" /></p>
-        <p id="productSalePrice"><asp:Literal ID="LitSalePrice" runat="server" /></p>
     </div>
-
-    <asp:Literal ID="LitVariants" runat="server" Visible="false"></asp:Literal>
-
-    <asp:Panel ID="PanelDropVariants" runat="server" ClientIDMode="Static"></asp:Panel>
 
 </asp:Content>

@@ -16,41 +16,74 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
 {
     protected void Page_Load(object sender, EventArgs e)
     {
-        LblOk.Text = "";
-        LblErr.Text = "";
+		setSuccess("");
+		setError("");
 
         if (!Page.IsPostBack)
         {
+			loadList();
         }
+		else
+		{
+			string eventArg = HttpContext.Current.Request["__EVENTARGUMENT"];
+			if (eventArg == "sortcomplete")
+			{
+				updateSortedTable();
+				loadList();
+			}
+		}
     }
 
     protected void DropEnabledFilter_SelectedIndexChanged(object sender, EventArgs e)
     {
-        Grid1.DataBind();
+		loadList();
     }
 
-    protected void ObjDs1_Selecting(object sender, ObjectDataSourceSelectingEventArgs e)
-    {
-        CulturesFilter filter = new CulturesFilter();
+	protected void RepPaging_ItemDataBound(object sender, RepeaterItemEventArgs e)
+	{
+		if (e.Item.ItemType == ListItemType.Header)
+		{
+			return;
+		}
 
-        filter.Enabled = Utility.TristateBool.NotSet;
-        switch (DropEnabledFilter.SelectedValue)
-        {
-            case "1":
-                filter.Enabled = Utility.TristateBool.True;
-                break;
-            case "0":
-                filter.Enabled = Utility.TristateBool.False;
-                break;
-            default:
-                filter.Enabled = Utility.TristateBool.NotSet;
-                break;
-        }
+		int page = int.Parse(e.Item.DataItem.ToString());
+		if (page - 1 == base.ListCurrentPage)
+		{
+			var BtnPage = (LinkButton)e.Item.FindControl("BtnPage");
+			BtnPage.CssClass = "selected";
+		}
+	}
 
-        e.InputParameters["filter"] = filter;
-    }
+	protected void RepPaging_ItemCommand(object source, RepeaterCommandEventArgs e)
+	{
+		if (e.CommandName == "Page")
+		{
+			base.ListCurrentPage = int.Parse(e.CommandArgument.ToString()) - 1;
+			loadList();
+		}
+	}
 
-    protected void Grid1_RowCommand(object sender, GridViewCommandEventArgs e)
+	protected void Rep1_ItemDataBound(object sender, RepeaterItemEventArgs e)
+	{
+		if (e.Item.ItemType == ListItemType.Header)
+			return;
+
+		var item = (PigeonCms.Culture)e.Item.DataItem;
+
+		{
+			var LitEnabled = (Literal)e.Item.FindControl("LitEnabled");
+			string enabledClass = "";
+			if (item.Enabled)
+				enabledClass = "checked";
+			LitEnabled.Text = "<span class='table-modern--checkbox--square " + enabledClass + "'></span>";
+
+			var LnkEnabled = (LinkButton)e.Item.FindControl("LnkPublished");
+			LnkEnabled.CssClass = "table-modern--checkbox " + enabledClass;
+			LnkEnabled.CommandName = item.Enabled ? "Enabled0" : "Enabled1";
+		}
+	}
+
+	protected void Rep1_ItemCommand(object source, RepeaterCommandEventArgs e)
     {
         if (e.CommandName == "Select")
         {
@@ -60,63 +93,23 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         {
             deleteRow(e.CommandArgument.ToString());
         }
-        //Enabled
-        if (e.CommandName == "ImgEnabledOk")
-        {
-            setFlag(e.CommandArgument.ToString(), false, "enabled");
-            Grid1.DataBind();
-        }
-        if (e.CommandName == "ImgEnabledKo")
-        {
-            setFlag(e.CommandArgument.ToString(), true, "enabled");
-            Grid1.DataBind();
-        }
-        //Ordering
-        if (e.CommandName == "MoveDown")
-        {
-            moveRecord(e.CommandArgument.ToString(), Database.MoveRecordDirection.Down);
-        }
-        if (e.CommandName == "MoveUp")
-        {
-            moveRecord(e.CommandArgument.ToString(), Database.MoveRecordDirection.Up);
-        }
-    }
-
-    protected void Grid1_RowCreated(object sender, GridViewRowEventArgs e)
-    {
-        if (e.Row.RowType == DataControlRowType.Header)
-            Utility.AddGlyph(Grid1, e.Row);
-    }
-
-    protected void Grid1_RowDataBound(object sender, GridViewRowEventArgs e)
-    {
-        if (e.Row.RowType == DataControlRowType.DataRow)
-        {
-            PigeonCms.Culture item = new PigeonCms.Culture();
-            item = (PigeonCms.Culture)e.Row.DataItem;
-
-            LinkButton LnkSel = (LinkButton)e.Row.FindControl("LnkSel");
-            LnkSel.Text = "<i class='fa fa-pgn_edit fa-fw'></i>";
-            LnkSel.Text += item.CultureCode;
-
-            //Published
-            if (item.Enabled)
-            {
-                var img1 = e.Row.FindControl("ImgEnabledOk");
-                img1.Visible = true;
-            }
-            else
-            {
-                var img1 = e.Row.FindControl("ImgEnabledKo");
-                img1.Visible = true;
-            }
-        }
+		//Enabled
+		if (e.CommandName == "Enabled0")
+		{
+			setFlag(e.CommandArgument.ToString(), false, "enabled");
+			loadList();
+		}
+		if (e.CommandName == "Enabled1")
+		{
+			setFlag(e.CommandArgument.ToString(), true, "enabled");
+			loadList();
+		}
     }
 
     protected void BtnApply_Click(object sender, EventArgs e)
     {
-        LblErr.Text = "";
-        LblOk.Text = "";
+		setSuccess("");
+		setError("");
 
         try
         {
@@ -124,12 +117,12 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         }
         catch (Exception ex)
         {
-            LblErr.Text = "Error updating culture list:" + ex.ToString();
+            setError("Error updating culture list:" + ex.ToString());
             PigeonCms.Trace.Warn("Error", "Error updating culture list", ex);
         }
         finally
         {
-            LblOk.Text = "Culture list updated sucefully";
+            setSuccess("Culture list updated sucefully");
         }
     }
 
@@ -140,8 +133,8 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
 
     protected void BtnSave_Click(object sender, EventArgs e)
     {
-        LblErr.Text = "";
-        LblOk.Text = "";
+		setSuccess("");
+		setError("");
 
         try
         {
@@ -157,13 +150,14 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
                 form2obj(o1);
                 new CulturesManager().Update(o1);
             }
-            Grid1.DataBind();
-            LblOk.Text = Utility.GetLabel("RECORD_SAVED_MSG");
-            MultiView1.ActiveViewIndex = 0;
+
+			loadList();
+            setSuccess(Utility.GetLabel("RECORD_SAVED_MSG"));
+			showInsertPanel(false);
         }
         catch (Exception e1)
         {
-            LblErr.Text = Utility.GetLabel("RECORD_ERR_MSG") + "<br />" + e1.ToString();
+            setError(Utility.GetLabel("RECORD_ERR_MSG") + "<br />" + e1.ToString());
         }
         finally
         {
@@ -172,14 +166,16 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
 
     protected void BtnCancel_Click(object sender, EventArgs e)
     {
-        MultiView1.ActiveViewIndex = 0;
+		showInsertPanel(false);
     }
 
     #region private methods
+
     private void clearForm()
     {
         TxtCultureCode.Enabled = true;
         TxtCultureCode.Text = "";
+		TxtShortCode.Text = "";
         TxtDisplayName.Text = "";
         ChkEnabled.Checked = true;
     }
@@ -188,6 +184,7 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
     {
         obj.CultureCode = TxtCultureCode.Text;
         obj.DisplayName = TxtDisplayName.Text;
+		obj.ShortCode = TxtShortCode.Text;
         obj.Enabled = ChkEnabled.Checked;
     }
 
@@ -197,13 +194,14 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
 
         TxtCultureCode.Text = obj.CultureCode;
         TxtDisplayName.Text = obj.DisplayName;
+		TxtShortCode.Text = obj.ShortCode;
         ChkEnabled.Checked = obj.Enabled;
     }
 
     private void editRow(string recordId)
     {
-        LblOk.Text = "";
-        LblErr.Text = "";
+		setSuccess("");
+		setError("");
 
         clearForm();
         base.CurrentKey = recordId;
@@ -213,13 +211,13 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
             obj = new CulturesManager().GetByKey(base.CurrentKey);
             obj2form(obj);
         }
-        MultiView1.ActiveViewIndex = 1;
+		showInsertPanel(true);
     }
 
     private void deleteRow(string recordId)
     {
-        LblOk.Text = "";
-        LblErr.Text = "";
+		setSuccess("");
+		setError("");
 
         try
         {
@@ -227,17 +225,16 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         }
         catch (Exception e)
         {
-            LblErr.Text = e.Message;
+            setError(e.Message);
         }
-        Grid1.DataBind();
+		loadList();
     }
 
     private void setFlag(string recordId, bool value, string flagName)
     {
         try
         {
-            PigeonCms.Culture o1 = new PigeonCms.Culture();
-            o1 = new CulturesManager().GetByKey(recordId);
+            var o1 = new CulturesManager().GetByKey(recordId);
             switch (flagName.ToLower())
             {
                 case "enabled":
@@ -250,27 +247,96 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         }
         catch (Exception e1)
         {
-            LblErr.Text = Utility.GetLabel("RECORD_ERR_MSG") + "<br />" + e1.ToString();
+            setError(Utility.GetLabel("RECORD_ERR_MSG") + "<br />" + e1.ToString());
         }
         finally { }
     }
 
-    protected void moveRecord(string recordId, Database.MoveRecordDirection direction)
-    {
-        LblErr.Text = "";
-        LblOk.Text = "";
+	private void updateSortedTable()
+	{
+		//<input type="hidden" name="RowId" value='<%# Eval("Id") %>' />
+		string[] rowIds = Request.Form.GetValues("RowId");
+		int ordering = 1;
 
-        try
-        {
-            new CulturesManager().MoveRecord(recordId, direction);
-            Grid1.DataBind();
-            MultiView1.ActiveViewIndex = 0;
-        }
-        catch (Exception e1)
-        {
-            LblErr.Text = Utility.GetLabel("RECORD_ERR_MSG") + "<br />" + e1.ToString();
-        }
-        finally { }
-    }
+		foreach (string cultureCode in rowIds)
+		{
+			sortRecord(cultureCode, ordering);
+			ordering++;
+		}
+	}
+
+	public void sortRecord(string cultureCode, int ordering)
+	{
+		var man = new CulturesManager();
+		var item = man.GetByKey(cultureCode);
+		item.Ordering = ordering;
+		man.Update(item);
+	}
+
+	private void loadList()
+	{
+		var man = new CulturesManager();
+		var filter = new CulturesFilter();
+
+		filter.Enabled = Utility.TristateBool.NotSet;
+		switch (DropEnabledFilter.SelectedValue)
+		{
+			case "1":
+				filter.Enabled = Utility.TristateBool.True;
+				break;
+			case "0":
+				filter.Enabled = Utility.TristateBool.False;
+				break;
+		}
+
+		var list = man.GetByFilter(filter, "");
+
+		var ds = new PagedDataSource();
+		ds.DataSource = list;
+		ds.AllowPaging = true;
+		ds.PageSize = base.ListPageSize;
+		ds.CurrentPageIndex = base.ListCurrentPage;
+
+		RepPaging.Visible = false;
+		if (ds.PageCount > 1)
+		{
+			RepPaging.Visible = true;
+			ArrayList pages = new ArrayList();
+			for (int i = 0; i <= ds.PageCount - 1; i++)
+			{
+				pages.Add((i + 1).ToString());
+			}
+			RepPaging.DataSource = pages;
+			RepPaging.DataBind();
+		}
+
+		Rep1.DataSource = ds;
+		Rep1.DataBind();
+	}
+
+	/// function for display insert panel
+	/// <summary>
+	/// </summary>
+	private void showInsertPanel(bool toShow)
+	{
+
+		PigeonCms.Utility.Script.RegisterStartupScript(Upd1, "bodyBlocked", "bodyBlocked(" + toShow.ToString().ToLower() + ");");
+
+		if (toShow)
+			PanelInsert.Visible = true;
+		else
+			PanelInsert.Visible = false;
+	}
+
+	private void setError(string content)
+	{
+		LblErrInsert.Text = LblErrSee.Text = RenderError(content);
+	}
+
+	private void setSuccess(string content)
+	{
+		LblOkInsert.Text = LblOkSee.Text = RenderSuccess(content);
+	}
+
     #endregion
 }

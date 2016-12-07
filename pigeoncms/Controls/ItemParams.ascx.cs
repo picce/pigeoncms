@@ -67,8 +67,6 @@ public partial class Controls_ItemParams : PigeonCms.BaseModuleControl
     /// </summary>
     public void LoadFields(Item currentItem)
     {
-        //List<ResLabel> labelsList;  //localized labels for module params
-        //labelsList = LabelsProvider.GetLabelsByResourceSet(currentModule.ModuleFullName);
         FormBuilder.RenderParamsOnPanel(PanelParams, currentItem, null);
     }
 }

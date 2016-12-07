@@ -14,6 +14,8 @@ using PigeonCms;
 
 public partial class Controls_SectionsAdmin : PigeonCms.BaseModuleControl
 {
+    public string TitleItem = "";
+
     int targetImagesUpload = 0;
     protected int TargetImagesUpload
     {
@@ -60,6 +62,7 @@ public partial class Controls_SectionsAdmin : PigeonCms.BaseModuleControl
         }
     }
 
+
     protected new void Page_Init(object sender, EventArgs e)
     {
         base.Page_Init(sender, e);
@@ -70,257 +73,72 @@ public partial class Controls_SectionsAdmin : PigeonCms.BaseModuleControl
             pan1.CssClass = "form-group input-group";
             PanelTitle.Controls.Add(pan1);
 
+            Literal lit1 = new Literal();
+            lit1.Text = "<div class='input-group-addon'><span>" + item.Value.Substring(0, 3) + "</span></div>";
+            pan1.Controls.Add(lit1);
             TextBox txt1 = new TextBox();
             txt1.ID = "TxtTitle" + item.Value;
-            txt1.MaxLength = 50;
+            txt1.MaxLength = 200;
             txt1.CssClass = "form-control";
             txt1.ToolTip = item.Key;
             LabelsProvider.SetLocalizedControlVisibility(false, item.Key, txt1);
             pan1.Controls.Add(txt1);
-            Literal lit1 = new Literal();
-            lit1.Text = "<span class='input-group-addon'>" + item.Value + "</span>";
-            pan1.Controls.Add(lit1);
+            //if (item.Key == Config.CultureDefault)
+            //    titleId = txt1.ClientID;
 
             //description
-            Panel pan2 = new Panel();
-            pan2.CssClass = "form-group input-group";
-            PanelDescription.Controls.Add(pan2);
+            Literal lit2 = new Literal();
+            lit2.Text = "<span class='lang-description'>- <i>" + item.Value + "</i> -</span>";
+            PanelDescription.Controls.Add(lit2);
 
-            TextBox txt2 = new TextBox();
+            var txt2 = new TextBox();
             txt2.ID = "TxtDescription" + item.Value;
             txt2.Rows = 3;
-            txt2.TextMode = TextBoxMode.MultiLine;
             txt2.CssClass = "form-control";
-            txt2.ToolTip = item.Key;
+            txt2.TextMode = TextBoxMode.MultiLine;
             LabelsProvider.SetLocalizedControlVisibility(false, item.Key, txt2);
-            pan2.Controls.Add(txt2);
-            Literal lit2 = new Literal();
-            lit2.Text = "<span class='input-group-addon'>" + item.Value + "</span>";
-            pan2.Controls.Add(lit2);
+            PanelDescription.Controls.Add(txt2);
         }
     }
 
     protected void Page_Load(object sender, EventArgs e)
     {
-        LblOk.Text = RenderSuccess("");
-        LblErr.Text = RenderError("");
+        setSuccess("");
+        setError("");
 
         if (!Page.IsPostBack)
         {
             loadDropEnabledFilter();
             loadDropItemType();
+            loadList();
         }
     }
 
     protected void DropEnabledFilter_SelectedIndexChanged(object sender, EventArgs e)
     {
-        Grid1.DataBind();
-    }
-
-    protected void ObjDs1_ObjectCreating(object sender, ObjectDataSourceEventArgs e)
-    {
-        var typename = new SectionsManager(true, true);
-        e.ObjectInstance = typename;
-    }
-
-    protected void ObjDs1_Selecting(object sender, ObjectDataSourceSelectingEventArgs e)
-    {
-        SectionsFilter filter = new SectionsFilter();
-
-        filter.Enabled = Utility.TristateBool.NotSet;
-        switch (DropEnabledFilter.SelectedValue)
-        {
-            case "1":
-                filter.Enabled = Utility.TristateBool.True;
-                break;
-            case "0":
-                filter.Enabled = Utility.TristateBool.False;
-                break;
-            default:
-                filter.Enabled = Utility.TristateBool.NotSet;
-                break;
-        }
-
-        e.InputParameters["filter"] = filter;
-    }
-
-    protected void Grid1_RowCommand(object sender, GridViewCommandEventArgs e)
-    {
-        if (e.CommandName == "Select")
-        {
-            editRow(int.Parse(e.CommandArgument.ToString()));
-        }
-        if (e.CommandName == "DeleteRow")
-        {
-            deleteRow(int.Parse(e.CommandArgument.ToString()));
-        }
-        //Enabled
-        if (e.CommandName == "ImgEnabledOk")
-        {
-            setFlag(Convert.ToInt32(e.CommandArgument), false, "enabled");
-            Grid1.DataBind();
-        }
-        if (e.CommandName == "ImgEnabledKo")
-        {
-            setFlag(Convert.ToInt32(e.CommandArgument), true, "enabled");
-            Grid1.DataBind();
-        }
-    }
-
-    protected void Grid1_RowCreated(object sender, GridViewRowEventArgs e)
-    {
-        if (e.Row.RowType == DataControlRowType.Header)
-            Utility.AddGlyph(Grid1, e.Row);
-    }
-
-    protected void Grid1_RowDataBound(object sender, GridViewRowEventArgs e)
-    {
-        if (e.Row.RowType == DataControlRowType.DataRow)
-        {
-            var item = new PigeonCms.Section();
-            item = (PigeonCms.Section)e.Row.DataItem;
-
-            LinkButton LnkTitle = (LinkButton)e.Row.FindControl("LnkTitle");
-            LnkTitle.Text = "<i class='fa fa-pgn_edit fa-fw'></i>";
-            LnkTitle.Text += Utility.Html.GetTextPreview(item.Title, 30, "");
-            if (string.IsNullOrEmpty(LnkTitle.Text))
-                LnkTitle.Text += Utility.GetLabel("NO_VALUE", "<no value>");
-
-            var LitItemInfo = (Literal)e.Row.FindControl("LitItemInfo");
-            if (!string.IsNullOrEmpty(item.ExtId))
-                LitItemInfo.Text += base.GetLabel("ExtId", "ExtId") + ": " + item.ExtId + "<br>";
-            LitItemInfo.Text += item.ItemType;
-
-            if (item.Enabled)
-            {
-                var img1 = e.Row.FindControl("ImgEnabledOk");
-                img1.Visible = true;
-            }
-            else
-            {
-                var img1 = e.Row.FindControl("ImgEnabledKo");
-                img1.Visible = true;
-            }
-
-            //permissions
-            //read
-            string readAccessLevel = item.ReadAccessCode;
-            if (item.ReadAccessLevel > 0)
-                readAccessLevel += " " + item.ReadAccessLevel.ToString();
-            if (!string.IsNullOrEmpty(readAccessLevel))
-                readAccessLevel = " - " + readAccessLevel;
-            //write
-            string writeAccessLevel = item.WriteAccessCode;
-            if (item.WriteAccessLevel > 0)
-                writeAccessLevel += " " + item.WriteAccessLevel.ToString();
-            if (!string.IsNullOrEmpty(writeAccessLevel))
-                writeAccessLevel = " - " + writeAccessLevel;
-
-            Literal LitAccessTypeDesc = (Literal)e.Row.FindControl("LitAccessTypeDesc");
-            //read
-            LitAccessTypeDesc.Text = item.ReadAccessType.ToString();
-            if (item.ReadAccessType != MenuAccesstype.Public)
-            {
-                string roles = "";
-                foreach (string role in item.ReadRolenames)
-                {
-                    roles += role + ", ";
-                }
-                if (roles.EndsWith(", ")) roles = roles.Substring(0, roles.Length - 2);
-                if (roles.Length > 0)
-                    roles = " (" + roles + ")";
-                LitAccessTypeDesc.Text += Utility.Html.GetTextPreview(roles, 80, "");
-                LitAccessTypeDesc.Text += readAccessLevel;
-            }
-            if (LitAccessTypeDesc.Text != "") LitAccessTypeDesc.Text += "<br />";
-            //write
-            LitAccessTypeDesc.Text += item.WriteAccessType.ToString();
-            if (item.WriteAccessType != MenuAccesstype.Public)
-            {
-                string roles = "";
-                foreach (string role in item.WriteRolenames)
-                {
-                    roles += role + ", ";
-                }
-                if (roles.EndsWith(", ")) roles = roles.Substring(0, roles.Length - 2);
-                if (roles.Length > 0)
-                    roles = " (" + roles + ")";
-                LitAccessTypeDesc.Text += Utility.Html.GetTextPreview(roles, 80, "");
-                LitAccessTypeDesc.Text += writeAccessLevel;
-            }
-
-
-            //files upload
-            var LnkUploadFiles = (HyperLink)e.Row.FindControl("LnkUploadFiles");
-            LnkUploadFiles.NavigateUrl = this.FilesUploadUrl
-                + "?type=sections&id=" + item.Id.ToString();
-            LnkUploadFiles.CssClass = "fancyRefresh";
-            var LitFilesCount = (Literal)e.Row.FindControl("LitFilesCount");
-            int filesCount = item.Files.Count;
-            if (filesCount > 0)
-            {
-                LitFilesCount.Text = filesCount.ToString();
-                LitFilesCount.Text += filesCount == 1 ? " file" : " files";
-            }
-
-            //images upload
-            var LnkUploadImg = (HyperLink)e.Row.FindControl("LnkUploadImg");
-            LnkUploadImg.NavigateUrl = this.ImagesUploadUrl
-                + "?type=sections&id=" + item.Id.ToString();
-            LnkUploadImg.CssClass = "fancyRefresh";
-            var LitImgCount = (Literal)e.Row.FindControl("LitImgCount");
-            int imgCount = item.Images.Count;
-            if (imgCount > 0)
-            {
-                LitImgCount.Text = imgCount.ToString();
-                LitImgCount.Text += imgCount == 1 ? " file" : " files";
-            }
-
-            //items inserted/allowed
-            var LitItems = (Literal)e.Row.FindControl("LitItems");
-            string itemsAllowed = "";
-            string numOfItems = "0";
-
-            if (item.MaxItems > 0) itemsAllowed = " / " + item.MaxItems.ToString();
-            numOfItems = item.NumOfItems.ToString();
-            LitItems.Text = numOfItems + itemsAllowed;
-            if (LitItems.Text == "0") LitItems.Text = "";
-
-            //space used/allowed
-            var LitDiskSpace = (Literal)e.Row.FindControl("LitDiskSpace");
-            LitDiskSpace.Text = Utility.GetFileHumanLength(item.SizeOfItems);
-            if (item.MaxAttachSizeKB > 0)
-                LitDiskSpace.Text += " / " + Utility.GetFileHumanLength(item.MaxAttachSizeKB*1024);
-
-        }
+        loadList();
     }
 
     protected void BtnNew_Click(object sender, EventArgs e)
     {
-        LblErr.Text = RenderError("");
-        LblOk.Text = RenderSuccess("");
-
         try
         {
             editRow(0);
         }
         catch (Exception e1)
         {
-            LblErr.Text = RenderError(e1.Message);
-        }
-        finally
-        {
+            setError(e1.Message);
         }
     }
 
     protected void BtnSave_Click(object sender, EventArgs e)
     {
-        LblErr.Text = RenderError("");
-        LblOk.Text = RenderSuccess("");
+        setError("");
+        setSuccess("");
 
         try
         {
-            Section o1 = new Section();
+            var o1 = new Section();
             if (base.CurrentId == 0)
             {
                 form2obj(o1);
@@ -332,28 +150,176 @@ public partial class Controls_SectionsAdmin : PigeonCms.BaseModuleControl
                 form2obj(o1);
                 new SectionsManager().Update(o1);
             }
-            Grid1.DataBind();
-            LblOk.Text = RenderSuccess(Utility.GetLabel("RECORD_SAVED_MSG"));
-            MultiView1.ActiveViewIndex = 0;
+
+            loadList();
+            setSuccess(Utility.GetLabel("RECORD_SAVED_MSG"));
+            showInsertPanel(false);
         }
         catch (Exception e1)
         {
-            LblErr.Text = RenderError(Utility.GetLabel("RECORD_ERR_MSG") + "<br />" + e1.ToString());
-        }
-        finally
-        {
+            setError(Utility.GetLabel("RECORD_ERR_MSG") + "<br />" + e1.ToString());
         }
     }
 
     protected void BtnCancel_Click(object sender, EventArgs e)
     {
-        MultiView1.ActiveViewIndex = 0;
+        setError("");
+        setSuccess("");
+        showInsertPanel(false);
     }
+
+    protected void RepPaging_ItemDataBound(object sender, RepeaterItemEventArgs e)
+    {
+        if (e.Item.ItemType == ListItemType.Header)
+        {
+            return;
+        }
+
+        int page = int.Parse(e.Item.DataItem.ToString());
+        if (page - 1 == base.ListCurrentPage)
+        {
+            var BtnPage = (LinkButton)e.Item.FindControl("BtnPage");
+            BtnPage.CssClass = "selected";
+        }
+    }
+
+    protected void RepPaging_ItemCommand(object source, RepeaterCommandEventArgs e)
+    {
+        if (e.CommandName == "Page")
+        {
+            base.ListCurrentPage = int.Parse(e.CommandArgument.ToString()) - 1;
+            loadList();
+        }
+    }
+
+    protected void Rep1_ItemCommand(object sender, RepeaterCommandEventArgs e)
+    {
+        if (e.CommandName == "Select")
+        {
+            editRow(int.Parse(e.CommandArgument.ToString()));
+        }
+        if (e.CommandName == "DeleteRow")
+        {
+            deleteRow(int.Parse(e.CommandArgument.ToString()));
+        }
+        //Enabled
+        if (e.CommandName == "Enabled0")
+        {
+            setFlag(Convert.ToInt32(e.CommandArgument), false, "enabled");
+            loadList();
+        }
+        if (e.CommandName == "Enabled1")
+        {
+            setFlag(Convert.ToInt32(e.CommandArgument), true, "enabled");
+            loadList();
+        }
+    }
+
+
+	protected void Rep1_ItemDataBound(object sender, RepeaterItemEventArgs e)
+    {
+        if (e.Item.ItemType == ListItemType.Header)
+            return;
+
+
+        var item = (PigeonCms.Section)e.Item.DataItem;
+
+
+        var LitEnabled = (Literal)e.Item.FindControl("LitEnabled");
+        string enabledClass = "";
+        if (item.Enabled)
+            enabledClass = "checked";
+        LitEnabled.Text = "<span class='table-modern--checkbox--square " + enabledClass + "'></span>";
+
+
+        var LnkEnabled = (LinkButton)e.Item.FindControl("LnkEnabled");
+        LnkEnabled.CssClass = "table-modern--checkbox " + enabledClass;
+        LnkEnabled.CommandName = item.Enabled ? "Enabled0" : "Enabled1";
+
+
+        var LitTitle = (Literal)e.Item.FindControl("LitTitle");
+        LitTitle.Text += Utility.Html.GetTextPreview(item.Title, 50, "");
+        if (string.IsNullOrEmpty(item.Title))
+            LitTitle.Text += Utility.GetLabel("NO_VALUE", "<no value>");
+
+
+        var LitItemInfo = (Literal)e.Item.FindControl("LitItemInfo");
+        LitItemInfo.Text += "ID: " + item.Id.ToString() + "<br>";
+        if (!string.IsNullOrEmpty(item.ExtId))
+            LitItemInfo.Text += "extId: <strong>" + item.ExtId + "</strong><br>";
+        if (!string.IsNullOrEmpty(item.CssClass))
+            LitItemInfo.Text += "class: " + item.CssClass + "<br>";
+        if (!string.IsNullOrEmpty(item.ItemType))
+            LitItemInfo.Text += "items type: " + item.ItemType + "<br>";
+
+
+        //permissions
+        var LitAccessTypeDesc = (Literal)e.Item.FindControl("LitAccessTypeDesc");
+        LitAccessTypeDesc.Text = RenderAccessTypeSummary(item);
+
+
+        //files upload
+        var LnkUploadFiles = (HyperLink)e.Item.FindControl("LnkUploadFiles");
+        LnkUploadFiles.NavigateUrl = this.FilesUploadUrl
+            + "?type=items&id=" + item.Id.ToString();
+        LnkUploadFiles.Visible = this.TargetFilesUpload > 0;
+
+
+        var LitFilesCount = (Literal)e.Item.FindControl("LitFilesCount");
+        int filesCount = item.Files.Count;
+        LitFilesCount.Text = "&nbsp;";
+        if (filesCount > 0)
+        {
+            LitFilesCount.Text = filesCount.ToString();
+            LitFilesCount.Text += filesCount == 1 ? " file" : " files";
+        }
+
+        //images upload
+        var LnkUploadImg = (HyperLink)e.Item.FindControl("LnkUploadImg");
+        LnkUploadImg.NavigateUrl = this.ImagesUploadUrl
+            + "?type=items&id=" + item.Id.ToString();
+        LnkUploadImg.Visible = this.TargetImagesUpload > 0;
+
+
+        var LitImgCount = (Literal)e.Item.FindControl("LitImgCount");
+        int imgCount = item.Images.Count;
+        LitImgCount.Text = "&nbsp;";
+        if (imgCount > 0)
+        {
+            LitImgCount.Text = imgCount.ToString();
+            LitImgCount.Text += imgCount == 1 ? " file" : " files";
+        }
+
+
+
+        //items inserted/allowed
+        var LitItems = (Literal)e.Item.FindControl("LitItems");
+        string itemsAllowed = "";
+        string numOfItems = "0";
+        string maxItems = "unlimited";
+        if (item.MaxItems > 0)
+            maxItems = item.MaxItems.ToString();
+        itemsAllowed = " / " + maxItems;
+
+        numOfItems = item.NumOfItems.ToString();
+        LitItems.Text = "items: " + numOfItems + itemsAllowed;
+
+        //space used/allowed
+        var LitDiskSpace = (Literal)e.Item.FindControl("LitDiskSpace");
+        LitDiskSpace.Text ="disk: " + Utility.GetFileHumanLength(item.SizeOfItems);
+        string maxDiskSpace = "unlimited";
+        if (item.MaxAttachSizeKB > 0)
+            maxDiskSpace = Utility.GetFileHumanLength(item.MaxAttachSizeKB * 1024);
+        LitDiskSpace.Text += " / " + maxDiskSpace;
+
+    }
+
 
     #region private methods
 
     private void clearForm()
     {
+        TitleItem = "";
         foreach (KeyValuePair<string, string> item in Config.CultureList)
         {
             TextBox t1 = new TextBox();
@@ -414,6 +380,11 @@ public partial class Controls_SectionsAdmin : PigeonCms.BaseModuleControl
             obj.TitleTranslations.TryGetValue(item.Key, out sTitleTranslation);
             t1.Text = sTitleTranslation;
 
+            //Set title edit item
+            if (string.IsNullOrEmpty(TitleItem))
+                TitleItem = sTitleTranslation;
+
+
             string sDescriptionTraslation = "";
             TextBox t2 = new TextBox();
             t2 = (TextBox)PanelDescription.FindControl("TxtDescription" + item.Value);
@@ -435,8 +406,8 @@ public partial class Controls_SectionsAdmin : PigeonCms.BaseModuleControl
 
     private void editRow(int recordId)
     {
-        LblOk.Text = RenderSuccess("");
-        LblErr.Text = RenderError("");
+        setSuccess("");
+        setError("");
 
         if (!PgnUserCurrent.IsAuthenticated)
             throw new Exception("user not authenticated");
@@ -459,13 +430,13 @@ public partial class Controls_SectionsAdmin : PigeonCms.BaseModuleControl
                 obj.WriteRolenames.Add(PgnUserCurrent.UserName);
             PermissionsControl1.Obj2form(obj);
         }
-        MultiView1.ActiveViewIndex = 1;
+        showInsertPanel(true);
     }
 
     private void deleteRow(int recordId)
     {
-        LblOk.Text = RenderSuccess("");
-        LblErr.Text = RenderError("");
+        setSuccess("");
+        setError("");
 
         try
         {
@@ -473,9 +444,52 @@ public partial class Controls_SectionsAdmin : PigeonCms.BaseModuleControl
         }
         catch (Exception e)
         {
-            LblErr.Text = RenderError(e.Message);
+            setError(e.Message);
         }
-        Grid1.DataBind();
+        loadList();
+    }
+
+    private void loadList()
+    {
+        var man = new SectionsManager(true, true);
+        var filter = new SectionsFilter();
+
+        filter.Enabled = Utility.TristateBool.NotSet;
+        switch (DropEnabledFilter.SelectedValue)
+        {
+            case "1":
+                filter.Enabled = Utility.TristateBool.True;
+                break;
+            case "0":
+                filter.Enabled = Utility.TristateBool.False;
+                break;
+            default:
+                filter.Enabled = Utility.TristateBool.NotSet;
+                break;
+        }
+
+        var list = man.GetByFilter(filter, "");
+        var ds = new PagedDataSource();
+        ds.DataSource = list;
+        ds.AllowPaging = true;
+        ds.PageSize = base.ListPageSize;
+        ds.CurrentPageIndex = base.ListCurrentPage;
+
+        RepPaging.Visible = false;
+        if (ds.PageCount > 1)
+        {
+            RepPaging.Visible = true;
+            ArrayList pages = new ArrayList();
+            for (int i = 0; i <= ds.PageCount - 1; i++)
+            {
+                pages.Add((i + 1).ToString());
+            }
+            RepPaging.DataSource = pages;
+            RepPaging.DataBind();
+        }
+
+        Rep1.DataSource = ds;
+        Rep1.DataBind();
     }
 
     private void loadDropEnabledFilter()
@@ -518,9 +532,33 @@ public partial class Controls_SectionsAdmin : PigeonCms.BaseModuleControl
         }
         catch (Exception e1)
         {
-            LblErr.Text = RenderError(Utility.GetLabel("RECORD_ERR_MSG") + "<br />" + e1.ToString());
+            setError(Utility.GetLabel("RECORD_ERR_MSG") + "<br />" + e1.ToString());
         }
         finally { }
+    }
+
+    /// function for display insert panel
+    /// <summary>
+    /// </summary>
+    private void showInsertPanel(bool toShow)
+    {
+
+        PigeonCms.Utility.Script.RegisterStartupScript(Upd1, "bodyBlocked", "bodyBlocked(" + toShow.ToString().ToLower() + ");");
+
+        if (toShow)
+            PanelInsert.Visible = true;
+        else
+            PanelInsert.Visible = false;
+    }
+
+    private void setError(string content)
+    {
+        LblErrInsert.Text = LblErrSee.Text = RenderError(content);
+    }
+
+    private void setSuccess(string content)
+    {
+        LblOkInsert.Text = LblOkSee.Text = RenderSuccess(content);
     }
 
     #endregion

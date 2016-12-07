@@ -5,11 +5,19 @@ using System.Web;
 using PigeonCms;
 using System.Threading;
 using System.Globalization;
+using Acme;
 
 namespace Acme
 {
     public class BasePage : PigeonCms.Engine.BasePage
     {
+
+        protected Settings SiteSettings = new Settings();
+
+        protected IMaster CurrentMasterPage
+        {
+            get { return (IMaster)this.Page.Master; }
+        }
 
         /// <summary>
         /// lang priority DESC

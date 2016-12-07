@@ -58,7 +58,7 @@ namespace PigeonCms
                 myCmd.Connection = myConn;
 
                 sSql = "SELECT Id, Name, Pattern, Published, Ordering, "
-                    + " CurrMasterPage, CurrTheme, IsCore, UseSsl " 
+                    + " CurrMasterPage, CurrTheme, IsCore, UseSsl, AssemblyPath, HandlerName "
                     + " FROM ["+ this.TableName +"] t "
                     + " WHERE t.Id > 0 ";
                 if (filter.Id > 0 || filter.Id == -1)
@@ -118,7 +118,7 @@ namespace PigeonCms
             var result = new MvcRoute();
             var list = new List<MvcRoute>();
             var filter = new MvcRoutesFilter();
-            filter.Id = id;
+            filter.Id = id > 0 ? id : -1;
             list = GetByFilter(filter, "");
             if (list.Count > 0)
                 result = list[0];
@@ -151,7 +151,7 @@ namespace PigeonCms
                 sSql = "UPDATE [" + this.TableName + "] "
                 + " SET Name=@Name, Pattern=@Pattern, Published=@Published, Ordering=@Ordering, "
                 + " CurrMasterPage=@CurrMasterPage, CurrTheme=@CurrTheme, "
-                + " IsCore=@IsCore, UseSsl=@UseSsl "
+                + " IsCore=@IsCore, UseSsl=@UseSsl, AssemblyPath=@AssemblyPath, HandlerName=@HandlerName "
                 + " WHERE Id = @Id";
                 myCmd.CommandText = Database.ParseSql(sSql);
                 myCmd.Parameters.Add(Database.Parameter(myProv, "Id", theObj.Id));
@@ -163,6 +163,8 @@ namespace PigeonCms
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CurrTheme", theObj.CurrTheme));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "IsCore", theObj.IsCore));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "UseSsl", theObj.UseSsl));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "AssemblyPath", theObj.AssemblyPath));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "HandlerName", theObj.HandlerName));
 
                 result = myCmd.ExecuteNonQuery();
                 //updateRouteParams(theObj, myCmd, myProv);
@@ -224,12 +226,17 @@ namespace PigeonCms
                 }
                 try
                 {
-                    RouteTable.Routes.Add(route.Name,
-                        new Route(route.Pattern, pageRouteHandler)
-                        {
-                            Defaults = defaults,
-                            Constraints = constraints
-                        });
+                    Route newRoute = new Route(route.Pattern, pageRouteHandler)
+                    {
+                        Defaults = defaults,
+                        Constraints = constraints,
+                        DataTokens = new RouteValueDictionary()
+                    };
+
+                    newRoute.DataTokens.Add("PigeonCMS_AssemblyPath", route.AssemblyPath);
+                    newRoute.DataTokens.Add("PigeonCMS_HandlerName", route.HandlerName);
+
+                    RouteTable.Routes.Add(route.Name, newRoute);
                 }
                 catch (Exception ex)
                 {
@@ -261,9 +268,9 @@ namespace PigeonCms
                 result.Ordering = base.GetNextOrdering();
 
                 sSql = "INSERT INTO [" + this.TableName + "](Id, Name, Pattern, Published, Ordering, "
-                + " CurrMasterPage, CurrTheme, IsCore, UseSsl) "
+                + " CurrMasterPage, CurrTheme, IsCore, UseSsl, AssemblyPath, HandlerName) "
                 + " VALUES(@Id, @Name, @Pattern, @Published, @Ordering, "
-                + " @CurrMasterPage, @CurrTheme, @IsCore, @UseSsl) ";
+                + " @CurrMasterPage, @CurrTheme, @IsCore, @UseSsl, @AssemblyPath, @HandlerName) ";
                 myCmd.CommandText = Database.ParseSql(sSql);
 
                 myCmd.Parameters.Add(Database.Parameter(myProv, "Id", result.Id));
@@ -275,6 +282,8 @@ namespace PigeonCms
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CurrTheme", result.CurrTheme));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "IsCore", result.IsCore));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "UseSsl", result.UseSsl));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "AssemblyPath", result.AssemblyPath));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "HandlerName", result.HandlerName));
 
                 myCmd.ExecuteNonQuery();
                 //updateRouteParams(newObj, myCmd, myProv);
@@ -358,6 +367,10 @@ namespace PigeonCms
                 result.IsCore = (bool)myRd["IsCore"];
             if (!Convert.IsDBNull(myRd["UseSsl"]))
                 result.UseSsl = (bool)myRd["UseSsl"];
+            if (!Convert.IsDBNull(myRd["AssemblyPath"]))
+                result.AssemblyPath = (string)myRd["AssemblyPath"];
+            if (!Convert.IsDBNull(myRd["HandlerName"]))
+                result.HandlerName = (string)myRd["HandlerName"];
         }
 
         private void setRouteParams(MvcRoute theRoute, DbCommand myCmd, DbProviderFactory myProv)

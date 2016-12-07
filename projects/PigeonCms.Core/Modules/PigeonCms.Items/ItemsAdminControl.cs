@@ -9,14 +9,6 @@ namespace PigeonCms
 {
     public class ItemsAdminControl : PigeonCms.ItemControl<Item, ItemsFilter>
     {
-        //##20141205
-        //filter per category
-        private int categoryId = 0;
-        public int CategoryId
-        {
-            get { return GetIntParam("CategoryId", categoryId, "categoryId"); }
-            set { categoryId = value; }
-        }
 
         int targetImagesUpload = 0;
         //images attached
@@ -98,6 +90,12 @@ namespace PigeonCms
         {
             get { return GetBoolParam("ShowSecurity", showSecurity); }
         }
+
+		private bool showSeo = true;
+		public bool ShowSeo
+		{
+			get { return GetBoolParam("ShowSeo", showSeo); }
+		}
 
         private bool showFieldsPanel = true;
         public bool ShowFieldsPanel
@@ -207,6 +205,15 @@ namespace PigeonCms
 
         #region filters
 
+		//##20141205
+		//filter per category
+		private int categoryId = 0;
+		public int CategoryId
+		{
+			get { return GetIntParam("CategoryId", categoryId, "categoryId"); }
+			set { categoryId = value; }
+		}
+
         private string itemType = "";
         public string ItemType
         {
@@ -308,7 +315,7 @@ namespace PigeonCms
 
             Literal lit = new Literal();
             if (!this.ShowOnlyDefaultCulture)
-                lit.Text = "<span class=\"input-group-addon\">" + cultureItem.Value + "</span>";
+                lit.Text = "<div class=\"input-group-addon\"><span>" + cultureItem.Value.Substring(0, 3) + "</span></div>";
             group.Controls.Add(lit);
             panel.Controls.Add(group);
         }

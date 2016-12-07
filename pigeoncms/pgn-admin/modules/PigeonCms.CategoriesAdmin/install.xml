@@ -20,11 +20,13 @@
 		<param name="TargetImagesUpload" type="combo" default="0" label="Images upload target" description="">
 			<option value="0" label="Not set"></option>
 			<datasource SelectMethod="GetList" SelectParams="PigeonCms.FilesManager" TypeName="PigeonCms.MenuManager" />
+      <datasource SelectMethod="GetList" SelectParams="PigeonCms.FilesManagerModern" TypeName="PigeonCms.MenuManager" />
 		</param>
 
 		<param name="TargetFilesUpload" type="combo" default="0" label="Files upload target" description="">
 			<option value="0" label="Not set"></option>
 			<datasource SelectMethod="GetList" SelectParams="PigeonCms.FilesManager" TypeName="PigeonCms.MenuManager" />
+      <datasource SelectMethod="GetList" SelectParams="PigeonCms.FilesManagerModern" TypeName="PigeonCms.MenuManager" />
 		</param>
 	</params>
 
@@ -33,6 +35,7 @@
 			<option value="0" label="No section"></option>
 			<datasource SelectMethod="GetList" TypeName="PigeonCms.SectionsManager" />
 		</param>
+    <param name="ListPageSize" type="text" default="20" label="List page size" description="Set 0 to avoid pagination" />
 	</params>
 
 	<params group="restrictions">

@@ -79,8 +79,8 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
 
     protected void Page_Load(object sender, EventArgs e)
     {
-        LblOk.Text = "";
-        LblErr.Text = "";
+		LblErrInsert.Text = LblErrSee.Text = "";
+		LblOkInsert.Text = LblOkSee.Text = "";
 
         if (!Page.IsPostBack)
         {
@@ -135,8 +135,8 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
 
     protected void RepGroups_ItemCommand(object source, RepeaterCommandEventArgs e)
     {
-        LblOk.Text = "";
-        LblErr.Text = "";
+		LblErrInsert.Text = LblErrSee.Text = "";
+		LblOkInsert.Text = LblOkSee.Text = "";
 
         if (e.CommandName == "UpdateVersion")
         {
@@ -149,11 +149,11 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
 
             if (res)
             {
-                LblOk.Text = RenderSuccess("Upgrade completed successfully!");
+				LblOkSee.Text = RenderSuccess("Upgrade completed successfully!");
             }
             else
             {
-                LblErr.Text = RenderError("Upgrade not completed. Check logs.<br>" + logResult);
+				LblErrInsert.Text = LblErrSee.Text = RenderError("Upgrade not completed. Check logs.<br>" + logResult);
             }
             loadGroupsList("");
         }
@@ -168,17 +168,13 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
 
         var item = (AppSetting)e.Item.DataItem;
 
-        var LnkName = (LinkButton)e.Item.FindControl("LnkName");
-        LnkName.CommandArgument = item.KeySet + "|" + item.KeyName;
-        LnkName.Text = "<i class='fa fa-pgn_edit fa-fw'></i>";
-        LnkName.Text += Utility.Html.GetTextPreview(item.KeyName, 30, "");
-        if (string.IsNullOrEmpty(item.KeyName))
-            LnkName.Text += Utility.GetLabel("NO_VALUE", "<no value>");
+		var LnkEdit = (LinkButton)e.Item.FindControl("LnkEdit");
+		LnkEdit.CommandArgument = item.KeySet + "|" + item.KeyName;
 
         var LblKeyValue = (Literal)e.Item.FindControl("LblKeyValue");
-        LblKeyValue.Text = Utility.Html.GetTextPreview(item.KeyValue, 40, "");
+        LblKeyValue.Text = Utility.Html.GetTextPreview(item.KeyValue, 80, "");
 
-        var LnkDel = (LinkButton)e.Item.FindControl("LnkDel");
+        var LnkDel = (Button)e.Item.FindControl("LnkDel");
         LnkDel.CommandArgument = item.KeySet + "|" + item.KeyName;
     }
 
@@ -199,8 +195,8 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
 
     protected void BtnSave_Click(object sender, EventArgs e)
     {
-        LblErr.Text = "";
-        LblOk.Text = "";
+        LblErrInsert.Text = LblErrSee.Text = "";
+        LblOkInsert.Text = LblOkSee.Text = "";
 
         try
         {
@@ -221,13 +217,14 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
             {
                 man.Update(item);
             }
+
             loadGroupsList(item.KeySet);
-            LblOk.Text = RenderSuccess(Utility.GetLabel("RECORD_SAVED_MSG"));
-            MultiView1.ActiveViewIndex = 0;
+			LblOkSee.Text = RenderSuccess(Utility.GetLabel("RECORD_SAVED_MSG"));
+			showInsertPanel(false);
         }
         catch (Exception e1)
         {
-            LblErr.Text = RenderError(Utility.GetLabel("RECORD_ERR_MSG") + "<br />" + e1.ToString());
+			LblErrInsert.Text = LblErrSee.Text = RenderError(Utility.GetLabel("RECORD_ERR_MSG") + "<br />" + e1.ToString());
         }
         finally
         {
@@ -236,7 +233,7 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
 
     protected void BtnCancel_Click(object sender, EventArgs e)
     {
-        MultiView1.ActiveViewIndex = 0;
+		showInsertPanel(false);
     }
 
     protected void BtnNew_Click(object sender, EventArgs e)
@@ -246,8 +243,8 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
 
     protected void BtnApply_Click(object sender, EventArgs e)
     {
-        LblErr.Text = "";
-        LblOk.Text = "";
+		LblOkInsert.Text = LblOkSee.Text = "";
+		LblErrInsert.Text = LblErrSee.Text = "";
 
         try
         {
@@ -263,11 +260,11 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
             string successString = "";
             successString += countNewEntries.ToString() + " " + GetLabel("NewSettingsAdded", "new settings added") + "<br>";
             successString += GetLabel("SettingsRefreshed", "Settings refreshed");
-            LblOk.Text = RenderSuccess(successString);
+			LblOkSee.Text = RenderSuccess(successString);
         }
         catch (Exception e1)
         {
-            LblErr.Text = RenderError(e1.ToString());
+			LblErrInsert.Text = LblErrSee.Text = RenderError(e1.ToString());
         }
         finally
         {
@@ -316,6 +313,7 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         TxtKeyTitle.Text = "";
         //TxtKeyValue.Text = "";
         TxtKeyInfo.Text = "";
+		LitInsertTitle.Text = "";
     }
 
     private void form2obj(AppSetting obj)
@@ -334,8 +332,12 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         Utility.SetDropByValue(DropKeySet, obj.KeySet);
         TxtKeyName.Text = obj.KeyName;
         TxtKeyTitle.Text = obj.KeyTitle;
-        //TxtKeyValue.Text = obj.KeyValue;
         TxtKeyInfo.Text = obj.KeyInfo;
+
+		if (string.IsNullOrEmpty(obj.KeyName))
+			LitInsertTitle.Text = "<new item>";
+		else
+			LitInsertTitle.Text = obj.KeySet + " > " + obj.KeyName;
 
         PanelValue.Controls.Clear();
         Control control2Add = FormBuilder.RenderControl(
@@ -346,8 +348,8 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
 
     private void editRow(string keySet, string keyName)
     {
-        LblOk.Text = "";
-        LblErr.Text = "";
+		LblOkInsert.Text = LblOkSee.Text = "";
+		LblErrInsert.Text = LblErrSee.Text = "";
 
         var man = new AppSettingsManager2();
         var obj = new AppSetting();
@@ -368,13 +370,13 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         }
         obj2form(obj);
 
-        MultiView1.ActiveViewIndex = 1;
+		showInsertPanel(true);
     }
 
     private void deleteRow(string keySet, string keyName)
     {
-        LblOk.Text = "";
-        LblErr.Text = "";
+        LblOkInsert.Text = LblOkSee.Text = "";
+        LblErrInsert.Text = LblErrSee.Text = "";
         try
         {
             var man = new AppSettingsManager2();
@@ -382,10 +384,24 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         }
         catch (Exception e)
         {
-            LblErr.Text = RenderError(e.Message);
+			LblErrInsert.Text = LblErrSee.Text = RenderError(e.Message);
         }
         loadGroupsList(keySet);
     }
+
+	/// function for display insert panel
+	/// <summary>
+	/// </summary>
+	private void showInsertPanel(bool toShow)
+	{
+
+		PigeonCms.Utility.Script.RegisterStartupScript(Upd1, "bodyBlocked", "bodyBlocked(" + toShow.ToString().ToLower() + ");");
+
+		if (toShow)
+			PanelInsert.Visible = true;
+		else
+			PanelInsert.Visible = false;
+	}
 
     private string getKeySetFromArgument(string commandArgument)
     {

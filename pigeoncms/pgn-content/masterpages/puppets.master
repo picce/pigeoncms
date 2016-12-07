@@ -1,49 +1,76 @@
 ﻿<%@ Master Language="C#" AutoEventWireup="true" CodeFile="puppets.master.cs" Inherits="puppets" %>
-<%@ Register Src="~/pgn-admin/modules/PigeonCms.Debug/views/Debug.ascx" TagPrefix="uc1" TagName="Debug" %>
-
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
-    <title></title>
-    <link href="/assets/css/main.css" rel="stylesheet" type="text/css" />
-    <asp:ContentPlaceHolder id="CphHead" runat="server">
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimal-ui" />
+    <title>Pigeon Cms</title>
+    <script type="text/javascript" src="/assets/vendors/modernizr/modernizr.min.js"></script>
+    <link rel="stylesheet" href="/assets/css/main.css" />
+    <asp:ContentPlaceHolder ID="CphHead" runat="server">
     </asp:ContentPlaceHolder>
 </head>
-<body>
-    <form id="form1" runat="server">
+<body data-section='<%=this.DataSection %>'>
 
-    <div class="menu">
-        <ul>
-            <li>
-                <a href="/"><%=CurrPage.GetLabel("AQ_menu", "Home", "Labels") %></a>
-            </li>
-            <li>
-                <a href="/contents/images"><%=CurrPage.GetLabel("AQ_menu", "Images", "Images") %></a>
-            </li>
-            <li>
-                <a href="/contents/cache"><%=CurrPage.GetLabel("AQ_menu", "Cache", "Cache") %></a>
-            </li>
-            <li>
-                <a href="/contents/list"><%=CurrPage.GetLabel("AQ_menu", "List", "List items") %></a>
-            </li>
-            <li>
-                <a href="/private"><%=CurrPage.GetLabel("AQ_menu", "PrivateArea", "Private area") %></a>
-            </li>
-            <li>
-                <%=MenuLogout %>
-            </li>
-        </ul>
+    <div class="c-header o-media-fullscreen-top <%=(this.IsHomepage) ? ClassHidden : "" %>" style="background-image: url('/assets/images/background_home.jpg')">
+
+        <div class="o-wrapper-header">
+
+            <a href="/">
+                <img src="/assets/images/logo.svg" alt="Pigeon CMS" class="o-image o-image--header" />
+            </a>
+
+            <nav id="c-menu" class="c-menu">
+
+				<div class="u-table u-table--full">
+
+					<div class="u-table-cell u-clearfix">
+
+                        <%
+                            foreach (var menu in MenuList)
+                            {
+                                string isActiveClass = ((menu.Name == this.DataSection) ? "is-active" : "");
+                                string isLastClass = ((Count == MenuList.Count) ? "o-link--last" : "");
+                                %>
+                                <a class="o-link o-link--menu <%=isLastClass %> <%=isActiveClass %>" href="<%=menu.Link %>"><%=menu.Title %></a>
+                                <%
+                                Count += 1;
+                            }
+                        %>
+
+					</div>
+
+				</div>
+
+			</nav>
+
+            <!-- for mobile -->
+            <div class="o-burger" id="o-burger">
+                <div class="o-burger__icon"></div>
+            </div>
+
+        </div>
+
     </div>
 
-    <div>
-        <asp:ContentPlaceHolder id="CphMain" runat="server">
-        </asp:ContentPlaceHolder>
+    <asp:ContentPlaceHolder ID="CphMain" runat="server">
+    </asp:ContentPlaceHolder>
+
+    <div class="c-footer o-media-fullscreen-bottom <%= (this.IsHomepage) ? ClassHidden : "" %>" style="background-image: url('/assets/images/background_home.jpg')">
+
+        <div class="o-wrapper-footer">
+
+            <a href="<%=this.LinkFooter %>" class="o-link-button"><span><%=this.TextLinkFooter %></span></a>
+
+        </div>
+
     </div>
 
-    <uc1:Debug runat="server" StandAlone="true" ID="Debug1" />
+    <script type="text/javascript" src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+    <script type="text/javascript" src="/assets/js/app.js"></script>
 
-    </form>
 </body>
 </html>

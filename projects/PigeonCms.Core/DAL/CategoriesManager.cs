@@ -27,6 +27,7 @@ namespace PigeonCms
     {
         private bool checkUserContext = false;
         private bool writeMode = false;
+        private SeoProvider seoProvider;
 
         public bool CheckUserContext
         {
@@ -49,6 +50,8 @@ namespace PigeonCms
             this.checkUserContext = checkUserContext;
             this.writeMode = writeMode;
             if (this.writeMode) this.checkUserContext = true;    //forced
+
+            seoProvider = new SeoProvider("categories");
         }
 
         public override Dictionary<string, string> GetList()
@@ -89,7 +92,7 @@ namespace PigeonCms
                     + " sect.AccessCode sectAccessCode, sect.AccessLevel sectAccessLevel, "
                     + " sect.WriteAccessType sectWriteAccessType, sect.WritePermissionId sectWritePermissionId, "
                     + " sect.WriteAccessCode sectWriteAccessCode, sect.WriteAccessLevel sectWriteAccessLevel, "
-                    + " t.CssClass, t.ExtId "
+                    + " t.CssClass, t.ExtId, t.SeoId "
                     + " FROM [" + this.TableName + "] t "
                     + " LEFT JOIN [" + this.TableName + "_Culture]c ON t.Id=c.CategoryId "
                     + " LEFT JOIN #__sections sect ON t.SectionId = sect.Id "
@@ -133,7 +136,7 @@ namespace PigeonCms
                     + " sect.AccessCode, sect.AccessLevel, "
                     + " sect.WriteAccessType, sect.WritePermissionId, "
                     + " sect.WriteAccessCode, sect.WriteAccessLevel,"
-                    + " t.CssClass, t.ExtId ";
+                    + " t.CssClass, t.ExtId, t.SeoId ";
                 if (!string.IsNullOrEmpty(sort))
                     sSql += " ORDER BY " + sort;
                 else
@@ -283,6 +286,7 @@ namespace PigeonCms
             {
                 //fill ReadPermissionId and WritePermissionId before trans
                 new PermissionProvider().UpdatePermissionObj(theObj);
+                seoProvider.Save(theObj);
 
                 myConn.ConnectionString = Database.ConnString;
                 myConn.Open();
@@ -298,7 +302,7 @@ namespace PigeonCms
                 + " [AccessCode]=@AccessCode, AccessLevel=@AccessLevel, "
                 + " WriteAccessType=@WriteAccessType, WritePermissionId=@WritePermissionId, "
                 + " [WriteAccessCode]=@WriteAccessCode, WriteAccessLevel=@WriteAccessLevel, "
-                + " CssClass=@CssClass, ExtId=@ExtId "
+                + " CssClass=@CssClass, ExtId=@ExtId, SeoId=@SeoId "
                 + " WHERE Id = @Id";
                 myCmd.CommandText = Database.ParseSql(sSql);
                 myCmd.Parameters.Add(Database.Parameter(myProv, "Id", theObj.Id));
@@ -320,6 +324,7 @@ namespace PigeonCms
 
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CssClass", theObj.CssClass));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "ExtId", theObj.ExtId));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "SeoId", theObj.SeoId));
 
                 result = myCmd.ExecuteNonQuery();
                 updateCultureText(theObj, myCmd, myProv);
@@ -355,6 +360,8 @@ namespace PigeonCms
                 //create read/write permission
                 new PermissionProvider().CreatePermissionObj(newObj);
 
+                seoProvider.Save(newObj);
+
                 myConn.ConnectionString = Database.ConnString;
                 myConn.Open();
                 myCmd.Connection = myConn;
@@ -368,11 +375,11 @@ namespace PigeonCms
                 sSql = "INSERT INTO [" + this.TableName + "](/*Id,*/ SectionId, ParentId, Enabled, Ordering, DefaultImageName, "
                 + " AccessType, PermissionId, AccessCode, AccessLevel, "
                 + " WriteAccessType, WritePermissionId, WriteAccessCode, WriteAccessLevel, "
-                + " CssClass, ExtId) "
+                + " CssClass, ExtId, SeoId) "
                 + " VALUES(/*@Id,*/ @SectionId, @ParentId, @Enabled, @Ordering, @DefaultImageName, "
                 + " @AccessType, @PermissionId, @AccessCode, @AccessLevel, "
                 + " @WriteAccessType, @WritePermissionId, @WriteAccessCode, @WriteAccessLevel, "
-                + " @CssClass, @ExtId) "
+                + " @CssClass, @ExtId, @SeoId) "
                 + " SELECT SCOPE_IDENTITY()";
                 myCmd.CommandText = Database.ParseSql(sSql);
 
@@ -395,6 +402,8 @@ namespace PigeonCms
 
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CssClass", result.CssClass));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "ExtId", result.ExtId));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "SeoId", result.SeoId));
+
 
                 result.Id = (int)(decimal)myCmd.ExecuteScalar();
                 updateCultureText(result, myCmd, myProv);
@@ -450,6 +459,8 @@ namespace PigeonCms
                 currObj.DeleteFiles();
                 new PermissionProvider().RemovePermissionById(currObj.ReadPermissionId);
                 new PermissionProvider().RemovePermissionById(currObj.WritePermissionId);
+                seoProvider.Remove(currObj);
+
 
                 myConn.ConnectionString = Database.ConnString;
                 myConn.Open();
@@ -584,6 +595,8 @@ namespace PigeonCms
                 result.CssClass = (string)myRd["CssClass"];
             if (!Convert.IsDBNull(myRd["ExtId"]))
                 result.ExtId = (string)myRd["ExtId"];
+            if (!Convert.IsDBNull(myRd["SeoId"]))
+                result.SeoId = (int)myRd["SeoId"];
         }
 
         protected override int GetPreviousRecordInOrder(int ordering, int currentRecordId)

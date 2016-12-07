@@ -673,6 +673,9 @@ namespace PigeonCms
 
             public static string Decrypt(string textToDecrypt, string key)
             {
+				if (textToDecrypt == null)
+					return "";
+
                 byte[] encryptedData = Convert.FromBase64String(textToDecrypt);
                 if (key == SKIP_KEY)
                 {

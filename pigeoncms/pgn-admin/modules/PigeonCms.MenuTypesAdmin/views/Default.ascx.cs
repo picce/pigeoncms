@@ -1,34 +1,48 @@
 using System;
-using System.Data;
-using System.Configuration;
-using System.Collections;
-using System.Web;
-using System.Web.Security;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-using System.Web.UI.WebControls.WebParts;
-using System.Web.UI.HtmlControls;
-using System.Web.Caching;
-using System.Collections.Generic;
 using PigeonCms;
+using System.Collections;
 
 public partial class Controls_Default : PigeonCms.BaseModuleControl
 {
 
     protected void Page_Load(object sender, EventArgs e)
     {
+        setSuccess("");
+        setError("");
+
         if (!Page.IsPostBack)
         {
+            loadList();
         }
     }
 
-    protected void ObjDs1_Selecting(object sender, ObjectDataSourceSelectingEventArgs e)
+    protected void RepPaging_ItemDataBound(object sender, RepeaterItemEventArgs e)
     {
-        MenutypeFilter filter = new MenutypeFilter();
-        e.InputParameters["filter"] = filter;
+        if (e.Item.ItemType == ListItemType.Header)
+        {
+            return;
+        }
+
+        int page = int.Parse(e.Item.DataItem.ToString());
+        if (page - 1 == base.ListCurrentPage)
+        {
+            var BtnPage = (LinkButton)e.Item.FindControl("BtnPage");
+            BtnPage.CssClass = "selected";
+        }
     }
 
-    protected void Grid1_RowCommand(object sender, GridViewCommandEventArgs e)
+    protected void RepPaging_ItemCommand(object source, RepeaterCommandEventArgs e)
+    {
+        if (e.CommandName == "Page")
+        {
+            base.ListCurrentPage = int.Parse(e.CommandArgument.ToString()) - 1;
+            loadList();
+        }
+    }
+
+    protected void Rep1_ItemCommand(object sender, RepeaterCommandEventArgs e)
     {
         if (e.CommandName == "Select")
         {
@@ -40,32 +54,24 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         }
     }
 
-    protected void Grid1_RowCreated(object sender, GridViewRowEventArgs e)
+    protected void Rep1_ItemDataBound(object sender, RepeaterItemEventArgs e)
     {
-        if (e.Row.RowType == DataControlRowType.Header)
-            Utility.AddGlyph(Grid1, e.Row);
-    }
+        if (e.Item.ItemType == ListItemType.Header)
+            return;
 
-    protected void Grid1_RowDataBound(object sender, GridViewRowEventArgs e)
-    {
-        if (e.Row.RowType == DataControlRowType.DataRow)
-        {
-        }
-    }
+        var currItem = new Menutype();
+        currItem = (Menutype)e.Item.DataItem;
 
-    protected void BtnNew_Click(object sender, EventArgs e)
-    {
-        editRow(0);
     }
 
     protected void BtnSave_Click(object sender, EventArgs e)
     {
-        LblErr.Text = "";
-        LblOk.Text = "";
+        setSuccess("");
+        setError("");
 
         try
         {
-            Menutype o1 = new PigeonCms.Menutype();
+            var o1 = new PigeonCms.Menutype();
             if (base.CurrentId == 0)
             {
                 form2obj(o1);
@@ -77,13 +83,13 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
                 form2obj(o1);
                 new MenutypesManager().Update(o1);
             }
-            Grid1.DataBind();
-            LblOk.Text = Utility.GetLabel("RECORD_SAVED_MSG");
-            MultiView1.ActiveViewIndex = 0;
+            loadList();
+            setSuccess(Utility.GetLabel("RECORD_SAVED_MSG"));
+            showInsertPanel(false);
         }
         catch (Exception e1)
         {
-            LblErr.Text = Utility.GetLabel("RECORD_ERR_MSG") + "<br />" + e1.ToString();
+            setError(Utility.GetLabel("RECORD_ERR_MSG") + "<br />" + e1.ToString());
         }
         finally
         {
@@ -92,15 +98,14 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
 
     protected void BtnCancel_Click(object sender, EventArgs e)
     {
-        MultiView1.ActiveViewIndex = 0;
+        showInsertPanel(false);
     }
 
-    protected void MultiView1_ActiveViewChanged(object sender, EventArgs e)
+    protected void BtnNew_Click(object sender, EventArgs e)
     {
-        if (MultiView1.ActiveViewIndex == 1)    //edit view
-        {
-        }
+        editRow(0);
     }
+
 
     #region private methods
 
@@ -128,24 +133,27 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
 
     private void editRow(int recordId)
     {
-        LblOk.Text = "";
-        LblErr.Text = "";
+        setSuccess("");
+        setError("");
 
         clearForm();
         base.CurrentId = recordId;
+        TxtMenuType.Enabled = true;
+
         if (base.CurrentId > 0)
         {
+            TxtMenuType.Enabled = false;
             Menutype obj = new Menutype();
             obj = new MenutypesManager().GetByKey(base.CurrentId);
             obj2form(obj);
         }
-        MultiView1.ActiveViewIndex = 1;
+        showInsertPanel(true);
     }
 
     private void deleteRow(int recordId)
     {
-        LblOk.Text = "";
-        LblErr.Text = "";
+        setSuccess("");
+        setError("");
 
         try
         {
@@ -153,9 +161,64 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         }
         catch (Exception e)
         {
-            LblErr.Text = e.Message;
+            setError(e.Message);
         }
-        Grid1.DataBind();
+        loadList();
+    }
+
+    private void loadList()
+    {
+        var man = new MenutypesManager();
+        var filter = new MenutypeFilter();
+
+
+
+        var list = man.GetByFilter(filter, "");
+        var ds = new PagedDataSource();
+        ds.DataSource = list;
+        ds.AllowPaging = true;
+        ds.PageSize = base.ListPageSize;
+        ds.CurrentPageIndex = base.ListCurrentPage;
+
+        RepPaging.Visible = false;
+        if (ds.PageCount > 1)
+        {
+            RepPaging.Visible = true;
+            ArrayList pages = new ArrayList();
+            for (int i = 0; i <= ds.PageCount - 1; i++)
+            {
+                pages.Add((i + 1).ToString());
+            }
+            RepPaging.DataSource = pages;
+            RepPaging.DataBind();
+        }
+
+        Rep1.DataSource = ds;
+        Rep1.DataBind();
+    }
+
+    /// function for display insert panel
+    /// <summary>
+    /// </summary>
+    private void showInsertPanel(bool toShow)
+    {
+
+        PigeonCms.Utility.Script.RegisterStartupScript(Upd1, "bodyBlocked", "bodyBlocked(" + toShow.ToString().ToLower() + ");");
+
+        if (toShow)
+            PanelInsert.Visible = true;
+        else
+            PanelInsert.Visible = false;
+    }
+
+    private void setError(string content)
+    {
+        LblErrInsert.Text = LblErrSee.Text = RenderError(content);
+    }
+
+    private void setSuccess(string content)
+    {
+        LblOkInsert.Text = LblOkSee.Text = RenderSuccess(content);
     }
 
     #endregion

@@ -69,6 +69,7 @@
 	</params>
 
 	<params group="fields to show">
+    <param name="ListPageSize" type="text" default="20" label="List page size" description="Set 0 to avoid pagination" />
 		<param name="ShowFieldSex" type="combo" default="0" label="Sex">
 			<option value="0" label="No"></option>
 			<option value="1" label="Yes"></option>

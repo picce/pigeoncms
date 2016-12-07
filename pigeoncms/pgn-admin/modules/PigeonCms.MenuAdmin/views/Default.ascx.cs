@@ -1,16 +1,11 @@
 using System;
-using System.Data;
-using System.Configuration;
 using System.Collections;
 using System.Web;
-using System.Web.Security;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-using System.Web.UI.WebControls.WebParts;
-using System.Web.UI.HtmlControls;
-using System.Web.Caching;
 using System.Collections.Generic;
 using PigeonCms;
+
 
 public partial class Controls_MenuAdmin : PigeonCms.BaseModuleControl
 {
@@ -31,7 +26,8 @@ public partial class Controls_MenuAdmin : PigeonCms.BaseModuleControl
     {
         base.Page_Init(sender, e);
 
-        Grid1.Columns[(int)GridCol.ModuleContent].Visible = this.AllowEditContentUrl;
+        //TODO
+        //Grid1.Columns[(int)GridCol.ModuleContent].Visible = this.AllowEditContentUrl;
 
         foreach (KeyValuePair<string, string> item in Config.CultureList)
         {
@@ -40,6 +36,10 @@ public partial class Controls_MenuAdmin : PigeonCms.BaseModuleControl
             pan1.CssClass = "form-group input-group";
             PanelTitle.Controls.Add(pan1);
 
+            Literal lit1 = new Literal();
+            lit1.Text = "<div class='input-group-addon'><span>" + item.Value.Substring(0, 3) + "</span></div>";
+            pan1.Controls.Add(lit1);
+
             TextBox txt1 = new TextBox();
             txt1.ID = "TxtTitle" + item.Value;
             txt1.MaxLength = 50;
@@ -47,14 +47,16 @@ public partial class Controls_MenuAdmin : PigeonCms.BaseModuleControl
             txt1.CssClass = "form-control";
             txt1.Attributes.Add("onfocus", "preloadTitle('" + TxtName.ClientID + "', this)");
             pan1.Controls.Add(txt1);
-            Literal lit1 = new Literal();
-            lit1.Text = "<span class='input-group-addon'>" + item.Value + "</span>";
-            pan1.Controls.Add(lit1);
+
 
             //titlewindow
             Panel pan2 = new Panel();
             pan2.CssClass = "form-group input-group";
             PanelTitleWindow.Controls.Add(pan2);
+
+            Literal lit2 = new Literal();
+            lit2.Text = "<div class='input-group-addon'><span>" + item.Value.Substring(0, 3) + "</span></div>";
+            pan2.Controls.Add(lit2);
 
             TextBox txt2 = new TextBox();
             txt2.ID = "TxtTitleWindow" + item.Value;
@@ -63,15 +65,16 @@ public partial class Controls_MenuAdmin : PigeonCms.BaseModuleControl
             txt2.CssClass = "form-control";
             txt2.Attributes.Add("onfocus", "preloadTitle('" + TxtName.ClientID + "', this)");
             pan2.Controls.Add(txt2);
-            Literal lit2 = new Literal();
-            lit2.Text = "<span class='input-group-addon'>" + item.Value + "</span>";
-            pan2.Controls.Add(lit2);
+
         }
         TxtAlias.Attributes.Add("onfocus", "preloadAlias('" + TxtName.ClientID + "', this)");
     }
 
     protected void Page_Load(object sender, EventArgs e)
     {
+        setSuccess("");
+        setError("");
+
         if (!Page.IsPostBack)
         {
             loadDropPublishedFilter();
@@ -81,9 +84,19 @@ public partial class Controls_MenuAdmin : PigeonCms.BaseModuleControl
             loadDropsModuleTypes();
             loadDropReferMenuId();
             loadDropRouteId();
+            loadList();
         }
         else
         {
+            string eventArg = HttpContext.Current.Request["__EVENTARGUMENT"];
+            if (eventArg == "items")
+                loadList();
+            else if (eventArg == "sortcomplete")
+            {
+                updateSortedTable();
+                loadList();
+            }
+
             //reload params on every postback, because cannot manage dinamically fields
             var currModule = new PigeonCms.Module();
             try
@@ -112,22 +125,22 @@ public partial class Controls_MenuAdmin : PigeonCms.BaseModuleControl
 
     protected void DropMenuTypesFilter_SelectedIndexChanged(object sender, EventArgs e)
     {
-        Grid1.DataBind();
+        loadList();
     }
 
     protected void DropModuleTypesFilter_SelectedIndexChanged(object sender, EventArgs e)
     {
-        Grid1.DataBind();
+        loadList();
     }
 
     protected void DropPublishedFilter_SelectedIndexChanged(object sender, EventArgs e)
     {
-        Grid1.DataBind();
+        loadList();
     }
 
     protected void DropMasterPageFilter_SelectedIndexChanged(object sender, EventArgs e)
     {
-        Grid1.DataBind();
+        loadList();
     }
 
     protected void DropNewItem_SelectedIndexChanged(object sender, EventArgs e)
@@ -135,36 +148,149 @@ public partial class Controls_MenuAdmin : PigeonCms.BaseModuleControl
         editRow(0);
     }
 
-    protected void ObjDs1_Selecting(object sender, ObjectDataSourceSelectingEventArgs e)
+    protected void BtnSave_Click(object sender, EventArgs e)
     {
-        MenuFilter filter = new MenuFilter();
-
-        switch (DropPublishedFilter.SelectedValue)
+        if (checkForm())
         {
-            case "1":
-                filter.Published = Utility.TristateBool.True;
+            if (saveForm())
+                showInsertPanel(false);
+        }
+    }
+    
+    protected void BtnCancel_Click(object sender, EventArgs e)
+    {
+        setError("");
+        setSuccess("");
+        showInsertPanel(false);
+    }
+
+    protected void RepPaging_ItemDataBound(object sender, RepeaterItemEventArgs e)
+    {
+        if (e.Item.ItemType == ListItemType.Header)
+        {
+            return;
+        }
+
+        int page = int.Parse(e.Item.DataItem.ToString());
+        if (page - 1 == base.ListCurrentPage)
+        {
+            var BtnPage = (LinkButton)e.Item.FindControl("BtnPage");
+            BtnPage.CssClass = "selected";
+        }
+    }
+
+    protected void RepPaging_ItemCommand(object source, RepeaterCommandEventArgs e)
+    {
+        if (e.CommandName == "Page")
+        {
+            base.ListCurrentPage = int.Parse(e.CommandArgument.ToString()) - 1;
+            loadList();
+        }
+    }
+
+    protected void Rep1_ItemDataBound(object sender, RepeaterItemEventArgs e)
+    {
+        if (e.Item.ItemType == ListItemType.Header)
+        {
+            return;
+        }
+
+        var linkedModule = new PigeonCms.Module();
+        var item = (PigeonCms.Menu)e.Item.DataItem;
+
+
+        var LitAlias = (Literal)e.Item.FindControl("LitAlias");
+        LitAlias.Text = item.Alias + "<br>" + item.RoutePattern;
+        if (item.ContentType == MenuContentType.Url && !string.IsNullOrEmpty(item.Link))
+        {
+            LitAlias.Text = item.Link;
+        }
+        
+        if (item.IsCore)
+            LitAlias.Text += "<br>CORE";
+
+
+        var LitStyle = (Literal)e.Item.FindControl("LitStyle");
+        if (!string.IsNullOrEmpty(item.CssClass))
+            LitStyle.Text += "C: " + item.CssClass + "<br />";
+        if (!string.IsNullOrEmpty(item.CurrThemeStored))
+            LitStyle.Text += "T: " + item.CurrThemeStored + "<br />";
+        if (!string.IsNullOrEmpty(item.CurrMasterPageStored))
+            LitStyle.Text += "M: " + item.CurrMasterPageStored + "<br />";
+
+
+        var LitModuleNameDesc = (Literal)e.Item.FindControl("LitModuleNameDesc");
+        switch (item.ContentType)
+        {
+            case MenuContentType.Module:
+                linkedModule = new ModulesManager().GetByKey(item.ModuleId);
+                LitModuleNameDesc.Text = linkedModule.ModuleFullName + "<br>"
+                    + "<i>" + linkedModule.CurrView + "</i>";
                 break;
-            case "0":
-                filter.Published = Utility.TristateBool.False;
+            case MenuContentType.Url:
+                LitModuleNameDesc.Text = MenuContentType.Url.ToString();
+                break;
+            case MenuContentType.Javascript:
+                LitModuleNameDesc.Text = MenuContentType.Javascript.ToString();
+                break;
+            case MenuContentType.Alias:
+                LitModuleNameDesc.Text = MenuContentType.Alias.ToString();
                 break;
             default:
-                filter.Published = Utility.TristateBool.NotSet;
                 break;
         }
 
-        filter.ParentId = 0;
 
-        if (DropMenuTypesFilter.SelectedValue != "")
-            filter.MenuType = DropMenuTypesFilter.SelectedValue;
-        if (DropMasterPageFilter.SelectedValue != "")
-            filter.CurrMasterPage = DropMasterPageFilter.SelectedValue;
-        if (DropModuleTypesFilter.SelectedValue != "")
-            filter.ModuleFullName = DropModuleTypesFilter.SelectedValue;
+        //moduleContent
+        if (this.AllowEditContentUrl && linkedModule.Id > 0)
+        {
+            var LnkModuleContent = (HyperLink)e.Item.FindControl("LnkModuleContent");
+            if (!string.IsNullOrEmpty(linkedModule.EditContentUrl))
+            {
+                LnkModuleContent.Visible = true;
+                LnkModuleContent.NavigateUrl = linkedModule.EditContentUrl;
+            }
+        }
 
-        e.InputParameters["filter"] = filter;
+        //permissions
+        var LitAccessTypeDesc = (Literal)e.Item.FindControl("LitAccessTypeDesc");
+        LitAccessTypeDesc.Text = RenderAccessTypeSummary(item);
+
+
+        //visible
+        var LitVisible = (Literal)e.Item.FindControl("LitVisible");
+        string visibleClass = "";
+        if (item.Visible)
+            visibleClass = "checked";
+        LitVisible.Text = "<span style='margin-right:10px;' class='table-modern--checkbox--square " + visibleClass + "'></span>";
+
+        var LnkVisible = (LinkButton)e.Item.FindControl("LnkVisible");
+        LnkVisible.CssClass = "table-modern--checkbox " + visibleClass;
+        LnkVisible.CommandName = item.Visible ? "Visible0" : "Visible1";
+
+
+        //published
+        var LitPublished = (Literal)e.Item.FindControl("LitPublished");
+        string pubClass = "";
+        if (item.Published)
+            pubClass = "checked";
+        LitPublished.Text = "<span style='margin-right:10px;' class='table-modern--checkbox--square " + pubClass + "'></span>";
+
+        var LnkPublished = (LinkButton)e.Item.FindControl("LnkPublished");
+        LnkPublished.CssClass = "table-modern--checkbox " + pubClass;
+        LnkPublished.CommandName = item.Published ? "Published0" : "Published1";
+
+
+        //ssl
+        var LitSsl = (Literal)e.Item.FindControl("LitSsl");
+        string sslClass = "";
+        if (item.CurrentUseSsl)
+            sslClass = "checked";
+        LitSsl.Text = "<span style='margin-right:10px;' class='table-modern--checkbox--square " + sslClass + "'></span>";
+
     }
 
-    protected void Grid1_RowCommand(object sender, GridViewCommandEventArgs e)
+    protected void Rep1_ItemCommand(object source, RepeaterCommandEventArgs e)
     {
         if (e.CommandName == "Select")
         {
@@ -179,202 +305,39 @@ public partial class Controls_MenuAdmin : PigeonCms.BaseModuleControl
             deleteRow(int.Parse(e.CommandArgument.ToString()));
         }
         //Visible
-        if (e.CommandName == "ImgVisibleOk")
+        if (e.CommandName == "Visible0")
         {
             setFlag(Convert.ToInt32(e.CommandArgument), false, "visible");
-            Grid1.DataBind();
+            loadList();
         }
-        if (e.CommandName == "ImgVisibleKo")
+        if (e.CommandName == "Visible1")
         {
             setFlag(Convert.ToInt32(e.CommandArgument), true, "visible");
-            Grid1.DataBind();
+            loadList();
         }
         //Published
-        if (e.CommandName == "ImgPublishedOk")
+        if (e.CommandName == "Published0")
         {
             setFlag(Convert.ToInt32(e.CommandArgument), false, "published");
-            Grid1.DataBind();
+            loadList();
         }
-        if (e.CommandName == "ImgPublishedKo")
+        if (e.CommandName == "Published1")
         {
             setFlag(Convert.ToInt32(e.CommandArgument), true, "published");
-            Grid1.DataBind();
-        }
-        //Ordering
-        if (e.CommandName == "MoveDown")
-        {
-            moveRecord(int.Parse(e.CommandArgument.ToString()), Database.MoveRecordDirection.Down);
-        }
-        if (e.CommandName == "MoveUp")
-        {
-            moveRecord(int.Parse(e.CommandArgument.ToString()), Database.MoveRecordDirection.Up);
+            loadList();
         }
     }
 
-    protected void Grid1_RowCreated(object sender, GridViewRowEventArgs e)
-    {
-        if (e.Row.RowType == DataControlRowType.Header)
-            Utility.AddGlyph(Grid1, e.Row);
-    }
-
-    protected void Grid1_RowDataBound(object sender, GridViewRowEventArgs e)
-    {
-        if (e.Row.RowType == DataControlRowType.DataRow)
-        {
-            var linkedModule = new PigeonCms.Module();
-            var item = new PigeonCms.Menu();
-            item = (PigeonCms.Menu)e.Row.DataItem;
-
-            Literal LitStyle = (Literal)e.Row.FindControl("LitStyle");
-            LitStyle.Text = "";
-            if (!string.IsNullOrEmpty(item.CssClass))
-                LitStyle.Text += "C: " + item.CssClass + "<br />";
-            if (!string.IsNullOrEmpty(item.CurrThemeStored))
-                LitStyle.Text += "T: " + item.CurrThemeStored + "<br />";
-            if (!string.IsNullOrEmpty(item.CurrMasterPageStored))
-                LitStyle.Text += "M: " + item.CurrMasterPageStored + "<br />";
-
-
-            Literal LitModuleNameDesc = (Literal)e.Row.FindControl("LitModuleNameDesc");
-            switch (item.ContentType)
-            {
-                case MenuContentType.Module:
-                    linkedModule = new ModulesManager().GetByKey(item.ModuleId);
-                    LitModuleNameDesc.Text = linkedModule.ModuleFullName + "<br>"
-                        + "<i>"+ linkedModule.CurrView +"</i>";
-                    break;
-                case MenuContentType.Url:
-                    LitModuleNameDesc.Text = MenuContentType.Url.ToString();
-                    break;
-                case MenuContentType.Javascript:
-                    LitModuleNameDesc.Text = MenuContentType.Javascript.ToString();
-                    break;
-                case MenuContentType.Alias:
-                    LitModuleNameDesc.Text = MenuContentType.Alias.ToString();
-                    break;
-                default:
-                    break;
-            }
-
-            LinkButton LnkSel = (LinkButton)e.Row.FindControl("LnkSel");
-            LnkSel.Text = "<i class='fa fa-pgn_edit fa-fw'></i>" + Utility.Html.GetTextPreview(item.Name, 20, "");
-
-            var LitAlias = (Literal)e.Row.FindControl("LitAlias");
-            string alias = item.Alias;
-            if (item.ContentType == MenuContentType.Url && !string.IsNullOrEmpty(item.Link))
-            {
-                alias = "<a href='" + item.Link + "' target='_blank' title='" + item.Link + "'>" +
-                    item.Alias + "</a>";
-            }
-            LitAlias.Text = alias + "<br />" + item.RoutePattern;
-
-
-
-            //moduleContent
-            if (this.AllowEditContentUrl && linkedModule.Id > 0)
-            {
-                var LnkModuleContent = (HyperLink)e.Row.FindControl("LnkModuleContent");
-                if (!string.IsNullOrEmpty(linkedModule.EditContentUrl))
-                {
-                    LnkModuleContent.Visible = true;
-                    LnkModuleContent.NavigateUrl = linkedModule.EditContentUrl;
-                }
-            }
-
-            var LitAccessTypeDesc = (Literal)e.Row.FindControl("LitAccessTypeDesc");
-            LitAccessTypeDesc.Text = RenderAccessTypeSummary(item);
-
-            //Visible
-            if (item.Visible)
-            {
-                var img1 = e.Row.FindControl("ImgVisibleOk");
-                img1.Visible = true;
-            }
-            else
-            {
-                var img1 = e.Row.FindControl("ImgVisibleKo");
-                img1.Visible = true;
-            }
-
-            //Published
-            if (item.Published)
-            {
-                var img1 = e.Row.FindControl("ImgPublishedOk");
-                img1.Visible = true;
-            }
-            else
-            {
-                var img1 = e.Row.FindControl("ImgPublishedKo");
-                img1.Visible = true;
-            }
-
-            //Use SSL
-            if (item.CurrentUseSsl)
-            {
-                var img1 = e.Row.FindControl("ImgUseSsl");
-                img1.Visible = true;
-            }
-
-            //Delete            
-            if (item.IsCore)
-            {
-                var img1 = e.Row.FindControl("LnkDel");
-                img1.Visible = false;
-            }
-            else
-            {
-                var img1 = e.Row.FindControl("LnkDel");
-                img1.Visible = true;
-            }
-        }
-    }
-
-    protected void BtnSave_Click(object sender, EventArgs e)
-    {
-        if (checkForm())
-        {
-            if (saveForm())
-                MultiView1.ActiveViewIndex = 0;
-        }
-    }
-
-    protected void BtnApply_Click(object sender, EventArgs e)
-    {
-        if (checkForm())
-        {
-            saveForm();
-        }
-    }
-
-    protected void BtnCancel_Click(object sender, EventArgs e)
-    {
-        LitErr.Text = RenderError("");
-        LitOk.Text = RenderSuccess("");
-        MultiView1.ActiveViewIndex = 0;
-    }
-
-    protected void MultiView1_ActiveViewChanged(object sender, EventArgs e)
-    {
-        if (MultiView1.ActiveViewIndex == 0)    //list view
-        {
-            Utility.SetDropByValue(DropNewItem, "");  //select module
-        }
-
-        if (MultiView1.ActiveViewIndex == 1)    //edit view
-        {
-            DropModuleTypes.Enabled = false;
-            DropViews.Enabled = false;
-        }
-    }
 
     #region private methods
 
+
     private bool checkForm()
     {
-        string sErr = "";
-        LitErr.Text = "";
-        LitOk.Text = RenderSuccess("");
+        setError("");
+        setSuccess("");
         bool res = true;
+        string err = "";
 
         if (!string.IsNullOrEmpty(TxtAlias.Text))
         {
@@ -390,14 +353,14 @@ public partial class Controls_MenuAdmin : PigeonCms.BaseModuleControl
                 if (this.CurrentId == 0)
                 {
                     res = false;
-                    sErr += aliasInUseMessage;
+                    err += aliasInUseMessage;
                 }
                 else
                 {
                     if (list[0].Id != this.CurrentId)
                     {
                         res = false;
-                        sErr += aliasInUseMessage;
+                        err += aliasInUseMessage;
                     }
                 }
             }
@@ -418,22 +381,21 @@ public partial class Controls_MenuAdmin : PigeonCms.BaseModuleControl
                         if (parentId == this.CurrentId)
                         {
                             res = false;
-                            sErr += "invalid parent ID<br />";
+                            err += "invalid parent ID<br />";
                         }
                     }
                 }
             }
         }
-        LitErr.Text = RenderError(sErr);
-
+        setError(err);
         return res;
     }
 
     private bool saveForm()
     {
         bool res = false;
-        LitErr.Text = RenderError("");
-        LitOk.Text = RenderSuccess("");
+        setError("");
+        setSuccess("");
 
         try
         {
@@ -445,7 +407,6 @@ public partial class Controls_MenuAdmin : PigeonCms.BaseModuleControl
             {
                 form2obj(o1);
                 o1 = new MenuManager().Insert(o1);
-
             }
             else
             {
@@ -483,13 +444,13 @@ public partial class Controls_MenuAdmin : PigeonCms.BaseModuleControl
                 new MenuManager().Update(o1);
             }
 
-            Grid1.DataBind();
-            LitOk.Text = RenderSuccess(Utility.GetLabel("RECORD_SAVED_MSG"));
+            loadList();
+            setSuccess(Utility.GetLabel("RECORD_SAVED_MSG"));
             res = true;
         }
         catch (Exception e1)
         {
-            LitErr.Text = RenderError(
+            setError(
                 Utility.GetLabel("RECORD_ERR_MSG") + "<br />" + e1.ToString());
         }
         finally
@@ -531,6 +492,7 @@ public partial class Controls_MenuAdmin : PigeonCms.BaseModuleControl
         Utility.SetDropByValue(DropUseSsl, "2");
 
         PermissionsControl1.ClearForm();
+        SeoControl1.ClearForm();
 
         lockControl(TxtLink, true);
         lockControl(TxtAlias, true);
@@ -562,7 +524,7 @@ public partial class Controls_MenuAdmin : PigeonCms.BaseModuleControl
                     currModule.ModuleParams += "|" + FormBuilder.GetParamsString(viewType.Params, ModuleParams1);
             }
 
-
+            currModule.Name = menu.Name;
             currModule.TitleTranslations = menu.TitleTranslations;
             currModule.ShowTitle = ChkShowModuleTitle.Checked;
             currModule.TemplateBlockName = ModuleHelper.ContentTemplateBlock;
@@ -595,6 +557,7 @@ public partial class Controls_MenuAdmin : PigeonCms.BaseModuleControl
         obj.UseSsl = (Utility.TristateBool)int.Parse(DropUseSsl.SelectedValue);
         
         PermissionsControl1.Form2obj(obj);
+        SeoControl1.Form2obj(obj);
 
         //route
         obj.RouteId = 1;
@@ -678,6 +641,8 @@ public partial class Controls_MenuAdmin : PigeonCms.BaseModuleControl
         ChkIsCore.Checked = obj.IsCore;
 
         PermissionsControl1.Obj2form(obj);
+        SeoControl1.Obj2form(obj);
+
 
         Module currModule = new Module();
         if (obj.ContentType == MenuContentType.Module)
@@ -701,9 +666,8 @@ public partial class Controls_MenuAdmin : PigeonCms.BaseModuleControl
                 moduleFullName = new ModulesManager().GetByKey(obj.ModuleId).ModuleFullName;
                 if (!new ModuleTypeManager().Exist(moduleFullName))
                 {
-                    LitErr.Text = RenderError(
+                    setError(
                         Utility.GetErrorLabel("NotInstalledModuleType", "Not installed module type"));
-                    //LitModuleType.Text += "&nbsp;" + Utility.GetErrorLabel("NotInstalledModuleType", "Not installed module type");
                 }
                 currModule = new ModulesManager().GetByKey(obj.ModuleId);
                 if (changeType)
@@ -805,8 +769,8 @@ public partial class Controls_MenuAdmin : PigeonCms.BaseModuleControl
     private void editRow(int recordId, bool changeType, bool changeView, bool copyRow)
     {
         var obj = new PigeonCms.Menu();
-        LitOk.Text = RenderSuccess("");
-        LitErr.Text = RenderError("");
+        setSuccess("");
+        setError("");
 
         clearForm();
         base.CurrentId = recordId;
@@ -848,45 +812,82 @@ public partial class Controls_MenuAdmin : PigeonCms.BaseModuleControl
             TxtName.Text += "-copy";
         }
 
-        MultiView1.ActiveViewIndex = 1;
-    }
-
-    private void resetStats(string action)
-    {
-        LitOk.Text = RenderSuccess("");
-        LitErr.Text = RenderError("");
-
-        try
-        {
-            //PageStatsFilter filter = new PageStatsFilter();
-            //filter.GroupName = "SchedaAgritur";
-            //filter.PageId = base.CurrentId;
-            //filter.Action = action;
-            //PageStatsManager.ResetStatByFilter(filter);
-
-            //getStats(base.CurrentId);
-        }
-        catch (Exception e1)
-        {
-            LitErr.Text = RenderError(e1.Message);
-        }
+        showInsertPanel(true);
     }
 
     private void deleteRow(int recordId)
     {
-        LitOk.Text = RenderSuccess("");
-        LitErr.Text = RenderError("");
+        setSuccess("");
+        setError("");
 
         try
         {
-            new MenuManager().DeleteById(recordId);
+            var man = new MenuManager(true, true);
+            var item = man.GetByKey(recordId);
+
+            if (item.IsCore)
+                throw new InvalidOperationException("Cannot delete core menu entries");
+
+
+            man.DeleteById(recordId);
             base.CurrentId = 0;
         }
         catch (Exception e)
         {
-            LitErr.Text = RenderError(e.Message);
+            setError(e.Message);
         }
-        Grid1.DataBind();
+        loadList();
+    }
+
+    private void loadList()
+    {
+        var man = new MenuManager(true, true);
+        var filter = new MenuFilter();
+
+        switch (DropPublishedFilter.SelectedValue)
+        {
+            case "1":
+                filter.Published = Utility.TristateBool.True;
+                break;
+            case "0":
+                filter.Published = Utility.TristateBool.False;
+                break;
+            default:
+                filter.Published = Utility.TristateBool.NotSet;
+                break;
+        }
+
+        filter.ParentId = 0;
+
+        if (DropMenuTypesFilter.SelectedValue != "")
+            filter.MenuType = DropMenuTypesFilter.SelectedValue;
+        if (DropMasterPageFilter.SelectedValue != "")
+            filter.CurrMasterPage = DropMasterPageFilter.SelectedValue;
+        if (DropModuleTypesFilter.SelectedValue != "")
+            filter.ModuleFullName = DropModuleTypesFilter.SelectedValue;
+
+        var list = man.GetTree(filter, -1, "--");
+        var ds = new PagedDataSource();
+        ds.DataSource = list;
+        ds.AllowPaging = true;
+        ds.PageSize = base.ListPageSize;
+        ds.CurrentPageIndex = base.ListCurrentPage;
+
+        RepPaging.Visible = false;
+        if (ds.PageCount > 1)
+        {
+            RepPaging.Visible = true;
+            var pages = new ArrayList();
+            for (int i = 0; i <= ds.PageCount - 1; i++)
+            {
+                pages.Add((i + 1).ToString());
+            }
+            RepPaging.DataSource = pages;
+            RepPaging.DataBind();
+        }
+
+        Rep1.DataSource = ds;
+        Rep1.DataBind();
     }
 
     private void loadDropPublishedFilter()
@@ -955,7 +956,6 @@ public partial class Controls_MenuAdmin : PigeonCms.BaseModuleControl
     private void loadDropRouteId()
     {
         DropRouteId.Items.Clear();
-        //DropRouteId.Items.Add(new ListItem(Utility.GetLabel("LblSelectRoutePattern", "Select route pattern"), ""));
 
         MvcRoutesFilter filter = new MvcRoutesFilter();
         filter.Published = Utility.TristateBool.NotSet;
@@ -979,7 +979,7 @@ public partial class Controls_MenuAdmin : PigeonCms.BaseModuleControl
         }
         catch (Exception ex)
         {
-            LitErr.Text = RenderError(ex.ToString());
+            setError(ex.ToString());
         }
     }
 
@@ -1026,7 +1026,7 @@ public partial class Controls_MenuAdmin : PigeonCms.BaseModuleControl
         }
         catch (Exception ex)
         {
-            LitErr.Text = RenderError(ex.ToString());
+            setError(ex.ToString());
         }
     }
 
@@ -1034,8 +1034,7 @@ public partial class Controls_MenuAdmin : PigeonCms.BaseModuleControl
     {
         try
         {
-            PigeonCms.Menu o1 = new PigeonCms.Menu();
-            o1 = new MenuManager().GetByKey(recordId);
+            var o1 = new MenuManager().GetByKey(recordId);
             switch (flagName.ToLower())
             {
                 case "published":
@@ -1051,29 +1050,63 @@ public partial class Controls_MenuAdmin : PigeonCms.BaseModuleControl
         }
         catch (Exception e1)
         {
-            LitErr.Text = RenderError(
-                Utility.GetLabel("RECORD_ERR_MSG") + "<br />" + e1.ToString());
+            setError(Utility.GetLabel("RECORD_ERR_MSG") + "<br />" + e1.ToString());
         }
         finally { }
     }
 
-    protected void moveRecord(int recordId, Database.MoveRecordDirection direction)
+    private void updateSortedTable()
     {
-        LitErr.Text = RenderError("");
-        LitOk.Text = RenderSuccess("");
+        //<input type="hidden" name="RowId" value='<%# Eval("Id") %>' />
+        string[] rowIds = Request.Form.GetValues("RowId");
+        int ordering = 1;
 
-        try
+        foreach (string sid in rowIds)
         {
-            new MenuManager().MoveRecord(recordId, direction);
-            Grid1.DataBind();
-            MultiView1.ActiveViewIndex = 0;
+            int id = 0;
+            int.TryParse(sid, out id);
+            sortRecord(id, ordering);
+            ordering++;
         }
-        catch (Exception e1)
+    }
+
+    public void sortRecord(int id, int ordering)
+    {
+        var man = new MenuManager(true, false);
+        var item = man.GetByKey(id);
+        item.Ordering = ordering;
+        man.Update(item);
+    }
+
+    /// function for display insert panel
+    /// <summary>
+    /// </summary>
+    private void showInsertPanel(bool toShow)
+    {
+
+        PigeonCms.Utility.Script.RegisterStartupScript(Upd1, "bodyBlocked", "bodyBlocked(" + toShow.ToString().ToLower() + ");");
+
+        if (toShow)
         {
-            LitErr.Text = RenderError(
-                Utility.GetLabel("RECORD_ERR_MSG") + "<br />" + e1.ToString());
+            PanelInsert.Visible = true;
+            DropModuleTypes.Enabled = false;
+            DropViews.Enabled = false;
         }
-        finally { }
+        else
+        {
+            PanelInsert.Visible = false;
+            Utility.SetDropByValue(DropNewItem, "");  //select module
+        }
+    }
+
+    private void setError(string content)
+    {
+        LblErrInsert.Text = LblErrSee.Text = RenderError(content);
+    }
+
+    private void setSuccess(string content)
+    {
+        LblOkInsert.Text = LblOkSee.Text = RenderSuccess(content);
     }
 
     #endregion

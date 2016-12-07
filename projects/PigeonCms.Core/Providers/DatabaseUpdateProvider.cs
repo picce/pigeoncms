@@ -29,6 +29,47 @@ namespace PigeonCms
         private DbVersionsManager dbVersionMan;
         private PigeonCms.Module fakeModule;
 
+        //writeLog is =false if DatabaseUpdateProvider is called during installation wizard to avoid sql error
+        private bool writeLog = true;
+
+        private string _connString = "";
+        public string ConnString
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_connString))
+                    _connString = Database.ConnString;
+
+                return _connString;
+            }
+
+            set
+            {
+                _connString = value;
+                dbVersionMan.ConnString = this.ConnString;
+                writeLog = false;
+            }
+        }
+
+        private string _tabPrefix = "";
+        public string TabPrefix
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_tabPrefix))
+                    _tabPrefix = Config.TabPrefix;
+
+                return _tabPrefix;
+            }
+
+            set
+            {
+                _tabPrefix = value;
+                dbVersionMan.TabPrefix = this.TabPrefix;
+                writeLog = false;
+            }
+        }
+
 
         private string componentFullName = "";
         public string ComponentFullName
@@ -93,6 +134,14 @@ namespace PigeonCms
 
             this.componentFullName = componentFullName;
 
+
+            //this.connString = Database.ConnString;
+            //if (!string.IsNullOrEmpty(connString))
+            //{
+            //    //connstring as parameter to allow updates during installation wizard (we still dont have saved connstring)
+            //    this.connString = connString;
+            //}
+
             dbVersionMan = new DbVersionsManager(this.ComponentFullName);
 
             fakeModule = new PigeonCms.Module();
@@ -146,7 +195,7 @@ namespace PigeonCms
                 try
                 {
                     //execute sql with transation
-                    myConn.ConnectionString = Database.ConnString;
+                    myConn.ConnectionString = this.ConnString;
                     myConn.Open();
                     myCmd.Connection = myConn;
 
@@ -187,8 +236,11 @@ namespace PigeonCms
                 .Replace("[[res]]", res.ToString())
                 .Replace("[[summary]]", qryResult);
 
-            LogProvider.Write(fakeModule, logResult, 
-                (res ? TracerItemType.Info : TracerItemType.Error));
+            if (writeLog)
+            {
+                LogProvider.Write(fakeModule, logResult,
+                    (res ? TracerItemType.Info : TracerItemType.Error));
+            }
 
             return res;
         }

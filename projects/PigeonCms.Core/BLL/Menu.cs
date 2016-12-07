@@ -42,7 +42,10 @@ namespace PigeonCms
     /// menu entries
     /// </summary>
     [DebuggerDisplay("Id={id}, Alias={alias}")]
-    public class Menu: ITableWithPermissions, ITableWithOrdering
+    public class Menu: 
+        ITableWithPermissions, 
+        ITableWithOrdering, 
+        ITableWithSeo
     {
         private int id = 0;
         private string menuType = "";
@@ -681,6 +684,7 @@ namespace PigeonCms
             }
         }
 
+
         Module contentModule = null;
         /// <summary>
         /// content module instance of current menu
@@ -706,6 +710,7 @@ namespace PigeonCms
                 return contentModule;
             }
         }
+
 
         List<Module> modulesList = null;
         /// <summary>
@@ -735,6 +740,35 @@ namespace PigeonCms
                         modulesList = new List<Module>();
                 }
                 return modulesList;
+            }
+        }
+
+
+        /// <summary>
+        /// external key to seo table
+        /// </summary>
+        public int SeoId { get; set; }
+
+
+        private Seo seo = null;
+        /// <summary>
+        /// seo informations
+        /// </summary>
+        public Seo Seo
+        {
+            get
+            {
+                if (seo == null)
+                {
+                    var provider = new SeoProvider("menus");
+                    seo = provider.Get(this);
+                }
+                return seo;
+            }
+
+            set
+            {
+                this.seo = value;
             }
         }
 

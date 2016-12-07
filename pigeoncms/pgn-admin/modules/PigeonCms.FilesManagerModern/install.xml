@@ -1,0 +1,89 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<install
+    installerVersion="1.0.0"
+    type="module"
+    version="1.0.0"
+    core="false"
+    namespace="PigeonCms"
+    name="FilesManagerModern"
+    author="p-ice"
+    creationDate="2016-01-13"
+    copyright="Copyright(C) 2016 Nicola Ridolfi. All rights reserved."
+    license=""
+    authorEmail="picce@yahoo.it"
+    authorUrl="https://github.com/picce/"
+    description="manage files and files upload">
+	<files>
+	</files>
+
+	<params>
+
+		<params group="permissions">
+			<param name="AllowFilesUpload" type="combo" default="1" label="Allow files upload" description="">
+				<option value="0" label="No"></option>
+				<option value="1" label="Yes"></option>
+			</param>
+			<param name="AllowFilesSelection" type="combo" default="0" label="Allow files selection" description="">
+				<option value="0" label="No"></option>
+				<option value="1" label="Yes"></option>
+			</param>
+			<param name="AllowFilesEdit" type="combo" default="1" label="Allow files edit" description="meta tag informations">
+				<option value="0" label="No"></option>
+				<option value="1" label="Yes"></option>
+			</param>
+			<param name="AllowFilesDel" type="combo" default="1" label="Allow files deletion" description="">
+				<option value="0" label="No"></option>
+				<option value="1" label="Yes"></option>
+			</param>
+			<param name="AllowNewFolder" type="combo" default="0" label="Allow new folder" description="">
+				<option value="0" label="No"></option>
+				<option value="1" label="Yes"></option>
+			</param>
+			<param name="AllowFoldersNavigation" type="combo" default="0" label="Allow folders navigation" description="">
+				<option value="0" label="No"></option>
+				<option value="1" label="Yes"></option>
+			</param>
+			
+		</params>
+
+		<params group="files upload">
+			<param name="FileExtensions" type="text" default="jpg;jpeg;gif" label="File extensions" description="" />
+			<param name="FileSize" type="text" default="300" label="File size" description="Max file size allowed in KB (0 for server limit)" />
+			<param name="FileNameType" type="combo" default="0" label="File name type" description="">
+				<option value="0" label="Keep original name"></option>
+				<option value="1" label="Prefix + original name"></option>
+				<option value="2" label="Prefix + counter"></option>
+				<option value="3" label="Force filename"></option>
+			</param>
+			<param name="FilePrefix" type="text" default="file_" label="File prefix" description="" />
+			<param name="ForcedFilename" type="text" default="" label="Forced filename" description="Only when FileNameType is Force filename" />
+			
+			<!--NEW in modern template-->
+			<param name="FileFolderType" type="combo" default="custom" label="File folder type" description="">
+				<option value="custom" label="Custom file path (#FilePath or /public/docs if empty)"></option>
+				<option value="documents" label="Shared docs path (/public/docs)"></option>
+				<option value="items-images" label="Items images (/public/gallery/items/#id) or custom File Path"></option>
+				<option value="items-files" label="Items files (/public/files/items/#id) or custom File Path"></option>
+				<option value="categories-images" label="Categories images (/public/gallery/categories/#id) or custom File Path"></option>
+				<option value="categories-files" label="Categories files (/public/files/categories/#id) or custom File Path"></option>
+				<option value="sections-images" label="Sections images (/public/gallery/sections/#id) or custom File Path"></option>
+				<option value="sections-files" label="Sections files (/public/files/sections/#id) or custom File Path"></option>
+				<option value="temp" label="Temporary files path (/public/temp/#sessionid)"></option>
+			</param>
+
+      <param name="FilePath" type="text" default="" label="File path" description="" />
+			<param name="NumOfFilesAllowed" type="text" default="0" label="Number of files" description="Max number of files allowed (0 for no limit)" />
+      
+			<param name="ShowWorkingPath" type="combo" default="1" label="Show working path" description="">
+				<option value="0" label="No"></option>
+				<option value="1" label="Yes"></option>
+			</param>
+		</params>
+
+		<params group="image">
+			<param name="CustomWidth" type="text" default="" label="Width in px" description="Resize images to given width during upload" />
+			<param name="CustomHeight" type="text" default="" label="Height in px" description="Resize images to given height during upload" />
+		</params>
+
+	</params>
+</install>

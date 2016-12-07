@@ -22,6 +22,7 @@
       <datasource SelectMethod="GetList" TypeName="PigeonCms.ModuleTypeManager" />
     </param>
     <param name="ModuleFullNamePart" type="text" default="" label="Resource name part" />
+    <param name="ListPageSize" type="text" default="50" label="List page size" description="Set 0 to avoid pagination" />
   </params>
 
   <params group="targets">

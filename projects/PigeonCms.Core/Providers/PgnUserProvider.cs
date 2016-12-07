@@ -26,6 +26,7 @@ namespace PigeonCms
     public class PgnUserProvider: MembershipProvider
     {
         #region private vars
+		private string[] coreUsers = { "admin" };
         private int newPasswordLength = 8;
         private string eventSource = "PgnUserProvider";
         private string eventLog = "Application";
@@ -133,6 +134,20 @@ namespace PigeonCms
                 returnBytes[i] = Convert.ToByte(hexString.Substring(i * 2, 2), 16);
             return returnBytes;
         }
+
+		private bool isCoreUser(string username)
+		{
+			bool res = false;
+			for (int i = 0; i < coreUsers.Length; i++)
+			{
+				if (username.ToLower() == coreUsers[i].ToLower())
+				{
+					res = true;
+					break;
+				}
+			}
+			return res;
+		}
 
         // WriteToEventLog
         //   A helper function that writes exception detail to the event log. Exceptions
@@ -986,6 +1001,11 @@ namespace PigeonCms
 
         public override bool DeleteUser(string username, bool deleteAllRelatedData)
         {
+			if (isCoreUser(username))
+			{
+				throw new ProviderException("Cannot delete core users");
+			}
+
             DbProviderFactory myProv = Database.ProviderFactory;
             DbConnection myConn = myProv.CreateConnection();
             DbCommand myCmd = myProv.CreateCommand();

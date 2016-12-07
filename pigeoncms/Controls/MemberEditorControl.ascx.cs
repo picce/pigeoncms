@@ -285,7 +285,7 @@ public partial class Controls_MemberEditorControl : PigeonCms.MemberEditorContro
 
 
         //upd
-        LitUpdUserName.Text = "";
+		TextUpdUserName.Text = "";
         ChkUpdEnabled.Checked = true;
         ChkUpdApproved.Checked = false;
         TxtUpdEmail.Text = "";
@@ -310,7 +310,7 @@ public partial class Controls_MemberEditorControl : PigeonCms.MemberEditorContro
         ChkUpdAllowEmails.Checked = false;
 
         //pwd
-        LitPwdUsername.Text = "";
+		TxtPwdUsername.Text = "";
         TxtPwdPassword.Text = "";
         TxtPwdPasswordControl.Text = "";
         TxtPwdOldPassword.Text = "";
@@ -386,7 +386,7 @@ public partial class Controls_MemberEditorControl : PigeonCms.MemberEditorContro
         //insview
 
         //update
-        LitUpdUserName.Text = obj.UserName;
+		TextUpdUserName.Text = obj.UserName;
         ChkUpdEnabled.Checked = obj.Enabled;
         ChkUpdApproved.Checked = obj.IsApproved;
         TxtUpdEmail.Text = obj.Email;
@@ -410,9 +410,9 @@ public partial class Controls_MemberEditorControl : PigeonCms.MemberEditorContro
         ChkUpdAllowMessages.Checked = obj.AllowMessages;
         ChkUpdAllowEmails.Checked = obj.AllowEmails;
 
-        LitPwdUsername.Text = obj.UserName;
+        TxtPwdUsername.Text = obj.UserName;
 
-
+		TxtRolesUsername.Text = obj.UserName;
         PgnUserHelper.LoadListRolesInUser(ListRolesInUser, CurrentUser);
         PgnUserHelper.LoadListRolesNotInUser(ListRolesNotInUser, CurrentUser);
         //load hidden field with current users in rol

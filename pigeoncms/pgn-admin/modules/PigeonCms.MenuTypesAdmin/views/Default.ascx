@@ -1,88 +1,173 @@
 <%@ Control Language="C#" AutoEventWireup="true" CodeFile="Default.ascx.cs" Inherits="Controls_Default" %>
+<%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="cc1" %>
 
-<asp:ScriptManager ID="ScriptManager1" runat="server"></asp:ScriptManager>
+<asp:ScriptManager runat="server" EnablePageMethods="true"></asp:ScriptManager>
 <asp:UpdateProgress ID="UpdateProgress1" runat="server" DisplayAfter="1" AssociatedUpdatePanelID="Upd1">
     <ProgressTemplate>
-        <div class="loading">caricamento..</div>
+        <div class="loading"><%=PigeonCms.Utility.GetLabel("LblLoading", "loading") %></div>
     </ProgressTemplate>
 </asp:UpdateProgress>
+
     
 <asp:UpdatePanel ID="Upd1" runat="server">
 <ContentTemplate>
     
-    <asp:Label ID="LblErr" runat="server" Text="" CssClass="errore"></asp:Label>
-    <asp:Label ID="LblOk" runat="server" Text="" CssClass="success"></asp:Label>
-    
-    <asp:MultiView ID="MultiView1" runat="server" ActiveViewIndex="0" OnActiveViewChanged="MultiView1_ActiveViewChanged">
-    
-        <asp:View ID="ViewSee" runat="server">
-            <div class="adminToolbar">
-                <asp:Button ID="BtnNew" runat="server" Text="Nuovo" CssClass="button" OnClick="BtnNew_Click" />
-            </div>
-            <br />
+    <div class="row">
 
-            <asp:GridView ID="Grid1" runat="server" Width="100%" AllowPaging="True" AllowSorting="true" AutoGenerateColumns="False"
-                DataSourceID="ObjDs1" DataKeyNames="Id" OnRowCommand="Grid1_RowCommand" OnRowCreated="Grid1_RowCreated" OnRowDataBound="Grid1_RowDataBound">
-                <Columns>
-                    <asp:TemplateField ItemStyle-HorizontalAlign="Left" HeaderStyle-HorizontalAlign="Left" ItemStyle-Width="15">
-                        <ItemTemplate>
-                            <asp:ImageButton ID="LnkSel" CommandName="Select" CommandArgument='<%#Eval("Id") %>' 
-                                runat="server" SkinID="ImgEditFile" />      
-                        </ItemTemplate>
-                    </asp:TemplateField>
-                    <asp:BoundField DataField="MenuType" HeaderText="MenuType" SortExpression="MenuType" />
-                    <asp:BoundField DataField="Title" HeaderText="Title" SortExpression="Title" />
-                    <asp:BoundField DataField="Id" HeaderText="Id" />
-                    <asp:TemplateField ItemStyle-HorizontalAlign="Right" HeaderStyle-HorizontalAlign="Right">
-                        <ItemTemplate>
-                            <asp:ImageButton ID="LnkDel" CommandName="DeleteRow" CommandArgument='<%#Eval("Id") %>' runat="server" 
-                                SkinID="ImgDelFile" OnClientClick="return confirm('Cancellare la riga?');"  />
-                        </ItemTemplate>
-                    </asp:TemplateField>
-                </Columns>
-            </asp:GridView>
-            
-            <asp:ObjectDataSource ID="ObjDs1" runat="server" SortParameterName="sort" OnSelecting="ObjDs1_Selecting"
-                SelectMethod="GetByFilter" TypeName="PigeonCms.MenutypesManager">
-                <SelectParameters>
-                    <asp:Parameter Name="filter" Type="object" />
-                    <asp:Parameter Name="sort" Type="String" DefaultValue="Nome" />
-                </SelectParameters>
-                <DeleteParameters>
-                    <asp:Parameter Name="Id" Type="Int32" />
-                </DeleteParameters>
-            </asp:ObjectDataSource>
-        </asp:View>
-   
+		<asp:Panel runat="server" ID="PanelSee">
 
-        <asp:View ID="ViewInsert" runat="server">
-            <div class="divAdminInsertPanel">
+			<%--#toolbar--%>
+			<div class="col-lg-12">
+				<div class="panel panel-default panel-filter panel-filer--new clearfix">
+					<div class="panel-body">
+						<div>
+							<asp:Label ID="LblErrSee" runat="server" Text=""></asp:Label>
+							<asp:Label ID="LblOkSee" runat="server" Text=""></asp:Label>
+						</div>
+						<div class="pull-right">
+							<div class="btn-group adminToolbar">
+                                <asp:Button ID="BtnNew" runat="server" Text="<%$ Resources:PublicLabels, CmdNew %>" 
+									CssClass="btn btn-primary" OnClick="BtnNew_Click" />
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
 
-                <div class="adminToolbar">                
-                    <asp:Button ID="BtnSave" runat="server" Text="<%$ Resources:PublicLabels, CmdSave %>" CssClass="button" OnClick="BtnSave_Click" />
-                    <asp:Button ID="BtnCancel" runat="server" Text="<%$ Resources:PublicLabels, CmdCancel %>" CssClass="button" OnClick="BtnCancel_Click" />
-                </div>
-                
-                <table cellspacing="0" cellpadding="5">
-                <tr>
-                    <td>Nome</td>
-                    <td colspan="3">
-                        <asp:TextBox ID="TxtMenuType" MaxLength="50" runat="server" CssClass="adminSmallText"></asp:TextBox></td>
-                </tr>
-                <tr>
-                    <td>Titolo</td>
-                    <td colspan="3">
-                        <asp:TextBox ID="TxtTitle" MaxLength="200" runat="server" CssClass="adminText"></asp:TextBox></td>
-                </tr>
-                <tr>
-                    <td>Descrizione</td>
-                    <td colspan="3">
-                        <asp:TextBox ID="TxtDescription" MaxLength="200" runat="server" CssClass="adminText"></asp:TextBox></td>
-                </tr>
-                </table>
-            </div>            
-        </asp:View>
-    </asp:MultiView>
+			<%--#list--%>
+			<div class="col-lg-12">
+
+				<div class="table-modern">
+					<div class="table-modern--wrapper table-modern--mobile table-modern--sortable">
+
+						<div class="table-modern--row table-modern--row-title">
+
+							<div class="table-modern__col col-md-1"></div><%--edit--%>
+							<div class="table-modern__col col-md-4 align-left"><%=base.GetLabel("MenuType", "MenuType")%></div>
+							<div class="table-modern__col col-md-6 align-left"><%=base.GetLabel("Title", "Title")%></div>
+							<div class="table-modern__col col-md-1"></div><%--del--%>
+
+						</div>
+
+						<asp:Repeater runat="server" ID="Rep1" OnItemDataBound="Rep1_ItemDataBound" OnItemCommand="Rep1_ItemCommand">
+							<ItemTemplate>
+
+								<div class="table-modern--row">
+
+									<%--#action edit --%>
+
+									<div class="table-modern__col col-md-1">
+										<asp:LinkButton runat="server" ID="LnkEdit" CausesValidation="false" CommandName="Select" CommandArgument='<%#Eval("Id") %>' class="table-modern--media" ClientIDMode="AutoID" data-title-mobile="EDIT">
+											<div class="table-modern--media--wrapper">
+												<div class="table-modern--media--modify"></div>
+											</div>
+										</asp:LinkButton>
+									</div>
+
+									<div class="table-modern__col align-left col-md-4">
+
+										<div class="table-modern--description" data-menu="menu">
+											<div class="table-modern--description--wrapper">
+												<%#Eval("MenuType")%> [<%#Eval("Id")%>]
+											</div>
+										</div>
+
+									</div>
+
+									<div class="table-modern__col col-md-6">
+										<div class="table-modern--description" data-menu="title">
+											<div class="table-modern--description--wrapper">
+												<%#Eval("Title")%>
+											</div>
+										</div>
+									</div>
+											
+									<%--#action delete --%>
+									<div class="table-modern__col col-md-1">
+										<a href="#" class="table-modern--media delete-label js-delete" data-title-mobile="DEL"
+											data-msg-title='<%=base.GetLabel("delete", "delete")%>' 
+											data-msg-subtitle='<%=PigeonCms.Utility.GetLabel("RECORD_DELETE_QUESTION")%>' 
+											data-msg-cancel='<%=base.GetLabel("cancel", "cancel")%>' 
+											data-msg-confirm='<%=base.GetLabel("confirm", "confirm")%>'>
+											<div class="table-modern--media--wrapper">
+												<div class="table-modern--media--delete"></div>
+											</div>
+										</a>
+										<asp:Button ID="LnkDel" CommandName="DeleteRow" CommandArgument='<%#Eval("Id")%>' runat="server" style="display:none;"  />
+									</div>
+
+								</div>
+							</ItemTemplate>
+						</asp:Repeater>
+
+						<div class="table-modern--rowpaging ">
+							<asp:Repeater ID="RepPaging" runat="server" OnItemCommand="RepPaging_ItemCommand" OnItemDataBound="RepPaging_ItemDataBound">
+								<ItemTemplate>
+									<div class="table-modern__col col--paging table-modern__col--paging">
+										<asp:LinkButton ID="BtnPage" runat="server" ClientIDMode="AutoID"
+										CommandName="Page" CommandArgument="<%# Container.DataItem %>"><%# Container.DataItem%>
+										</asp:LinkButton>
+									</div>
+								</ItemTemplate>
+							</asp:Repeater>
+						</div>
+
+					</div>
+				</div>
+
+			</div>
+
+        </asp:Panel>
+
+
+		<asp:Panel runat="server" ID="PanelInsert" Visible="false">
+
+			<div class="panel panel-default panel-modern--insert">
+
+					<div class="panel-modern--scrollable" onscroll="onScrollEditBtns()">
+
+						<div class="panel-heading">
+							<span><%=base.GetLabel("LblDetails", "Details")%></span>
+							<span class="title-modern-insert"><asp:Literal runat="server" ID="LitTitle"></asp:Literal></span>
+							<div class="btn-group clearfix">
+								<div class="btn-group-follow clearfix">
+									<asp:Button ID="BtnSave" runat="server" Text="<%$ Resources:PublicLabels, CmdCancel %>" CssClass="btn btn-default btn-xs btn-modern btn-modern--cancel" CausesValidation="false" OnClick="BtnCancel_Click" />
+									<asp:Button ID="BtnCancel" runat="server" Text="<%$ Resources:PublicLabels, CmdSave %>" CssClass="btn btn-primary btn-xs btn-modern" OnClick="BtnSave_Click" OnClientClick="MyObject.UpdateEditorFormValue();" />
+									<div class="btn-group-alert">
+										<asp:Label ID="LblErrInsert" runat="server" Text=""></asp:Label>
+										<asp:Label ID="LblOkInsert" runat="server" Text=""></asp:Label>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="panel-body">
+
+							<div class="form-group col-sm-12">
+								<%=base.GetLabel("Name", "Name", TxtMenuType) %>
+								<asp:TextBox ID="TxtMenuType" MaxLength="50" runat="server" CssClass="form-control" Enabled="false"></asp:TextBox>
+							</div>
+
+							<div class="form-group col-sm-12">
+								<%=base.GetLabel("Title", "Title", TxtTitle) %>
+								<asp:TextBox ID="TxtTitle" MaxLength="200" runat="server" CssClass="form-control"></asp:TextBox>
+							</div>
+
+							<div class="form-group col-sm-12">
+								<%=base.GetLabel("Description", "Description", TxtDescription) %>
+								<asp:TextBox ID="TxtDescription" MaxLength="200" runat="server" CssClass="form-control"></asp:TextBox>
+							</div>
+
+
+						</div>
+
+					</div>
+
+			</div>
+
+		</asp:Panel>
+
+    </div>
 
 </ContentTemplate>
 </asp:UpdatePanel>

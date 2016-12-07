@@ -91,6 +91,13 @@ namespace PigeonCms
                 set { editorType = value; }
             }
 
+			private string cssClass = "";
+			public string CssClass
+			{
+				get { return cssClass; }
+				set { cssClass = value; }
+			}
+
             //private bool toggleEditor = true;
             ///// <summary>
             ///// show html content

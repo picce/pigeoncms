@@ -1,0 +1,15 @@
+<asp:GridView runat="server" backcolor="#FFFFFF" PageSize="25" 
+    GridLines="none" 
+    CellPadding="3"
+    EmptyDataText="empty list"
+    BorderStyle="None" 
+    BorderWidth="1" 
+    BorderColor="#FFFFFF" 
+    RowStyle-VerticalAlign="Top"
+    CssClass="table table-hover">
+    <RowStyle  /> 
+    <HeaderStyle BackColor="#FFFFFF" HorizontalAlign="Left" />
+    <FooterStyle HorizontalAlign="Left" />
+    <EmptyDataRowStyle Font-Italic="true" HorizontalAlign="Center" />
+    <PagerStyle HorizontalAlign="Left" CssClass="gridpager" />
+</asp:GridView>

@@ -24,6 +24,8 @@ namespace PigeonCms
     {
         private bool checkUserContext = false;
         private bool writeMode = false;
+        private SeoProvider seoProvider;
+
 
         public bool CheckUserContext
         {
@@ -51,7 +53,10 @@ namespace PigeonCms
             this.checkUserContext = checkUserContext;
             this.writeMode = writeMode;
             if (this.writeMode) this.checkUserContext = true;    //forced
+
+            seoProvider = new SeoProvider("menus");
         }
+
 
         [DataObjectMethod(DataObjectMethodType.Select, false)]
         public Dictionary<string, string> GetList(string moduleFullName, string menuType)
@@ -68,17 +73,20 @@ namespace PigeonCms
             return res;
         }
 
+
         [DataObjectMethod(DataObjectMethodType.Select, false)]
         public Dictionary<string, string> GetList(string moduleFullName)
         {
             return GetList(moduleFullName, "");
         }
 
+
         [DataObjectMethod(DataObjectMethodType.Select, false)]
         public override Dictionary<string, string> GetList()
         {
             return GetList("", "");
         }
+
 
         [DataObjectMethod(DataObjectMethodType.Select, true)]
         public override List<Menu> GetByFilter(MenuFilter filter, string sort)
@@ -102,7 +110,7 @@ namespace PigeonCms
                 + " t.CurrMasterPage, t.CurrTheme, t.CssClass, t.Visible, "
                 + " t.RouteId, t.PermissionId, t.AccessCode, t.AccessLevel, t.IsCore, "
                 + " t.WriteAccessType, t.WritePermissionId, t.WriteAccessCode, t.WriteAccessLevel, "
-                + " t.UseSsl, "
+                + " t.UseSsl, t.SeoId, "
                 + " r.Name RouteName, r.Pattern RoutePattern, "
                 + " r.CurrMasterPage RouteMasterPage, r.CurrTheme RouteTheme, r.UseSsl RouteUseSsl "
                 + " FROM ["+ this.TableName +"] t "
@@ -249,6 +257,7 @@ namespace PigeonCms
             return result;
         }
 
+
         public List<int> GetParentIdList(int menuId)
         {
             DbProviderFactory myProv = Database.ProviderFactory;
@@ -272,6 +281,7 @@ namespace PigeonCms
             }
             return parentList;
         }
+
 
         /// <summary>
         /// gets menuId level
@@ -299,6 +309,7 @@ namespace PigeonCms
             return level;
         }
 
+
         [DataObjectMethod(DataObjectMethodType.Select, false)]
         public override Menu GetByKey(int id)
         {
@@ -312,10 +323,6 @@ namespace PigeonCms
             return result;
         }
 
-        //public List<Menu> GetTree(MenuFilter filter, int level)
-        //{
-        //    return GetTree(filter, level, ". . ");
-        //}
 
         public List<Menu> GetTree(MenuFilter filter, int level, string separatorText = ". . ")
         {
@@ -350,6 +357,8 @@ namespace PigeonCms
                 Menu currObj = GetByKey(id);
                 new PermissionProvider().RemovePermissionById(currObj.ReadPermissionId);
                 new PermissionProvider().RemovePermissionById(currObj.WritePermissionId);
+                seoProvider.Remove(currObj);
+
 
                 sSql = "DELETE FROM [" + this.TableName + "] WHERE Id = @Id ";
                 myCmd.CommandText = Database.ParseSql(sSql);
@@ -395,6 +404,7 @@ namespace PigeonCms
             {
                 //fill ReadPermissionId and WritePermissionId before trans
                 new PermissionProvider().UpdatePermissionObj(theObj);
+                seoProvider.Save(theObj);
 
                 myConn.ConnectionString = Database.ConnString;
                 myConn.Open();
@@ -411,7 +421,7 @@ namespace PigeonCms
                 + " Visible=@Visible, RouteId=@RouteId, PermissionId=@PermissionId, "
                 + " [AccessCode]=@AccessCode, AccessLevel=@AccessLevel, IsCore=@IsCore, "
                 + " WriteAccessType=@WriteAccessType, WritePermissionId=@WritePermissionId, [WriteAccessCode]=@WriteAccessCode, "
-                + " WriteAccessLevel=@WriteAccessLevel, UseSsl=@UseSsl "
+                + " WriteAccessLevel=@WriteAccessLevel, UseSsl=@UseSsl, SeoId=@SeoId "
                 + " WHERE Id = @Id";
                 myCmd.CommandText = Database.ParseSql(sSql);
                 myCmd.Parameters.Clear();
@@ -445,6 +455,8 @@ namespace PigeonCms
 
                 myCmd.Parameters.Add(Database.Parameter(myProv, "IsCore", theObj.IsCore));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "UseSsl", (int)theObj.UseSsl));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "SeoId", theObj.SeoId));
+
 
                 result = myCmd.ExecuteNonQuery();
                 updateCultureText(theObj, myCmd, myProv);
@@ -463,6 +475,7 @@ namespace PigeonCms
             return result;
         }
 
+
         [DataObjectMethod(DataObjectMethodType.Insert, false)]
         public override Menu Insert(Menu newObj)
         {
@@ -474,17 +487,10 @@ namespace PigeonCms
 
             try
             {
-                /*//create read permission
-                newObj.ReadPermissionId =
-                    new PermissionProvider().AddRolesToPermission(
-                    newObj.ReadPermissionId, newObj.ReadRolenames, true);
-                //create write permission
-                newObj.WritePermissionId =
-                    new PermissionProvider().AddRolesToPermission(
-                    newObj.WritePermissionId, newObj.WriteRolenames, true);*/
-
                 //create read/write permission
                 new PermissionProvider().CreatePermissionObj(newObj);
+
+                seoProvider.Save(newObj);
 
                 myConn.ConnectionString = Database.ConnString;
                 myConn.Open();
@@ -501,13 +507,13 @@ namespace PigeonCms
                     + " CurrMasterPage, CurrTheme, CssClass, Visible, RouteId, "
                     + " PermissionId, t.AccessCode, t.AccessLevel, IsCore, "
                     + " WriteAccessType, WritePermissionId, WriteAccessCode, WriteAccessLevel, "
-                    + " UseSsl) "
+                    + " UseSsl, SeoId) "
                     + " VALUES(@Id, @MenuType, @Name, @Alias, @Link, @ContentType, @Published, @ParentId, "
                     + " @ModuleId, @Ordering, @AccessType, @OverridePageTitle, @ReferMenuId, "
                     + " @CurrMasterPage, @CurrTheme, @CssClass, @Visible, @RouteId, "
                     + " @PermissionId, @AccessCode, @AccessLevel, @IsCore, "
                     + " @WriteAccessType, @WritePermissionId, @WriteAccessCode, @WriteAccessLevel, "
-                    + " @UseSsl)";
+                    + " @UseSsl, @SeoId)";
 
                 myCmd.CommandText = Database.ParseSql(sSql);
 
@@ -541,6 +547,7 @@ namespace PigeonCms
 
                 myCmd.Parameters.Add(Database.Parameter(myProv, "IsCore", newObj.IsCore));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "UseSsl", (int)newObj.UseSsl));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "SeoId", newObj.SeoId));
 
                 myCmd.ExecuteNonQuery();
                 updateCultureText(newObj, myCmd, myProv);
@@ -619,6 +626,9 @@ namespace PigeonCms
             
             if (!Convert.IsDBNull(myRd["IsCore"]))
                 result.IsCore = (bool)myRd["IsCore"];
+            if (!Convert.IsDBNull(myRd["SeoId"]))
+                result.SeoId = (int)myRd["SeoId"];
+
             //menu entry setting
             if (!Convert.IsDBNull(myRd["UseSsl"]))
                 result.UseSsl = (Utility.TristateBool)int.Parse(myRd["UseSsl"].ToString());

@@ -232,6 +232,14 @@ namespace PigeonCms
             get { return AppSettingsManager.GetValue("CurrentTheme", "default"); }
         }
 
+		/// <summary>
+		/// site specific encryption code
+		/// </summary>
+		public static string EncryptKey
+		{
+			get { return getConfigValue("EncryptKey", "nn"); }
+		}
+
         public static string GetConfigValue(string key, string defaultValue = "")
         {
             return getConfigValue(key, defaultValue);

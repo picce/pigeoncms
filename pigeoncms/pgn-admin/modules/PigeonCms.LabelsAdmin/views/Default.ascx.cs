@@ -23,16 +23,15 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
     const int COL_RESID = 2;
     const int COL_TEXTMODE = 3;
     const int COL_VALUES = 4;
-    const int COL_DELETE = 5;
     const int COL_VALUE_1 = 6;
     const int COL_VALUE_2= 7;
     const int COL_VALUE_3 = 8;
     const int COL_VALUE_4 = 9;
     const int COL_VALUE_5 = 10;
     const string FAKE_RESOURCESET = "xxx";
-    const int VIEW_GRID_IDX = 0;
-    const int VIEW_EDIT_IDX = 1;
-    const int VIEW_IMPORT_IDX = 2;
+    const int PANEL_SEE_IDX = 0;
+    const int PANEL_INS_IDX = 1;
+    const int PANEL_IMP_IDX = 2;
 
     public string BtnActionClass = "";
 
@@ -188,21 +187,6 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         get { return GetBoolParam("ShowOnlyEnabledCultures", false); }
     }
 
-    string imagesUploadUrl = "";
-    protected string ImagesUploadUrl
-    {
-        get
-        {
-            if (string.IsNullOrEmpty(imagesUploadUrl) && this.TargetImagesUpload > 0)
-            {
-                var menuMan = new MenuManager();
-                var menuTarget = new PigeonCms.Menu();
-                menuTarget = menuMan.GetByKey(this.TargetImagesUpload);
-                imagesUploadUrl = Utility.GetRoutedUrl(menuTarget);
-            }
-            return imagesUploadUrl;
-        }
-    }
 
     /// <summary>
     /// number of columns added in grid for export purpose only
@@ -233,6 +217,8 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         }
     }
 
+
+
     protected new void Page_Init(object sender, EventArgs e)
     {
         base.Page_Init(sender, e);
@@ -251,9 +237,9 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
                     initLangControls(obj.TextMode);
                     editRow(getResSet(args), getResId(args));
                 }
-                else if (eventArg == "grid")
+                else if (eventArg == "list")
                 {
-                    loadGrid(Grid1);
+                    loadList();
                 }
                 else
                 {
@@ -276,8 +262,8 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
 
     protected void Page_Load(object sender, EventArgs e)
     {
-        LblOk.Text = RenderSuccess("");
-        LblErr.Text = RenderError("");
+        LblOkSee.Text = RenderSuccess("");
+        LblErrSee.Text = RenderError("");
 
         BtnActionClass = "";
         if (!this.AllowImportExport)
@@ -288,22 +274,23 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
             loadDropsModuleTypes();
             loadDropMissingFilter();
             loadDropTextMode();
-            loadGrid(Grid1);
+			loadList();
 
             BtnNew.Visible = this.AllowNew;
             DropTextMode.Enabled = this.AllowTextModeEdit;
             TxtComment.Enabled = this.AllowParamsEdit;
             TxtResourceParams.Enabled = this.AllowParamsEdit;
-            Grid1.Columns[COL_DELETE].Visible = this.AllowDel;
-            BtnImport.Visible = this.AllowImportExport;
-            BtnExport.Visible = this.AllowImportExport;
+			
+			//BtnImport.Visible = this.AllowImportExport;
+			//BtnExport.Visible = this.AllowImportExport;
 
+			//TODO
             //prepare hidden cols for export
-            for (int i = 0; i < this.CultureColumnsCount; i++)
-            {
-                var culture = this.CultureList[i];
-                Grid1.Columns[COL_DELETE + i+1].HeaderText = "Value " + culture.CultureCode;
-            }
+			//for (int i = 0; i < this.CultureColumnsCount; i++)
+			//{
+			//	var culture = this.CultureList[i];
+			//	Grid1.Columns[COL_DELETE + i+1].HeaderText = "Value " + culture.CultureCode;
+			//}
         }
         else
         {
@@ -328,7 +315,31 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         Page.Form.Attributes.Add("enctype", "multipart/form-data");
     }
 
-    protected void Grid1_RowCommand(object sender, GridViewCommandEventArgs e)
+	protected void RepPaging_ItemDataBound(object sender, RepeaterItemEventArgs e)
+	{
+		if (e.Item.ItemType == ListItemType.Header)
+		{
+			return;
+		}
+
+		int page = int.Parse(e.Item.DataItem.ToString());
+		if (page - 1 == base.ListCurrentPage)
+		{
+			var BtnPage = (LinkButton)e.Item.FindControl("BtnPage");
+			BtnPage.CssClass = "selected";
+		}
+	}
+
+	protected void RepPaging_ItemCommand(object source, RepeaterCommandEventArgs e)
+	{
+		if (e.CommandName == "Page")
+		{
+			base.ListCurrentPage = int.Parse(e.CommandArgument.ToString()) - 1;
+			loadList();
+		}
+	}
+
+	protected void Rep1_ItemCommand(object source, RepeaterCommandEventArgs e)
     {
         //done client side
         //if (e.CommandName == "Select")
@@ -341,108 +352,106 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         }
     }
 
-    protected void Grid1_RowCreated(object sender, GridViewRowEventArgs e)
+
+	protected void Rep1_ItemDataBound(object sender, RepeaterItemEventArgs e)
     {
-        if (e.Row.RowType == DataControlRowType.Header)
-            Utility.AddGlyph(Grid1, e.Row);
-    }
+		if (e.Item.ItemType == ListItemType.Header)
+		{
+			return;
+		}
 
-    protected void Grid1_RowDataBound(object sender, GridViewRowEventArgs e)
-    {
-        if (e.Row.RowType == DataControlRowType.DataRow)
-        {
-            var item = new ResLabelTrans();
-            item = (ResLabelTrans)e.Row.DataItem;
-
-            var LitSel = (Literal)e.Row.FindControl("LitSel");
-            LitSel.Text = "<a href='javascript:void(0)' onclick=\"editRow('edit__" + item.ResourceSet + "|" + item.ResourceId + "');\"><i class='fa fa-pgn_edit fa-fw'></i></a>";
-
-            var LitResourceSet = (Literal)e.Row.FindControl("LitResourceSet");
-            LitResourceSet.Text = item.ResourceSet;
-
-            var LitResourceId = (Literal)e.Row.FindControl("LitResourceId");
-            LitResourceId.Text = item.ResourceId;
-
-            var LitTextMode = (Literal)e.Row.FindControl("LitTextMode");
-            LitTextMode.Text = item.TextMode.ToString();
-
-            var LitValue = (Literal)e.Row.FindControl("LitValue");
-            string values = "";
-            string defaultValue = "";
-
-            List<Literal> LitValues = new List<Literal>();
-            LitValues.Add((Literal)e.Row.FindControl("LitValue1"));
-            LitValues.Add((Literal)e.Row.FindControl("LitValue2"));
-            LitValues.Add((Literal)e.Row.FindControl("LitValue3"));
-            LitValues.Add((Literal)e.Row.FindControl("LitValue4"));
-            LitValues.Add((Literal)e.Row.FindControl("LitValue5"));
+        var item = (ResLabelTrans)e.Item.DataItem;
 
 
-            var labelList = new List<ResLabel>();
-            var man = new LabelsManager();
-            var lfilter = new LabelsFilter();
-            lfilter.ResourceSet = item.ResourceSet;
-            lfilter.ResourceId = item.ResourceId;
-            labelList = man.GetByFilter(lfilter, "");
+		var ColDelete = (HtmlGenericControl)e.Item.FindControl("ColDelete");
+		ColDelete.Visible = this.AllowDel;
+
+		var LitEdit = (Literal)e.Item.FindControl("LitEdit");
+		LitEdit.Text = ""
+		+ "<a href='javascript:void(0)' onclick=\"editRow('edit__" + item.ResourceSet + "|" + item.ResourceId + "');\" class='table-modern--media' data-title-mobile='edit'>"
+		+ "  <div class='table-modern--media--wrapper'>"
+		+ "    <div class='table-modern--media--modify'></div>"
+		+ "  </div>"
+		+ "</a>";
+
+
+		var LitResSetId = (Literal)e.Item.FindControl("LitResSetId");
+		LitResSetId.Text = item.ResourceSet + "<br><strong>" + item.ResourceId + "</strong>";
+
+		var LitTextMode = (Literal)e.Item.FindControl("LitTextMode");
+        LitTextMode.Text = item.TextMode.ToString();
+
+		var LitValue = (Literal)e.Item.FindControl("LitValue");
+        string values = "";
+        string defaultValue = "";
+
+        var LitValues = new List<Literal>();
+		LitValues.Add((Literal)e.Item.FindControl("LitValue1"));
+		LitValues.Add((Literal)e.Item.FindControl("LitValue2"));
+		LitValues.Add((Literal)e.Item.FindControl("LitValue3"));
+		LitValues.Add((Literal)e.Item.FindControl("LitValue4"));
+		LitValues.Add((Literal)e.Item.FindControl("LitValue5"));
+
+
+        var labelList = new List<ResLabel>();
+        var man = new LabelsManager();
+        var lfilter = new LabelsFilter();
+        lfilter.ResourceSet = item.ResourceSet;
+        lfilter.ResourceId = item.ResourceId;
+        labelList = man.GetByFilter(lfilter, "");
             
-            const string ROW = "<span class='[[rowClass]]'><i>[[rowCulture]]</i>: [[rowLabel]]</span><br>";
-            int cultureIdx = 0;
-            foreach (var culture in this.CultureList)
+        const string ROW = "<span class='[[rowClass]]'><i>[[rowCulture]]</i>: [[rowLabel]]</span><br>";
+        int cultureIdx = 0;
+        foreach (var culture in this.CultureList)
+        {
+            ResLabel label = labelList.FirstOrDefault(
+                s => s.CultureName == culture.CultureCode);
+
+            if (label == null)
+                label = new ResLabel();
+
+            if (string.IsNullOrEmpty(defaultValue))
+                defaultValue = label.Value;
+
+            string rowClass = "text-success";
+            if (string.IsNullOrEmpty(label.Value))
             {
-                ResLabel label = labelList.FirstOrDefault(
-                    s => s.CultureName == culture.CultureCode);
-
-                if (label == null)
-                    label = new ResLabel();
-
-                if (string.IsNullOrEmpty(defaultValue))
-                    defaultValue = label.Value;
-
-                string rowClass = "text-success";
-                if (string.IsNullOrEmpty(label.Value))
-                {
-                    //label.Value = "<i>NO VALUE</i>";
-                    if (culture.Enabled)
-                        rowClass = "text-danger";//missing
-                    else
-                        rowClass = "text-warning";//missing but cutlure not enabled
-                }
-
-                values += ROW
-                    .Replace("[[rowClass]]", rowClass)
-                    .Replace("[[rowCulture]]", culture.CultureCode)
-                    .Replace("[[rowLabel]]", Utility.Html.GetTextPreview(label.Value, 50, ""));
-
-                if (cultureIdx < this.CultureColumnsCount)
-                    LitValues[cultureIdx].Text = label.Value;
-
-                cultureIdx++;
-            }
-            LitValue.Text += values;
-
-            //image preview on Image TextMode
-            Image ImgPreview = (Image)e.Row.FindControl("ImgPreview");
-            ImgPreview.Visible = false;
-            if (item.TextMode == ContentEditorProvider.Configuration.EditorTypeEnum.Image)
-            {
-                ImgPreview.Visible = true;
-                var file = new FileMetaInfo(defaultValue);
-                ImgPreview.ImageUrl = PhotoManager.GetFileIconSrc(file, true);
+                //label.Value = "<i>NO VALUE</i>";
+                if (culture.Enabled)
+                    rowClass = "text-danger";//missing
+                else
+                    rowClass = "text-warning";//missing but cutlure not enabled
             }
 
+            values += ROW
+                .Replace("[[rowClass]]", rowClass)
+                .Replace("[[rowCulture]]", culture.CultureCode)
+                .Replace("[[rowLabel]]", Utility.Html.GetTextPreview(label.Value, 50, ""));
+
+            if (cultureIdx < this.CultureColumnsCount)
+                LitValues[cultureIdx].Text = label.Value;
+
+            cultureIdx++;
         }
+        LitValue.Text += values;
+
+        //image preview on Image TextMode
+        var ImgPreview = (Image)e.Item.FindControl("ImgPreview");
+        ImgPreview.Visible = false;
+        if (item.TextMode == ContentEditorProvider.Configuration.EditorTypeEnum.Image)
+        {
+            ImgPreview.Visible = true;
+            var file = new FileMetaInfo(defaultValue);
+            ImgPreview.ImageUrl = PhotoManager.GetFileIconSrc(file, true);
+        }
+
     }
 
-    protected void Grid1_PageIndexChanging(object sender, GridViewPageEventArgs e)
-    {
-        Grid1.PageIndex = e.NewPageIndex;
-        loadGrid(Grid1);
-    }
-
+	//TODO
     protected void GridImportPreview_RowCommand(object sender, GridViewCommandEventArgs e)
     {
-        LblErr.Text = "";
-        LblOk.Text = "";
+        LblErrInsert.Text = LblErrSee.Text = "";
+        LblOkInsert.Text = LblOkSee.Text = "";
 
         try
         {
@@ -459,19 +468,21 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         }
         catch (Exception e1)
         {
-            LblErr.Text = RenderError(e1.Message);
+            LblErrInsert.Text = LblErrSee.Text = RenderError(e1.Message);
         }
         finally
         {
         }
     }
 
+	//TODO
     protected void GridImportPreview_RowCreated(object sender, GridViewRowEventArgs e)
     {
         if (e.Row.RowType == DataControlRowType.Header)
             Utility.AddGlyph(GridImportPreview, e.Row);
     }
 
+	//TODO
     protected void GridImportPreview_RowDataBound(object sender, GridViewRowEventArgs e)
     {
         const int TXT_PREVIEW_LEN = 80;
@@ -506,6 +517,7 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         }
     }
 
+	//TODO
     protected void GridImportPreview_PageIndexChanging(object sender, GridViewPageEventArgs e)
     {
         GridImportPreview.PageIndex = e.NewPageIndex;
@@ -516,35 +528,36 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
     {
         if (checkForm())
         {
-            if (saveForm())
-                MultiView1.ActiveViewIndex = VIEW_GRID_IDX;
+			if (saveForm())
+				showPanel(PANEL_SEE_IDX);
         }
     }
 
     protected void BtnNew_Click(object sender, EventArgs e)
     {
-        LblErr.Text = RenderError("");
+        LblErrInsert.Text = LblErrSee.Text = RenderError("");
         if (DropModuleTypesFilter.SelectedValue != FAKE_RESOURCESET)
             editRow(DropModuleTypesFilter.SelectedValue, "");
         else
-            LblErr.Text = RenderError(
+			LblErrInsert.Text = LblErrSee.Text = RenderError(
                 base.GetLabel("SelectResource", "Please select a resource set"));
 
     }
 
     protected void BtnCancel_Click(object sender, EventArgs e)
     {
-        LblErr.Text = RenderError("");
-        LblOk.Text = RenderSuccess("");
-        MultiView1.ActiveViewIndex = VIEW_GRID_IDX;
+        LblErrSee.Text = RenderError("");
+        LblOkSee.Text = RenderSuccess("");
+		showPanel(PANEL_SEE_IDX);
 
-        loadGrid(Grid1);
+        loadList();
     }
 
+	//TODO
     protected void BtnApplyImport_Click(object sender, EventArgs e)
     {
-        LblErr.Text = "";
-        LblOk.Text = "";
+        LblErrInsert.Text = LblErrSee.Text = "";
+        LblOkInsert.Text = LblOkSee.Text = "";
 
 
         string message = "";
@@ -562,13 +575,13 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
                 .Replace("%1", countUpdates.ToString())
                 .Replace("%2", countInsert.ToString());
 
-            LblOk.Text = RenderSuccess(message);
+			LblOkInsert.Text = LblOkSee.Text = RenderSuccess(message);
             LogProvider.Write(this.BaseModule, "Import result: " + message, TracerItemType.Info);
         }
         catch (Exception e1)
         {
             LogProvider.Write(this.BaseModule, "Import error: " + e1.ToString(), TracerItemType.Error);
-            LblErr.Text = RenderError("Error during import. Check log.");
+			LblErrInsert.Text = LblErrSee.Text = RenderError("Error during import. Check log.");
         }
         finally
         {
@@ -576,32 +589,34 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         }
     }
 
+	//TODO
     protected void BtnImport_Click(object sender, EventArgs e)
     {
-        MultiView1.ActiveViewIndex = VIEW_IMPORT_IDX;
+		showPanel(PANEL_IMP_IDX);
         deleteUserTempData();
         loadDropsImport();
         loadGridImportPreview();
     }
 
+	//TODO
     protected void BtnExport_Click(object sender, EventArgs e)
     {
-        LblOk.Text = "";
-        LblErr.Text = "";
+		LblOkInsert.Text = LblOkSee.Text = "";
+        LblErrInsert.Text = LblErrSee.Text = "";
 
         try
         {
-            var exportHelper = new PigeonCms.ExportHelper();
-            string file = exportHelper.GridToExcel(prepareGridForExport(Grid1), "labels_" + DropModuleTypesFilter.SelectedValue);
+			//var exportHelper = new PigeonCms.ExportHelper();
+			//string file = exportHelper.GridToExcel(prepareGridForExport(Grid1), "labels_" + DropModuleTypesFilter.SelectedValue);
 
-            if (!string.IsNullOrEmpty(file))
-                LblOk.Text = RenderSuccess("File "+ file + " exported");
-            else
-                LblErr.Text = RenderError("No rows to export");
+			//if (!string.IsNullOrEmpty(file))
+			//	LblOkInsert.Text = LblOkSee.Text = RenderSuccess("File " + file + " exported");
+			//else
+			//	LblErrInsert.Text = LblErrSee.Text = RenderError("No rows to export");
         }
         catch (Exception ex)
         {
-            LblErr.Text = RenderError("Error during export procedure. Check log errors");
+            LblErrInsert.Text = LblErrSee.Text = RenderError("Error during export procedure. Check log errors");
 
             LogProvider.Write(this.BaseModule, 
                 "BtnExport_Click>Error during export procedure. Ex:" + ex.ToString(), 
@@ -610,11 +625,13 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
 
     }
 
+	//TODO
     protected void BtnImportSelectAll_Click(object sender, EventArgs e)
     {
         selectAll(true);
     }
 
+	//TODO
     protected void BtnImportDeselectAll_Click(object sender, EventArgs e)
     {
         selectAll(false);
@@ -622,7 +639,7 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
 
     protected void Filter_Changed(object sender, EventArgs e)
     {
-        loadGrid(Grid1);
+		loadList();
     }
 
     protected void DropTextMode_TextChanged(object sender, EventArgs e)
@@ -645,13 +662,6 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
 
     protected void MultiView1_ActiveViewChanged(object sender, EventArgs e)
     {
-        if (MultiView1.ActiveViewIndex == VIEW_GRID_IDX)    //list view
-        {
-        }
-
-        if (MultiView1.ActiveViewIndex == VIEW_EDIT_IDX)    //edit view
-        {
-        }
     }
 
     protected void File1_UploadedComplete(object sender, AjaxControlToolkit.AsyncFileUploadEventArgs e)
@@ -687,7 +697,7 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
     {
         System.Threading.Thread.Sleep(500);
 
-        string destFilename = e.filename;
+        string destFilename = e.FileName;
         if (!(sender is AjaxControlToolkit.AsyncFileUpload))
             return;
 
@@ -699,7 +709,7 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         string fileExtension = PigeonCms.Utility.GetFileExt(fu.FileName.ToLower());
         if (fileExtension != "xls" && fileExtension != "xlsx")
         {
-            LblErr.Text = RenderError("File type not allowed");
+            LblErrInsert.Text = LblErrSee.Text = RenderError("File type not allowed");
             return;
         }
 
@@ -719,7 +729,7 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         }
         catch (Exception ex)
         {
-            LblErr.Text = RenderError(ex.Message);
+			LblErrInsert.Text = LblErrSee.Text = RenderError(ex.Message);
             LogProvider.Write(this.BaseModule, "UploadPreview_OnUploadedComplete:" + ex.ToString(), TracerItemType.Error);
 
         }
@@ -728,7 +738,7 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
     protected void UploadPreview_UploadedFileError(object sender, AjaxControlToolkit.AsyncFileUploadEventArgs e)
     {
         LogProvider.Write(this.BaseModule,
-            "UploadPreview_UploadedFileError: state=" + e.state + "; message=" + e.statusMessage,
+            "UploadPreview_UploadedFileError: state=" + e.State + "; message=" + e.StatusMessage,
             TracerItemType.Error);
     }
 
@@ -799,8 +809,8 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
     private void editRow(string resourceSet, string resourceId)
     {
         var obj = new PigeonCms.ResLabelTrans();
-        LblOk.Text = RenderSuccess("");
-        LblErr.Text = RenderError("");
+        LblOkInsert.Text = LblOkSee.Text = RenderSuccess("");
+        LblErrInsert.Text = LblErrSee.Text = RenderError("");
 
         clearForm();
         CurrentKey = resourceSet + "|" + resourceId;
@@ -820,15 +830,16 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         string fileUrl = this.DefaultResourceFolder + "/" + filename;
         TxtCurrentPath.Value = VirtualPathUtility.ToAbsolute(fileUrl);
 
-        MultiView1.ActiveViewIndex = VIEW_EDIT_IDX;
+		showPanel(PANEL_INS_IDX);
     }
 
     private bool checkForm()
     {
-        LblErr.Text = "";
         string err = "";
-        LblOk.Text = RenderSuccess("");
         bool res = true;
+
+		LblOkInsert.Text = LblOkSee.Text = RenderSuccess("");
+		LblErrInsert.Text = LblErrSee.Text = RenderError("");
 
         if (string.IsNullOrEmpty(LitResourceSet.Text))
         {
@@ -842,7 +853,7 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
             res = false;
         }
         if (!res)
-            LblErr.Text = RenderError(err);
+			LblErrInsert.Text = LblErrSee.Text = RenderError(err);
 
         return res;
     }
@@ -852,8 +863,8 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         bool res = false;
         var man = new LabelsManager();
         var lFilter = new LabelsFilter();
-        LblErr.Text = RenderError("");
-        LblOk.Text = RenderSuccess("");
+		LblOkInsert.Text = LblOkSee.Text = RenderSuccess("");
+		LblErrInsert.Text = LblErrSee.Text = RenderError("");
 
         try
         {
@@ -893,15 +904,17 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
                     man.Insert(label);
                 }
             }
+
             LabelsProvider.ClearCacheByResourceSet(o1.ResourceSet);
-            loadGrid(Grid1);
-            LblOk.Text = RenderSuccess(Utility.GetLabel("RECORD_SAVED_MSG"));
-            MultiView1.ActiveViewIndex = VIEW_GRID_IDX;
+			loadList();
+
+			LblOkInsert.Text = LblOkSee.Text = RenderSuccess(Utility.GetLabel("RECORD_SAVED_MSG"));
+			showPanel(PANEL_SEE_IDX);
             res = true;
         }
         catch (Exception e1)
         {
-            LblErr.Text = RenderError(Utility.GetLabel("RECORD_ERR_MSG") + "<br />" + e1.ToString());
+			LblErrInsert.Text = LblErrSee.Text = RenderError(Utility.GetLabel("RECORD_ERR_MSG") + "<br />" + e1.ToString());
         }
         finally
         { }
@@ -910,8 +923,8 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
 
     private void deleteRow(string resourceId)
     {
-        LblOk.Text = RenderSuccess("");
-        LblErr.Text = RenderError("");
+        LblOkSee.Text = RenderSuccess("");
+        LblErrSee.Text = RenderError("");
 
         try
         {
@@ -920,9 +933,9 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         }
         catch (Exception e)
         {
-            LblErr.Text = RenderError(e.Message);
+            LblErrSee.Text = RenderError(e.Message);
         }
-        loadGrid(Grid1);
+        loadList();
     }
 
     private void loadDropTextMode()
@@ -940,7 +953,7 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         }
         catch (Exception ex)
         {
-            LblErr.Text = RenderError(ex.ToString());
+            LblErrSee.Text = RenderError(ex.ToString());
         }
     }
 
@@ -1033,7 +1046,7 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         }
         catch (Exception ex)
         {
-            LblErr.Text = RenderError(ex.ToString());
+            LblErrSee.Text = RenderError(ex.ToString());
         }
     }
 
@@ -1052,9 +1065,9 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         {
             var culture = this.CultureList[i];
 
-            var panel = Utility.FindControlRecursive<HtmlControl>(ViewImport, "PanelPreviewValue" + i.ToString());
-            var lit = Utility.FindControlRecursive<Literal>(ViewImport, "LitColValue" + i.ToString());
-            var drop = Utility.FindControlRecursive<DropDownList>(ViewImport, "DropColValue" + i.ToString());
+            var panel = Utility.FindControlRecursive<HtmlControl>(PanelImport, "PanelPreviewValue" + i.ToString());
+			var lit = Utility.FindControlRecursive<Literal>(PanelImport, "LitColValue" + i.ToString());
+			var drop = Utility.FindControlRecursive<DropDownList>(PanelImport, "DropColValue" + i.ToString());
 
             panel.Visible = true;
             lit.Text = "Value " + culture.CultureCode + " column";
@@ -1086,7 +1099,7 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         }
         catch (Exception ex)
         {
-            LblErr.Text = ex.ToString();
+            LblErrSee.Text = ex.ToString();
         }
     }
 
@@ -1119,100 +1132,124 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         BtnApplyImport.Enabled = true;
     }
 
-    //load labels grid with current filter
-    private void loadGrid(GridView grid)
-    {
-        var man = new PigeonCms.LabelsManager();
-        var filter = new LabelTransFilter();
+	private List<ResLabelTrans> getCurrentList()
+	{
+		var man = new PigeonCms.LabelsManager();
+		var filter = new LabelTransFilter();
 
-        if (!string.IsNullOrEmpty(this.ModuleFullName))
-            filter.ResourceSet = this.ModuleFullName;
-        else
-            filter.ResourceSet = DropModuleTypesFilter.SelectedValue;
+		if (!string.IsNullOrEmpty(this.ModuleFullName))
+			filter.ResourceSet = this.ModuleFullName;
+		else
+			filter.ResourceSet = DropModuleTypesFilter.SelectedValue;
 
-        var res = new List<ResLabelTrans>();
-        var list = man.GetLabelTransByFilter(filter, "");
+		var res = new List<ResLabelTrans>();
+		var list = man.GetLabelTransByFilter(filter, "");
 
 
-        var missingValuesFilter = (MissingFilterEnum)int.Parse(DropMissingFilter.SelectedValue);
-        if (missingValuesFilter == MissingFilterEnum.MissingValues
-            || TxtValuesStartsWithFilter.Text.Length > 0
-            || TxtValuesContainsFilter.Text.Length > 0)
-        {
-            //filter list with missing values
-            foreach (var item in list)
-            {
-                var labelList = new List<ResLabel>();
-                var lblman = new LabelsManager();
-                var lfilter = new LabelsFilter();
-                lfilter.ResourceSet = item.ResourceSet;
-                lfilter.ResourceId = item.ResourceId;
-                labelList = lblman.GetByFilter(lfilter, "");
+		var missingValuesFilter = (MissingFilterEnum)int.Parse(DropMissingFilter.SelectedValue);
+		if (missingValuesFilter == MissingFilterEnum.MissingValues
+			|| TxtValuesStartsWithFilter.Text.Length > 0
+			|| TxtValuesContainsFilter.Text.Length > 0)
+		{
+			//filter list with missing values
+			foreach (var item in list)
+			{
+				var labelList = new List<ResLabel>();
+				var lblman = new LabelsManager();
+				var lfilter = new LabelsFilter();
+				lfilter.ResourceSet = item.ResourceSet;
+				lfilter.ResourceId = item.ResourceId;
+				labelList = lblman.GetByFilter(lfilter, "");
 
-                //match vars init
-                bool hasMissingValuesMatch = false;
-                bool startsWithValueMatch = false;
-                bool containsValueMatch = false;
+				//match vars init
+				bool hasMissingValuesMatch = false;
+				bool startsWithValueMatch = false;
+				bool containsValueMatch = false;
 
-                if (missingValuesFilter != MissingFilterEnum.MissingValues)
-                    hasMissingValuesMatch = true;
+				if (missingValuesFilter != MissingFilterEnum.MissingValues)
+					hasMissingValuesMatch = true;
 
-                if (TxtValuesStartsWithFilter.Text.Length == 0)
-                    startsWithValueMatch = true;
+				if (TxtValuesStartsWithFilter.Text.Length == 0)
+					startsWithValueMatch = true;
 
-                if (TxtValuesContainsFilter.Text.Length == 0)
-                    containsValueMatch = true;
+				if (TxtValuesContainsFilter.Text.Length == 0)
+					containsValueMatch = true;
 
-                foreach (var culture in this.CultureList)
-                {
-                    ResLabel label = labelList.FirstOrDefault(
-                        s => s.CultureName == culture.CultureCode);
+				foreach (var culture in this.CultureList)
+				{
+					ResLabel label = labelList.FirstOrDefault(
+						s => s.CultureName == culture.CultureCode);
 
-                    if (label == null)
-                        label = new ResLabel();
+					if (label == null)
+						label = new ResLabel();
 
-                    //missing values filter
-                    if (!hasMissingValuesMatch && missingValuesFilter == MissingFilterEnum.MissingValues)
-                    {
-                        if (string.IsNullOrEmpty(label.Value))
-                            hasMissingValuesMatch = true;
-                    }
+					//missing values filter
+					if (!hasMissingValuesMatch && missingValuesFilter == MissingFilterEnum.MissingValues)
+					{
+						if (string.IsNullOrEmpty(label.Value))
+							hasMissingValuesMatch = true;
+					}
 
-                    //startsWith value filter
-                    if (!startsWithValueMatch && TxtValuesStartsWithFilter.Text.Length > 0)
-                    {
-                        if (label.Value.StartsWith(TxtValuesStartsWithFilter.Text, StringComparison.InvariantCultureIgnoreCase))
-                            startsWithValueMatch = true;
-                    }
+					//startsWith value filter
+					if (!startsWithValueMatch && TxtValuesStartsWithFilter.Text.Length > 0)
+					{
+						if (label.Value.StartsWith(TxtValuesStartsWithFilter.Text, StringComparison.InvariantCultureIgnoreCase))
+							startsWithValueMatch = true;
+					}
 
-                    //contains value filter
-                    if (!containsValueMatch && TxtValuesContainsFilter.Text.Length > 0)
-                    {
-                        if (label.Value.IndexOf(TxtValuesContainsFilter.Text, 0, StringComparison.InvariantCultureIgnoreCase) != -1)
-                            containsValueMatch = true;
-                    }
-                }
+					//contains value filter
+					if (!containsValueMatch && TxtValuesContainsFilter.Text.Length > 0)
+					{
+						if (label.Value.IndexOf(TxtValuesContainsFilter.Text, 0, StringComparison.InvariantCultureIgnoreCase) != -1)
+							containsValueMatch = true;
+					}
+				}
 
-                //add to results
-                if (hasMissingValuesMatch && startsWithValueMatch && containsValueMatch)
-                    res.Add(item);
-            }
-        }
-        else
-        {
-            //no additional filters
-            res = list;
-        }
-        
-		if (!string.IsNullOrEmpty(this.ModuleFullNamePart) 
+				//add to results
+				if (hasMissingValuesMatch && startsWithValueMatch && containsValueMatch)
+					res.Add(item);
+			}
+		}
+		else
+		{
+			//no additional filters
+			res = list;
+		}
+
+		if (!string.IsNullOrEmpty(this.ModuleFullNamePart)
 			&& DropModuleTypesFilter.SelectedValue == "")
 		{
 			//filter all labels with
 			res = res.FindAll(x => x.ResourceSet.StartsWith(this.ModuleFullNamePart, StringComparison.InvariantCultureIgnoreCase));
-		}        
+		}
+		return res;
+	}
 
-        grid.DataSource = res;
-        grid.DataBind();
+    //load labels grid with current filter
+    private void loadList()
+    {
+		var list = getCurrentList();
+		var ds = new PagedDataSource();
+		ds.DataSource = list;
+		ds.AllowPaging = true;
+		ds.PageSize = base.ListPageSize;
+		ds.CurrentPageIndex = base.ListCurrentPage;
+
+		RepPaging.Visible = false;
+		if (ds.PageCount > 1)
+		{
+			RepPaging.Visible = true;
+			ArrayList pages = new ArrayList();
+			for (int i = 0; i <= ds.PageCount - 1; i++)
+			{
+				pages.Add((i + 1).ToString());
+			}
+			RepPaging.DataSource = pages;
+			RepPaging.DataBind();
+		}
+
+		Rep1.DataSource = ds;
+		Rep1.DataBind();
     }
 
     private void getTransArea(string panelPrefix, Panel panel,
@@ -1244,8 +1281,13 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         ContentEditorProvider.Configuration editorConfig,
         KeyValuePair<string, string> cultureItem)
     {
+		var lit = new Literal();
+		lit.Text = "<span class='lang-description'>- <i>" + cultureItem.Value + "</i> -</span>";
+		panel.Controls.Add(lit);
+
         var txt = (Controls_ContentEditorControl)LoadControl("~/Controls/ContentEditorControl.ascx");
         txt.ID = panelPrefix + cultureItem.Value;
+		
         txt.Configuration = editorConfig;
 
         LabelsProvider.SetLocalizedControlVisibility(false/*this.ShowOnlyDefaultCulture*/, cultureItem.Key, txt);
@@ -1257,7 +1299,7 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
             //add fileupload fake button
             var litUpload = new Literal();
             litUpload.Text = @"<input type='button'  value='Select file' "
-            + " id='BtnUpload_" + panelPrefix + cultureItem.Value + "' class='btn btn-default btn-xs action-uploadalias'"
+            + " id='BtnUpload_" + panelPrefix + cultureItem.Value + "' class='button action-uploadalias'"
             + " onclick='document.getElementById(\"" + File1.ClientID + "_ctl02\").click(); var id = $(this).prevAll().eq(1).get(0).id; var box = \"#langBox\"; $(box).val(id); console.log(id)'>";
             panel.Controls.Add(litUpload);
         }
@@ -1265,11 +1307,6 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         {
             plhOnlyInImg.Visible = false;
         }
-
-        Literal lit = new Literal();
-        lit.Text = "&nbsp;[<i>" + cultureItem.Value + "</i>]";
-        lit.Text += "<br /><br />";
-        panel.Controls.Add(lit);
 
     }
 
@@ -1283,6 +1320,7 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         editorConfig.FilesUploadUrl = "";
         editorConfig.PageBreakButton = false;
         editorConfig.ReadMoreButton = false;
+		editorConfig.CssClass = "form-control";
         ContentEditorProvider.InitEditor(this, Upd1, editorConfig);
 
         PanelValue.Controls.Clear();
@@ -1313,7 +1351,7 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         }
         catch (Exception e1)
         {
-            LblErr.Text = Utility.GetLabel("RECORD_ERR_MSG") + "<br />" + e1.ToString();
+            LblErrInsert.Text = LblErrSee.Text = Utility.GetLabel("RECORD_ERR_MSG") + "<br />" + e1.ToString();
         }
         finally { }
     }
@@ -1344,6 +1382,21 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         return resId;
     }
 
+	private void showPanel(int panelId)
+	{
+		bool toShow = (panelId == PANEL_INS_IDX || panelId == PANEL_IMP_IDX);
+
+		PigeonCms.Utility.Script.RegisterStartupScript(Upd1, "bodyBlocked", "bodyBlocked(" + toShow.ToString().ToLower() + ");");
+
+		//PanelSee.Visible = false;
+		PanelInsert.Visible = false;
+		PanelImport.Visible = false;
+
+		if (panelId == PANEL_INS_IDX)
+			PanelInsert.Visible = true;
+		else if (panelId == PANEL_IMP_IDX)
+			PanelImport.Visible = true;
+	}
 
 
     //remove user data in current section
@@ -1430,42 +1483,43 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         return res;
     }
 
+	//TODO
     /// <summary>
     /// prepare grid format for excel export 
     /// </summary>
-    private GridView prepareGridForExport(GridView ctrl)
-    {
-        ctrl.AllowPaging = false;
-        ctrl.AllowSorting = false;
-        loadGrid(ctrl);
+	//private GridView prepareGridForExport(GridView ctrl)
+	//{
+	//	ctrl.AllowPaging = false;
+	//	ctrl.AllowSorting = false;
+	//	loadGrid(ctrl);
 
-        ctrl.Columns[COL_RESSET].HeaderText = "ResourceSet";
-        ctrl.Columns[COL_RESID].HeaderText = "ResourceId";
+	//	ctrl.Columns[COL_RESSET].HeaderText = "ResourceSet";
+	//	ctrl.Columns[COL_RESID].HeaderText = "ResourceId";
 
 
-        ctrl.Columns[COL_SELECT].Visible = false;
-        ctrl.Columns[COL_RESSET].Visible = true;
-        ctrl.Columns[COL_RESID].Visible = true;
-        ctrl.Columns[COL_TEXTMODE].Visible = false;
-        ctrl.Columns[COL_VALUES].Visible = false;
-        ctrl.Columns[COL_DELETE].Visible = false;
-        //values splitted per lang
-        ctrl.Columns[COL_VALUE_1].Visible = true;
-        ctrl.Columns[COL_VALUE_2].Visible = true;
-        ctrl.Columns[COL_VALUE_3].Visible = true;
-        ctrl.Columns[COL_VALUE_4].Visible = true;
-        ctrl.Columns[COL_VALUE_5].Visible = true;
+	//	ctrl.Columns[COL_SELECT].Visible = false;
+	//	ctrl.Columns[COL_RESSET].Visible = true;
+	//	ctrl.Columns[COL_RESID].Visible = true;
+	//	ctrl.Columns[COL_TEXTMODE].Visible = false;
+	//	ctrl.Columns[COL_VALUES].Visible = false;
+	//	ctrl.Columns[COL_DELETE].Visible = false;
+	//	//values splitted per lang
+	//	ctrl.Columns[COL_VALUE_1].Visible = true;
+	//	ctrl.Columns[COL_VALUE_2].Visible = true;
+	//	ctrl.Columns[COL_VALUE_3].Visible = true;
+	//	ctrl.Columns[COL_VALUE_4].Visible = true;
+	//	ctrl.Columns[COL_VALUE_5].Visible = true;
 
-        return ctrl;
-    }
+	//	return ctrl;
+	//}
 
 
 
 
     private void selectAll(bool enabled)
     {
-        LblErr.Text = "";
-        LblOk.Text = "";
+        LblErrSee.Text = "";
+        LblOkSee.Text = "";
 
         try
         {
@@ -1484,7 +1538,7 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
         }
         catch (Exception e1)
         {
-            LblErr.Text = RenderError(e1.Message);
+            LblErrSee.Text = RenderError(e1.Message);
         }
         finally
         {
@@ -1532,7 +1586,7 @@ public partial class Controls_Default : PigeonCms.BaseModuleControl
                 var label = new ResLabel();
                 var labelList = new List<ResLabel>();
                 int colValue_idx = 0;
-                var drop = Utility.FindControlRecursive<DropDownList>(ViewImport, "DropColValue" + i.ToString());
+                var drop = Utility.FindControlRecursive<DropDownList>(PanelImport, "DropColValue" + i.ToString());
                 int.TryParse(drop.SelectedValue, out colValue_idx);
                 
                 string labelValue = item.Columns[colValue_idx];

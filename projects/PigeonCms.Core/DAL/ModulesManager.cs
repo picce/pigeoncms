@@ -219,7 +219,7 @@ namespace PigeonCms
                 theObj.UserUpdated = PgnUserCurrent.UserName;
 
                 sSql = "UPDATE [" + this.TableName + "] "
-                + " SET Content=@Content, Ordering=@Ordering, "
+                + " SET Title=@Title, Content=@Content, Ordering=@Ordering, "
                 + " TemplateBlockName=@TemplateBlockName, Published=@Published, "
                 + " ModuleName=@ModuleName, ModuleNamespace=@ModuleNamespace, "
                 + " DateUpdated=@DateUpdated, UserUpdated=@UserUpdated, AccessType=@AccessType, "
@@ -234,7 +234,7 @@ namespace PigeonCms
                 myCmd.CommandText = Database.ParseSql(sSql);
                 myCmd.Parameters.Clear();
                 myCmd.Parameters.Add(Database.Parameter(myProv, "Id", theObj.Id));
-                //myCmd.Parameters.Add(Database.Parameter(myProv, "Title", theObj.Title));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "Title", theObj.Name));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "Content", theObj.Content));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "Ordering", theObj.Ordering));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "TemplateBlockName", theObj.TemplateBlockName));
@@ -316,13 +316,13 @@ namespace PigeonCms
                 result.UserUpdated = PgnUserCurrent.UserName;
 
                 sSql = "INSERT INTO [" + this.TableName + "] "
-                    + " (Id, Content, Ordering, TemplateBlockName, Published, "
+                    + " (Id, Title, Content, Ordering, TemplateBlockName, Published, "
                     + " ModuleName, ModuleNamespace, DateInserted, UserInserted, "
                     + " DateUpdated, UserUpdated, AccessType, ShowTitle, ModuleParams, IsCore, "
                     + " MenuSelection, CurrView, PermissionId, AccessCode, AccessLevel, "
                     + " CssFile, CssClass, UseCache, UseLog, DirectEditMode, "
                     + " WriteAccessType, WritePermissionId, WriteAccessCode, WriteAccessLevel, SystemMessagesTo) "
-                    + " VALUES(@Id, @Content, @Ordering, @TemplateBlockName, @Published, "
+                    + " VALUES(@Id, @Title, @Content, @Ordering, @TemplateBlockName, @Published, "
                     + " @ModuleName, @ModuleNamespace, @DateInserted, @UserInserted, "
                     + " @DateUpdated, @UserUpdated, @AccessType, @ShowTitle, @ModuleParams, @IsCore, "
                     + " @MenuSelection, @CurrView, @PermissionId, @AccessCode, @AccessLevel, "
@@ -331,8 +331,8 @@ namespace PigeonCms
                 myCmd.CommandText = Database.ParseSql(sSql);
 
                 myCmd.Parameters.Add(Database.Parameter(myProv, "Id", result.Id));
-                //##20100412 not saved
-                //myCmd.Parameters.Add(Database.Parameter(myProv, "Title", result.Title));
+                
+                myCmd.Parameters.Add(Database.Parameter(myProv, "Title", result.Name));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "Content", result.Content));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "Ordering", result.Ordering));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "TemplateBlockName", result.TemplateBlockName));
@@ -444,7 +444,7 @@ namespace PigeonCms
             if (!Convert.IsDBNull(myRd["Id"]))
                 result.Id = (int)myRd["Id"];
             if (!Convert.IsDBNull(myRd["Title"]))
-                result.TitleOld = (string)myRd["Title"];
+                result.Name = (string)myRd["Title"];
             if (!Convert.IsDBNull(myRd["Content"]))
                 result.Content = (string)myRd["Content"];
             if (!Convert.IsDBNull(myRd["Ordering"]))

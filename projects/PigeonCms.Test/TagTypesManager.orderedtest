@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<OrderedTest name="TagTypesManager" storage="c:\inetpub\wwwroot\pigeoncms\code\projects\pigeoncms.test\tagtypesmanager.orderedtest" id="4bce6278-9147-4a6d-948a-24b70d5e4f63" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+<OrderedTest name="tagtypesmanager" storage="c:\dev\web\pigeoncms\demo_site\pigeon\projects\pigeoncms.test\tagtypesmanager.orderedtest" id="d37b25ac-a5a3-4dfd-b266-753594e35eba" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
   <TestLinks>
     <TestLink id="5b8909a3-3315-2760-1dbf-4e8568f48397" name="InsertTest" storage="bin\debug\pigeoncms.test.dll" type="Microsoft.VisualStudio.TestTools.TestTypes.Unit.UnitTestElement, Microsoft.VisualStudio.QualityTools.Tips.UnitTest.ObjectModel, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
     <TestLink id="e60a2d6b-0100-085e-085e-6c38e0645677" name="GetByFilterTest" storage="bin\debug\pigeoncms.test.dll" type="Microsoft.VisualStudio.TestTools.TestTypes.Unit.UnitTestElement, Microsoft.VisualStudio.QualityTools.Tips.UnitTest.ObjectModel, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />

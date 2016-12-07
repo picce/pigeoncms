@@ -35,7 +35,7 @@ namespace PigeonCms
         private ApplicationManager<string> appCache;
         private PigeonCms.Module fakeModule;
 
-        public AppSettingsProvider(string keySet)
+		public AppSettingsProvider(string keySet = "PigeonCms.Core")
         {
             if (string.IsNullOrEmpty(keySet))
                 throw new ArgumentException("Missing KeySet", "keySet");

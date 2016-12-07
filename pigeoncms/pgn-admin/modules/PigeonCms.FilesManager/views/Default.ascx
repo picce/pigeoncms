@@ -15,8 +15,7 @@
     var deleteQuestion = '<%=PigeonCms.Utility.GetLabel("RECORD_DELETE_QUESTION") %>';
 </script>
 
-<cc1:ToolkitScriptManager ID="ScriptManager1" runat="server" EnablePageMethods="true"></cc1:ToolkitScriptManager>
-<%--<asp:ScriptManager ID="ScriptManager1" runat="server" EnablePageMethods="false"></asp:ScriptManager>--%>
+<asp:ScriptManager runat="server" EnablePageMethods="false"></asp:ScriptManager>
 <asp:UpdateProgress ID="UpdateProgress1" runat="server" DisplayAfter="1" AssociatedUpdatePanelID="Upd1">
     <ProgressTemplate>
         <div class="loading"><%=PigeonCms.Utility.GetLabel("LblLoading", "loading") %></div>
@@ -102,6 +101,7 @@
     </asp:View>
     
     <asp:View ID="ViewInsert" runat="server">
+		
         <div class="adminToolbar">
             <asp:Button ID="BtnSave" runat="server" Text="<%$ Resources:PublicLabels, CmdSave %>" CssClass="button" OnClientClick="MyObject.UpdateEditorFormValue();" OnClick="BtnSave_Click" />
             <asp:Button ID="BtnCancel" runat="server" Text="<%$ Resources:PublicLabels, CmdCancel %>" CssClass="button" OnClick="BtnCancel_Click" />
