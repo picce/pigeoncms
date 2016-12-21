@@ -12,7 +12,8 @@ using System.Web.UI.WebControls.WebParts;
 using System.Collections.Generic;
 using PigeonCms;
 
-public partial class Controls_SeoControl : PigeonCms.BaseModuleControl
+
+public partial class Controls_SeoControl : PigeonCms.Controls.SeoControl
 {
 	public bool ShowOnlyDefaultCulture { get; set; }
 
@@ -72,7 +73,7 @@ public partial class Controls_SeoControl : PigeonCms.BaseModuleControl
     {
     }
 
-    public void ClearForm()
+	public override void ClearForm()
     {
 
 		ChkNoFollow.Checked = false;
@@ -90,7 +91,7 @@ public partial class Controls_SeoControl : PigeonCms.BaseModuleControl
 		}
     }
 
-    public void Form2obj(ITableWithSeo obj)
+	public override void Form2obj(ITableWithSeo obj)
     {
 		obj.Seo.NoFollow = ChkNoFollow.Checked;
 		obj.Seo.NoIndex = ChkNoIndex.Checked;
@@ -109,7 +110,7 @@ public partial class Controls_SeoControl : PigeonCms.BaseModuleControl
 		}
     }
 
-    public void Obj2form(ITableWithSeo obj)
+	public override void Obj2form(ITableWithSeo obj)
     {
 		ChkNoFollow.Checked = obj.Seo.NoFollow;
 		ChkNoIndex.Checked = obj.Seo.NoIndex;

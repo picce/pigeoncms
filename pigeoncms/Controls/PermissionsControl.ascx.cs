@@ -12,7 +12,7 @@ using System.Web.UI.WebControls.WebParts;
 using System.Collections.Generic;
 using PigeonCms;
 
-public partial class Controls_PermissionsControl : PigeonCms.BaseModuleControl
+public partial class Controls_PermissionsControl : PigeonCms.Controls.PermissionsControl
 {
     protected new void Page_Init(object sender, EventArgs e)
     {
@@ -32,7 +32,7 @@ public partial class Controls_PermissionsControl : PigeonCms.BaseModuleControl
     {
     }
 
-    public void ClearForm()
+	public override void ClearForm()
     {
         LitId.Text = "";
         LitWriteId.Text = "";
@@ -44,7 +44,7 @@ public partial class Controls_PermissionsControl : PigeonCms.BaseModuleControl
         TxtWriteAccessLevel.Text = "";
     }
 
-    public void Form2obj(ITableWithPermissions obj)
+	public override void Form2obj(ITableWithPermissions obj)
     {
         int acccessLevel = 0;
         int.TryParse(TxtAccessLevel.Text, out acccessLevel);
@@ -77,7 +77,7 @@ public partial class Controls_PermissionsControl : PigeonCms.BaseModuleControl
         }
     }
 
-    public void Obj2form(ITableWithPermissions obj)
+	public override void Obj2form(ITableWithPermissions obj)
     {
         LitId.Text = obj.ReadPermissionId.ToString();
         LitWriteId.Text = obj.WritePermissionId.ToString();

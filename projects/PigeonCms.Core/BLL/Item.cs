@@ -60,10 +60,9 @@ namespace PigeonCms
         }
     }
 
+
     [DebuggerDisplay("Id={id}, ExtId={extId}, Alias={Alias}")]
-    public class Item: ITableWithPermissions,
-        ITableWithOrdering, ITableWithComments, 
-		ITableExternalId, ITableWithSeo
+    public class Item: IItem
     {
         const string DefaultItemType = "PigeonCms.Item";
 
@@ -963,6 +962,13 @@ namespace PigeonCms
 
         public Item(){}
 
+		public ITableManager<IItem, IItemsFilter, int> MyManager(bool checkUserContext = false, bool writeMode = false)
+		{
+			var man = new ItemsManager<Item, ItemsFilter>(checkUserContext, writeMode);
+			var iman = (ITableManager<IItem, IItemsFilter, int>)man;
+			return iman;
+		}
+
         /// <summary>
         /// delete images folder content
         /// </summary>
@@ -1150,7 +1156,7 @@ namespace PigeonCms
 
 
     [Serializable]
-    public class ItemsFilter : ITableExternalId
+    public class ItemsFilter : IItemsFilter
     {
         #region fields definition
 

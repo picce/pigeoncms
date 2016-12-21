@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -10,12 +10,13 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>PigeonCms.Core</RootNamespace>
     <AssemblyName>PigeonCms.Core</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <OldToolsVersion>3.5</OldToolsVersion>
     <UpgradeBackupLocation />
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -25,6 +26,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -33,8 +35,13 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ImageResizer, Version=4.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\ImageResizer.4.0.5\lib\net45\ImageResizer.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\pigeoncms\Bin\Newtonsoft.Json.dll</HintPath>
@@ -54,6 +61,7 @@
     <Reference Include="System.Web.Abstractions">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Web.ApplicationServices" />
     <Reference Include="System.Web.Extensions">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
@@ -84,6 +92,8 @@
     <Compile Include="BLL\AttributeValue.cs" />
     <Compile Include="BLL\FormField.cs" />
     <Compile Include="BLL\Comment.cs" />
+    <Compile Include="BLL\IItem.cs" />
+    <Compile Include="BLL\IItemsFilter.cs" />
     <Compile Include="BLL\Seo.cs" />
     <Compile Include="BLL\ItemAttributeValue.cs" />
     <Compile Include="BLL\Geo\Zone.cs" />
@@ -97,6 +107,16 @@
     <Compile Include="BLL\CustomDataType.cs" />
     <Compile Include="BLL\LogItem.cs" />
     <Compile Include="BLL\Label.cs" />
+    <Compile Include="Controls\ItemParamsControl.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\IContentEditorControl.cs" />
+    <Compile Include="Controls\SeoControl.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\PermissionsControl.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
     <Compile Include="Controls\TreeViewLinks.cs" />
     <Compile Include="Controls\Image.cs" />
     <Compile Include="Controls\Label.cs" />
@@ -142,6 +162,8 @@
     <Compile Include="BLL\CustomException.cs" />
     <Compile Include="BaseClasses\FilesGallery.cs" />
     <Compile Include="Helpers\CookiesManager.cs" />
+    <Compile Include="Helpers\ItemsProxy.cs" />
+    <Compile Include="Helpers\ItemsAdminHelper.cs" />
     <Compile Include="Helpers\RedirHelper.cs" />
     <Compile Include="Helpers\FilesHelper.cs" />
     <Compile Include="Helpers\ApplicationManager.cs" />
@@ -174,6 +196,9 @@
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Modules\PigeonCms.FileUpload\FileUploadModernProvider.cs" />
+    <Compile Include="Modules\PigeonCms.Items\AutoLayoutItemsAdminControl.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
     <Compile Include="Modules\PigeonCms.Items\ItemsAdminControl.cs">
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
@@ -256,7 +281,9 @@
       <Name>PigeonCms.Core.Offline</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

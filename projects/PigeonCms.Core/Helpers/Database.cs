@@ -1,3 +1,12 @@
+/***************************************************
+PigeonCms - Open source Content Management System 
+https://github.com/picce/pigeoncms
+Copyright © 2017 Nicola Ridolfi - picce@yahoo.it
+version: 2.0.0
+Licensed under the terms of "GNU General Public License v3"
+For the full license text see license.txt or
+visit "http://www.gnu.org/licenses/gpl.html"
+***************************************************/
 using System;
 using System.Configuration;
 using System.Data;
@@ -404,7 +413,8 @@ namespace PigeonCms
     /// <typeparam name="F">BLL filter class</typeparam>
     /// <typeparam name="K">type of key class</typeparam>
     [DataObject()]
-    public class TableManager<T,F,Kkey> where T: PigeonCms.ITable
+    public class TableManager<T,F,Kkey> : 
+		ITableManager<T,F,Kkey> where T: PigeonCms.ITable
     {
         #region fields
         private string tableName = "";
@@ -465,81 +475,6 @@ namespace PigeonCms
         public virtual List<T> GetByFilter(F filter, string sort)
         {
             throw new NotImplementedException();    //to complete
-
-            //Type t = typeof(F);
-            //PropertyInfo[] props = t.GetProperties();
-
-            //DbProviderFactory myProv = Database.ProviderFactory;
-            //DbConnection myConn = myProv.CreateConnection();
-            //DbDataReader myRd = null;
-            //DbCommand myCmd = myConn.CreateCommand();
-            //string sSql;
-            //List<T> result = new List<T>();
-
-            //try
-            //{
-            //    myConn.ConnectionString = Database.ConnString;
-            //    myConn.Open();
-            //    myCmd.Connection = myConn;
-
-            //    sSql = "SELECT [" + this.KeyFieldName + "] FROM [" + this.TableName + "] t "
-            //    + " WHERE [" + this.KeyFieldName + "] > 0 ";
-
-            //    foreach (PropertyInfo prop in props)
-            //    {
-            //        DataObjectFieldAttribute[] attrs = (DataObjectFieldAttribute[])prop.GetCustomAttributes(typeof(DataObjectFieldAttribute), true);
-            //        if (attrs.Length > 0)
-            //        {
-            //            //switch (attrs[0].GetType().)
-            //            //{
-            //            //    case Type.
-            //            //    default:
-            //            //}
-            //            if (attrs[0].PrimaryKey)
-            //            {
-            //                if ((int)prop.GetValue(filter, null) > 0 || (int)prop.GetValue(filter, null) == -1)
-            //                {
-            //                    sSql += " AND ["+ prop.Name +"] = @RecordId ";
-            //                    myCmd.Parameters.Add(Database.Parameter(myProv, "RecordId", (int)prop.GetValue(filter, null)));
-            //                }
-            //            }
-            //        }
-
-            //        //if (!string.IsNullOrEmpty(filter.Nome))
-            //        //{
-            //        //    sSql += " AND t.Nome = @Nome ";
-            //        //    myCmd.Parameters.Add(Database.Parameter(myProv, "Nome", filter.Nome));
-            //        //}
-            //        //if (filter.Visible != Utility.TristateBool.NotSet)
-            //        //{
-            //        //    sSql += " AND t.Visible = @Visible ";
-            //        //    myCmd.Parameters.Add(Database.Parameter(myProv, "Visible", filter.Visible));
-            //        //} 
-            //    }
-
-            //    if (!string.IsNullOrEmpty(sort))
-            //    {
-            //        sSql += " ORDER BY " + sort;
-            //    }
-            //    else
-            //    {
-            //        sSql += " ORDER BY OrderId ";
-            //    }
-
-            //    myCmd.CommandText = Database.ParseSql(sSql);
-            //    myRd = myCmd.ExecuteReader();
-            //    while (myRd.Read())
-            //    {
-            //        T item = GetById((Kkey)myRd[this.KeyFieldName]);
-            //        result.Add(item);
-            //    }
-            //    myRd.Close();
-            //}
-            //finally
-            //{
-            //    myConn.Dispose();
-            //}
-            //return result;
         }
 
         [DataObjectMethod(DataObjectMethodType.Select, false)]
@@ -738,13 +673,6 @@ namespace PigeonCms
 
     public interface ITableManager
     {
-        //*** not implemented
-
-        //int DeleteById(int recordId);
-        //int Update(ITableObject theObj);
-        //ITableObject Insert(ITableObject newObj);
-        //List<ITable> GetByFilter(F filter, string sort);
-        //ITableObject GetById();
     }
 
     public interface ITableManagerWithPermission: ITable
@@ -759,4 +687,16 @@ namespace PigeonCms
         T GetByExtId(string extId);
         int DeleteByExtId(string extId);
     }
+
+	public interface ITableManager<T, F, Kkey> where T : PigeonCms.ITable
+	{
+		int DeleteById(Kkey recordId);
+		System.Collections.Generic.List<T> GetByFilter(F filter, string sort);
+		T GetByKey(Kkey id);
+		System.Collections.Generic.Dictionary<string, string> GetList();
+		T Insert(T newObj);
+		string KeyFieldName { get; set; }
+		string TableName { get; set; }
+		int Update(T theObj);
+	}
 }

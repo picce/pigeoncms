@@ -1010,6 +1010,65 @@ namespace PigeonCms
             }
         }
 
+		/// <summary>
+		/// useful methods to find controls in page with recursive mode
+		/// </summary>
+		public class Controls
+		{
+			/// <summary>
+			/// Generic Recursive overload of Page.FindControl
+			/// </summary>
+			/// <typeparam name="T">type of the control</typeparam>
+			/// <param name="parentControl">root control</param>
+			/// <param name="id">Cotrol Id identifier</param>
+			/// <returns></returns>
+			public static T FindControlRecursive<T>(Control parentControl, string id) where T : Control
+			{
+				T ctrl = default(T);
+
+				if ((parentControl is T) && (parentControl.ID == id))
+					return (T)parentControl;
+
+				foreach (Control c in parentControl.Controls)
+				{
+					ctrl = FindControlRecursive<T>(c, id);
+					if (ctrl != null) break;
+				}
+				return ctrl;
+			}
+
+			private static Control FindControlRecursive(Control parentControl, string id)
+			{
+				return FindControlRecursive<Control>(parentControl, id);
+			}
+
+			//@robertosartori
+			public static IEnumerable<T> FindChildControlRecursive<T>(Control root) where T : Control
+			{
+				foreach (Control c in root.Controls)
+				{
+					if (typeof(T).IsAssignableFrom(c.GetType()))
+						yield return (T)c;
+
+					foreach (Control r in FindChildControlRecursive<T>(c))
+						yield return (T)c;
+				}
+			}
+
+			//@robertosartori
+			public static IEnumerable<Control> FindChildControlRecursiveByTypeName(Control root, string typeName)
+			{
+				foreach (Control c in root.Controls)
+				{
+					if (c.GetType().Name == typeName)
+						yield return c;
+
+					foreach (Control r in FindChildControlRecursiveByTypeName(c, typeName))
+						yield return c;
+				}
+			}
+		}
+
         /// <summary>
         /// Reference Article http://www.codeproject.com/KB/tips/SerializedObjectCloner.aspx
         /// Provides a method for performing a deep copy of an object.
@@ -1310,6 +1369,7 @@ namespace PigeonCms
             return res;
         }
 
+		[Obsolete("Uses LabelsProvider or BasePage/EngineBasePage methods")]
         public static string GetLabel(string stringKey)
         {
             string res = "";
@@ -1321,6 +1381,7 @@ namespace PigeonCms
             return res;
         }
 
+		[Obsolete("Uses LabelsProvider or BasePage/EngineBasePage methods")]
         public static string GetLabel(string stringKey, string defaultValue)
         {
             string res = GetLabel(stringKey);
@@ -1329,11 +1390,13 @@ namespace PigeonCms
             return res;
         }
 
+		[Obsolete("Uses LabelsProvider or BasePage/EngineBasePage methods")]
         public static string GetLabel(string stringKey, string defaultValue, Control targetControl)
         {
             return GetLabel(stringKey, defaultValue, targetControl, "");
         }
 
+		[Obsolete("Uses LabelsProvider or BasePage/EngineBasePage methods")]
         public static string GetLabel(string stringKey, string defaultValue, Control targetControl, string title)
         {
             if (!string.IsNullOrEmpty(title))
@@ -1347,6 +1410,7 @@ namespace PigeonCms
             return res;
         }
 
+		[Obsolete("Uses LabelsProvider or BasePage/EngineBasePage methods")]
         public static string GetErrorLabel(string stringKey, string defaultValue)
         {
             string res = GetLabel("Err" + stringKey);
@@ -1687,32 +1751,12 @@ namespace PigeonCms
             return result;
         }
 
-        /// <summary>
-        /// Generic Recursive overload of Page.FindControl
-        /// </summary>
-        /// <typeparam name="T">type of the control</typeparam>
-        /// <param name="parentControl">root control</param>
-        /// <param name="id">Cotrol Id identifier</param>
-        /// <returns></returns>
+		[Obsolete("This method is now a wrapper for Utility.Controls.FindControlRecursive<T>")]
         public static T FindControlRecursive<T>(Control parentControl, string id) where T: Control
         {
-            T ctrl = default(T);
-
-            if ((parentControl is T) && (parentControl.ID == id))
-                return (T)parentControl;
-
-            foreach (Control c in parentControl.Controls)
-            {
-                ctrl = FindControlRecursive<T>(c, id);
-                if (ctrl != null) break;
-            }
-            return ctrl;
+			return Utility.Controls.FindControlRecursive<T>(parentControl, id);
         }
 
-        private static Control FindControlRecursive(Control parentControl, string id)
-        {
-            return FindControlRecursive<Control>(parentControl, id);
-        }
 
         public enum TristateBool
         {

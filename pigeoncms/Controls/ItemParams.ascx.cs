@@ -12,9 +12,10 @@ using System.Web.UI.WebControls.WebParts;
 using PigeonCms;
 using System.Collections.Generic;
 
-public partial class Controls_ItemParams : PigeonCms.BaseModuleControl
+
+public partial class Controls_ItemParams : PigeonCms.Controls.ItemParamsControl
 {
-    public string Title
+	public override string Title
     {
         get
         {
@@ -29,11 +30,7 @@ public partial class Controls_ItemParams : PigeonCms.BaseModuleControl
         set { ViewState["Title"] = value; }
     }
 
-    protected void Page_Load(object sender, EventArgs e)
-    {
-    }
-
-    public void ClearParams()
+	public override void ClearParams()
     {
         try
         {
@@ -48,7 +45,7 @@ public partial class Controls_ItemParams : PigeonCms.BaseModuleControl
     /// <summary>
     /// loads params list for current item
     /// </summary>
-    public void LoadParams(Item currentItem)
+	public override void LoadParams(Item currentItem)
     {
         PigeonCms.ItemType itemType = null;
         try
@@ -65,7 +62,7 @@ public partial class Controls_ItemParams : PigeonCms.BaseModuleControl
     /// <summary>
     /// loads fields list for current item
     /// </summary>
-    public void LoadFields(Item currentItem)
+	public override void LoadFields(Item currentItem)
     {
         FormBuilder.RenderParamsOnPanel(PanelParams, currentItem, null);
     }

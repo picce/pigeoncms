@@ -12,7 +12,9 @@ using System.Web.UI.WebControls.WebParts;
 using System.Collections.Generic;
 using PigeonCms;
 
-public partial class Controls_ContentEditorControl : PigeonCms.BaseModuleControl
+public partial class Controls_ContentEditorControl : 
+	PigeonCms.BaseModuleControl,
+	PigeonCms.Controls.IContentEditorControl
 {
     private ContentEditorProvider.Configuration configuration = new ContentEditorProvider.Configuration();
     public ContentEditorProvider.Configuration Configuration
