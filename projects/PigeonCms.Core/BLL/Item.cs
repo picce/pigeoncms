@@ -15,6 +15,9 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Web.Compilation;
 using System.Reflection;
+using Newtonsoft.Json;
+using System.Web.Script.Serialization;
+using Newtonsoft.Json.Linq;
 
 
 
@@ -63,8 +66,10 @@ namespace PigeonCms
 
     [DebuggerDisplay("Id={id}, ExtId={extId}, Alias={Alias}")]
     public class Item: IItem
-    {
-        const string DefaultItemType = "PigeonCms.Item";
+	{
+		#region private vars
+
+		const string DefaultItemType = "PigeonCms.Item";
 
         private string itemTypeName = "";
         private DateTime dateInserted;
@@ -123,10 +128,11 @@ namespace PigeonCms
         private string writeAccessCode = "";
         private int writeAccessLevel = 0;
 
+		#endregion
 
-        #region fields
+		#region fields
 
-        public virtual string ImagesPath
+		public virtual string ImagesPath
         {
             get { return "~/public/gallery/items/"; }
         }
@@ -958,10 +964,127 @@ namespace PigeonCms
 
         #endregion
 
-        #region methods
+		#region constructor
 
-        public Item(){}
+		//TODO set as attribute
+		private string propertiesColumnName;
 
+		public Item()
+		{
+			init(null);
+		}
+
+		public Item(string itemTypeName)
+		{
+			init(itemTypeName);
+		}
+
+		private void init(string itemTypeName)
+		{
+			if (!string.IsNullOrWhiteSpace(itemTypeName))
+			{
+				this.ItemTypeName = itemTypeName;
+			}
+			else
+			{
+				Type type = this.GetType();
+				ItemTypeName = string.Format("{0}.{1}", type.Namespace, type.Name);
+			}
+
+			//TODO set from attrobute
+			//example CustomString1, CustomString2, DB
+			this.propertiesColumnName = "CustomString1";
+		}
+
+		#endregion
+
+		#region Properties
+
+		private ItemPropertiesDefs properties;
+		public ItemPropertiesDefs Properties
+		{
+			get
+			{
+				if (properties == null)
+				{
+					properties = Reflection.CreateInstanceOfNestedType<ItemPropertiesDefs>(this);
+					try
+					{
+						JsonConvert.PopulateObject(PropertiesAsString, properties);
+					}
+					catch (Exception e)
+					{
+
+					}
+				}
+				return properties;
+			}
+			set
+			{
+				properties = value;
+			}
+		}
+
+		[ScriptIgnore]
+		public string PropertiesAsString
+		{
+			[DebuggerStepThrough()]
+			get
+			{
+				// Use switch to avoid reflection
+				switch (propertiesColumnName)
+				{
+					case "CustomString1": return CustomString1;
+					case "CustomString2": return CustomString2;
+					case "CustomString3": return CustomString3;
+					case "CustomString4": return CustomString4;
+					default: return "";
+				}
+			}
+
+			[DebuggerStepThrough()]
+			set
+			{
+				// Use switch to avoid reflection
+				switch (propertiesColumnName)
+				{
+					case "CustomString1": CustomString1 = value; break;
+					case "CustomString2": CustomString2 = value; break;
+					case "CustomString3": CustomString3 = value; break;
+					case "CustomString4": CustomString4 = value; break;
+				}
+			}
+		}
+
+		[ScriptIgnore]
+		public JObject ItemObject
+		{
+			get
+			{
+				return JObject.Parse(PropertiesAsString);
+			}
+		}
+
+		public string ToJson()
+		{
+			return new JavaScriptSerializer().Serialize(this);
+		}
+
+		public virtual void UpdatePropertiesStore()
+		{
+			PropertiesAsString = JsonConvert.SerializeObject(properties);
+		}
+
+		#endregion
+
+		#region methods
+
+		/// <summary>
+		/// create an instance of the manager that handle DAL of current item type
+		/// </summary>
+		/// <param name="checkUserContext"></param>
+		/// <param name="writeMode"></param>
+		/// <returns>item manager class instance</returns>
 		public ITableManager<IItem, IItemsFilter, int> MyManager(bool checkUserContext = false, bool writeMode = false)
 		{
 			var man = new ItemsManager<Item, ItemsFilter>(checkUserContext, writeMode);
@@ -1076,7 +1199,11 @@ namespace PigeonCms
             return res;
         }
 
-        private void setPropertyValue(PropertyInfo pi, string value)
+		#endregion
+
+		#region private methods
+
+		private void setPropertyValue(PropertyInfo pi, string value)
         {
             switch (pi.PropertyType.Name.ToLower())
             {
@@ -1120,9 +1247,9 @@ namespace PigeonCms
             return res;
         }
 
-        #endregion
+		#endregion
 
-        public class ItemComparer : IComparer<Item>
+		public class ItemComparer : IComparer<Item>
         {
             private string sortExpression = "";
             private SortDirection sortDirection;
@@ -1520,4 +1647,13 @@ namespace PigeonCms
         public int ItemId { get; set; }
         public int TagId { get; set; }
     }
+
+	public abstract class ItemPropertiesDefs
+	{
+		public override string ToString()
+		{
+			return ReflectionUtils.PropertiesToString(this);
+		}
+	}
+
 }

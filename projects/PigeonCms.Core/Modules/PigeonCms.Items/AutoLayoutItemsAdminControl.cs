@@ -7,6 +7,7 @@ using System.Web.UI.WebControls;
 using System.Web.UI;
 using PigeonCms.Controls;
 using System.Web;
+using System.Collections;
 
 namespace PigeonCms.Modules
 {
@@ -139,6 +140,24 @@ namespace PigeonCms.Modules
 			_ItemParams.Title = base.GetLabel("LblParameters", "Parameters", null, true);
 
 
+			//handle events
+			_DropNew.SelectedIndexChanged += DropNew_SelectedIndexChanged;
+			_DropEnabledFilter.SelectedIndexChanged += DropEnabledFilter_SelectedIndexChanged;
+			_DropSectionsFilter.SelectedIndexChanged += DropSectionsFilter_SelectedIndexChanged;
+			_DropCategoriesFilter.SelectedIndexChanged += DropCategoriesFilter_SelectedIndexChanged;
+			_DropItemTypesFilter.SelectedIndexChanged += DropItemTypesFilter_SelectedIndexChanged;
+
+			_Rep1.ItemDataBound += Rep1_ItemDataBound;
+			_Rep1.ItemCommand += Rep1_ItemCommand;
+
+			_RepPaging.ItemCommand += RepPaging_ItemCommand;
+			_RepPaging.ItemDataBound += RepPaging_ItemDataBound;
+
+			_BtnNew.Click += BtnNew_Click;
+			_BtnSave.Click += BtnSave_Click;
+			_BtnCancel.Click += BtnCancel_Click;
+
+
 			// Recreate form to handle control events and viewstate
 			// TODO: avoid on "list mode" postbacks
 			var genericItem = new ItemsProxy().GetByKey(CurrentId, this.CurrentItemType, true, true);
@@ -154,8 +173,10 @@ namespace PigeonCms.Modules
 			Page.Form.Attributes.Add("enctype", "multipart/form-data");
 		}
 
-		protected void Page_Load(object sender, EventArgs e)
+		protected override void OnLoad(EventArgs e)
 		{
+			base.OnLoad(e);
+
 			setSuccess("");
 			setError("");
 
@@ -173,13 +194,14 @@ namespace PigeonCms.Modules
 				loadDropSectionsFilter(base.SectionId);
 				{
 					int secId = -1;
-					int.TryParse(DropSectionsFilter.SelectedValue, out secId);
+					int.TryParse(_DropSectionsFilter.SelectedValue, out secId);
 					loadDropCategoriesFilter(secId);
 				}
 				loadDropsItemTypes();
 				loadList();
 			}
-			else
+
+			if (Page.IsPostBack)
 			{
 				//var partial = Upd1.IsInPartialRendering;
 
@@ -193,37 +215,43 @@ namespace PigeonCms.Modules
 				}
 
 
-				//reload params on every postback, because cannot manage dinamically fields
-				var currentItem = new PigeonCms.Item();
-				if (CurrentId > 0)
-				{
-					currentItem = new ItemsManager<Item, ItemsFilter>(true, true).GetByKey(CurrentId);
-					ItemParams1.LoadParams(currentItem);
-					ItemFields1.LoadFields(currentItem);
-				}
-				else
-				{
-					//manually set ItemType
-					try
-					{
-						currentItem.ItemTypeName = LitItemType.Text;
-						ItemParams1.LoadParams(currentItem);
-						ItemFields1.LoadFields(currentItem);
-					}
-					catch { }
-				}
+				////reload params on every postback, because cannot manage dinamically fields
+				//var currentItem = new PigeonCms.Item();
+				//if (CurrentId > 0)
+				//{
+				//	currentItem = new ItemsManager<Item, ItemsFilter>(true, true).GetByKey(CurrentId);
+				//	ItemParams1.LoadParams(currentItem);
+				//	ItemFields1.LoadFields(currentItem);
+				//}
+				//else
+				//{
+				//	//manually set ItemType
+				//	try
+				//	{
+				//		currentItem.ItemTypeName = LitItemType.Text;
+				//		ItemParams1.LoadParams(currentItem);
+				//		ItemFields1.LoadFields(currentItem);
+				//	}
+				//	catch { }
+				//}
 			}
-			if (this.BaseModule.DirectEditMode)
-			{
-				DivDropNewContainer.Visible = false;
-				BtnNew.Visible = false;
-				//BtnCancel.OnClientClick = "closePopup();";
+			OnAfterLoad();
+		}
 
+		protected virtual void OnAfterLoad()
+		{
+			if (BaseModule.DirectEditMode)
+			{
+				//DivDropNewContainer.Visible = false;
+				_BtnNew.Visible = false;
+				_BtnCancel.OnClientClick = "closePopup();";
 				editRow(base.CurrItem.Id);
 			}
 		}
 
 		#endregion
+
+
 
 		protected void DropEnabledFilter_SelectedIndexChanged(object sender, EventArgs e)
 		{
@@ -233,7 +261,7 @@ namespace PigeonCms.Modules
 		protected void DropSectionsFilter_SelectedIndexChanged(object sender, EventArgs e)
 		{
 			int secID = 0;
-			int.TryParse(DropSectionsFilter.SelectedValue, out secID);
+			int.TryParse(_DropSectionsFilter.SelectedValue, out secID);
 
 			loadDropCategoriesFilter(secID);
 			loadDropCategories(secID);
@@ -245,7 +273,7 @@ namespace PigeonCms.Modules
 		protected void DropCategoriesFilter_SelectedIndexChanged(object sender, EventArgs e)
 		{
 			int catID = 0;
-			int.TryParse(DropCategoriesFilter.SelectedValue, out catID);
+			int.TryParse(_DropCategoriesFilter.SelectedValue, out catID);
 
 			loadList();
 
@@ -260,7 +288,7 @@ namespace PigeonCms.Modules
 		protected void DropNew_SelectedIndexChanged(object sender, EventArgs e)
 		{
 			if (!checkAddNewFilters())
-				Utility.SetDropByValue(DropNew, "");
+				Utility.SetDropByValue(_DropNew, "");
 			else
 			{
 				try { editRow(0); }
@@ -277,7 +305,7 @@ namespace PigeonCms.Modules
 			{
 				if (checkAddNewFilters())
 				{
-					Utility.SetDropByValue(DropNew, this.ItemType);
+					Utility.SetDropByValue(_DropNew, this.ItemType);
 					editRow(0);
 				}
 			}
@@ -285,22 +313,6 @@ namespace PigeonCms.Modules
 			{
 				setError(e1.Message);
 			}
-		}
-
-		protected void BtnSave_Click(object sender, EventArgs e)
-		{
-			if (checkForm())
-			{
-				if (saveForm())
-					showInsertPanel(false);
-			}
-		}
-
-		protected void BtnCancel_Click(object sender, EventArgs e)
-		{
-			setError("");
-			setSuccess("");
-			showInsertPanel(false);
 		}
 
 		protected void RepPaging_ItemDataBound(object sender, RepeaterItemEventArgs e)
@@ -419,36 +431,65 @@ namespace PigeonCms.Modules
 
 		}
 
-
 		protected void Rep1_ItemCommand(object source, RepeaterCommandEventArgs e)
 		{
-			if (e.CommandName == "Select")
+			string argument = e.CommandArgument.ToString();
+			if (string.IsNullOrWhiteSpace(argument))
+				return;
+
+			string[] idAndType = argument.Split('|');
+			if (idAndType.Length < 1)
+				return;
+
+			int itemId = 0;
+			if (!int.TryParse(idAndType[0], out itemId))
+				return;
+
+			try
 			{
-				try
+				switch (e.CommandName)
 				{
-					editRow(int.Parse(e.CommandArgument.ToString()));
+					case "Select":
+						string itemType = idAndType[1];
+						var item = new ItemsProxy().GetByKey(itemId, itemType, true, true);
+						editRow(item, itemType);
+						break;
+					case "DeleteRow":
+						deleteRow(itemId);
+						break;
+					case "Enabled0":
+						setFlag(itemId, false, "enabled");
+						loadList();
+						break;
+					case "Enabled1":
+						setFlag(itemId, true, "enabled");
+						loadList();
+						break;
 				}
-				catch (Exception e1)
-				{
-					setError(e1.Message);
-				}
 			}
-			if (e.CommandName == "DeleteRow")
+			catch (Exception e1)
 			{
-				deleteRow(int.Parse(e.CommandArgument.ToString()));
-			}
-			//Enabled
-			if (e.CommandName == "Enabled0")
-			{
-				setFlag(Convert.ToInt32(e.CommandArgument), false, "enabled");
-				loadList();
-			}
-			if (e.CommandName == "Enabled1")
-			{
-				setFlag(Convert.ToInt32(e.CommandArgument), true, "enabled");
-				loadList();
+				setError(e1.Message);
 			}
 		}
+
+
+		protected void BtnSave_Click(object sender, EventArgs e)
+		{
+			if (checkForm())
+			{
+				if (saveForm())
+					showInsertPanel(false);
+			}
+		}
+
+		protected void BtnCancel_Click(object sender, EventArgs e)
+		{
+			setError("");
+			setSuccess("");
+			showInsertPanel(false);
+		}
+
 
 		#region private methods
 
@@ -653,9 +694,8 @@ namespace PigeonCms.Modules
 			this.ValidTo = obj.ValidTo;
 		}
 
-		private void editRow(int recordId)
+		protected virtual void editRow(IItem obj, string itemType)
 		{
-			var obj = new PigeonCms.Item();
 			setSuccess("");
 			setError("");
 
@@ -663,18 +703,20 @@ namespace PigeonCms.Modules
 				throw new Exception("user not authenticated");
 
 			clearForm();
-			CurrentId = recordId;
-			if (CurrentId == 0)
+
+			if (obj == null || obj.Id == 0)
 			{
-				int sectionId = int.Parse(DropSectionsFilter.SelectedValue);
+				obj = new ItemsProxy().CreateItem(itemType);
+				int sectionId = int.Parse(_DropSectionsFilter.SelectedValue);
 				loadDropCategories(sectionId);
 
-				obj.ItemTypeName = DropNew.SelectedValue;
+				obj.Enabled = true;
+				obj.ItemTypeName = _DropNew.SelectedValue;
 				obj.ItemDate = DateTime.Now;
 				obj.ValidFrom = DateTime.Now;
 				obj.ValidTo = DateTime.MinValue;
 				int defaultCategoryId = 0;
-				int.TryParse(DropCategoriesFilter.SelectedValue, out defaultCategoryId);
+				int.TryParse(_DropCategoriesFilter.SelectedValue, out defaultCategoryId);
 				if (defaultCategoryId == 0)
 				{
 					//retrieve first category in selected section
@@ -687,15 +729,21 @@ namespace PigeonCms.Modules
 				}
 				obj.CategoryId = defaultCategoryId;
 				obj2form(obj);
-				LitItemType.Text = DropNew.SelectedValue;
+				_LitItemType.Text = _DropNew.SelectedValue;
 			}
 			else
 			{
-				obj = new ItemsManager<Item, ItemsFilter>(true, true).GetByKey(CurrentId);
+				//obj = new ItemsManager<Item, ItemsFilter>(true, true).GetByKey(CurrentId);
 				loadDropCategories(obj.SectionId);
 				obj2form(obj);
 			}
-			Utility.SetDropByValue(DropNew, "");
+			Utility.SetDropByValue(_DropNew, "");
+
+			CurrentId = obj.Id;
+			CurrentItemType = obj.ItemTypeName;
+
+			_ItemParams.LoadParams(obj);
+			_ItemFields.LoadFields(obj);
 			showInsertPanel(true);
 		}
 
@@ -725,7 +773,7 @@ namespace PigeonCms.Modules
 			var filter = new ItemsFilter();
 
 			filter.Enabled = Utility.TristateBool.NotSet;
-			switch (DropEnabledFilter.SelectedValue)
+			switch (_DropEnabledFilter.SelectedValue)
 			{
 				case "1":
 					filter.Enabled = Utility.TristateBool.True;
@@ -738,16 +786,16 @@ namespace PigeonCms.Modules
 					break;
 			}
 
-			if (DropItemTypesFilter.SelectedValue != "")
-				filter.ItemType = DropItemTypesFilter.SelectedValue;
+			if (_DropItemTypesFilter.SelectedValue != "")
+				filter.ItemType = _DropItemTypesFilter.SelectedValue;
 			if (this.ItemId > 0)
 				filter.Id = this.ItemId;
 
 			int secId = -1;
-			int.TryParse(DropSectionsFilter.SelectedValue, out secId);
+			int.TryParse(_DropSectionsFilter.SelectedValue, out secId);
 
 			int catId = -1;
-			int.TryParse(DropCategoriesFilter.SelectedValue, out catId);
+			int.TryParse(_DropCategoriesFilter.SelectedValue, out catId);
 
 			filter.SectionId = secId;
 			if (base.SectionId > 0)
@@ -764,21 +812,21 @@ namespace PigeonCms.Modules
 			ds.PageSize = base.ListPageSize;
 			ds.CurrentPageIndex = base.ListCurrentPage;
 
-			RepPaging.Visible = false;
+			_RepPaging.Visible = false;
 			if (ds.PageCount > 1)
 			{
-				RepPaging.Visible = true;
+				_RepPaging.Visible = true;
 				ArrayList pages = new ArrayList();
 				for (int i = 0; i <= ds.PageCount - 1; i++)
 				{
 					pages.Add((i + 1).ToString());
 				}
-				RepPaging.DataSource = pages;
-				RepPaging.DataBind();
+				_RepPaging.DataSource = pages;
+				_RepPaging.DataBind();
 			}
 
-			Rep1.DataSource = ds;
-			Rep1.DataBind();
+			_Rep1.DataSource = ds;
+			_Rep1.DataBind();
 		}
 
 		private void loadDropEnabledFilter()
@@ -995,7 +1043,7 @@ namespace PigeonCms.Modules
 			return type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
 		}
 
-		protected void LoadDynamicFields(Item obj, bool setFieldValues = true)
+		protected void LoadDynamicFields(IItem obj, bool setFieldValues = true)
 		{
 			BaseItem item = obj as BaseItem;
 			if (item == null)
