@@ -10,7 +10,7 @@ namespace PigeonCms.Controls
 	{
 		public abstract string Title { get; set; }
 		public abstract void ClearParams();
-		public abstract void LoadParams(Item obj);
-		public abstract void LoadFields(Item obj);
+		public abstract void LoadParams(IItem obj);
+		public abstract void LoadFields(IItem obj);
 	}
 }

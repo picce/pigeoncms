@@ -2,18 +2,18 @@
 <install
     installerVersion="1.0.0"
     type="module"
-    version="1.0.0"
+    version="2.0.0"
     core="true"
     namespace="PigeonCms"
     name="ItemsAdmin"
-    author="p-ice"
+    author="picce"
     creationDate="2009-11-12"
-    copyright="Copyright(C) 2009 Nicola Ridolfi. All rights reserved."
+    copyright="Copyright(C) 2016 Nicola Ridolfi. All rights reserved."
     license=""
     authorEmail="picce@yahoo.it"
-    authorUrl="www.pigeoncms.com"
+    authorUrl="https://github.com/picce/"
     description="Items admin area"
-	allowDirectEditMode="true">
+		allowDirectEditMode="true">
 	<files>
 	</files>
 
@@ -48,6 +48,8 @@
 			<option value="" label="All"></option>
 			<datasource SelectMethod="GetList" TypeName="PigeonCms.ItemTypeManager" />
 		</param>
+		<!--20161229-@rsartori-->
+		<param name="ItemTypes" type="text" default="" label="Item types" description="Comma separated list of item type names" />
     <param name="ListPageSize" type="text" default="20" label="List page size" description="Set 0 to avoid pagination" />
 	</params>
 

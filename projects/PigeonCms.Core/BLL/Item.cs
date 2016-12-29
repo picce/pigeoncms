@@ -1652,7 +1652,7 @@ namespace PigeonCms
 	{
 		public override string ToString()
 		{
-			return ReflectionUtils.PropertiesToString(this);
+			return Reflection.PropertiesToString(this);
 		}
 	}
 

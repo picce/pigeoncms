@@ -6,8 +6,13 @@ using PigeonCms.Core.Helpers;
 using System.Web.UI.WebControls;
 using System.Web.UI;
 using PigeonCms.Controls;
+using PigeonCms.Controls.ItemFields;
 using System.Web;
 using System.Collections;
+using System.Reflection;
+using System.Globalization;
+using System.Web.Security;
+using System.Text.RegularExpressions;
 
 namespace PigeonCms.Modules
 {
@@ -245,7 +250,7 @@ namespace PigeonCms.Modules
 				//DivDropNewContainer.Visible = false;
 				_BtnNew.Visible = false;
 				_BtnCancel.OnClientClick = "closePopup();";
-				editRow(base.CurrItem.Id);
+				editRow(base.CurrItem, null);
 			}
 		}
 
@@ -288,10 +293,15 @@ namespace PigeonCms.Modules
 		protected void DropNew_SelectedIndexChanged(object sender, EventArgs e)
 		{
 			if (!checkAddNewFilters())
+			{
 				Utility.SetDropByValue(_DropNew, "");
+			}
 			else
 			{
-				try { editRow(0); }
+				try
+				{
+					editRow(null, _DropNew.SelectedValue);
+				}
 				catch (Exception e1)
 				{
 					setError(e1.Message);
@@ -306,7 +316,7 @@ namespace PigeonCms.Modules
 				if (checkAddNewFilters())
 				{
 					Utility.SetDropByValue(_DropNew, this.ItemType);
-					editRow(0);
+					editRow(null, this.ItemType);
 				}
 			}
 			catch (Exception e1)
@@ -388,7 +398,8 @@ namespace PigeonCms.Modules
 				var mgr = new CategoriesManager();
 				var cat = mgr.GetByKey(item.CategoryId);
 				var LitCategoryTitle = (Literal)e.Item.FindControl("LitCategoryTitle");
-				LitCategoryTitle.Text = cat.Title;
+				var parentCat = mgr.GetByKey(cat.ParentId);
+				LitCategoryTitle.Text = (cat.ParentId > 0 ? parentCat.Title + @" \ " : "") + cat.Title;
 			}
 
 			//permissions
@@ -485,9 +496,38 @@ namespace PigeonCms.Modules
 
 		protected void BtnCancel_Click(object sender, EventArgs e)
 		{
+			OnBeforeCancel();
+
+			PropertyInfo[] properties = GetItemPropertiesInfo(CurrItem);
+			if (properties != null)
+			{
+				foreach (PropertyInfo property in properties)
+				{
+					IUploadControl imageUpload = Utility.Controls.FindControlRecursive<Control>(_FieldsContainer, "property_" + property.Name) as IUploadControl;
+					if (imageUpload != null)
+						imageUpload.CleanSession();
+				}
+			}
+
 			setError("");
 			setSuccess("");
 			showInsertPanel(false);
+			OnAfterCancel();
+		}
+
+		protected virtual void OnBeforeCancel()
+		{
+
+		}
+
+		protected virtual void OnAfterCancel()
+		{
+
+		}
+
+		protected virtual void OnAfterUpdate(IItem item)
+		{
+
 		}
 
 
@@ -501,42 +541,42 @@ namespace PigeonCms.Modules
 			string err = "";
 
 			int catId = 0;
-			int.TryParse(DropCategories.SelectedValue, out catId);
+			int.TryParse(_DropCategories.SelectedValue, out catId);
 			if (catId <= 0)
 			{
 				res = false;
-				err += base.GetLabel("ChooseCategory", "alias in use") + "<br>";
+				err += base.GetLabel("ChooseCategory", "Choose a category before") + "<br>";
 			}
 
-			if (!string.IsNullOrEmpty(TxtAlias.Text))
-			{
-				var filter = new ItemsFilter();
-				var list = new List<PigeonCms.Item>();
+			//if (!string.IsNullOrEmpty(TxtAlias.Text))
+			//{
+			//	var filter = new ItemsFilter();
+			//	var list = new List<PigeonCms.Item>();
 
-				filter.Alias = TxtAlias.Text;
-				list = new ItemsManager<Item, ItemsFilter>().GetByFilter(filter, "");
-				if (list.Count > 0)
-				{
-					if (this.CurrentId == 0)
-					{
-						res = false;
-						err += "alias in use<br />";
-					}
-					else
-					{
-						if (list[0].Id != this.CurrentId)
-						{
-							res = false;
-							err += "alias in use<br />";
-						}
-					}
-				}
-			}
+			//	filter.Alias = TxtAlias.Text;
+			//	list = new ItemsManager<Item, ItemsFilter>().GetByFilter(filter, "");
+			//	if (list.Count > 0)
+			//	{
+			//		if (this.CurrentId == 0)
+			//		{
+			//			res = false;
+			//			err += "alias in use<br />";
+			//		}
+			//		else
+			//		{
+			//			if (list[0].Id != this.CurrentId)
+			//			{
+			//				res = false;
+			//				err += "alias in use<br />";
+			//			}
+			//		}
+			//	}
+			//}
 			setError(err);
 			return res;
 		}
 
-		private bool saveForm()
+		protected virtual bool saveForm()
 		{
 			bool res = false;
 			setError("");
@@ -544,19 +584,23 @@ namespace PigeonCms.Modules
 
 			try
 			{
-				var o1 = new Item();
+				var o1 = new ItemsProxy().CreateItem(this.CurrentItemType);
+				var man = o1.MyManager(true, true);
+				//var item = new ItemsProxy().GetByKey(itemId, itemType, true, true);
 
 				if (CurrentId == 0)
 				{
 					form2obj(o1);
-					o1 = new ItemsManager<Item, ItemsFilter>().Insert(o1);
+					o1 = man.Insert(o1);
 				}
 				else
 				{
-					o1 = new ItemsManager<Item, ItemsFilter>().GetByKey(CurrentId);  //precarico i campi esistenti e nn gestiti dal form
+					o1 = man.GetByKey(CurrentId);
 					form2obj(o1);
-					new ItemsManager<Item, ItemsFilter>().Update(o1);
+					man.Update(o1);
 				}
+
+				OnAfterUpdate(o1);
 				removeFromCache();
 
 				loadList();
@@ -583,115 +627,85 @@ namespace PigeonCms.Modules
 		private void clearForm()
 		{
 			TitleItem = "";
-			LblId.Text = "";
-			LblOrderId.Text = "";
-			LitSection.Text = "";
-			LitItemType.Text = "";
-			LblCreated.Text = "";
-			LblUpdated.Text = "";
-			ChkEnabled.Checked = true;
-			TxtAlias.Text = "";
-			TxtCssClass.Text = "";
-			TxtExtId.Text = "";
+			_LblId.Text = "";
+			_LblOrderId.Text = "";
+			_LitSection.Text = "";
+			_LitItemType.Text = "";
+			_LblCreated.Text = "";
+			_LblUpdated.Text = "";
+			_ChkEnabled.Checked = true;
+			_TxtAlias.Text = "";
+			_TxtCssClass.Text = "";
+			_TxtExtId.Text = "";
 			this.ItemDate = DateTime.MinValue;
 			this.ValidFrom = DateTime.MinValue;
 			this.ValidTo = DateTime.MinValue;
+
 			foreach (KeyValuePair<string, string> item in Config.CultureList)
 			{
-				TextBox t1 = new TextBox();
-				t1 = (TextBox)PanelTitle.FindControl("TxtTitle" + item.Value);
+				var t1 = (TextBox)_PanelTitle.FindControl("TxtTitle" + item.Value);
 				t1.Text = "";
 
-				var txt2 = new Controls_ContentEditorControl();
-				txt2 = Utility.FindControlRecursive<Controls_ContentEditorControl>(this, "TxtDescription" + item.Value);
+				//var txt2 = new Controls_ContentEditorControl();
+				ITextControl txt2 = Utility.FindControlRecursive<Control>(this, "TxtDescription" + item.Value) as ITextControl;
 				txt2.Text = "";
 			}
-			PermissionsControl1.ClearForm();
-			SeoControl1.ClearForm();
+			_PermissionsControl.ClearForm();
+			_SeoControl.ClearForm();
 		}
 
-		private void form2obj(Item obj)
+		private void form2obj(IItem obj)
 		{
+			obj.ItemParams = FormBuilder.GetParamsString(obj.ItemType.Params, _ItemParams);
+			string fieldsString = FormBuilder.GetParamsString(obj.ItemType.Fields, _ItemFields);
+			obj.LoadCustomFieldsFromString(fieldsString);
+
 			obj.Id = CurrentId;
-			obj.Enabled = ChkEnabled.Checked;
+			obj.Enabled = _ChkEnabled.Checked;
 			obj.TitleTranslations.Clear();
 			obj.DescriptionTranslations.Clear();
-			obj.CategoryId = int.Parse(DropCategories.SelectedValue);
-			obj.Alias = TxtAlias.Text;
-			obj.CssClass = TxtCssClass.Text;
-			obj.ExtId = TxtExtId.Text;
+
+			int catId = CategoryId;
+			obj.CategoryId = int.TryParse(_DropCategories.SelectedValue, out catId) ? catId : CategoryId;
+
+			obj.Alias = _TxtAlias.Text;
+			obj.CssClass = _TxtCssClass.Text;
+			obj.ExtId = _TxtExtId.Text;
 			obj.ItemDate = this.ItemDate;
 			obj.ValidFrom = this.ValidFrom;
 			obj.ValidTo = this.ValidTo;
 
 			if (CurrentId == 0)
-				obj.ItemTypeName = LitItemType.Text;
+				obj.ItemTypeName = _LitItemType.Text;
 
 			foreach (KeyValuePair<string, string> item in Config.CultureList)
 			{
-				TextBox t1 = new TextBox();
-				t1 = (TextBox)PanelTitle.FindControl("TxtTitle" + item.Value);
+				var t1 = (TextBox)_PanelTitle.FindControl("TxtTitle" + item.Value);
 				obj.TitleTranslations.Add(item.Key, t1.Text);
 
-				var txt2 = new Controls_ContentEditorControl();
-				txt2 = Utility.FindControlRecursive<Controls_ContentEditorControl>(this, "TxtDescription" + item.Value);
-				obj.DescriptionTranslations.Add(item.Key, txt2.Text);
+				ITextControl txt2 = Utility.FindControlRecursive<Control>(this, "TxtDescription" + item.Value) as ITextControl;
+				if (txt2 != null)
+					obj.DescriptionTranslations.Add(item.Key, txt2.Text);
 			}
-			obj.ItemParams = FormBuilder.GetParamsString(obj.ItemType.Params, ItemParams1);
-			string fieldsString = FormBuilder.GetParamsString(obj.ItemType.Fields, ItemFields1);
-			obj.LoadCustomFieldsFromString(fieldsString);
-			PermissionsControl1.Form2obj(obj);
-			SeoControl1.Form2obj(obj);
+
+			_PermissionsControl.Form2obj(obj);
+			_SeoControl.Form2obj(obj);
+			StoreDynamicFields(obj);
+
+			//obj.Alias = GetAlias(obj as BaseItem);
+			//CheckTitle(obj as BaseItem);
 		}
 
-		private void obj2form(Item obj)
+		protected virtual void obj2form(IItem obj)
 		{
-			LblId.Text = obj.Id.ToString();
-			LblOrderId.Text = obj.Ordering.ToString();
-			LblUpdated.Text = obj.DateUpdated.ToString() + " by " + obj.UserUpdated;
-			LblCreated.Text = obj.DateInserted.ToString() + " by " + obj.UserInserted;
-			ChkEnabled.Checked = obj.Enabled;
-			TxtAlias.Text = obj.Alias;
-			TxtCssClass.Text = obj.CssClass;
-			TxtExtId.Text = obj.ExtId;
-			Utility.SetDropByValue(DropCategories, obj.CategoryId.ToString());
+			loadCommonData(obj);
+			LoadDynamicFields(obj);
 
-			foreach (KeyValuePair<string, string> item in Config.CultureList)
-			{
-				string sTitleTranslation = "";
-				TextBox t1 = new TextBox();
-				t1 = (TextBox)PanelTitle.FindControl("TxtTitle" + item.Value);
-				obj.TitleTranslations.TryGetValue(item.Key, out sTitleTranslation);
-				t1.Text = sTitleTranslation;
+			_ItemParams.ClearParams();
+			_ItemParams.LoadParams(obj);
 
-				//Set title edit item
-				if (string.IsNullOrEmpty(TitleItem))
-					TitleItem = sTitleTranslation;
-
-				string sDescriptionTraslation = "";
-				var txt2 = new Controls_ContentEditorControl();
-				txt2 = Utility.FindControlRecursive<Controls_ContentEditorControl>(this, "TxtDescription" + item.Value);
-				obj.DescriptionTranslations.TryGetValue(item.Key, out sDescriptionTraslation);
-				txt2.Text = sDescriptionTraslation;
-				//string sDescriptionTraslation = "";
-				//FCKeditor t2 = new FCKeditor();
-				//t2 = (FCKeditor)PanelDescription.FindControl("TxtDescription" + item.Value);
-				//obj.DescriptionTranslations.TryGetValue(item.Key, out sDescriptionTraslation);
-				//t2.Value = sDescriptionTraslation;
-			}
-			ItemParams1.ClearParams();
-			ItemFields1.ClearParams();
-
-			ItemParams1.LoadParams(obj);
-			ItemFields1.LoadFields(obj);
-			PermissionsControl1.Obj2form(obj);
-			SeoControl1.Obj2form(obj);
-			LitSection.Text = obj.Category.Section.Title;
-			LitItemType.Text = obj.ItemTypeName;
-
-			this.ItemDate = obj.ItemDate;
-			this.ValidFrom = obj.ValidFrom;
-			this.ValidTo = obj.ValidTo;
+			_ItemFields.ClearParams();
+			_ItemFields.LoadFields(obj);
 		}
 
 		protected virtual void editRow(IItem obj, string itemType)
@@ -788,6 +802,8 @@ namespace PigeonCms.Modules
 
 			if (_DropItemTypesFilter.SelectedValue != "")
 				filter.ItemType = _DropItemTypesFilter.SelectedValue;
+
+
 			if (this.ItemId > 0)
 				filter.Id = this.ItemId;
 
@@ -796,16 +812,35 @@ namespace PigeonCms.Modules
 
 			int catId = -1;
 			int.TryParse(_DropCategoriesFilter.SelectedValue, out catId);
+			if (catId <= 0)
+				catId = CategoryId;
 
 			filter.SectionId = secId;
 			if (base.SectionId > 0)
 				filter.SectionId = base.SectionId;
 
-			filter.CategoryId = catId;
+			/*filter.CategoryId = catId;
 			if (base.CategoryId > 0)
-				filter.CategoryId = base.CategoryId;
+				filter.CategoryId = base.CategoryId;*/
 
 			var list = man.GetByFilter(filter, "");
+
+			//post filter on itemTypes
+			if (!string.IsNullOrWhiteSpace(ItemTypes))
+			{
+				List<string> itemTypeList = new List<string>(ItemTypes.Split(','));
+				list = new List<Item>(list.Where(i => { return itemTypeList.Contains(i.ItemTypeName); }));
+			}
+
+			//post filter on catId 
+			if (catId > 0)
+			{
+				list = new List<Item>(list.Where(i =>
+				{
+					return (i.Category.Id == catId || i.Category.ParentId == catId);
+				}));
+			}
+
 			var ds = new PagedDataSource();
 			ds.DataSource = list;
 			ds.AllowPaging = true;
@@ -831,15 +866,15 @@ namespace PigeonCms.Modules
 
 		private void loadDropEnabledFilter()
 		{
-			DropEnabledFilter.Items.Clear();
-			DropEnabledFilter.Items.Add(new ListItem(Utility.GetLabel("LblSelectState", "Select state"), ""));
-			DropEnabledFilter.Items.Add(new ListItem("On-line", "1"));
-			DropEnabledFilter.Items.Add(new ListItem("Off-line", "0"));
+			_DropEnabledFilter.Items.Clear();
+			_DropEnabledFilter.Items.Add(new ListItem(Utility.GetLabel("LblSelectState", "Select state"), ""));
+			_DropEnabledFilter.Items.Add(new ListItem("On-line", "1"));
+			_DropEnabledFilter.Items.Add(new ListItem("Off-line", "0"));
 		}
 
 		private void loadDropSectionsFilter(int sectionId)
 		{
-			DropSectionsFilter.Items.Clear();
+			_DropSectionsFilter.Items.Clear();
 
 			var secFilter = new SectionsFilter();
 			secFilter.Id = sectionId;
@@ -847,16 +882,16 @@ namespace PigeonCms.Modules
 
 			foreach (var sec in secList)
 			{
-				DropSectionsFilter.Items.Add(new ListItem(sec.Title, sec.Id.ToString()));
+				_DropSectionsFilter.Items.Add(new ListItem(sec.Title, sec.Id.ToString()));
 			}
 			if (base.LastSelectedSectionId > 0)
-				Utility.SetDropByValue(DropSectionsFilter, base.LastSelectedSectionId.ToString());
+				Utility.SetDropByValue(_DropSectionsFilter, base.LastSelectedSectionId.ToString());
 		}
 
 		private void loadDropCategoriesFilter(int sectionId)
 		{
-			DropCategoriesFilter.Items.Clear();
-			DropCategoriesFilter.Items.Add(new ListItem(Utility.GetLabel("LblSelectCategory", "Select category"), "0"));
+			_DropCategoriesFilter.Items.Clear();
+			_DropCategoriesFilter.Items.Add(new ListItem(Utility.GetLabel("LblSelectCategory", "Select category"), "0"));
 
 			var catFilter = new CategoriesFilter();
 			catFilter.SectionId = sectionId;
@@ -865,18 +900,18 @@ namespace PigeonCms.Modules
 				catFilter.Id = -1;
 
 			var list = new CategoriesManager(true, true).GetByFilter(catFilter, "");
-			loadListCategories(DropCategoriesFilter, list, 0, 0, base.ShowItemsCount);
+			loadListCategories(_DropCategoriesFilter, list, 0, 0, base.ShowItemsCount);
 
 			if (base.LastSelectedCategoryId > 0)
-				Utility.SetDropByValue(DropCategoriesFilter, base.LastSelectedCategoryId.ToString());
+				Utility.SetDropByValue(_DropCategoriesFilter, base.LastSelectedCategoryId.ToString());
 
 			if (base.CategoryId > 0)
-				Utility.SetDropByValue(DropCategoriesFilter, base.CategoryId.ToString());
+				Utility.SetDropByValue(_DropCategoriesFilter, base.CategoryId.ToString());
 		}
 
 		private void loadDropCategories(int sectionId)
 		{
-			DropCategories.Items.Clear();
+			_DropCategories.Items.Clear();
 
 			var catFilter = new CategoriesFilter();
 			catFilter.SectionId = sectionId;
@@ -884,7 +919,7 @@ namespace PigeonCms.Modules
 			if (catFilter.SectionId == 0)
 				catFilter.Id = -1;
 			var list = new CategoriesManager().GetByFilter(catFilter, "");
-			loadListCategories(DropCategories, list, 0, 0);
+			loadListCategories(_DropCategories, list, 0, 0);
 		}
 
 		private void loadListCategories(DropDownList drop,
@@ -920,36 +955,43 @@ namespace PigeonCms.Modules
 		private void loadDropsItemTypes()
 		{
 
-			DropNew.Items.Clear();
-			DropNew.Items.Add(new ListItem(Utility.GetLabel("LblCreateNew", "Create new"), ""));
+			_DropNew.Items.Clear();
+			_DropNew.Items.Add(new ListItem(Utility.GetLabel("LblCreateNew", "Create new"), ""));
 
-			DropItemTypesFilter.Items.Clear();
-			DropItemTypesFilter.Items.Add(new ListItem(Utility.GetLabel("LblSelectItem", "Select item"), ""));
+			_DropItemTypesFilter.Items.Clear();
+			_DropItemTypesFilter.Items.Add(new ListItem(Utility.GetLabel("LblSelectItem", "Select item"), ""));
 
 			var filter = new ItemTypeFilter();
 			if (!string.IsNullOrEmpty(this.ItemType))
 				filter.FullName = this.ItemType;
+
 			List<ItemType> recordList = new ItemTypeManager().GetByFilter(filter, "FullName");
+
+			if (!string.IsNullOrWhiteSpace(ItemTypes))
+			{
+				List<string> itemTypeList = new List<string>(ItemTypes.Split(','));
+				recordList = new List<ItemType>(recordList.Where(i => { return itemTypeList.Contains(i.FullName); }));
+			}
+			
 			foreach (ItemType record1 in recordList)
 			{
-				DropNew.Items.Add(
-					new ListItem(record1.FullName, record1.FullName));
+				string itemFriendlyName = GetLabel("ItemTypeName." + record1.FullName, record1.FullName);
 
-				DropItemTypesFilter.Items.Add(
-					new ListItem(record1.FullName, record1.FullName));
+				_DropNew.Items.Add(new ListItem(itemFriendlyName, record1.FullName));
+				_DropItemTypesFilter.Items.Add(new ListItem(itemFriendlyName, record1.FullName));
 			}
 
 			if (!string.IsNullOrEmpty(this.ItemType))
 			{
-				BtnNew.Visible = true;
-				DivDropNewContainer.Visible = false;
-				DropItemTypesFilter.Visible = false;
+				_BtnNew.Visible = true;
+				_DropNew.Visible = false;
+				_DropItemTypesFilter.Visible = false;
 			}
 			else
 			{
-				BtnNew.Visible = false;
-				DivDropNewContainer.Visible = true;
-				DropItemTypesFilter.Visible = true;
+				_BtnNew.Visible = false;
+				_DropNew.Visible = true;
+				_DropItemTypesFilter.Visible = true;
 			}
 		}
 
@@ -981,7 +1023,6 @@ namespace PigeonCms.Modules
 
 		private void updateSortedTable()
 		{
-			//<input type="hidden" name="RowId" value='<%# Eval("Id") %>' />
 			string[] rowIds = Request.Form.GetValues("RowId");
 			int ordering = 1;
 
@@ -1005,7 +1046,7 @@ namespace PigeonCms.Modules
 		private bool checkAddNewFilters()
 		{
 			bool res = true;
-			if (DropSectionsFilter.SelectedValue == "0" || DropSectionsFilter.SelectedValue == "")
+			if (_DropSectionsFilter.SelectedValue == "0" || _DropSectionsFilter.SelectedValue == "")
 			{
 				setError(base.GetLabel("ChooseSection", "Choose a section before"));
 				res = false;
@@ -1020,24 +1061,71 @@ namespace PigeonCms.Modules
 		private void showInsertPanel(bool toShow)
 		{
 
-			PigeonCms.Utility.Script.RegisterStartupScript(Upd1, "bodyBlocked", "bodyBlocked(" + toShow.ToString().ToLower() + ");");
+			PigeonCms.Utility.Script.RegisterStartupScript(_Upd1, "bodyBlocked", "bodyBlocked(" + toShow.ToString().ToLower() + ");");
 
 			if (toShow)
-				PanelInsert.Visible = true;
+				_PanelInsert.Visible = true;
 			else
-				PanelInsert.Visible = false;
+				_PanelInsert.Visible = false;
 		}
+
+		private void loadCommonData(IItem obj)
+		{
+			_LblId.Text = obj.Id.ToString();
+			_LblOrderId.Text = obj.Ordering.ToString();
+			_LblUpdated.Text = obj.DateUpdated.ToString() + " by " + obj.UserUpdated;
+			_LblCreated.Text = obj.DateInserted.ToString() + " by " + obj.UserInserted;
+			_ChkEnabled.Checked = obj.Enabled;
+			_TxtAlias.Text = obj.Alias;
+			_TxtCssClass.Text = obj.CssClass;
+			_TxtExtId.Text = obj.ExtId;
+			Utility.SetDropByValue(_DropCategories, obj.CategoryId.ToString());
+
+			foreach (KeyValuePair<string, string> item in Config.CultureList)
+			{
+				string sTitleTranslation = "";
+				TextBox t1 = (TextBox)_PanelTitle.FindControl("TxtTitle" + item.Value);
+				obj.TitleTranslations.TryGetValue(item.Key, out sTitleTranslation);
+				t1.Text = sTitleTranslation;
+
+				//Set title edit item
+				if (string.IsNullOrEmpty(TitleItem))
+					TitleItem = sTitleTranslation;
+
+				string sDescriptionTraslation = "";
+				Control txt2 = Utility.FindControlRecursive<Control>(this, "TxtDescription" + item.Value);
+				obj.DescriptionTranslations.TryGetValue(item.Key, out sDescriptionTraslation);
+				if (txt2 is ITextControl)
+					((ITextControl)txt2).Text = sDescriptionTraslation;
+			}
+
+			_PermissionsControl.Obj2form(obj);
+			_SeoControl.Obj2form(obj);
+
+			//retrieve category and section
+			{
+				var catMan = new CategoriesManager();
+				var cat = catMan.GetByKey(obj.CategoryId);
+				_LitSection.Text = cat.Section.Title;
+			}
+			_LitItemType.Text = obj.ItemTypeName;
+
+			ItemDate = obj.ItemDate;
+			ValidFrom = obj.ValidFrom;
+			ValidTo = obj.ValidTo;
+		}
+
 		#endregion
 
 		#region Dynamic properties management
 
-		protected PropertyInfo[] GetItemPropertiesInfo(Item obj)
+		protected PropertyInfo[] GetItemPropertiesInfo(IItem obj)
 		{
-			BaseItem item = obj as BaseItem;
+			IItem item = obj as IItem;
 			if (item == null)
 				return null;
 
-			AbstractPropertiesDefs props = item.Properties;
+			ItemPropertiesDefs props = item.Properties;
 			Type type = props.GetType();
 
 			return type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
@@ -1045,7 +1133,7 @@ namespace PigeonCms.Modules
 
 		protected void LoadDynamicFields(IItem obj, bool setFieldValues = true)
 		{
-			BaseItem item = obj as BaseItem;
+			IItem item = obj as IItem;
 			if (item == null)
 				return;
 
@@ -1068,9 +1156,9 @@ namespace PigeonCms.Modules
 			}
 		}
 
-		protected virtual void StoreDynamicFields(Item obj)
+		protected virtual void StoreDynamicFields(IItem obj)
 		{
-			BaseItem item = obj as BaseItem;
+			IItem item = obj as IItem;
 			if (item == null)
 				return;
 
@@ -1085,7 +1173,7 @@ namespace PigeonCms.Modules
 		}
 
 		// TODO: implement all editor types
-		protected AbstractFieldContainer CreateEditorAndContainer(PropertyInfo property, BaseItem item, object value, bool setFieldValues)
+		protected AbstractFieldContainer CreateEditorAndContainer(PropertyInfo property, IItem item, object value, bool setFieldValues)
 		{
 			ItemFieldAttribute attribute = (ItemFieldAttribute)property.GetCustomAttribute(typeof(ItemFieldAttribute));
 			if (attribute == null)
@@ -1120,7 +1208,7 @@ namespace PigeonCms.Modules
 					container.CSSClass = "spacing-detail";
 
 					Panel textareaPanel = new Panel();
-					IEditorControl editorControl = null;
+					IContentEditorControl editorControl = null;
 
 					if (attribute.Localized)
 					{
@@ -1139,7 +1227,7 @@ namespace PigeonCms.Modules
 							Control htmlEditor = LoadControl("~/Controls/ContentEditorControl.ascx");
 							htmlEditor.ID = "property_" + property.Name + culture.Value;
 
-							editorControl = htmlEditor as IEditorControl;
+							editorControl = htmlEditor as IContentEditorControl;
 							if (editorControl != null)
 							{
 								editorControl.Configuration = new ContentEditorProvider.Configuration()
@@ -1167,7 +1255,7 @@ namespace PigeonCms.Modules
 						Control htmlEditor = LoadControl("~/Controls/ContentEditorControl.ascx");
 						htmlEditor.ID = "property_" + property.Name;
 
-						editorControl = htmlEditor as IEditorControl;
+						editorControl = htmlEditor as IContentEditorControl;
 						if (editorControl != null)
 						{
 							editorControl.Configuration = new ContentEditorProvider.Configuration()
@@ -1345,7 +1433,7 @@ namespace PigeonCms.Modules
 		}
 
 		// TODO: implement all editor types
-		protected void ReadEditor(PropertyInfo property, BaseItem item)
+		protected void ReadEditor(PropertyInfo property, IItem item)
 		{
 			ItemFieldAttribute attribute = (ItemFieldAttribute)property.GetCustomAttribute(typeof(ItemFieldAttribute));
 			if (attribute == null)
@@ -1545,12 +1633,12 @@ namespace PigeonCms.Modules
 
 		#region state
 
-		protected string itemTypes;
+		/*protected string itemTypes;
 		public string ItemTypes
 		{
 			get { return GetStringParam("ItemTypes", itemTypes); }
 			set { itemTypes = value; }
-		}
+		}*/
 
 		protected DateTime ItemDate
 		{
@@ -1596,12 +1684,55 @@ namespace PigeonCms.Modules
 				if (this.SectionId > 0)
 					res = this.SectionId;
 				else
-					int.TryParse(DropSectionsFilter.SelectedValue, out res);
+					int.TryParse(_DropSectionsFilter.SelectedValue, out res);
 				return res;
 			}
 		}
 
 		#endregion	
 
+
+		#region Translated user control
+
+		public void GetTransControl(string panelPrefix, Panel panel, Dictionary<string, string> translations, KeyValuePair<string, string> cultureItem)
+		{
+			TextBox t1 = new TextBox();
+			t1 = (TextBox)panel.FindControl(panelPrefix + cultureItem.Value);
+			translations.Add(cultureItem.Key, t1.Text);
+		}
+
+		public void SetTransControl(string panelPrefix, Panel panel, Dictionary<string, string> translations, KeyValuePair<string, string> cultureItem)
+		{
+			string res = "";
+			TextBox t1 = new TextBox();
+			t1 = (TextBox)panel.FindControl(panelPrefix + cultureItem.Value);
+			if (translations != null)
+				translations.TryGetValue(cultureItem.Key, out res);
+			t1.Text = res;
+		}
+
+		public void AddTransControl(Control obj, string panelPrefix, Panel panel, KeyValuePair<string, string> cultureItem, string cssClass)
+		{
+			obj.ID = panelPrefix + cultureItem.Value;
+			if (obj is WebControl)
+			{
+				WebControl wObj = (WebControl)obj;
+				wObj.CssClass = cssClass;
+				wObj.ToolTip = cultureItem.Key;
+			}
+
+			LabelsProvider.SetLocalizedControlVisibility(this.ShowOnlyDefaultCulture, cultureItem.Key, obj);
+			var group = new Panel();
+			group.CssClass = "form-group input-group";
+			group.Controls.Add(obj);
+
+			Literal lit = new Literal();
+			if (!this.ShowOnlyDefaultCulture)
+				lit.Text = "<div class=\"input-group-addon\"><span>" + cultureItem.Value.Substring(0, 3) + "</span></div>";
+			group.Controls.Add(lit);
+			panel.Controls.Add(group);
+		}
+
+		#endregion
 	}
 }
