@@ -1,17 +1,15 @@
 ﻿<%@ WebHandler Language="C#" Class="FileUploadModernHandler" %>
 
 using System;
-using System.Configuration;
 using System.Web;
 using PigeonCms;
+using PigeonCms.Controls.ItemsAdmin;
+using PigeonCms.Core.Helpers;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using System.IO;
-using AQuest.Cecchi.Utils;
-using AQuest.PigeonCMS.ItemsAdmin;
 using System.Web.SessionState;
-using AQuest.PigeonCMS.ItemsAdmin.Uploads;
 
 public class FileUploadModernHandler : IHttpHandler, IRequiresSessionState
 {
@@ -33,7 +31,9 @@ public class FileUploadModernHandler : IHttpHandler, IRequiresSessionState
 
     public void ProcessRequest(HttpContext context)
     {
-        UploadParameters parameters = JsonConvert.DeserializeObject<UploadParameters>(Utility.Encryption.Decrypt(UrlUtils.Base64Decode(context.Request.Params["parameters"]), Config.EncryptKey));
+        UploadParameters parameters = JsonConvert.DeserializeObject<UploadParameters>(
+            Utility.Encryption.Decrypt(
+                UrlUtils.Base64Decode(context.Request.Params["parameters"]), Config.EncryptKey));
 
         if (context.Request["action"] == "preview")
         {
@@ -113,7 +113,7 @@ public class FileUploadModernHandler : IHttpHandler, IRequiresSessionState
             context.Response.Clear();
             context.Response.AddHeader("Content-Disposition", "inline; filename=" + context.Session["FileUpload_" + parameters.UniqueID + "_RealName"]);
             context.Response.AddHeader("Content-Length", tmpFile.Length.ToString());
-            context.Response.ContentType = FilesManipulationUtils.GetMimeFromExtension(tmpFile.Extension);
+            context.Response.ContentType = FilesHelper.GetMimeFromExtension(tmpFile.Extension);
             context.Response.WriteFile(tmpFilePath);
         }
         catch
@@ -124,7 +124,7 @@ public class FileUploadModernHandler : IHttpHandler, IRequiresSessionState
 
     public FileUploadModernProvider.UploadResultEnum Upload(HttpContext context, HttpPostedFile file, UploadParameters parameters)
     {
-        string extension = FilesManipulationUtils.GetExtensionFromMime(file.ContentType);
+        string extension = FilesHelper.GetExtensionFromMime(file.ContentType);
         string tmpFileName = Guid.NewGuid().ToString() + "." + extension;
 
         try

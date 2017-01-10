@@ -132,16 +132,6 @@ namespace PigeonCms
 
 		#region fields
 
-		public virtual string ImagesPath
-        {
-            get { return "~/public/gallery/items/"; }
-        }
-
-        public virtual string FilesPath
-        {
-            get { return "~/public/files/items/"; }
-        }
-
         /// <summary>
         /// Automatic Id as PKey
         /// </summary>
@@ -1075,17 +1065,81 @@ namespace PigeonCms
 			PropertiesAsString = JsonConvert.SerializeObject(properties);
 		}
 
-		#endregion
+        #endregion
 
-		#region methods
+        #region file management
 
-		/// <summary>
-		/// create an instance of the manager that handle DAL of current item type
-		/// </summary>
-		/// <param name="checkUserContext"></param>
-		/// <param name="writeMode"></param>
-		/// <returns>item manager class instance</returns>
-		public ITableManager<IItem, IItemsFilter, int> MyManager(bool checkUserContext = false, bool writeMode = false)
+        public virtual string ImagesPath
+        {
+            get { return "~/public/gallery/items/"; }
+        }
+
+        public virtual string FilesPath
+        {
+            get { return "~/public/files/items/"; }
+        }
+
+        public string StaticImagesPath
+        {
+            get
+            {
+                return ImagesPath + Id.ToString() + "/";
+            }
+        }
+
+        public string StaticFilesPath
+        {
+            get
+            {
+                string res = FilesPath + Id.ToString() + "/";
+                return res;
+            }
+        }
+
+        private List<FileMetaInfo> staticImages = null;
+        public List<FileMetaInfo> StaticImages
+        {
+            get
+            {
+                if (staticImages == null)
+                {
+                    if (Id > 0)
+                        staticImages = new FilesGallery(StaticImagesPath, "", "*.*").GetAll();
+                    else
+                        staticImages = new List<FileMetaInfo>();
+                }
+                return staticImages;
+            }
+        }
+
+        protected FileMetaInfo FindImage(string imageName)
+        {
+            FileMetaInfo res = new FileMetaInfo();
+            if (!string.IsNullOrEmpty(imageName))
+            {
+                foreach (var f in this.StaticImages)
+                {
+                    if (f.FileNameNoExtension.Equals(imageName, StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        res = f;
+                        break;
+                    }
+                }
+            }
+            return res;
+        }
+
+        #endregion
+
+        #region methods
+
+        /// <summary>
+        /// create an instance of the manager that handle DAL of current item type
+        /// </summary>
+        /// <param name="checkUserContext"></param>
+        /// <param name="writeMode"></param>
+        /// <returns>item manager class instance</returns>
+        public ITableManager<IItem, IItemsFilter, int> MyManager(bool checkUserContext = false, bool writeMode = false)
 		{
 			var man = new ItemsManager<Item, ItemsFilter>(checkUserContext, writeMode);
 			var iman = (ITableManager<IItem, IItemsFilter, int>)man;

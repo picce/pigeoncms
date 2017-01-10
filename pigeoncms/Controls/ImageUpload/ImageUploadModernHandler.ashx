@@ -1,8 +1,8 @@
 ﻿<%@ WebHandler Language="C#" Class="ImageUploadModernHandler" %>
 
 using System;
-using AQuest.PigeonCMS.ItemsAdmin.Uploads;
 using System.Web.SessionState;
+using PigeonCms.Controls.ItemsAdmin;
 
 public class ImageUploadModernHandler : AbstractUploadHandler, IRequiresSessionState
 {

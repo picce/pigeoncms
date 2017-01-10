@@ -1,5 +1,4 @@
 ﻿using AjaxControlToolkit;
-using AQuest.Cecchi.Utils;
 using ImageResizer;
 using PigeonCms;
 using System;
@@ -94,7 +93,7 @@ namespace AQuest.PigeonCMS.Controls
             string tmpFilePath = Path.GetTempPath() + Session["ImageUpload_" + UniqueID];
             if (File.Exists(tmpFilePath))
             {
-                string directory = FilesManipulationUtils.GetDirectory(filePath);
+                string directory = FilesHelper.GetDirectory(filePath);
                 if (!Directory.Exists(directory))
                     Directory.CreateDirectory(directory);
 

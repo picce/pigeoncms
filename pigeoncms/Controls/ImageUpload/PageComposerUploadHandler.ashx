@@ -3,10 +3,10 @@
 using System;
 using System.Web;
 using System.IO;
-using AQuest.PigeonCMS.ItemsAdmin.Uploads;
-using AQuest.Cecchi.Utils;
 using Newtonsoft.Json;
 using PigeonCms;
+using PigeonCms.Core.Helpers;
+using PigeonCms.Controls.ItemsAdmin;
 using System.Web.SessionState;
 
 public class PageComposerUploadHandler : AbstractUploadHandler, IRequiresSessionState

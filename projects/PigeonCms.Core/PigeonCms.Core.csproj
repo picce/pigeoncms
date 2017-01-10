@@ -57,6 +57,7 @@
     <Reference Include="System.DirectoryServices" />
     <Reference Include="System.DirectoryServices.AccountManagement" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Abstractions">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -107,10 +108,21 @@
     <Compile Include="BLL\CustomDataType.cs" />
     <Compile Include="BLL\LogItem.cs" />
     <Compile Include="BLL\Label.cs" />
+    <Compile Include="Controls\ItemFields\AbstractFieldContainer.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\ItemFields\FileFieldAttribute.cs" />
+    <Compile Include="Controls\ItemFields\ImageFieldAttribute.cs" />
+    <Compile Include="Controls\ItemFields\ItemFieldAttribute.cs" />
+    <Compile Include="Controls\ItemFields\Translation.cs" />
     <Compile Include="Controls\ItemParamsControl.cs">
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Controls\IContentEditorControl.cs" />
+    <Compile Include="Controls\ItemsAdmin\AbstractUploadHandler.cs" />
+    <Compile Include="Controls\ItemsAdmin\UploadHandlerResult.cs" />
+    <Compile Include="Controls\ItemsAdmin\UploadParameters.cs" />
+    <Compile Include="Controls\IUploadControl.cs" />
     <Compile Include="Controls\SeoControl.cs">
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
@@ -128,9 +140,7 @@
     <Compile Include="BaseClasses\BaseMasterPageAdmin.cs">
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="BaseClasses\BaseModuleControl.cs">
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
+    <Compile Include="BaseClasses\BaseModuleControl.cs" />
     <Compile Include="BaseClasses\BasePage.cs">
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
@@ -190,6 +200,7 @@
     <Compile Include="BLL\MvcRoute.cs" />
     <Compile Include="DAL\MvcRoutesManager.cs" />
     <Compile Include="Helpers\PageHelper.cs" />
+    <Compile Include="Helpers\UrlUtils.cs" />
     <Compile Include="Items\PigeonCms.News\NewsItem.cs" />
     <Compile Include="Items\PigeonCms.TicketItem\TicketItem.cs" />
     <Compile Include="Modules\PigeonCms.CategoriesAdmin\CategoriesAdminControl.cs">

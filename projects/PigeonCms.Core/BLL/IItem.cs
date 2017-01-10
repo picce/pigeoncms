@@ -9,6 +9,7 @@ visit "http://www.gnu.org/licenses/gpl.html"
 ***************************************************/
 
 using System;
+using System.Collections.Generic;
 
 namespace PigeonCms
 {
@@ -16,9 +17,9 @@ namespace PigeonCms
 		ITableWithOrdering, ITableWithComments,
 		ITableExternalId, ITableWithSeo
 	{
-		IItem();
-		IItem(string itemTypeName);
-		ItemPropertiesDefs Properties;
+		//IItem();
+		//IItem(string itemTypeName);
+		ItemPropertiesDefs Properties { get; set; }
 		ITableManager<IItem, IItemsFilter, int> MyManager(bool checkUserContext, bool writeMode);
 		string Alias { get; set; }
 		int CategoryId { get; set; }
@@ -84,5 +85,10 @@ namespace PigeonCms
 		string UserUpdated { get; set; }
 		DateTime ValidFrom { get; set; }
 		DateTime ValidTo { get; set; }
-	}
+        string StaticImagesPath { get; }
+        string StaticFilesPath { get; }
+        List<FileMetaInfo> StaticImages { get; }
+        void UpdatePropertiesStore();
+
+    }
 }

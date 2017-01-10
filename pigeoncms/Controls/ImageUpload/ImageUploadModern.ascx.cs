@@ -2,15 +2,14 @@
 using PigeonCms;
 using System;
 using System.Web.UI;
-using AQuest.PigeonCMS.ItemsAdmin;
-using AQuest.Cecchi.Utils;
 using System.IO;
 using System.Linq;
 using System.Security.AccessControl;
 using System.Collections.Generic;
 using System.Configuration;
-using AQuest.PigeonCMS.ItemsAdmin.Controls;
-using AQuest.PigeonCMS.ItemsAdmin.Uploads;
+using PigeonCms.Controls;
+using PigeonCms.Controls.ItemsAdmin;
+using PigeonCms.Core.Helpers;
 
 public partial class ImageUploadModern : UserControl, IUploadControl
 {
@@ -57,7 +56,7 @@ public partial class ImageUploadModern : UserControl, IUploadControl
 
             foreach (string allowedType in allowedTypes)
             {
-                string mime = FilesManipulationUtils.GetMimeFromExtension(allowedType);
+                string mime = FilesHelper.GetMimeFromExtension(allowedType);
                 if (string.IsNullOrWhiteSpace(mime))
                     continue;
 
@@ -134,7 +133,7 @@ public partial class ImageUploadModern : UserControl, IUploadControl
         string tmpFilePath = /*Path.GetTempPath() +*/ Convert.ToString(Session["ImageUpload_" + UniqueID]);
         if (File.Exists(tmpFilePath))
         {
-            string directory = FilesManipulationUtils.GetDirectory(filePath);
+            string directory = FilesHelper.GetDirectory(filePath);
             if (!Directory.Exists(directory))
                 Directory.CreateDirectory(directory);
 

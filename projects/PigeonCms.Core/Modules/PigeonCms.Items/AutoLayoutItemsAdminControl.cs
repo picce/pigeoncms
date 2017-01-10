@@ -6,13 +6,14 @@ using PigeonCms.Core.Helpers;
 using System.Web.UI.WebControls;
 using System.Web.UI;
 using PigeonCms.Controls;
-using PigeonCms.Controls.ItemFields;
+//using PigeonCms.Controls.ItemFields;
 using System.Web;
 using System.Collections;
 using System.Reflection;
 using System.Globalization;
 using System.Web.Security;
 using System.Text.RegularExpressions;
+using PigeonCms.Controls.ItemFields;
 
 namespace PigeonCms.Modules
 {
@@ -1528,7 +1529,7 @@ namespace PigeonCms.Modules
 							{
 								string fileName = Regex.Replace(GetAlias(item) + " " + property.Name, "[^a-zA-Z0-9]", "-") + "." + fileUpload.GetExtension();
 								string newFileName;
-								string filePath = FilesManipulationUtils.GetUniqueFilename(item.StaticFilesPath, fileName.ToLower(), out newFileName);
+								string filePath = FilesHelper.GetUniqueFilename(item.StaticFilesPath, fileName.ToLower(), out newFileName);
 								fileUpload.SaveTo(filePath);
 								localizedValue[culture.Key] = item.StaticFilesPath + newFileName;
 							}
@@ -1551,7 +1552,7 @@ namespace PigeonCms.Modules
 						{
 							string fileName = Regex.Replace(GetAlias(item) + " " + property.Name, "[^a-zA-Z0-9]", "-") + "." + fileUpload.GetExtension();
 							string newFileName;
-							string filePath = FilesManipulationUtils.GetUniqueFilename(item.StaticFilesPath, fileName.ToLower(), out newFileName);
+							string filePath = FilesHelper.GetUniqueFilename(item.StaticFilesPath, fileName.ToLower(), out newFileName);
 							fileUpload.SaveTo(filePath);
 							property.SetValue(item.Properties, item.StaticFilesPath + newFileName, null);
 						}
@@ -1571,7 +1572,7 @@ namespace PigeonCms.Modules
 					{
 						string fileName = Regex.Replace(GetAlias(item) + " " + property.Name, "[^a-zA-Z0-9]", "-") + "." + imageUpload.GetExtension();
 						string newFileName;
-						string filePath = FilesManipulationUtils.GetUniqueFilename(item.StaticImagesPath, fileName.ToLower(), out newFileName);
+						string filePath = FilesHelper.GetUniqueFilename(item.StaticImagesPath, fileName.ToLower(), out newFileName);
 						imageUpload.SaveTo(filePath);
 						property.SetValue(item.Properties, item.StaticImagesPath + newFileName, null);
 					}
@@ -1629,18 +1630,173 @@ namespace PigeonCms.Modules
 			//__doPostBack('__Page', 'MyCustomArgument')
 		}
 
-		#endregion
+        //TOCHECK
+        protected PropertyInfo GetTitleProperty(IItem item)
+        {
+            if (item == null)
+                return null;
 
-		#region state
+            ItemPropertiesDefs props = item.Properties;
+            Type type = props.GetType();
 
-		/*protected string itemTypes;
+            PropertyInfo titleProp = type.GetProperty("Title");
+            if (titleProp == null)
+                titleProp = type.GetProperty("Name");
+
+            return titleProp;
+        }
+
+        //TOCHECK
+        protected void CheckTitle(IItem item)
+        {
+            if (item == null)
+                return;
+
+            PropertyInfo titleProp = GetTitleProperty(item);
+
+            if (titleProp == null)
+                return;
+
+            if (titleProp.PropertyType == typeof(Translation))
+            {
+                Translation value = (Translation)titleProp.GetValue(item.Properties);
+                if (value != null)
+                {
+                    if (item.TitleTranslations == null)
+                    {
+                        item.TitleTranslations = value;
+                    }
+                    else
+                    {
+                        Dictionary<string, string> titles = new Dictionary<string, string>();
+                        foreach (KeyValuePair<string, string> pair in value)
+                        {
+                            string current = item.TitleTranslations[pair.Key];
+                            titles[pair.Key] = string.IsNullOrWhiteSpace(current) ? pair.Value : current;
+                        }
+                        item.TitleTranslations = titles;
+                    }
+                }
+            }
+            else
+            {
+                object value = titleProp.GetValue(item.Properties);
+                if (value != null)
+                {
+                    if (item.TitleTranslations == null)
+                    {
+                        item.TitleTranslations = new Dictionary<string, string>() { { Config.CultureDefault, Convert.ToString(value) } };
+                    }
+                    else
+                    {
+                        Dictionary<string, string> titles = new Dictionary<string, string>();
+                        foreach (KeyValuePair<string, string> pair in item.TitleTranslations)
+                        {
+                            titles[pair.Key] = string.IsNullOrWhiteSpace(pair.Value) ? Convert.ToString(value) : pair.Value;
+                        }
+                        item.TitleTranslations = titles;
+                    }
+                }
+            }
+        }
+
+        //TOCHECK
+        public static string CheckAlias(string alias)
+        {
+            if (string.IsNullOrWhiteSpace(alias))
+                return string.Empty;
+
+            string result = Regex.Replace(alias, "<[^>]*(>|$)", string.Empty);
+            result = Regex.Replace(result, @"[^a-zA-Z0-9\-_]", "-");
+            result = Regex.Replace(result, @"[\-]+", "-");
+            return result.ToLower().Trim();
+        }
+
+        //TOCHECK
+        protected string UniqueAlias(string alias)
+        {
+            if (string.IsNullOrEmpty(alias))
+                return alias;
+
+            string _alias = alias;
+            int i = 1;
+            while (true)
+            {
+                var filter = new ItemsFilter();
+                var list = new List<Item>();
+
+                filter.Alias = _alias;
+                list = new ItemsManager<Item, ItemsFilter>().GetByFilter(filter, "");
+
+                if (list.Count == 0)
+                    break;
+
+                if (CurrentId == 0 || list[0].Id != CurrentId)
+                {
+                    _alias = alias + "-" + i;
+                    i++;
+                    continue;
+                }
+
+                break;
+            }
+
+            return _alias;
+        }
+
+        //TOCHECK
+        protected string GetAlias(IItem item)
+        {
+            if (item == null)
+                return string.Empty;
+
+            string alias = item.Alias;
+
+            if (string.IsNullOrWhiteSpace(alias))
+            {
+                PropertyInfo titleProp = GetTitleProperty(item);
+
+                if (titleProp != null)
+                {
+                    if (titleProp.PropertyType == typeof(Translation))
+                    {
+                        Translation value = (Translation)titleProp.GetValue(item.Properties);
+                        if (value != null)
+                            alias = CheckAlias(value[Config.CultureDefault]);
+                    }
+                    else
+                    {
+                        object value = titleProp.GetValue(item.Properties);
+                        if (value != null)
+                            alias = CheckAlias(Convert.ToString(value));
+                    }
+                }
+                else if (item.Id > 0)
+                {
+                    alias = string.Format("{0}-{1}", ItemsAdminHelper.GetItemShortName(item), item.Id);
+                }
+                else
+                {
+                    alias = string.Format("{0}-{1:yyyymmdd-HHmmss}", ItemsAdminHelper.GetItemShortName(item), DateTime.Now);
+                }
+            }
+
+            return UniqueAlias(CheckAlias(alias.Trim()));
+        }
+
+
+        #endregion
+
+        #region state
+
+        /*protected string itemTypes;
 		public string ItemTypes
 		{
 			get { return GetStringParam("ItemTypes", itemTypes); }
 			set { itemTypes = value; }
 		}*/
 
-		protected DateTime ItemDate
+        protected DateTime ItemDate
 		{
 			get { return GetItemDate(_TxtItemDate); }
 			set { SetItemDate(_TxtItemDate, value); }

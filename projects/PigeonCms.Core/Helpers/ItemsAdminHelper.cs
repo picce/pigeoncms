@@ -80,7 +80,7 @@ namespace PigeonCms.Core.Helpers
 			return result;
 		}
 
-		public static string GetItemShortName(Item item)
+		public static string GetItemShortName(IItem item)
 		{
 			if (item == null)
 				return string.Empty;
