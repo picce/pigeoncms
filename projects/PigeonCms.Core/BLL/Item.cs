@@ -1141,9 +1141,9 @@ namespace PigeonCms
         /// <returns>item manager class instance</returns>
         public ITableManager<IItem, IItemsFilter, int> MyManager(bool checkUserContext = false, bool writeMode = false)
 		{
-			var man = new ItemsManager<Item, ItemsFilter>(checkUserContext, writeMode);
-			var iman = (ITableManager<IItem, IItemsFilter, int>)man;
-			return iman;
+            var man = new ItemsManager<Item, ItemsFilter>(checkUserContext, writeMode);
+            var iman = man as ITableManager<IItem, IItemsFilter, int>;
+            return iman;
 		}
 
         /// <summary>
@@ -1709,5 +1709,10 @@ namespace PigeonCms
 			return Reflection.PropertiesToString(this);
 		}
 	}
+
+    public abstract class BlocksItemsPropertiesDefs : ItemPropertiesDefs
+    {
+        public List<PigeonCms.Core.Controls.ItemBlocks.BaseBlockItem> Blocks { get; set; }
+    }
 
 }

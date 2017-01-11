@@ -1,5 +1,8 @@
 ﻿using Newtonsoft.Json.Linq;
 using PigeonCms;
+using PigeonCms.Controls.ItemFields;
+using PigeonCms.Controls.ItemsAdmin;
+using PigeonCms.Core.Controls.ItemBlocks;
 using PigeonCms.Core.Helpers;
 using System;
 using System.Collections.Generic;
@@ -48,13 +51,13 @@ public partial class Controls_PageComposer_PageComposer : UserControl
         ", true);
     }
 
-    public void Load(Item obj)
+    public void Load(IItem obj)
     {
-        BaseItem item = obj as BaseItem;
+        var item = obj;
         if (item == null)
             return;
 
-        BlocksPropertiesDefs newsProps = item.Properties as BlocksPropertiesDefs;
+        BlocksItemsPropertiesDefs newsProps = item.Properties as BlocksItemsPropertiesDefs;
         if (newsProps == null)
             return;
 
@@ -65,13 +68,13 @@ public partial class Controls_PageComposer_PageComposer : UserControl
         }
     }
 
-    public void Store(Item obj)
+    public void Store(IItem obj)
     {
-        BaseItem item = obj as BaseItem;
+        IItem item = obj as IItem;
         if (item == null)
             return;
 
-        BlocksPropertiesDefs props = item.Properties as BlocksPropertiesDefs;
+        BlocksItemsPropertiesDefs props = item.Properties as BlocksItemsPropertiesDefs;
         if (props == null)
             return;
 
@@ -88,14 +91,14 @@ public partial class Controls_PageComposer_PageComposer : UserControl
         }
     }
 
-    public void TranslateFileToEditor(BaseItem block)
+    public void TranslateFileToEditor(IItem block)
     {
         try
         {
             if (block == null)
                 return;
 
-            AbstractPropertiesDefs props = block.Properties;
+            ItemPropertiesDefs props = block.Properties;
             PropertyInfo[] properties = props.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
             string uid = string.Empty;
 
@@ -133,7 +136,7 @@ public partial class Controls_PageComposer_PageComposer : UserControl
         }
     }
 
-    public string TranslateFileFromEditor(BaseItem item, string fieldId)
+    public string TranslateFileFromEditor(IItem item, string fieldId)
     {
         if (AbstractUploadHandler.IsDeleted(Context, "PageComposer", fieldId))
         {
@@ -147,7 +150,7 @@ public partial class Controls_PageComposer_PageComposer : UserControl
                 return null;
 
             string newFileName;
-            string filePath = FilesManipulationUtils.GetUniqueFilename(item.StaticImagesPath, fileName.ToLower(), out newFileName);
+            string filePath = FilesHelper.GetUniqueFilename(item.StaticImagesPath, fileName.ToLower(), out newFileName);
             AbstractUploadHandler.SaveTo(Context, "PageComposer", fieldId, filePath);
             return item.StaticImagesPath + newFileName;
         }

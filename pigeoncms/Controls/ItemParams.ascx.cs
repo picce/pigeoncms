@@ -45,7 +45,7 @@ public partial class Controls_ItemParams : PigeonCms.Controls.ItemParamsControl
     /// <summary>
     /// loads params list for current item
     /// </summary>
-	public override void LoadParams(Item currentItem)
+	public override void LoadParams(IItem currentItem)
     {
         PigeonCms.ItemType itemType = null;
         try
@@ -62,7 +62,7 @@ public partial class Controls_ItemParams : PigeonCms.Controls.ItemParamsControl
     /// <summary>
     /// loads fields list for current item
     /// </summary>
-	public override void LoadFields(Item currentItem)
+	public override void LoadFields(IItem currentItem)
     {
         FormBuilder.RenderParamsOnPanel(PanelParams, currentItem, null);
     }

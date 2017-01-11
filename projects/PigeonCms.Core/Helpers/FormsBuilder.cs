@@ -92,7 +92,7 @@ namespace PigeonCms
         /// </summary>
         /// <param name="panel">the container for generated controls</param>
         /// <param name="currentItem">current Item</param>
-        public static void RenderParamsOnPanel(Panel panel, Item currentItem, List<ResLabel> labelsList)
+        public static void RenderParamsOnPanel(Panel panel, IItem currentItem, List<ResLabel> labelsList)
         {
             PigeonCms.ItemType itemType = null;
             Dictionary<string, string> fieldsValues = new Dictionary<string,string>();

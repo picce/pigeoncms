@@ -418,7 +418,7 @@
 
 								</div>
 
-								<asp:Repeater runat="server" ID="Rep1" OnItemDataBound="Rep1_ItemDataBound" OnItemCommand="Rep1_ItemCommand">
+								<asp:Repeater runat="server" ID="Rep1">
 									<ItemTemplate>
 
 										<div class="table-modern--row">
@@ -504,7 +504,7 @@
 														</asp:LinkButton>
 													</div>
 													<div class="table-modern--hover--col">
-														<asp:LinkButton runat="server" ID="LnkEdit" CausesValidation="false" CommandName="Select" CommandArgument='<%#Eval("Id") %>' class="table-modern--media" ClientIDMode="AutoID" data-title-mobile="EDIT">
+														<asp:LinkButton runat="server" ID="LnkEdit" CausesValidation="false" CommandName="Select" CommandArgument='<%#Eval("Id") + "|" + Eval("ItemTypeName") %>' class="table-modern--media" ClientIDMode="AutoID" data-title-mobile="EDIT">
 															<div class="table-modern--media--wrapper">
 																<div class="table-modern--media--modify"></div>
 																<span class="table-modern--media--label"><%=base.GetLabel("edit", "edit") %></span>
@@ -560,7 +560,7 @@
 								</asp:Repeater>
 
 								<div class="table-modern--rowpaging ">
-									<asp:Repeater ID="RepPaging" runat="server" OnItemCommand="RepPaging_ItemCommand" OnItemDataBound="RepPaging_ItemDataBound">
+									<asp:Repeater ID="RepPaging" runat="server">
 										<ItemTemplate>
 											<div class="table-modern__col col--paging table-modern__col--paging">
 													<asp:LinkButton ID="BtnPage" runat="server" ClientIDMode="AutoID"
@@ -741,8 +741,8 @@
 
 			</asp:Panel>
 
-            <%--<asp:HiddenField ID="HidCurrentId" Visible="true" runat="server" ClientIDMode="Static" />
-            <asp:HiddenField ID="HidCurrentItemType" Visible="true" runat="server" ClientIDMode="Static" />--%>
+            <%--<asp:HiddenField ID="HidCurrentId" Visible="true" runat="server" ClientIDMode="Static" />--%>
+            <asp:HiddenField ID="HidCurrentItemType" Visible="true" runat="server" ClientIDMode="Static" />
 
 		</div>
 

@@ -91,7 +91,6 @@ namespace PigeonCms.Modules
 		{
 			base.OnInit(e);
 
-			ContentEditorProvider.InitEditor(this, _Upd1, base.ContentEditorConfig);
 
 			string titleId = "";
 			foreach (KeyValuePair<string, string> item in Config.CultureList)
@@ -174,9 +173,11 @@ namespace PigeonCms.Modules
 
 			ItemsAdminHelper.InsertJsIntoPageScriptManager("ImageUpload/ImageUploadModern", Page);
 			ItemsAdminHelper.InsertJsIntoPageScriptManager("ImageUpload/FileUploadModern", Page);
+            ContentEditorProvider.InitEditor(this, _Upd1, base.ContentEditorConfig);
 
-			//to allow file upload
-			Page.Form.Attributes.Add("enctype", "multipart/form-data");
+
+            //to allow file upload
+            Page.Form.Attributes.Add("enctype", "multipart/form-data");
 		}
 
 		protected override void OnLoad(EventArgs e)
@@ -219,27 +220,6 @@ namespace PigeonCms.Modules
 					updateSortedTable();
 					loadList();
 				}
-
-
-				////reload params on every postback, because cannot manage dinamically fields
-				//var currentItem = new PigeonCms.Item();
-				//if (CurrentId > 0)
-				//{
-				//	currentItem = new ItemsManager<Item, ItemsFilter>(true, true).GetByKey(CurrentId);
-				//	ItemParams1.LoadParams(currentItem);
-				//	ItemFields1.LoadFields(currentItem);
-				//}
-				//else
-				//{
-				//	//manually set ItemType
-				//	try
-				//	{
-				//		currentItem.ItemTypeName = LitItemType.Text;
-				//		ItemParams1.LoadParams(currentItem);
-				//		ItemFields1.LoadFields(currentItem);
-				//	}
-				//	catch { }
-				//}
 			}
 			OnAfterLoad();
 		}

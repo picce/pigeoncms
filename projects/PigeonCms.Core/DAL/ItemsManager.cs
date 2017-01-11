@@ -16,10 +16,18 @@ using System.Diagnostics;
 
 namespace PigeonCms
 {
+    /*public class ItemsManager : ItemsManager<Item, ItemsFilter>
+    {
+        public ItemsManager(bool checkUserContext, bool writeMode)
+            : base(checkUserContext, writeMode)
+        { }
+
+    }*/
+
     public class ItemsManager<T, F> : 
         TableManagerWithOrdering<T, F, int>,
         ITableManagerWithPermission, ITableManagerExternalId<T>
-        where T: Item, new()
+        where T: Item,  new()
         where F: ItemsFilter, new()
     {
         public const string MaxItemsException = "PigeonCms.MaxItemsException";

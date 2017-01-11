@@ -699,4 +699,17 @@ namespace PigeonCms
 		string TableName { get; set; }
 		int Update(T theObj);
 	}
+
+    /*public interface ITableItemsManager
+    {
+        int DeleteById(int recordId);
+        System.Collections.Generic.List<IItem> GetByFilter(IItemsFilter filter, string sort);
+        IItem GetByKey(int id);
+        System.Collections.Generic.Dictionary<string, string> GetList();
+        IItem Insert(IItem newObj);
+        string KeyFieldName { get; set; }
+        string TableName { get; set; }
+        int Update(IItem theObj);
+    }*/
+
 }
