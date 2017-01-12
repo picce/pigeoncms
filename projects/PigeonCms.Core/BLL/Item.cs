@@ -1139,12 +1139,17 @@ namespace PigeonCms
         /// <param name="checkUserContext"></param>
         /// <param name="writeMode"></param>
         /// <returns>item manager class instance</returns>
-        public ITableManager<IItem, IItemsFilter, int> MyManager(bool checkUserContext = false, bool writeMode = false)
-		{
-            var man = new ItemsManager<Item, ItemsFilter>(checkUserContext, writeMode);
-            var iman = man as ITableManager<IItem, IItemsFilter, int>;
-            return iman;
-		}
+        public ItemsManager MyManager(bool checkUserContext, bool writeMode)
+        {
+            return new ItemsManager(checkUserContext, writeMode);
+        }
+
+        //public ITableManager<IItem, IItemsFilter, int> MyManager(bool checkUserContext = false, bool writeMode = false)
+        //{
+        //    var man = new ItemsManager<Item, ItemsFilter>(checkUserContext, writeMode);
+        //    var iman = man as ITableManager<IItem, IItemsFilter, int>;
+        //    return iman;
+        //}
 
         /// <summary>
         /// delete images folder content
@@ -1301,9 +1306,9 @@ namespace PigeonCms
             return res;
         }
 
-		#endregion
+        #endregion
 
-		public class ItemComparer : IComparer<Item>
+        public class ItemComparer : IComparer<Item>
         {
             private string sortExpression = "";
             private SortDirection sortDirection;

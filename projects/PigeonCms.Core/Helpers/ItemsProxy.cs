@@ -19,7 +19,11 @@ namespace PigeonCms.Core.Helpers
 		// https://blogs.msdn.microsoft.com/csharpfaq/2010/02/16/covariance-and-contravariance-faq/
 		public IItem GetByKey(int itemId, string itemType, bool checkUserContext = false, bool writeMode = false)
 		{
-			return this.CreateItem(itemType).MyManager(checkUserContext, writeMode).GetByKey(itemId);
+            var item = this.CreateItem(itemType);
+            if (item != null)
+                return item.MyManager(checkUserContext, writeMode).GetByKey(itemId);
+            else
+                return null;
 		}
 
 		public IItem CreateItem(string itemTypeName)

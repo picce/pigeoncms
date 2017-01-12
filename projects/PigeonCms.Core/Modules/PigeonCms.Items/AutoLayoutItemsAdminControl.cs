@@ -566,7 +566,7 @@ namespace PigeonCms.Modules
 			try
 			{
 				var o1 = new ItemsProxy().CreateItem(this.CurrentItemType);
-				var man = o1.MyManager(true, true);
+				var man = (ITableManager<IItem, IItemsFilter, int>)o1.MyManager(true, true);
 				//var item = new ItemsProxy().GetByKey(itemId, itemType, true, true);
 
 				if (CurrentId == 0)
@@ -1107,6 +1107,9 @@ namespace PigeonCms.Modules
 				return null;
 
 			ItemPropertiesDefs props = item.Properties;
+            if (props == null)
+                return null;
+
 			Type type = props.GetType();
 
 			return type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
@@ -1121,6 +1124,9 @@ namespace PigeonCms.Modules
 			PropertyInfo[] properties = GetItemPropertiesInfo(obj);
 
 			_FieldsContainer.Controls.Clear();
+
+            if (properties == null)
+                return;
 
 			foreach (PropertyInfo property in properties)
 			{

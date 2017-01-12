@@ -16,13 +16,13 @@ using System.Diagnostics;
 
 namespace PigeonCms
 {
-    /*public class ItemsManager : ItemsManager<Item, ItemsFilter>
+    public class ItemsManager : ItemsManager<Item, ItemsFilter>
     {
         public ItemsManager(bool checkUserContext, bool writeMode)
             : base(checkUserContext, writeMode)
         { }
 
-    }*/
+    }
 
     public class ItemsManager<T, F> : 
         TableManagerWithOrdering<T, F, int>,
