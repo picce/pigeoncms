@@ -1469,6 +1469,10 @@ namespace PigeonCms
             var relatedIdList = new List<int>();
             string sSql;
 
+            if (itemId <= 0)
+                return relatedIdList;
+		
+		
             myConn.ConnectionString = Database.ConnString;
             myConn.Open();
             myCmd.Connection = myConn;
