@@ -21,7 +21,9 @@ namespace PigeonCms
     {
         public HelloWorldItem() : base("PigeonCms.HelloWorldItem") { }
 
-        public class PropertiesDefs : ItemPropertiesDefs
+        
+        [ItemPropertiesMap]
+        public class CustomProp1 : ItemPropertiesDefs
         {
 
             [ItemField]
@@ -39,7 +41,7 @@ namespace PigeonCms
             [ItemField(ItemFieldEditorType.Select, "green;red;yellow;white;black")]
             public string SelectColor { get; set; }
 
-            [ImageField("svg")]
+            [ImageField("jpg")]
             public string Image1 { get; set; }
 
             [ItemField(ItemFieldEditorType.Flag)]
@@ -47,6 +49,15 @@ namespace PigeonCms
 
             [ItemField(ItemFieldEditorType.Number)]
             public int Number1 { get; set; }
+        }
+
+        [ItemPropertiesMap(ItemPropertiesMapAttribute.MapTargetEnum.CustomString2)]
+        public class CustomProp2 : ItemPropertiesDefs
+        {
+
+            [ItemField]
+            public string OtherSimpleText { get; set; }
+
         }
 
         public FileMetaInfo ImageHeader

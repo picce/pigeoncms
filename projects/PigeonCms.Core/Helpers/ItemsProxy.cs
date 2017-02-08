@@ -23,7 +23,19 @@ namespace PigeonCms.Core.Helpers
             if (item == null)
                 return null;
 
-            return item.MyManager(checkUserContext, writeMode).GetByKey(itemId);
+            switch (itemType)
+            {
+                case "PigeonCms.Item":
+                    return new ItemsManager(checkUserContext, writeMode).GetByKey(itemId);
+
+                case "PigeonCms.HelloWorldItem":
+                    return new HelloWorldItemsManager(checkUserContext, writeMode).GetByKey(itemId);
+            }
+
+            return null;
+
+            //TODO reflection or autofac
+            //return item.MyManager(checkUserContext, writeMode).GetByKey(itemId);
             //PigeonCms.Reflection.Process()
 		}
 

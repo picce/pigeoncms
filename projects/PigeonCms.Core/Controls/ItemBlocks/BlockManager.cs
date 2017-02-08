@@ -88,7 +88,7 @@ namespace PigeonCms.Core.Controls.ItemBlocks
 
         public static void Deserialize(this BaseBlockItem block, JObject json, Func<string, string> fileTranslator)
         {
-            ItemPropertiesDefs props = block.Properties;
+            ItemPropertiesDefs props = block.PropertiesList;
             Type type = props.GetType();
             PropertyInfo[] properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
 
@@ -115,7 +115,7 @@ namespace PigeonCms.Core.Controls.ItemBlocks
 
         public static void TranslateFileProperty(this BaseBlockItem block, Func<string, string> fileTranslator)
         {
-            ItemPropertiesDefs props = block.Properties;
+            ItemPropertiesDefs props = block.PropertiesList;
             Type type = props.GetType();
             PropertyInfo[] properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
 

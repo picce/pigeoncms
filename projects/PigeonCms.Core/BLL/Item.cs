@@ -956,8 +956,6 @@ namespace PigeonCms
 
 		#region constructor
 
-		//TODO set as attribute
-		private string propertiesColumnName;
 
 		public Item()
 		{
@@ -981,79 +979,102 @@ namespace PigeonCms
 				ItemTypeName = string.Format("{0}.{1}", type.Namespace, type.Name);
 			}
 
-			//TODO set from attrobute
-			//example CustomString1, CustomString2, DB
-			this.propertiesColumnName = "CustomString1";
 		}
 
 		#endregion
 
 		#region Properties
 
-		private ItemPropertiesDefs properties;
-		public ItemPropertiesDefs Properties
+		private List<ItemPropertiesDefs> propertiesList;
+		public List<ItemPropertiesDefs> PropertiesList
 		{
 			get
 			{
-				if (properties == null)
+				if (propertiesList == null)
 				{
-					properties = Reflection.CreateInstanceOfNestedType<ItemPropertiesDefs>(this);
+					propertiesList = Reflection.CreateInstancesOfNestedType<ItemPropertiesDefs>(this);
 					try
 					{
-						JsonConvert.PopulateObject(PropertiesAsString, properties);
+                        foreach (var prop in propertiesList)
+                        {
+                            JsonConvert.PopulateObject(GetPropertyString(prop.MapAttributeValue), prop);
+                        }
 					}
 					catch (Exception e)
 					{
 
 					}
 				}
-				return properties;
+				return propertiesList;
 			}
 			set
 			{
-				properties = value;
+				propertiesList = value;
 			}
 		}
 
-		[ScriptIgnore]
-		public string PropertiesAsString
-		{
-			[DebuggerStepThrough()]
-			get
-			{
-				// Use switch to avoid reflection
-				switch (propertiesColumnName)
-				{
-					case "CustomString1": return CustomString1;
-					case "CustomString2": return CustomString2;
-					case "CustomString3": return CustomString3;
-					case "CustomString4": return CustomString4;
-					default: return "";
-				}
-			}
+        public void SetPropertyString(string value, string propertiesColumnName)
+        {
+            switch (propertiesColumnName)
+            {
+                case "CustomString1": CustomString1 = value; break;
+                case "CustomString2": CustomString2 = value; break;
+                case "CustomString3": CustomString3 = value; break;
+                case "CustomString4": CustomString4 = value; break;
+            }
+        }
 
-			[DebuggerStepThrough()]
-			set
-			{
-				// Use switch to avoid reflection
-				switch (propertiesColumnName)
-				{
-					case "CustomString1": CustomString1 = value; break;
-					case "CustomString2": CustomString2 = value; break;
-					case "CustomString3": CustomString3 = value; break;
-					case "CustomString4": CustomString4 = value; break;
-				}
-			}
-		}
+        public string GetPropertyString(string propertiesColumnName)
+        {
+            switch (propertiesColumnName)
+            {
+                case "CustomString1": return CustomString1;
+                case "CustomString2": return CustomString2;
+                case "CustomString3": return CustomString3;
+                case "CustomString4": return CustomString4;
+                default: return "";
+            }
+        }
 
-		[ScriptIgnore]
-		public JObject ItemObject
-		{
-			get
-			{
-				return JObject.Parse(PropertiesAsString);
-			}
-		}
+        //[ScriptIgnore]
+        //public string PropertiesAsString
+        //{
+        //	[DebuggerStepThrough()]
+        //	get
+        //	{
+        //		// Use switch to avoid reflection
+        //		switch (propertiesColumnName)
+        //		{
+        //			case "CustomString1": return CustomString1;
+        //			case "CustomString2": return CustomString2;
+        //			case "CustomString3": return CustomString3;
+        //			case "CustomString4": return CustomString4;
+        //			default: return "";
+        //		}
+        //	}
+
+        //	[DebuggerStepThrough()]
+        //	set
+        //	{
+        //		// Use switch to avoid reflection
+        //		switch (propertiesColumnName)
+        //		{
+        //			case "CustomString1": CustomString1 = value; break;
+        //			case "CustomString2": CustomString2 = value; break;
+        //			case "CustomString3": CustomString3 = value; break;
+        //			case "CustomString4": CustomString4 = value; break;
+        //		}
+        //	}
+        //}
+
+        //[ScriptIgnore]
+		//public JObject ItemObject
+		//{
+		//	get
+		//	{
+		//		return JObject.Parse(PropertiesAsString);
+		//	}
+		//}
 
 		public string ToJson()
 		{
@@ -1062,7 +1083,10 @@ namespace PigeonCms
 
 		public virtual void UpdatePropertiesStore()
 		{
-			PropertiesAsString = JsonConvert.SerializeObject(properties);
+            foreach(var prop in this.PropertiesList)
+            {
+                SetPropertyString(JsonConvert.SerializeObject(prop), prop.MapAttributeValue);
+            }
 		}
 
         #endregion
@@ -1714,11 +1738,54 @@ namespace PigeonCms
 		{
 			return Reflection.PropertiesToString(this);
 		}
+
+        [ScriptIgnore]
+        public string MapAttributeValue
+        {
+            [DebuggerStepThrough()]
+            get
+            {
+                string res = new ItemPropertiesMapAttribute().Target;
+
+                var attr = this.GetType().GetCustomAttribute(typeof(ItemPropertiesMapAttribute), true);
+                if (attr != null)
+                    res = ((ItemPropertiesMapAttribute)attr).Target;
+
+                return res;
+            }
+        }
 	}
 
     public abstract class BlocksItemsPropertiesDefs : ItemPropertiesDefs
     {
         public List<PigeonCms.Core.Controls.ItemBlocks.BaseBlockItem> Blocks { get; set; }
+    }
+
+    /// <summary>
+    /// map #__items table column target of ItemPropertiesDefs serialization
+    /// default is CustomString1
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Class)]
+    public class ItemPropertiesMapAttribute: System.Attribute
+    {
+        public string Target { get; }
+
+        public enum MapTargetEnum
+        {
+            CustomString1,
+            CustomString2,
+            CustomString3,
+            CustomString4,
+            Table//TODO serialize in table
+        }
+
+        public ItemPropertiesMapAttribute(MapTargetEnum mapTarget = MapTargetEnum.CustomString1)
+        {
+            if (mapTarget == MapTargetEnum.Table)
+                throw new NotImplementedException("MapTargetEnum.Table is not implemented yet");
+
+            this.Target = mapTarget.ToString();
+        }
     }
 
 }

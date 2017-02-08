@@ -19,7 +19,7 @@ namespace PigeonCms
 	{
 		//IItem();
 		//IItem(string itemTypeName);
-		ItemPropertiesDefs Properties { get; set; }
+		List<ItemPropertiesDefs> PropertiesList { get; set; }
         //ITableManager<IItem, IItemsFilter, int> MyManager(bool checkUserContext, bool writeMode);
         //TableManager<IItem, IItemsFilter, int> MyManager(bool checkUserContext, bool writeMode);
         ItemsManager MyManager(bool checkUserContext, bool writeMode);

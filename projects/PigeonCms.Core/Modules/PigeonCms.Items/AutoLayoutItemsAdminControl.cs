@@ -479,18 +479,24 @@ namespace PigeonCms.Modules
 		{
 			OnBeforeCancel();
 
-			PropertyInfo[] properties = GetItemPropertiesInfo(CurrItem);
-			if (properties != null)
-			{
-				foreach (PropertyInfo property in properties)
-				{
-					IUploadControl imageUpload = Utility.Controls.FindControlRecursive<Control>(_FieldsContainer, "property_" + property.Name) as IUploadControl;
-					if (imageUpload != null)
-						imageUpload.CleanSession();
-				}
-			}
+            foreach(var prop in CurrItem.PropertiesList)
+            {
+                PropertyInfo[] properties = GetItemPropertiesInfo(prop);
+                if (properties != null)
+                {
+                    foreach (PropertyInfo property in properties)
+                    {
+                        //TODO nome controllo con preprix prop.MapAttributeValue
+                        IUploadControl imageUpload = Utility.Controls.FindControlRecursive<Control>(_FieldsContainer, "property_" + property.Name) as IUploadControl;
+                        if (imageUpload != null)
+                            imageUpload.CleanSession();
+                    }
+                }
 
-			setError("");
+            }
+
+
+            setError("");
 			setSuccess("");
 			showInsertPanel(false);
 			OnAfterCancel();
@@ -566,7 +572,8 @@ namespace PigeonCms.Modules
 			try
 			{
                 //TODO - work with IItem and ITableManager
-				var o1 = new ItemsProxy().CreateItem(this.CurrentItemType);
+                var proxy = new ItemsProxy();
+				var o1 = proxy.CreateItem(this.CurrentItemType);
 				//var man = (ITableManager<IItem, IItemsFilter, int>)o1.MyManager(true, true);
                 var man = o1.MyManager(true, true);
 				
@@ -574,12 +581,14 @@ namespace PigeonCms.Modules
 				if (CurrentId == 0)
 				{
 					form2obj(o1);
+					//o1 = man.Insert(o1);//err because dont cast IItem
 					o1 = man.Insert((Item)o1);
 				}
 				else
 				{
-					o1 = man.GetByKey(CurrentId);
-					form2obj(o1);
+                    //o1 = man.GetByKey(CurrentId);
+                    o1 = proxy.GetByKey(this.CurrentId, this.CurrentItemType);
+                    form2obj(o1);
 					man.Update((Item)o1);
 				}
 
@@ -1102,17 +1111,12 @@ namespace PigeonCms.Modules
 
 		#region Dynamic properties management
 
-		protected PropertyInfo[] GetItemPropertiesInfo(IItem obj)
+		protected PropertyInfo[] GetItemPropertiesInfo(ItemPropertiesDefs itemPropertyDef)
 		{
-			IItem item = obj as IItem;
-			if (item == null)
-				return null;
-
-			ItemPropertiesDefs props = item.Properties;
-            if (props == null)
+            if (itemPropertyDef == null)
                 return null;
 
-			Type type = props.GetType();
+			Type type = itemPropertyDef.GetType();
 
 			return type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
 		}
@@ -1123,16 +1127,17 @@ namespace PigeonCms.Modules
 			if (item == null)
 				return;
 
-			PropertyInfo[] properties = GetItemPropertiesInfo(obj);
+            _FieldsContainer.Controls.Clear();
 
-			_FieldsContainer.Controls.Clear();
+            PropertyInfo[] properties = GetItemPropertiesInfo(obj);
+
 
             if (properties == null)
                 return;
 
 			foreach (PropertyInfo property in properties)
 			{
-				object value = property.GetValue(item.Properties, null);
+				object value = property.GetValue(item.PropertiesList, null);
 
 				AbstractFieldContainer control = CreateEditorAndContainer(property, item, value, setFieldValues);
 				if (control == null)
@@ -1441,19 +1446,19 @@ namespace PigeonCms.Modules
 								localizedValue[culture.Key] = htmlEditor == null ? null : htmlEditor.Text;
 						}
 
-						property.SetValue(item.Properties, localizedValue, null);
+						property.SetValue(item.PropertiesList, localizedValue, null);
 					}
 					else
 					{
 						ITextControl htmlEditor = Utility.FindControlRecursive<Control>(_FieldsContainer, "property_" + property.Name) as ITextControl;
 						if (htmlEditor != null)
-							property.SetValue(item.Properties, htmlEditor == null ? null : htmlEditor.Text, null);
+							property.SetValue(item.PropertiesList, htmlEditor == null ? null : htmlEditor.Text, null);
 					}
 					break;
 				case ItemFieldEditorType.Select:
 					DropDownList dropDownList = Utility.FindControlRecursive<DropDownList>(_FieldsContainer, "property_" + property.Name);
 					if (dropDownList != null)
-						property.SetValue(item.Properties, dropDownList.SelectedValue, null);
+						property.SetValue(item.PropertiesList, dropDownList.SelectedValue, null);
 					break;
 				case ItemFieldEditorType.Number:
 					TextBox number = Utility.FindControlRecursive<TextBox>(_FieldsContainer, "property_" + property.Name);
@@ -1461,14 +1466,14 @@ namespace PigeonCms.Modules
 					{
 						if (string.IsNullOrWhiteSpace(number.Text))
 						{
-							property.SetValue(item.Properties, null, null);
+							property.SetValue(item.PropertiesList, null, null);
 						}
 						else
 						{
 							int value = 0;
 							if (int.TryParse(number.Text, out value))
 							{
-								property.SetValue(item.Properties, value, null);
+								property.SetValue(item.PropertiesList, value, null);
 							}
 						}
 					}
@@ -1476,7 +1481,7 @@ namespace PigeonCms.Modules
 				case ItemFieldEditorType.Flag:
 					CheckBox checkbox = Utility.FindControlRecursive<CheckBox>(_FieldsContainer, "property_" + property.Name);
 					if (checkbox != null)
-						property.SetValue(item.Properties, checkbox.Checked, null);
+						property.SetValue(item.PropertiesList, checkbox.Checked, null);
 					break;
 				case ItemFieldEditorType.TextBox:
 					if (attribute.Localized)
@@ -1488,13 +1493,13 @@ namespace PigeonCms.Modules
 							localizedValue[culture.Key] = textbox == null ? null : textbox.Text;
 						}
 
-						property.SetValue(item.Properties, localizedValue, null);
+						property.SetValue(item.PropertiesList, localizedValue, null);
 					}
 					else
 					{
 						TextBox textbox = Utility.FindControlRecursive<TextBox>(_FieldsContainer, "property_" + property.Name);
 						if (textbox != null)
-							property.SetValue(item.Properties, textbox.Text, null);
+							property.SetValue(item.PropertiesList, textbox.Text, null);
 					}
 					break;
 				case ItemFieldEditorType.File:
@@ -1515,7 +1520,7 @@ namespace PigeonCms.Modules
 							}
 							else if (fileUpload.HasChanged)
 							{
-								string fileName = Regex.Replace(GetAlias(item) + " " + property.Name, "[^a-zA-Z0-9]", "-") + "." + fileUpload.GetExtension();
+								string fileName = Regex.Replace(item.Alias + " " + property.Name, "[^a-zA-Z0-9]", "-") + "." + fileUpload.GetExtension();
 								string newFileName;
 								string filePath = FilesHelper.GetUniqueFilename(item.StaticFilesPath, fileName.ToLower(), out newFileName);
 								fileUpload.SaveTo(filePath);
@@ -1523,7 +1528,7 @@ namespace PigeonCms.Modules
 							}
 						}
 
-						property.SetValue(item.Properties, localizedValue, null);
+						property.SetValue(item.PropertiesList, localizedValue, null);
 					}
 					else
 					{
@@ -1533,16 +1538,16 @@ namespace PigeonCms.Modules
 
 						if (fileUpload.Deleted)
 						{
-							property.SetValue(item.Properties, null, null);
+							property.SetValue(item.PropertiesList, null, null);
 							fileUpload.PerformDelete();
 						}
 						else if (fileUpload.HasChanged)
 						{
-							string fileName = Regex.Replace(GetAlias(item) + " " + property.Name, "[^a-zA-Z0-9]", "-") + "." + fileUpload.GetExtension();
+							string fileName = Regex.Replace(item.Alias + " " + property.Name, "[^a-zA-Z0-9]", "-") + "." + fileUpload.GetExtension();
 							string newFileName;
 							string filePath = FilesHelper.GetUniqueFilename(item.StaticFilesPath, fileName.ToLower(), out newFileName);
 							fileUpload.SaveTo(filePath);
-							property.SetValue(item.Properties, item.StaticFilesPath + newFileName, null);
+							property.SetValue(item.PropertiesList, item.StaticFilesPath + newFileName, null);
 						}
 					}
 					break;
@@ -1553,16 +1558,16 @@ namespace PigeonCms.Modules
 
 					if (imageUpload.Deleted)
 					{
-						property.SetValue(item.Properties, null, null);
+						property.SetValue(item.PropertiesList, null, null);
 						imageUpload.PerformDelete();
 					}
 					else if (imageUpload.HasChanged)
 					{
-						string fileName = Regex.Replace(GetAlias(item) + " " + property.Name, "[^a-zA-Z0-9]", "-") + "." + imageUpload.GetExtension();
+						string fileName = Regex.Replace(item.Alias + " " + property.Name, "[^a-zA-Z0-9]", "-") + "." + imageUpload.GetExtension();
 						string newFileName;
 						string filePath = FilesHelper.GetUniqueFilename(item.StaticImagesPath, fileName.ToLower(), out newFileName);
 						imageUpload.SaveTo(filePath);
-						property.SetValue(item.Properties, item.StaticImagesPath + newFileName, null);
+						property.SetValue(item.PropertiesList, item.StaticImagesPath + newFileName, null);
 					}
 					break;
 			}
@@ -1619,76 +1624,6 @@ namespace PigeonCms.Modules
 		}
 
         //TOCHECK
-        protected PropertyInfo GetTitleProperty(IItem item)
-        {
-            if (item == null)
-                return null;
-
-            ItemPropertiesDefs props = item.Properties;
-            Type type = props.GetType();
-
-            PropertyInfo titleProp = type.GetProperty("Title");
-            if (titleProp == null)
-                titleProp = type.GetProperty("Name");
-
-            return titleProp;
-        }
-
-        //TOCHECK
-        protected void CheckTitle(IItem item)
-        {
-            if (item == null)
-                return;
-
-            PropertyInfo titleProp = GetTitleProperty(item);
-
-            if (titleProp == null)
-                return;
-
-            if (titleProp.PropertyType == typeof(Translation))
-            {
-                Translation value = (Translation)titleProp.GetValue(item.Properties);
-                if (value != null)
-                {
-                    if (item.TitleTranslations == null)
-                    {
-                        item.TitleTranslations = value;
-                    }
-                    else
-                    {
-                        Dictionary<string, string> titles = new Dictionary<string, string>();
-                        foreach (KeyValuePair<string, string> pair in value)
-                        {
-                            string current = item.TitleTranslations[pair.Key];
-                            titles[pair.Key] = string.IsNullOrWhiteSpace(current) ? pair.Value : current;
-                        }
-                        item.TitleTranslations = titles;
-                    }
-                }
-            }
-            else
-            {
-                object value = titleProp.GetValue(item.Properties);
-                if (value != null)
-                {
-                    if (item.TitleTranslations == null)
-                    {
-                        item.TitleTranslations = new Dictionary<string, string>() { { Config.CultureDefault, Convert.ToString(value) } };
-                    }
-                    else
-                    {
-                        Dictionary<string, string> titles = new Dictionary<string, string>();
-                        foreach (KeyValuePair<string, string> pair in item.TitleTranslations)
-                        {
-                            titles[pair.Key] = string.IsNullOrWhiteSpace(pair.Value) ? Convert.ToString(value) : pair.Value;
-                        }
-                        item.TitleTranslations = titles;
-                    }
-                }
-            }
-        }
-
-        //TOCHECK
         public static string CheckAlias(string alias)
         {
             if (string.IsNullOrWhiteSpace(alias))
@@ -1699,79 +1634,6 @@ namespace PigeonCms.Modules
             result = Regex.Replace(result, @"[\-]+", "-");
             return result.ToLower().Trim();
         }
-
-        //TOCHECK
-        protected string UniqueAlias(string alias)
-        {
-            if (string.IsNullOrEmpty(alias))
-                return alias;
-
-            string _alias = alias;
-            int i = 1;
-            while (true)
-            {
-                var filter = new ItemsFilter();
-                var list = new List<Item>();
-
-                filter.Alias = _alias;
-                list = new ItemsManager<Item, ItemsFilter>().GetByFilter(filter, "");
-
-                if (list.Count == 0)
-                    break;
-
-                if (CurrentId == 0 || list[0].Id != CurrentId)
-                {
-                    _alias = alias + "-" + i;
-                    i++;
-                    continue;
-                }
-
-                break;
-            }
-
-            return _alias;
-        }
-
-        //TOCHECK
-        protected string GetAlias(IItem item)
-        {
-            if (item == null)
-                return string.Empty;
-
-            string alias = item.Alias;
-
-            if (string.IsNullOrWhiteSpace(alias))
-            {
-                PropertyInfo titleProp = GetTitleProperty(item);
-
-                if (titleProp != null)
-                {
-                    if (titleProp.PropertyType == typeof(Translation))
-                    {
-                        Translation value = (Translation)titleProp.GetValue(item.Properties);
-                        if (value != null)
-                            alias = CheckAlias(value[Config.CultureDefault]);
-                    }
-                    else
-                    {
-                        object value = titleProp.GetValue(item.Properties);
-                        if (value != null)
-                            alias = CheckAlias(Convert.ToString(value));
-                    }
-                }
-                else if (item.Id > 0)
-                {
-                    alias = string.Format("{0}-{1}", ItemsAdminHelper.GetItemShortName(item), item.Id);
-                }
-                else
-                {
-                    alias = string.Format("{0}-{1:yyyymmdd-HHmmss}", ItemsAdminHelper.GetItemShortName(item), DateTime.Now);
-                }
-            }
-
-            return UniqueAlias(CheckAlias(alias.Trim()));
-        }
-
 
         #endregion
 

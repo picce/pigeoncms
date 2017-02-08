@@ -168,27 +168,54 @@ namespace PigeonCms
 			return retValue;
 		}
 
-		public static T CreateInstanceOfNestedType<T>(object obj)
-		{
-			if (obj == null)
-				return default(T);
+        public static List<T> CreateInstancesOfNestedType<T>(object obj)
+        {
+            List<T> res = new List<T>();
 
-			return CreateInstanceOfNestedType<T>(obj.GetType());
-		}
+            if (obj == null)
+                return res;
 
-		public static T CreateInstanceOfNestedType<T>(Type objType)
-		{
-			if (objType == null)
-				return default(T);
+            return CreateInstancesOfNestedType<T>(obj.GetType());
+        }
 
-			foreach (Type nestedType in objType.GetNestedTypes())
-			{
-				if (typeof(T).IsAssignableFrom(nestedType))
-					return (T)Activator.CreateInstance(nestedType);
-			}
+        public static List<T> CreateInstancesOfNestedType<T>(Type objType)
+        {
+            List<T> res = new List<T>();
 
-			return default(T);
-		}
+            if (objType == null)
+                return res;
+
+            foreach (Type nestedType in objType.GetNestedTypes())
+            {
+                if (typeof(T).IsAssignableFrom(nestedType))
+                {
+                    res.Add((T)Activator.CreateInstance(nestedType));
+                }
+            }
+            return res;
+        }
+
+        //public static T CreateInstanceOfNestedType<T>(object obj)
+		//{
+		//	if (obj == null)
+		//		return default(T);
+
+		//	return CreateInstanceOfNestedType<T>(obj.GetType());
+		//}
+
+		//public static T CreateInstanceOfNestedType<T>(Type objType)
+		//{
+		//	if (objType == null)
+		//		return default(T);
+
+		//	foreach (Type nestedType in objType.GetNestedTypes())
+		//	{
+		//		if (typeof(T).IsAssignableFrom(nestedType))
+		//			return (T)Activator.CreateInstance(nestedType);
+		//	}
+
+		//	return default(T);
+		//}
 
 		public static Type GetNestedType<T>(Type objType)
 		{
