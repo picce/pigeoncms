@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<install 
+    installerVersion="1.0.0"
+    type="item" 
+    version="1.0.0"
+    core="true"
+    namespace="PigeonCms"
+    name="HelloWorldItem"
+    author="p-ice"
+    creationDate="2017-01-18"
+    copyright=""
+    license=""
+    authorEmail="picce@yahoo.it"
+    authorUrl="www.pigeoncms.com"
+    description="Sample extended item ">
+
+    <fields>
+    </fields>
+
+    <params>
+    </params>
+
+</install>

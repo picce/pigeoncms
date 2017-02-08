@@ -688,6 +688,7 @@ namespace PigeonCms
         int DeleteByExtId(string extId);
     }
 
+    //NOTUSED
 	public interface ITableManager<T, F, Kkey> where T : PigeonCms.ITable
 	{
 		int DeleteById(Kkey recordId);

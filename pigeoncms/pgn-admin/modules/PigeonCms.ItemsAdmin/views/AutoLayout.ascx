@@ -90,12 +90,11 @@
 							<div class="pull-right">
 								<div class="btn-group adminToolbar">
 									<div class="form-select-wrapper select-right" runat="server" id="DivDropNewContainer">
-										<asp:DropDownList runat="server" ID="DropNew" AutoPostBack="true" CssClass="form-control"
-											OnSelectedIndexChanged="DropNew_SelectedIndexChanged">
+										<asp:DropDownList runat="server" ID="DropNew" AutoPostBack="true" CssClass="form-control">
 										</asp:DropDownList>
 									</div>
 									<asp:Button ID="BtnNew" runat="server" Text="<%$ Resources:PublicLabels, CmdNew %>"
-										Visible="false" CssClass="btn btn-primary" OnClick="BtnNew_Click" />
+										Visible="false" CssClass="btn btn-primary" />
 								</div>
 							</div>
 						</div>
@@ -121,23 +120,19 @@
 						<div id="collapseOne" class="panel-collapse collapse in">
 							<div class="panel-body">
 								<div class="form-group col-lg-3 col-md-6 form-select-wrapper">
-									<asp:DropDownList ID="DropEnabledFilter" runat="server" AutoPostBack="true" CssClass="form-control"
-										OnSelectedIndexChanged="DropEnabledFilter_SelectedIndexChanged">
+									<asp:DropDownList ID="DropEnabledFilter" runat="server" AutoPostBack="true" CssClass="form-control">
 									</asp:DropDownList>
 								</div>
 								<div class="form-group col-lg-3 col-md-6 form-select-wrapper">
-									<asp:DropDownList ID="DropSectionsFilter" runat="server" AutoPostBack="true" CssClass="form-control"
-										OnSelectedIndexChanged="DropSectionsFilter_SelectedIndexChanged">
+									<asp:DropDownList ID="DropSectionsFilter" runat="server" AutoPostBack="true" CssClass="form-control">
 									</asp:DropDownList>
 								</div>
 								<div class="form-group col-lg-3 col-md-6 form-select-wrapper">
-									<asp:DropDownList ID="DropCategoriesFilter" runat="server" AutoPostBack="true" CssClass="form-control"
-										OnSelectedIndexChanged="DropCategoriesFilter_SelectedIndexChanged">
+									<asp:DropDownList ID="DropCategoriesFilter" runat="server" AutoPostBack="true" CssClass="form-control">
 									</asp:DropDownList>
 								</div>
 								<div class="form-group col-lg-3 col-md-6 form-select-wrapper">
-									<asp:DropDownList ID="DropItemTypesFilter" runat="server" AutoPostBack="true" CssClass="form-control"
-										OnSelectedIndexChanged="DropItemTypesFilter_SelectedIndexChanged">
+									<asp:DropDownList ID="DropItemTypesFilter" runat="server" AutoPostBack="true" CssClass="form-control">
 									</asp:DropDownList>
 								</div>
 
@@ -589,8 +584,8 @@
 							<span class="title-modern-insert"><%=TitleItem %></span>
 							<div class="btn-group clearfix">
 								<div class="btn-group-follow clearfix">
-									<asp:Button ID="BtnCancel" runat="server" Text="<%$ Resources:PublicLabels, CmdCancel %>" CssClass="btn btn-default btn-xs btn-modern btn-modern--cancel" CausesValidation="false" OnClick="BtnCancel_Click" />
-									<asp:Button ID="BtnSave" runat="server" Text="<%$ Resources:PublicLabels, CmdSave %>" CssClass="btn btn-primary btn-xs btn-modern" OnClick="BtnSave_Click" />
+									<asp:Button ID="BtnCancel" runat="server" Text="<%$ Resources:PublicLabels, CmdCancel %>" CssClass="btn btn-default btn-xs btn-modern btn-modern--cancel" CausesValidation="false" />
+									<asp:Button ID="BtnSave" runat="server" Text="<%$ Resources:PublicLabels, CmdSave %>" CssClass="btn btn-primary btn-xs btn-modern" />
 									<div class="btn-group-alert">
 										<asp:Label ID="LblErrInsert" runat="server" Text=""></asp:Label>
 										<asp:Label ID="LblOkInsert" runat="server" Text=""></asp:Label>

@@ -204,6 +204,7 @@
     <Compile Include="Helpers\PageHelper.cs" />
     <Compile Include="Helpers\UrlUtils.cs" />
     <Compile Include="Items\PigeonCms.News\NewsItem.cs" />
+    <Compile Include="Items\PigeonCms.HelloWorldItem\HelloWorldItem.cs" />
     <Compile Include="Items\PigeonCms.TicketItem\TicketItem.cs" />
     <Compile Include="Modules\PigeonCms.CategoriesAdmin\CategoriesAdminControl.cs">
       <SubType>ASPXCodeBehind</SubType>

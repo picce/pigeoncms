@@ -64,7 +64,7 @@ namespace PigeonCms
     }
 
 
-    [DebuggerDisplay("Id={id}, ExtId={extId}, Alias={Alias}")]
+    [DebuggerDisplay("Id={Id}, ExtId={ExtId}, Alias={Alias}")]
     public class Item: IItem
 	{
 		#region private vars
@@ -1141,15 +1141,16 @@ namespace PigeonCms
         /// <returns>item manager class instance</returns>
         public ItemsManager MyManager(bool checkUserContext, bool writeMode)
         {
+            //NO!!!
             return new ItemsManager(checkUserContext, writeMode);
         }
 
-        //public ITableManager<IItem, IItemsFilter, int> MyManager(bool checkUserContext = false, bool writeMode = false)
-        //{
-        //    var man = new ItemsManager<Item, ItemsFilter>(checkUserContext, writeMode);
-        //    var iman = man as ITableManager<IItem, IItemsFilter, int>;
-        //    return iman;
-        //}
+        /*public TableManager<IItem, IItemsFilter, int> MyManager(bool checkUserContext = false, bool writeMode = false)
+        {
+            var man = new ItemsManager<Item, ItemsFilter>(checkUserContext, writeMode);
+            var iman = man as TableManager<Item, ItemsFilter, int>;
+            return iman;
+        }*/
 
         /// <summary>
         /// delete images folder content

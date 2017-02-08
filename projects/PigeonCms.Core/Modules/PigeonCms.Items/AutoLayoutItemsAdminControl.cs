@@ -565,20 +565,22 @@ namespace PigeonCms.Modules
 
 			try
 			{
+                //TODO - work with IItem and ITableManager
 				var o1 = new ItemsProxy().CreateItem(this.CurrentItemType);
-				var man = (ITableManager<IItem, IItemsFilter, int>)o1.MyManager(true, true);
-				//var item = new ItemsProxy().GetByKey(itemId, itemType, true, true);
+				//var man = (ITableManager<IItem, IItemsFilter, int>)o1.MyManager(true, true);
+                var man = o1.MyManager(true, true);
+				
 
 				if (CurrentId == 0)
 				{
 					form2obj(o1);
-					o1 = man.Insert(o1);
+					o1 = man.Insert((Item)o1);
 				}
 				else
 				{
 					o1 = man.GetByKey(CurrentId);
 					form2obj(o1);
-					man.Update(o1);
+					man.Update((Item)o1);
 				}
 
 				OnAfterUpdate(o1);
@@ -1137,7 +1139,7 @@ namespace PigeonCms.Modules
 					continue;
 
 				control.ID = property.Name + "_container";
-				control.Label = GetLabel("AQItemsAdmin." + item.ItemType.Name + "_" + property.Name, property.Name);
+				control.Label = GetLabel("AutoLayout." + item.ItemType.Name + "_" + property.Name, property.Name);
 
 				_FieldsContainer.Controls.Add(control);
 			}

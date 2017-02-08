@@ -20,13 +20,30 @@ namespace PigeonCms.Core.Helpers
 		public IItem GetByKey(int itemId, string itemType, bool checkUserContext = false, bool writeMode = false)
 		{
             var item = this.CreateItem(itemType);
-            if (item != null)
-                return item.MyManager(checkUserContext, writeMode).GetByKey(itemId);
-            else
+            if (item == null)
                 return null;
+
+            return item.MyManager(checkUserContext, writeMode).GetByKey(itemId);
+            //PigeonCms.Reflection.Process()
 		}
 
-		public IItem CreateItem(string itemTypeName)
+
+        private Object createItemManager(string itemTypeName)
+        {
+            try
+            {
+                itemTypeName = itemTypeName + "sManager";
+                Assembly assembly = Assembly.GetExecutingAssembly();
+                Type itemType = assembly.GetTypes().Where(type => MatchItem(type, itemTypeName)).FirstOrDefault();
+                return Activator.CreateInstance(itemType);
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
+        }
+
+        public IItem CreateItem(string itemTypeName)
 		{
 			try
 			{
