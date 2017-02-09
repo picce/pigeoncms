@@ -57,7 +57,8 @@ public partial class Controls_PageComposer_PageComposer : UserControl
         if (item == null)
             return;
 
-        BlocksItemsPropertiesDefs newsProps = item.Properties as BlocksItemsPropertiesDefs;
+        //TOCHECK PropertiesList
+        /*BlocksItemsPropertiesDefs newsProps = item.Properties as BlocksItemsPropertiesDefs;
         if (newsProps == null)
             return;
 
@@ -65,7 +66,7 @@ public partial class Controls_PageComposer_PageComposer : UserControl
         {
             newsProps.Blocks.ForEach((block) => { TranslateFileToEditor(block); });
             aq_pagecomposer_value.Value = UrlUtils.Base64Encode(BlockManager.SerializeForEditor(newsProps.Blocks));
-        }
+        }*/
     }
 
     public void Store(IItem obj)
@@ -74,7 +75,8 @@ public partial class Controls_PageComposer_PageComposer : UserControl
         if (item == null)
             return;
 
-        BlocksItemsPropertiesDefs props = item.Properties as BlocksItemsPropertiesDefs;
+        //TOCHECK PropertiesList
+        /*BlocksItemsPropertiesDefs props = item.Properties as BlocksItemsPropertiesDefs;
         if (props == null)
             return;
 
@@ -88,7 +90,7 @@ public partial class Controls_PageComposer_PageComposer : UserControl
             {
                 return TranslateFileFromEditor(item, fieldId);
             });
-        }
+        }*/
     }
 
     public void TranslateFileToEditor(IItem block)
@@ -98,7 +100,8 @@ public partial class Controls_PageComposer_PageComposer : UserControl
             if (block == null)
                 return;
 
-            ItemPropertiesDefs props = block.Properties;
+            //TOCHECK PropertiesList
+            /*ItemPropertiesDefs props = block.PropertiesList;
             PropertyInfo[] properties = props.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
             string uid = string.Empty;
 
@@ -128,7 +131,7 @@ public partial class Controls_PageComposer_PageComposer : UserControl
                     AbstractUploadHandler.SetFile(Context, "PageComposer", uid, (string)property.GetValue(props));
                     property.SetValue(props, uid);
                 }
-            }
+            }*/
         }
         catch (Exception e)
         {

@@ -1013,7 +1013,7 @@ namespace PigeonCms
 			}
 		}
 
-        public void SetPropertyString(string value, string propertiesColumnName)
+        protected void SetPropertyString(string value, string propertiesColumnName)
         {
             switch (propertiesColumnName)
             {
@@ -1024,7 +1024,7 @@ namespace PigeonCms
             }
         }
 
-        public string GetPropertyString(string propertiesColumnName)
+        protected string GetPropertyString(string propertiesColumnName)
         {
             switch (propertiesColumnName)
             {
@@ -1035,37 +1035,6 @@ namespace PigeonCms
                 default: return "";
             }
         }
-
-        //[ScriptIgnore]
-        //public string PropertiesAsString
-        //{
-        //	[DebuggerStepThrough()]
-        //	get
-        //	{
-        //		// Use switch to avoid reflection
-        //		switch (propertiesColumnName)
-        //		{
-        //			case "CustomString1": return CustomString1;
-        //			case "CustomString2": return CustomString2;
-        //			case "CustomString3": return CustomString3;
-        //			case "CustomString4": return CustomString4;
-        //			default: return "";
-        //		}
-        //	}
-
-        //	[DebuggerStepThrough()]
-        //	set
-        //	{
-        //		// Use switch to avoid reflection
-        //		switch (propertiesColumnName)
-        //		{
-        //			case "CustomString1": CustomString1 = value; break;
-        //			case "CustomString2": CustomString2 = value; break;
-        //			case "CustomString3": CustomString3 = value; break;
-        //			case "CustomString4": CustomString4 = value; break;
-        //		}
-        //	}
-        //}
 
         //[ScriptIgnore]
 		//public JObject ItemObject

@@ -9,45 +9,40 @@ namespace PigeonCms.Core.Helpers
 {
 	public class ItemsProxy
     {
-		public ItemsProxy()
-		{
 
-		}
+        private string itemType = "";
+        private string filterType = "";
+        private string managerType = "";
+        private bool checkUserContext = false;
+        private bool writeMode = false;
+
+
+        public ItemsProxy(string itemType = "PigeonCms.Item", bool checkUserContext = false, bool writeMode = false)
+		{
+            this.itemType = itemType;
+            this.filterType = itemType + "sFilter";
+            this.managerType = itemType + "sManager";
+            this.checkUserContext = checkUserContext;
+            this.writeMode = writeMode;
+        }
 
 		// TODO: avoid switch and use reflection to instatiate manager
 		// Ask to use interfaces for ItemsManager and Item
 		// https://blogs.msdn.microsoft.com/csharpfaq/2010/02/16/covariance-and-contravariance-faq/
-		public IItem GetByKey(int itemId, string itemType, bool checkUserContext = false, bool writeMode = false)
+		public IItem GetByKey(int id)
 		{
-            var item = this.CreateItem(itemType);
-            if (item == null)
-                return null;
-
-            switch (itemType)
-            {
-                case "PigeonCms.Item":
-                    return new ItemsManager(checkUserContext, writeMode).GetByKey(itemId);
-
-                case "PigeonCms.HelloWorldItem":
-                    return new HelloWorldItemsManager(checkUserContext, writeMode).GetByKey(itemId);
-            }
-
-            return null;
-
-            //TODO reflection or autofac
-            //return item.MyManager(checkUserContext, writeMode).GetByKey(itemId);
-            //PigeonCms.Reflection.Process()
-		}
-
-
-        private Object createItemManager(string itemTypeName)
-        {
             try
             {
-                itemTypeName = itemTypeName + "sManager";
                 Assembly assembly = Assembly.GetExecutingAssembly();
-                Type itemType = assembly.GetTypes().Where(type => MatchItem(type, itemTypeName)).FirstOrDefault();
-                return Activator.CreateInstance(itemType);
+                Type type = getManagerType();
+                MethodInfo method = type.GetMethod("GetByKey");
+                object[] methodArgs = new object[] { id };
+
+                object[] constructorArgs = new object[] { this.checkUserContext, this.writeMode };
+                var classInstance = Activator.CreateInstance(type, constructorArgs);
+
+                var res = (IItem)method.Invoke(classInstance, methodArgs);
+                return res;
             }
             catch (Exception e)
             {
@@ -55,13 +50,36 @@ namespace PigeonCms.Core.Helpers
             }
         }
 
-        public IItem CreateItem(string itemTypeName)
+        public List<IItem> GetByFilter(IItemsFilter filter, string sort)
+        {
+            try
+            {
+                Assembly assembly = Assembly.GetExecutingAssembly();
+                Type type = getManagerType();
+                MethodInfo method = type.GetMethod("GetByFilter");
+                object[] methodArgs = new object[] { filter, sort };
+
+                object[] constructorArgs = new object[] { this.checkUserContext, this.writeMode };
+                var classInstance = Activator.CreateInstance(type, constructorArgs);
+
+                var res = (List<IItem>)method.Invoke(classInstance, methodArgs);
+                return res;
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
+        }
+
+        //TODO Delete Update Insert
+
+        public IItem CreateItem()
 		{
 			try
 			{
 				Assembly assembly = Assembly.GetExecutingAssembly();
 
-				Type itemType = assembly.GetTypes().Where(type => MatchItem(type, itemTypeName)).FirstOrDefault();
+				Type itemType = assembly.GetTypes().Where(type => matchItem(type, this.itemType)).FirstOrDefault();
 
 				return (IItem)Activator.CreateInstance(itemType);
 			}
@@ -71,7 +89,37 @@ namespace PigeonCms.Core.Helpers
 			}
 		}
 
-		public bool MatchItem(Type type, string itemTypeName)
+        private Type getManagerType()
+        {
+            try
+            {
+                Assembly assembly = Assembly.GetExecutingAssembly();
+                Type type = assembly.GetTypes().Where(x => x.FullName.Equals(this.managerType)).FirstOrDefault();
+
+                return type;
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
+        }
+
+        private IItemsFilter getNewItemFilter()
+        {
+            try
+            {
+                Assembly assembly = Assembly.GetExecutingAssembly();
+                Type type = assembly.GetTypes().Where(x => x.FullName.Equals(this.filterType)).FirstOrDefault();
+
+                return (IItemsFilter)Activator.CreateInstance(type);
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
+        }
+
+		private bool matchItem(Type type, string itemTypeName)
 		{
 			string[] itemTypeNameToken = itemTypeName.Split('.');
 			return type.Name == itemTypeNameToken.Last();

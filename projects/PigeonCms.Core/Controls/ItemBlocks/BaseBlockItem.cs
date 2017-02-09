@@ -25,6 +25,7 @@ namespace PigeonCms.Core.Controls.ItemBlocks
             return true;
         }
 
+        //TOCHECK PropertiesList
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
             if (reader.TokenType == JsonToken.Null)
@@ -49,7 +50,9 @@ namespace PigeonCms.Core.Controls.ItemBlocks
                     case "data":
                         Type propertiesType = Reflection.GetNestedType<ItemPropertiesDefs>(blockType);
                         reader.Read();
-                        result.PropertiesList = (ItemPropertiesDefs)serializer.Deserialize(reader, propertiesType);
+                        //TOCHECK
+                        result.PropertiesList = (List<ItemPropertiesDefs>)serializer.Deserialize(reader, propertiesType);
+                        //result.PropertiesList = (ItemPropertiesDefs)serializer.Deserialize(reader, propertiesType);
                         break;
                     default:
                         reader.Skip();
