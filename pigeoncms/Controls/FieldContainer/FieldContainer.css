@@ -1,0 +1,9 @@
+﻿.item-field-container
+{
+    margin-bottom: 40px !important;
+}
+
+.item-field-container .form-group.checkbox-container
+{
+    padding: 0 !important;
+}

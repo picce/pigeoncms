@@ -317,6 +317,15 @@ namespace PigeonCms
             [DebuggerStepThrough()]
             set { allowDirectEditMode = value; }
         }
+
+        /// <summary>
+        /// specifices the assembly that contains the item class definition
+        /// default value is PigeonCms.Core
+        /// Used in ItemsProxy to apply IoC, ItemTypeName --> Item
+        /// eg: Acme.MyPrj
+        /// @20170214
+        /// </summary>
+        public string AssemblyString { get; set; } = "";
     }
 
 

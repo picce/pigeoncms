@@ -13,13 +13,22 @@ using System.IO;
 using System.Data.Common;
 using PigeonCms;
 using System.Diagnostics;
+using System.Linq;
 
 namespace PigeonCms
 {
+    public class ItemsManager : ItemsManager<Item, ItemsFilter>
+    {
+        public ItemsManager(bool checkUserContext, bool writeMode)
+            : base(checkUserContext, writeMode)
+        { }
+
+    }
+
     public class ItemsManager<T, F> : 
         TableManagerWithOrdering<T, F, int>,
         ITableManagerWithPermission, ITableManagerExternalId<T>
-        where T: Item, new()
+        where T: Item,  new()
         where F: ItemsFilter, new()
     {
         public const string MaxItemsException = "PigeonCms.MaxItemsException";
@@ -1471,8 +1480,7 @@ namespace PigeonCms
 
             if (itemId <= 0)
                 return relatedIdList;
-		
-		
+
             myConn.ConnectionString = Database.ConnString;
             myConn.Open();
             myCmd.Connection = myConn;
@@ -1519,9 +1527,22 @@ namespace PigeonCms
             return relatedItemList;
         }
 
-		//TOCHECK-LOLLO - edit picce (in SetRelated) TODO: check if exists
-        //TODO check if exists
         public void SetRelated(int itemId, int relatedId, int itemsRelationTypeId)
+        {
+            var relatedIdList = new List<int>() { relatedId };
+
+            SetRelated(itemId, relatedIdList, itemsRelationTypeId);
+        }
+
+        /// <summary>
+        /// add new related
+        /// remove related if not in list
+        /// keep previous not touched
+        /// </summary>
+        /// <param name="itemId">current item id</param>
+        /// <param name="relatedIdList">list of related</param>
+        /// <param name="itemsRelationTypeId">type of relation</param>
+        public void SetRelated(int itemId, List<int> relatedIdList, int itemsRelationTypeId)
         {
             DbProviderFactory myProv = Database.ProviderFactory;
             DbConnection myConn = myProv.CreateConnection();
@@ -1533,30 +1554,58 @@ namespace PigeonCms
 
             try
             {
-                string sSql = "";
-                sSql = "INSERT INTO #__itemsRelated (ItemId, RelatedId, ItemsRelationTypeId) "
-                      + " VALUES(@ItemId, @RelatedId, @ItemsRelationTypeId) ";
-                myCmd.CommandText = Database.ParseSql(sSql);
-                myCmd.Parameters.Clear();
-                myCmd.Parameters.Add(Database.Parameter(myProv, "ItemId", itemId));
-                myCmd.Parameters.Add(Database.Parameter(myProv, "RelatedId", relatedId));
-                myCmd.Parameters.Add(Database.Parameter(myProv, "ItemsRelationTypeId", itemsRelationTypeId));
-                myCmd.ExecuteNonQuery();
+                //list of previous related
+                List<int> prevList = this.GetRelatedItemsId(itemId, itemsRelationTypeId);
+
+                //list related to add
+                List<int> addList = relatedIdList.Except(prevList).ToList();
+                foreach (int relatedId in addList)
+                {
+                    string sSql = @"INSERT INTO #__itemsRelated (ItemId, RelatedId, ItemsRelationTypeId) 
+                                VALUES(@ItemId, @RelatedId, @ItemsRelationTypeId) ";
+
+                    myCmd.CommandText = Database.ParseSql(sSql);
+                    myCmd.Parameters.Clear();
+                    myCmd.Parameters.Add(Database.Parameter(myProv, "ItemId", itemId));
+                    myCmd.Parameters.Add(Database.Parameter(myProv, "RelatedId", relatedId));
+                    myCmd.Parameters.Add(Database.Parameter(myProv, "ItemsRelationTypeId", itemsRelationTypeId));
+                    myCmd.ExecuteNonQuery();
+                }
+
+                //list related to remove
+                var removeList = prevList.Except(relatedIdList).ToList();
+                foreach (int relatedId in removeList)
+                {
+                    string sSql = @"DELETE FROM #__itemsRelated
+                                WHERE ItemId=@ItemId AND RelatedId=@RelatedId AND ItemsRelationTypeId=@ItemsRelationTypeId ";
+
+                    myCmd.CommandText = Database.ParseSql(sSql);
+                    myCmd.Parameters.Clear();
+                    myCmd.Parameters.Add(Database.Parameter(myProv, "ItemId", itemId));
+                    myCmd.Parameters.Add(Database.Parameter(myProv, "RelatedId", relatedId));
+                    myCmd.Parameters.Add(Database.Parameter(myProv, "ItemsRelationTypeId", itemsRelationTypeId));
+                    myCmd.ExecuteNonQuery();
+                }
+
 
             }
             finally
             {
                 myConn.Dispose();
             }
-            
+
         }
-        
+
+
         //TOCHECK-LOLLO - edit picce (in DeleteRelated) TODO: check if exists
         public void DeleteRelated(int itemId, int relatedId, int itemsRelationTypeId)
         {
             DbProviderFactory myProv = Database.ProviderFactory;
             DbConnection myConn = myProv.CreateConnection();
             DbCommand myCmd = myConn.CreateCommand();
+
+            if (itemId <= 0 || relatedId <= 0 || itemsRelationTypeId <= 0)
+                return;
 
             myConn.ConnectionString = Database.ConnString;
             myConn.Open();

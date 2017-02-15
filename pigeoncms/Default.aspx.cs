@@ -12,7 +12,7 @@ using PigeonCms;
 
 public partial class _Default : BasePage
 {
-    protected void Page_Load(object sender, EventArgs e)
+	protected void Page_Init(object sender, EventArgs e)
     {
         PigeonCms.ModuleHelper.LoadModules(base.MenuEntry, this.Page);
     }

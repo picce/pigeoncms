@@ -53,7 +53,7 @@
 
             </ul>
             <!-- search bar-->
-            <input type="text" placeholder="Cerca ..." id="textboxSearch" class="textbox--search" />
+            <input type="text" placeholder="..." id="textboxSearch" class="textbox--search" />
 
             <!-- /.navbar-top-links -->
 

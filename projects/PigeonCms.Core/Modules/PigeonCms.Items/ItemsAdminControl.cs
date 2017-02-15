@@ -221,6 +221,14 @@ namespace PigeonCms
             set { itemType = value; }
         }
 
+		//20161229 - @rsartori
+		protected string itemTypes;
+		public string ItemTypes
+		{
+			get { return GetStringParam("ItemTypes", itemTypes); }
+			set { itemTypes = value; }
+		}
+
         #endregion
 
         protected int LastSelectedSectionId

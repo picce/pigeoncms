@@ -1,0 +1,296 @@
+﻿.pgn-fileUploadSingle,
+.pgn-imageUploadSingle {
+    width: 100%;
+    //float: left;
+    position: relative;
+
+    .box-container {
+        display: inline-block;
+        margin-bottom: 20px;
+        position: relative;
+
+        .label-container {
+            display: block;
+        }
+
+        .box {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center center;
+            border-radius: 3px;
+            background-color: @purple-dark;
+            float: left;
+            margin-right: 20px;
+
+            .box-actions-layer {
+                float: left;
+                opacity: 0;
+                -webkit-box-shadow: inset 0 150px 0px 0px rgba(0,0,0,0.75);
+                box-shadow: inset 0 150px 0px 0px rgba(0,0,0,0.75);
+                width: 100%;
+                height: 100%;
+                z-index: 100;
+                .transition(all, @default-timing, ease);
+            }
+
+            .box-actions__label {
+                color: @white;
+                width: 100%;
+                float: left;
+                margin-top: 15px;
+                padding: 20px 0;
+                text-align: center;
+                font-family: @brandongmedium;
+                font-size: 10px;
+                letter-spacing: 0.2em;
+                text-transform: uppercase;
+                position: relative;
+                margin-left: -8px;
+                cursor: pointer;
+                overflow: hidden;
+            }
+
+            .box-actions__label:after {
+                font-family: 'icomoonPigeonModern';
+                speak: none;
+                font-style: normal;
+                font-weight: normal;
+                font-variant: normal;
+                text-transform: none;
+                line-height: 1;
+                /* Better Font Rendering =========== */
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+                color: @white;
+                position: absolute;
+                top: 16px;
+                right: 0px;
+                cursor: pointer;
+                font-size: 20px;
+            }
+
+            .box-actions__label--delete:after {
+                content: '\e907';
+                top: 16px;
+                right: 10px;
+            }
+
+            .box-actions__label--preview:after {
+                content: '\e902';
+                font-size: 13px;
+                top: 21px;
+                right: 10px;
+            }
+
+            .box-actions__label--edit:after {
+                font-size: 13px;
+                top: 18px;
+                content: '\e90a';
+            }
+
+            &:hover {
+
+                .box-actions-layer {
+                    opacity: 1;
+                }
+            }
+
+            &.box-insert {
+                display: block;
+                border: 2px dashed @purple-checked;
+                background: transparent;
+                position: relative;
+                cursor: pointer;
+                .transition(all, @default-timing, ease);
+
+                &.box-insert--dragenter {
+                    background-color: @purple-checked;
+                    border-color: transparent;
+                }
+
+                .drop-label {
+                    position: absolute;
+                    top: 70%;
+                    left: 50%;
+                    width: 100%;
+                    font-size: 10px;
+                    color: @white;
+                    text-align: center;
+                    font-family: @brandongmedium;
+                    letter-spacing: 0.2em;
+                    text-transform: uppercase;
+                    line-height: 20px;
+                    opacity: 0;
+                    .translate(-50%,-50%);
+
+                    &.drop-file {
+                        top: 50%;
+                        opacity: 1;
+                        color: @purple-checked;
+                        line-height: 14px;
+                    }
+
+                    &.drop-label--dragenter {
+                        opacity: 0;
+                        top: 50%;
+                    }
+                }
+
+                &:hover {
+                    background: @purple-checked;
+                    border-color: transparent;
+
+                    .drop-label {
+                        opacity: 1;
+                    }
+
+                    .drop-file {
+                        color: @white;
+                    }
+
+                    .icon-image,
+                    .icon-document {
+                        opacity: 0;
+
+                        &.icon-image--hover,
+                        &.icon-document--hover {
+                            opacity: 1;
+                        }
+                    }
+                }
+
+                .icon-image,
+                .icon-document {
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    font-size: 20px;
+                    color: @purple-checked;
+                    .translate(-50%,-50%);
+                    opacity: 1;
+
+                    &.icon-image--dragenter,
+                    &.icon-document--dragenter {
+                        opacity: 0;
+                    }
+
+                    &.icon-image--hover,
+                    &.icon-document--hover {
+                        color: @white;
+                        top: 40%;
+                        opacity: 0;
+
+                        &.icon-image--hover--dragenter,
+                        &.icon-document--hover--dragenter {
+                            opacity: 0;
+                        }
+                    }
+                }
+
+                .progress-bar {
+                    opacity: 0;
+                    position: absolute;
+                    width: 80%;
+                    margin-left: 10%;
+                    height: 5px;
+                    background-color: @purple-dark;
+                    top: 70%;
+                    .translate(0,-70%);
+                    border-radius: 10px;
+
+                    div {
+                        background-color: lighten(@purple-calendar, 30%);
+                        height: 5px;
+                        width: 0;
+                    }
+                }
+            }
+
+            &.box--folder {
+                background-color: #F0AD4E;
+            }
+
+            &.box--file {
+                background-color: @white;
+            }
+
+            .box__filename {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                width: 100%;
+                font-size: 17px;
+                color: @purple-dark;
+                text-align: center;
+                font-family: @brandongmedium;
+                letter-spacing: 0.1em;
+                text-transform: none;
+                font-weight: bold;
+                text-shadow: 1px 1px @white;
+                .translate(-50%,-50%);
+            }
+
+            .box__filename--linkable {
+                cursor: pointer;
+            }
+        }
+    }
+
+    .pgn-uploadRestrictions {
+        clear: both;
+        color: darken(@white, 20%);
+        font-size: 11px;
+
+        strong {
+            color: @white;
+            font-size: 12px;
+        }
+    }
+}
+
+.pgn-fileUploadSingle {
+
+    .box-container {
+
+        .box {
+            width: 120px;
+            height: 50px;
+
+            .box-actions-layer {
+                -webkit-box-shadow: inset 0 50px 0px 0px rgba(0,0,0,0.75);
+                box-shadow: inset 0 50px 0px 0px rgba(0,0,0,0.75);
+                position:absolute;
+                top: 0;
+                right: 0;
+                width: 50px;
+                float:none;
+            }
+
+            &.box-insert {
+
+                .progress-bar {
+                    top: 95%;
+                    .translate(0,-95%);
+                }
+            }
+
+            &.box-preview {
+                width: 400px;
+                position:relative;
+
+                .box-actions__label {
+                    padding: 10px 0;
+                    margin-left: 0;
+                    margin-top: 10px;
+
+                    &:after {
+                        top: 6px;
+                    }
+                }
+            }
+        }
+    }
+}

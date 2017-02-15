@@ -15,6 +15,9 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Web.Compilation;
 using System.Reflection;
+using Newtonsoft.Json;
+using System.Web.Script.Serialization;
+using Newtonsoft.Json.Linq;
 
 
 
@@ -60,12 +63,13 @@ namespace PigeonCms
         }
     }
 
-    [DebuggerDisplay("Id={id}, ExtId={extId}, Alias={Alias}")]
-    public class Item: ITableWithPermissions,
-        ITableWithOrdering, ITableWithComments, 
-		ITableExternalId, ITableWithSeo
-    {
-        const string DefaultItemType = "PigeonCms.Item";
+
+    [DebuggerDisplay("Id={Id}, ExtId={ExtId}, Alias={Alias}")]
+    public class Item: IItem
+	{
+		#region private vars
+
+		const string DefaultItemType = "PigeonCms.Item";
 
         private string itemTypeName = "";
         private DateTime dateInserted;
@@ -124,18 +128,9 @@ namespace PigeonCms
         private string writeAccessCode = "";
         private int writeAccessLevel = 0;
 
+		#endregion
 
-        #region fields
-
-        public virtual string ImagesPath
-        {
-            get { return "~/public/gallery/items/"; }
-        }
-
-        public virtual string FilesPath
-        {
-            get { return "~/public/files/items/"; }
-        }
+		#region fields
 
         /// <summary>
         /// Automatic Id as PKey
@@ -160,6 +155,23 @@ namespace PigeonCms
             [DebuggerStepThrough()]
             set { itemTypeName = value; }
         }
+
+        /// <summary>
+        /// items filter class name, istantiated through reflection in ItemsProxy
+        /// </summary>
+        public string FilterTypeName
+        {
+            get{ return this.ItemTypeName + "sFilter"; }
+        }
+
+        /// <summary>
+        /// items manager class name, istantiated through reflection in ItemsProxy
+        /// </summary>
+        public string ManagerTypeName
+        {
+            get { return this.ItemTypeName + "sManager"; }
+        }
+
 
         public int CategoryId { get; set; }
 
@@ -959,9 +971,196 @@ namespace PigeonCms
 
         #endregion
 
+		#region constructor
+
+
+		public Item()
+		{
+			init(null);
+		}
+
+		public Item(string itemTypeName)
+		{
+			init(itemTypeName);
+		}
+
+		private void init(string itemTypeName)
+		{
+			if (!string.IsNullOrWhiteSpace(itemTypeName))
+			{
+				this.ItemTypeName = itemTypeName;
+			}
+			else
+			{
+				Type type = this.GetType();
+				ItemTypeName = string.Format("{0}.{1}", type.Namespace, type.Name);
+			}
+
+		}
+
+		#endregion
+
+		#region Properties
+
+		private List<ItemPropertiesDefs> propertiesList;
+		public List<ItemPropertiesDefs> PropertiesList
+		{
+			get
+			{
+				if (propertiesList == null)
+				{
+					propertiesList = Reflection.CreateInstancesOfNestedType<ItemPropertiesDefs>(this);
+					try
+					{
+                        foreach (var prop in propertiesList)
+                        {
+                            JsonConvert.PopulateObject(GetPropertyString(prop.MapAttributeValue), prop);
+                        }
+					}
+					catch (Exception e)
+					{
+
+					}
+				}
+				return propertiesList;
+			}
+			set
+			{
+				propertiesList = value;
+			}
+		}
+
+        protected void SetPropertyString(string value, string propertiesColumnName)
+        {
+            switch (propertiesColumnName)
+            {
+                case "CustomString1": CustomString1 = value; break;
+                case "CustomString2": CustomString2 = value; break;
+                case "CustomString3": CustomString3 = value; break;
+                case "CustomString4": CustomString4 = value; break;
+            }
+        }
+
+        protected string GetPropertyString(string propertiesColumnName)
+        {
+            switch (propertiesColumnName)
+            {
+                case "CustomString1": return CustomString1;
+                case "CustomString2": return CustomString2;
+                case "CustomString3": return CustomString3;
+                case "CustomString4": return CustomString4;
+                default: return "";
+            }
+        }
+
+        //[ScriptIgnore]
+		//public JObject ItemObject
+		//{
+		//	get
+		//	{
+		//		return JObject.Parse(PropertiesAsString);
+		//	}
+		//}
+
+		public string ToJson()
+		{
+			return new JavaScriptSerializer().Serialize(this);
+		}
+
+		public virtual void UpdatePropertiesStore()
+		{
+            foreach(var prop in this.PropertiesList)
+            {
+                SetPropertyString(JsonConvert.SerializeObject(prop), prop.MapAttributeValue);
+            }
+		}
+
+        #endregion
+
+        #region file management
+
+        public virtual string ImagesPath
+        {
+            get { return "~/public/gallery/items/"; }
+        }
+
+        public virtual string FilesPath
+        {
+            get { return "~/public/files/items/"; }
+        }
+
+        public string StaticImagesPath
+        {
+            get
+            {
+                return ImagesPath + Id.ToString() + "/";
+            }
+        }
+
+        public string StaticFilesPath
+        {
+            get
+            {
+                string res = FilesPath + Id.ToString() + "/";
+                return res;
+            }
+        }
+
+        private List<FileMetaInfo> staticImages = null;
+        public List<FileMetaInfo> StaticImages
+        {
+            get
+            {
+                if (staticImages == null)
+                {
+                    if (Id > 0)
+                        staticImages = new FilesGallery(StaticImagesPath, "", "*.*").GetAll();
+                    else
+                        staticImages = new List<FileMetaInfo>();
+                }
+                return staticImages;
+            }
+        }
+
+        protected FileMetaInfo FindImage(string imageName)
+        {
+            FileMetaInfo res = new FileMetaInfo();
+            if (!string.IsNullOrEmpty(imageName))
+            {
+                foreach (var f in this.StaticImages)
+                {
+                    if (f.FileNameNoExtension.Equals(imageName, StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        res = f;
+                        break;
+                    }
+                }
+            }
+            return res;
+        }
+
+        #endregion
+
         #region methods
 
-        public Item(){}
+        /// <summary>
+        /// create an instance of the manager that handle DAL of current item type
+        /// </summary>
+        /// <param name="checkUserContext"></param>
+        /// <param name="writeMode"></param>
+        /// <returns>item manager class instance</returns>
+        public ItemsManager MyManager(bool checkUserContext, bool writeMode)
+        {
+            //NO!!!
+            return new ItemsManager(checkUserContext, writeMode);
+        }
+
+        /*public TableManager<IItem, IItemsFilter, int> MyManager(bool checkUserContext = false, bool writeMode = false)
+        {
+            var man = new ItemsManager<Item, ItemsFilter>(checkUserContext, writeMode);
+            var iman = man as TableManager<Item, ItemsFilter, int>;
+            return iman;
+        }*/
 
         /// <summary>
         /// delete images folder content
@@ -1070,7 +1269,11 @@ namespace PigeonCms
             return res;
         }
 
-        private void setPropertyValue(PropertyInfo pi, string value)
+		#endregion
+
+		#region private methods
+
+		private void setPropertyValue(PropertyInfo pi, string value)
         {
             switch (pi.PropertyType.Name.ToLower())
             {
@@ -1150,7 +1353,7 @@ namespace PigeonCms
 
 
     [Serializable]
-    public class ItemsFilter : ITableExternalId
+    public class ItemsFilter : IItemsFilter
     {
         #region fields definition
 
@@ -1514,4 +1717,61 @@ namespace PigeonCms
         public int ItemId { get; set; }
         public int TagId { get; set; }
     }
+
+	public abstract class ItemPropertiesDefs
+	{
+		public override string ToString()
+		{
+			return Reflection.PropertiesToString(this);
+		}
+
+        [ScriptIgnore]
+        public string MapAttributeValue
+        {
+            [DebuggerStepThrough()]
+            get
+            {
+                string res = new ItemPropertiesMapAttribute().Target;
+
+                var attr = this.GetType().GetCustomAttribute(typeof(ItemPropertiesMapAttribute), true);
+                if (attr != null)
+                    res = ((ItemPropertiesMapAttribute)attr).Target;
+
+                return res;
+            }
+        }
+	}
+
+    public abstract class BlocksItemsPropertiesDefs : ItemPropertiesDefs
+    {
+        public List<PigeonCms.Core.Controls.ItemBlocks.BaseBlockItem> Blocks { get; set; }
+    }
+
+    /// <summary>
+    /// map #__items table column target of ItemPropertiesDefs serialization
+    /// default is CustomString1
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Class)]
+    public class ItemPropertiesMapAttribute: System.Attribute
+    {
+        public string Target { get; }
+
+        public enum MapTargetEnum
+        {
+            CustomString1,
+            CustomString2,
+            CustomString3,
+            CustomString4,
+            Table//TODO serialize in table
+        }
+
+        public ItemPropertiesMapAttribute(MapTargetEnum mapTarget = MapTargetEnum.CustomString1)
+        {
+            if (mapTarget == MapTargetEnum.Table)
+                throw new NotImplementedException("MapTargetEnum.Table is not implemented yet");
+
+            this.Target = mapTarget.ToString();
+        }
+    }
+
 }
