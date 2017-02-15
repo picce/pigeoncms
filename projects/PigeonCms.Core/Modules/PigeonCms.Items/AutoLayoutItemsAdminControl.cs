@@ -167,6 +167,8 @@ namespace PigeonCms.Modules
             // Recreate form to handle control events and viewstate
             // TODO: avoid on "list mode" postbacks
             var itemsProxy = new ItemsProxy(this.CurrentItemType, true, true);
+            itemsProxy.LogExceptions = false;
+            itemsProxy.ThrowExceptions = false;
 			var genericItem = itemsProxy.GetByKey(this.CurrentId);
 			loadItemDynamicFields(genericItem, false);
 
@@ -478,22 +480,22 @@ namespace PigeonCms.Modules
 		{
 			OnBeforeCancel();
 
-            foreach(var prop in CurrItem.PropertiesList)
+            foreach(var propDef in CurrItem.PropertiesList)
             {
-                PropertyInfo[] properties = getItemPropertiesInfo(prop);
-                if (properties != null)
+                string propDefName = propDef.MapAttributeValue;
+
+                PropertyInfo[] properties = getItemPropertiesInfo(propDef);
+                if (properties == null)
+                    continue;
+
+                foreach (PropertyInfo property in properties)
                 {
-                    foreach (PropertyInfo property in properties)
-                    {
-                        //TODO nome controllo con preprix prop.MapAttributeValue
-                        IUploadControl imageUpload = Utility.Controls.FindControlRecursive<Control>(
-                            _FieldsContainer, "property_" + property.Name) as IUploadControl;
+                    IUploadControl imageUpload = Utility.Controls.FindControlRecursive<Control>(
+                        _FieldsContainer, "property_" + propDefName + "-" + property.Name) as IUploadControl;
 
-                        if (imageUpload != null)
-                            imageUpload.CleanSession();
-                    }
+                    if (imageUpload != null)
+                        imageUpload.CleanSession();
                 }
-
             }
 
             setError("");
@@ -571,24 +573,19 @@ namespace PigeonCms.Modules
 
 			try
 			{
-                //TODO
                 var proxy = new ItemsProxy(this.CurrentItemType, true, true);
-                var o1 = proxy.CreateItem();
-				//var man = (ITableManager<IItem, IItemsFilter, int>)o1.MyManager(true, true);
-                var man = o1.MyManager(true, true);
+                var o1 = proxy.NewItem();
 				
-
 				if (CurrentId == 0)
 				{
 					form2obj(o1);
-					//o1 = man.Insert(o1);//err because dont cast IItem
-					o1 = man.Insert((Item)o1);
+					o1 = proxy.Insert(o1);
 				}
 				else
 				{
                     o1 = proxy.GetByKey(this.CurrentId);
                     form2obj(o1);
-					man.Update((Item)o1);
+					proxy.Update(o1);
 				}
 
 				OnAfterUpdate(o1);
@@ -709,11 +706,11 @@ namespace PigeonCms.Modules
             
             clearForm();
 
-            var proxy = new ItemsProxy(ItemType, true, true);
+            var proxy = new ItemsProxy(itemType, true, true);
 
 			if (obj == null || obj.Id == 0)
 			{
-				obj = proxy.CreateItem();
+				obj = proxy.NewItem();
 				int sectionId = int.Parse(_DropSectionsFilter.SelectedValue);
 				loadDropCategories(sectionId);
 
@@ -746,7 +743,7 @@ namespace PigeonCms.Modules
 
 			Utility.SetDropByValue(_DropNew, "");
 			this.CurrentId = obj.Id;
-			this.CurrentItemType = obj.ItemTypeName;
+			this.CurrentItemType = obj.ItemTypeName;//set hidden field too
 			_ItemParams.LoadParams(obj);
 			_ItemFields.LoadFields(obj);
 
@@ -763,7 +760,9 @@ namespace PigeonCms.Modules
 				if (!PgnUserCurrent.IsAuthenticated)
 					throw new Exception("user not authenticated");
 
-				new ItemsManager<Item, ItemsFilter>(true, true).DeleteById(recordId);
+                var proxy = new ItemsProxy(this.CurrentItemType, true, true);
+                proxy.DeleteById(recordId);
+
 				removeFromCache();
 			}
 			catch (Exception e)

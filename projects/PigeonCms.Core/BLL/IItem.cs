@@ -74,6 +74,9 @@ namespace PigeonCms
 		string ItemParams { get; set; }
 		global::PigeonCms.ItemType ItemType { get; }
 		string ItemTypeName { get; set; }
+        string FilterTypeName { get; }
+        string ManagerTypeName { get; }
+
 		void LoadCustomFieldsFromString(string fieldsString);
 		int NumOfImagesLoaded { get; }
 		global::System.Collections.Generic.Dictionary<string, string> Params { get; }

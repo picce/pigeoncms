@@ -287,6 +287,10 @@ namespace PigeonCms
                 bool.TryParse(nodeInstall.Attributes["allowDirectEditMode"].Value, out allowDirectEditMode);
                 result.AllowDirectEditMode = allowDirectEditMode;
             }
+            if (nodeInstall.Attributes["assemblyString"] != null)
+            {
+                result.AssemblyString = nodeInstall.Attributes["assemblyString"].Value;
+            }
             //if (nodeInstall.Attributes["templateBlockName"] != null)
             //{
             //    result.TemplateBlockName = nodeInstall.Attributes["templateBlockName"].Value;

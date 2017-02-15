@@ -88,5 +88,10 @@ namespace PigeonCms
         public HelloWorldItemsManager(bool checkUserContext, bool writeMode)
             : base(checkUserContext, writeMode) { }
 
+        public override int DeleteById(int id)
+        {
+            return base.DeleteById(id);
+        }
+
     }
 }

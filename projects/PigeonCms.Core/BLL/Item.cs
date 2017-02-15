@@ -156,6 +156,23 @@ namespace PigeonCms
             set { itemTypeName = value; }
         }
 
+        /// <summary>
+        /// items filter class name, istantiated through reflection in ItemsProxy
+        /// </summary>
+        public string FilterTypeName
+        {
+            get{ return this.ItemTypeName + "sFilter"; }
+        }
+
+        /// <summary>
+        /// items manager class name, istantiated through reflection in ItemsProxy
+        /// </summary>
+        public string ManagerTypeName
+        {
+            get { return this.ItemTypeName + "sManager"; }
+        }
+
+
         public int CategoryId { get; set; }
 
         public int SectionId { get; set; }
