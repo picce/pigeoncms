@@ -78,6 +78,9 @@ namespace PigeonCms.Core.Helpers
 
         public ItemsProxy(string itemType = "PigeonCms.Item", bool checkUserContext = false, bool writeMode = false)
 		{
+            if (string.IsNullOrEmpty(itemType))
+                itemType = "PigeonCms.Item";
+
             //manager instance params
             this.itemType = itemType;
             this.checkUserContext = checkUserContext;
@@ -92,7 +95,7 @@ namespace PigeonCms.Core.Helpers
 
 		public IItem GetByKey(int id)
 		{
-            IItem res = NewItem();
+            IItem res = GetNewItem();
 
             if (string.IsNullOrEmpty(itemType))
                 return res;
@@ -130,14 +133,16 @@ namespace PigeonCms.Core.Helpers
 
             try
             {
-                Type type = getManagerType(NewItem());
+                Type type = getManagerType(GetNewItem());
                 MethodInfo method = type.GetMethod("GetByFilter");
                 object[] methodArgs = new object[] { filter, sort };
 
                 object[] constructorArgs = new object[] { this.checkUserContext, this.writeMode };
                 var classInstance = Activator.CreateInstance(type, constructorArgs);
 
-                res = (List<IItem>)method.Invoke(classInstance, methodArgs);
+                //http://stackoverflow.com/questions/1829756/casting-a-list-of-objects-to-their-interface-type-in-c-sharp
+                res = ((IEnumerable<IItem>)method.Invoke(classInstance, methodArgs)).ToList();
+                //res = (List<IItem>)method.Invoke(classInstance, methodArgs);
             }
             catch (Exception ex)
             {
@@ -161,7 +166,7 @@ namespace PigeonCms.Core.Helpers
 
             try
             {
-                Type type = getManagerType(NewItem());
+                Type type = getManagerType(GetNewItem());
                 MethodInfo method = type.GetMethod("Update");
                 object[] methodArgs = new object[] { theObj };
 
@@ -185,16 +190,16 @@ namespace PigeonCms.Core.Helpers
 
         public IItem Insert(IItem newObj)
         {
-            var res = NewItem();
+            var res = GetNewItem();
 
             if (string.IsNullOrEmpty(itemType))
                 return res;
 
             try
             {
-                Type type = getManagerType(NewItem());
+                Type type = getManagerType(GetNewItem());
                 MethodInfo method = type.GetMethod(
-                    "Insert", new[] { NewItem().GetType(), typeof(Boolean) });
+                    "Insert", new[] { GetNewItem().GetType(), typeof(Boolean) });
 
                 object[] methodArgs = new object[] { newObj, true };
 
@@ -225,7 +230,7 @@ namespace PigeonCms.Core.Helpers
 
             try
             {
-                Type type = getManagerType(NewItem());
+                Type type = getManagerType(GetNewItem());
                 MethodInfo method = type.GetMethod("DeleteById");
                 object[] methodArgs = new object[] { id };
 
@@ -247,7 +252,7 @@ namespace PigeonCms.Core.Helpers
             return res;
         }
 
-        public IItem NewItem()
+        public IItem GetNewItem()
 		{
 			try
 			{
@@ -260,6 +265,21 @@ namespace PigeonCms.Core.Helpers
 			}
 		}
 
+        public IItemsFilter GetNewItemFilter()
+        {
+            try
+            {
+                var item = GetNewItem();
+                //Type type = this.ItemAssembly.GetTypes().Where(x => x.FullName.Equals(item.FilterTypeName)).FirstOrDefault();
+                Type type = this.ItemAssembly.GetTypes().Where(x => matchItem(x, item.FilterTypeName)).FirstOrDefault();
+                return (IItemsFilter)Activator.CreateInstance(type);
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
+        }
+
         //TODO 
         //Assembly.GetExecutingAssembly().GetReferencedAssemblies
         //http://stackoverflow.com/questions/383686/how-do-you-loop-through-currently-loaded-assemblies
@@ -271,20 +291,6 @@ namespace PigeonCms.Core.Helpers
                 //Type type = this.ItemAssembly.GetTypes().Where(x => x.FullName.Equals(item.ManagerTypeName)).FirstOrDefault();
                 Type type = this.ItemAssembly.GetTypes().Where(x => matchItem(x, item.ManagerTypeName)).FirstOrDefault();
                 return type;
-            }
-            catch (Exception e)
-            {
-                return null;
-            }
-        }
-
-        private IItemsFilter getNewItemFilter(IItem item)
-        {
-            try
-            {
-                //Type type = this.ItemAssembly.GetTypes().Where(x => x.FullName.Equals(item.FilterTypeName)).FirstOrDefault();
-                Type type = this.ItemAssembly.GetTypes().Where(x => matchItem(x, item.FilterTypeName)).FirstOrDefault();
-                return (IItemsFilter)Activator.CreateInstance(type);
             }
             catch (Exception e)
             {
