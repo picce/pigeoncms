@@ -50,35 +50,7 @@ public partial class Controls_FilesManagerModern_default : PigeonCms.BaseModuleC
 		Utility.Script.RegisterClientScriptInclude(
 			this, "pgn.FilesManagerModern.uploadfiles", base.CurrViewPath + "UploadFiles.js");
 
-
-		//foreach (KeyValuePair<string, string> item in Config.CultureList)
-		//{
-		//	//title
-		//	TextBox txt1 = new TextBox();
-		//	txt1.ID = "TxtTitle" + item.Value;
-		//	txt1.MaxLength = 50;
-		//	txt1.CssClass = "adminMediumText";
-		//	txt1.ToolTip = item.Key;
-		//	PanelTitle.Controls.Add(txt1);
-		//	Literal lit1 = new Literal();
-		//	lit1.Text = "&nbsp;[<i>" + item.Value + "</i>]<br /><br />";
-		//	PanelTitle.Controls.Add(lit1);
-
-		//	//description
-		//	TextBox txt2 = new TextBox();
-		//	txt2.ID = "TxtDescription" + item.Value;
-		//	txt2.TextMode = TextBoxMode.MultiLine;
-		//	txt2.Rows = 3;
-		//	txt2.CssClass = "adminMediumText";
-		//	PanelDescription.Controls.Add(txt2);
-		//	Literal lit2 = new Literal();
-		//	lit2.Text = "&nbsp;[<i>" + item.Value + "</i>]<br /><br />";
-		//	PanelDescription.Controls.Add(lit2);
-		//}
-
-
 		Page.Form.Attributes.Add("enctype", "multipart/form-data");
-
     }
 
 

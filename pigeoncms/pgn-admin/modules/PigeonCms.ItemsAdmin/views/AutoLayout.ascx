@@ -491,7 +491,7 @@
 												<div class="table-modern--hover--wrapper clearfix">
 
 													<div class="table-modern--hover--col">
-														<asp:LinkButton runat="server" ID="LnkEnabled" CommandArgument='<%#Eval("Id") %>' ClientIDMode="AutoID" data-title-mobile="PUB">
+														<asp:LinkButton runat="server" ID="LnkEnabled" CommandArgument='<%#Eval("Id") + "|" + Eval("ItemTypeName") %>' ClientIDMode="AutoID" data-title-mobile="PUB">
 															<div class="table-modern--checkbox--wrapper">
 																<div class="table-modern--checkbox--check"></div>
 																<span class="table-modern--checkbox--label"><%=base.GetLabel("enabled", "enabled") %></span>
@@ -542,7 +542,7 @@
 																<span class="table-modern--media--label"><%=base.GetLabel("delete", "delete") %></span>
 															</div>
 														</a>
-														<asp:Button ID="LnkDel" CommandName="DeleteRow" CommandArgument='<%#Eval("Id") %>' runat="server" style="display:none;"  />
+														<asp:Button ID="LnkDel" CommandName="DeleteRow" CommandArgument='<%#Eval("Id") + "|" + Eval("ItemTypeName") %>' runat="server" style="display:none;"  />
 													</div>
 
 												</div>

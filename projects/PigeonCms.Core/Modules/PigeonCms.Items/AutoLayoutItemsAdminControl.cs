@@ -164,6 +164,9 @@ namespace PigeonCms.Modules
 			_BtnCancel.Click += BtnCancel_Click;
 
 
+            //TODO load xml template
+            string xmlTemplatePath = $"{base.CurrViewPath} + TEMPLATE.XML";
+
             // Recreate form to handle control events and viewstate
             // TODO: avoid on "list mode" postbacks
             var itemsProxy = new ItemsProxy(this.CurrentItemType, true, true);
@@ -194,8 +197,6 @@ namespace PigeonCms.Modules
 			if (this.BaseModule.DirectEditMode)
 			{
 				if (base.CurrItem.Id == 0)
-					throw new ArgumentException();
-				if (new ItemsManager<Item, ItemsFilter>(true, true).GetByKey(base.CurrItem.Id).Id == 0)
 					throw new ArgumentException();
 			}
 
@@ -324,7 +325,7 @@ namespace PigeonCms.Modules
 				return;
 			}
 
-			var item = (PigeonCms.Item)e.Item.DataItem;
+			var item = (IItem)e.Item.DataItem;
 
 			var LitEnabled = (Literal)e.Item.FindControl("LitEnabled");
 			string enabledClass = "";
@@ -422,25 +423,27 @@ namespace PigeonCms.Modules
 			if (!int.TryParse(idAndType[0], out itemId))
 				return;
 
-			try
+            string itemType = idAndType[1];
+
+            try
 			{
 				switch (e.CommandName)
 				{
 					case "Select":
-						string itemType = idAndType[1];
+
                         var itemsProxy = new ItemsProxy(itemType, true, true);
                         var item = itemsProxy.GetByKey(itemId);
 						editRow(item, itemType);
 						break;
 					case "DeleteRow":
-						deleteRow(itemId);
+						deleteRow(itemId, itemType);
 						break;
 					case "Enabled0":
-						setFlag(itemId, false, "enabled");
+						setFlag(itemId, itemType, false, "enabled");
 						loadList();
 						break;
 					case "Enabled1":
-						setFlag(itemId, true, "enabled");
+						setFlag(itemId, itemType, true, "enabled");
 						loadList();
 						break;
 				}
@@ -574,7 +577,7 @@ namespace PigeonCms.Modules
 			try
 			{
                 var proxy = new ItemsProxy(this.CurrentItemType, true, true);
-                var o1 = proxy.NewItem();
+                var o1 = proxy.GetNewItem();
 				
 				if (CurrentId == 0)
 				{
@@ -597,7 +600,7 @@ namespace PigeonCms.Modules
 			}
 			catch (CustomException e1)
 			{
-				if (e1.CustomMessage == ItemsManager<Item, ItemsFilter>.MaxItemsException)
+				if (e1.CustomMessage == ItemsManager.MaxItemsException)
 					setError(base.GetLabel("LblMaxItemsReached", "you have reached the maximum number of elements"));
 				else
 					setError(e1.CustomMessage);
@@ -710,7 +713,7 @@ namespace PigeonCms.Modules
 
 			if (obj == null || obj.Id == 0)
 			{
-				obj = proxy.NewItem();
+				obj = proxy.GetNewItem();
 				int sectionId = int.Parse(_DropSectionsFilter.SelectedValue);
 				loadDropCategories(sectionId);
 
@@ -750,7 +753,7 @@ namespace PigeonCms.Modules
 			showInsertPanel(true);
 		}
 
-		private void deleteRow(int recordId)
+		private void deleteRow(int recordId, string itemType)
 		{
 			setSuccess("");
 			setError("");
@@ -760,7 +763,7 @@ namespace PigeonCms.Modules
 				if (!PgnUserCurrent.IsAuthenticated)
 					throw new Exception("user not authenticated");
 
-                var proxy = new ItemsProxy(this.CurrentItemType, true, true);
+                var proxy = new ItemsProxy(itemType, true, true);
                 proxy.DeleteById(recordId);
 
 				removeFromCache();
@@ -774,8 +777,8 @@ namespace PigeonCms.Modules
 
 		private void loadList()
 		{
-			var man = new ItemsManager<Item, ItemsFilter>(true, true);
-			var filter = new ItemsFilter();
+            var itemsProxy = new ItemsProxy(this.ItemType, true, true);
+            var filter = itemsProxy.GetNewItemFilter();
 
 			filter.Enabled = Utility.TristateBool.NotSet;
 			switch (_DropEnabledFilter.SelectedValue)
@@ -814,22 +817,24 @@ namespace PigeonCms.Modules
 			if (base.CategoryId > 0)
 				filter.CategoryId = base.CategoryId;*/
 
-			var list = man.GetByFilter(filter, "");
+			//var list = man.GetByFilter(filter, "");
+			var list = itemsProxy.GetByFilter(filter, "");
 
 			//post filter on itemTypes
 			if (!string.IsNullOrWhiteSpace(ItemTypes))
 			{
 				List<string> itemTypeList = new List<string>(ItemTypes.Split(','));
-				list = new List<Item>(list.Where(i => { return itemTypeList.Contains(i.ItemTypeName); }));
+				//list = new List<Item>(list.Where(i => { return itemTypeList.Contains(i.ItemTypeName); }));
+                list = (list.Where(i => { return itemTypeList.Contains(i.ItemTypeName); })).ToList();
 			}
 
 			//post filter on catId 
 			if (catId > 0)
 			{
-				list = new List<Item>(list.Where(i =>
+				list = (list.Where(i =>
 				{
-					return (i.Category.Id == catId || i.Category.ParentId == catId);
-				}));
+					return (i.CategoryId == catId /*|| i..Category.ParentId == catId*/);
+				})).ToList();
 			}
 
 			var ds = new PagedDataSource();
@@ -958,9 +963,9 @@ namespace PigeonCms.Modules
 
 			List<ItemType> recordList = new ItemTypeManager().GetByFilter(filter, "FullName");
 
-			if (!string.IsNullOrWhiteSpace(ItemTypes))
+			if (!string.IsNullOrWhiteSpace(this.ItemTypes))
 			{
-				List<string> itemTypeList = new List<string>(ItemTypes.Split(','));
+                var itemTypeList = new List<string>(this.ItemTypes.Split(','));
 				recordList = new List<ItemType>(recordList.Where(i => { return itemTypeList.Contains(i.FullName); }));
 			}
 			
@@ -986,14 +991,15 @@ namespace PigeonCms.Modules
 			}
 		}
 
-		private void setFlag(int recordId, bool value, string flagName)
+		private void setFlag(int recordId, string itemType, bool value, string flagName)
 		{
 			try
 			{
 				if (!PgnUserCurrent.IsAuthenticated)
 					throw new Exception("user not authenticated");
 
-				var o1 = new ItemsManager<Item, ItemsFilter>().GetByKey(recordId);
+                var proxy = new ItemsProxy(itemType, true, true);
+                var o1 = proxy.GetByKey(recordId);
 				switch (flagName.ToLower())
 				{
 					case "enabled":
@@ -1002,7 +1008,7 @@ namespace PigeonCms.Modules
 					default:
 						break;
 				}
-				new ItemsManager<Item, ItemsFilter>().Update(o1);
+				proxy.Update(o1);
 				removeFromCache();
 			}
 			catch (Exception e1)
@@ -1688,7 +1694,7 @@ namespace PigeonCms.Modules
 		/// </summary>
 		protected static void removeFromCache()
 		{
-			new CacheManager<PigeonCms.Item>("PigeonCms.Item").Clear();
+			//new CacheManager<PigeonCms.Item>("PigeonCms.Item").Clear();
 		}
 
 		[PigeonCms.UserControlScriptMethod]
@@ -1719,13 +1725,6 @@ namespace PigeonCms.Modules
         #endregion
 
         #region state
-
-        /*protected string itemTypes;
-		public string ItemTypes
-		{
-			get { return GetStringParam("ItemTypes", itemTypes); }
-			set { itemTypes = value; }
-		}*/
 
         protected DateTime ItemDate
 		{
