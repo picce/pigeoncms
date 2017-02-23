@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<install
+    installerVersion="1.0.0"
+    type="itemTemplate"
+    version="1.0.0"
+    core="true"
+    namespace="PigeonCms"
+    name="HelloWorldItem"
+	  view="default"
+    author="picce"
+    creationDate="2017-02-23"
+    copyright="Copyright(C) 2017 Nicola Ridolfi. All rights reserved."
+    license=""
+    authorEmail="picce@yahoo.it"
+    authorUrl="https://github.com/picce/pigeoncms"
+    description="Sample template for HelloWorldItem">
+	
+  <files>
+    <filename type="js" file="js/init.js" />
+	</files>
+
+  <list>
+    
+  </list>
+  
+	<params group="FirstTab" label="First tab" cssClass="">
+
+    <param name="CustomProp1.TextSimple" cssStyle="" minValue="" maxValue="" cssClass="" type="text" default="simple default value" 
+           label="Simple text" description="Simple text description" />
+
+    <!--TOADD attribute localized-->
+    <param name="CustomProp1.TextHtml" cssStyle="" localized="true" minValue="" maxValue="" cssClass="" type="html" default="simple default value"
+           label="Simple text" description="Simple text description" />
+    
+  </params>
+
+</install>

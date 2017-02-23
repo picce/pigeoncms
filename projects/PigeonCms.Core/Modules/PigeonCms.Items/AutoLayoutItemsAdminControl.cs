@@ -164,6 +164,9 @@ namespace PigeonCms.Modules
 			_BtnCancel.Click += BtnCancel_Click;
 
 
+            //TODO load xml template
+            string xmlTemplatePath = $"{base.CurrViewPath} + TEMPLATE.XML";
+
             // Recreate form to handle control events and viewstate
             // TODO: avoid on "list mode" postbacks
             var itemsProxy = new ItemsProxy(this.CurrentItemType, true, true);
