@@ -20,9 +20,9 @@ namespace PigeonCms
     /// <summary>
     /// DAL for ItemType obj (from Items folder)
     /// </summary>
-    public class ItemTypeManager: XmlTypeManager<ItemType,ItemTypeFilter>
+    public class ItemTypeManager : XmlTypeManager<ItemType, ItemTypeFilter>
     {
-        public ItemTypeManager(): base(Config.ItemsPath)
+        public ItemTypeManager() : base(Config.ItemsPath)
         {
             //specific xml parse steps
             base.ParseSteps += this.parseTagFields;
@@ -69,4 +69,5 @@ namespace PigeonCms
             }
         }
     }
+
 }

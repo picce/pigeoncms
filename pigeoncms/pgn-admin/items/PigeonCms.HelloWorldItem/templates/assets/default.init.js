@@ -1,0 +1,1 @@
+﻿//js resource for default item template

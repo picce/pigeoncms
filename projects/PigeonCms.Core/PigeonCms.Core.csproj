@@ -95,6 +95,7 @@
     <Compile Include="BLL\Comment.cs" />
     <Compile Include="BLL\IItem.cs" />
     <Compile Include="BLL\IItemsFilter.cs" />
+    <Compile Include="BLL\ItemTemplateType.cs" />
     <Compile Include="BLL\Seo.cs" />
     <Compile Include="BLL\ItemAttributeValue.cs" />
     <Compile Include="BLL\Geo\Zone.cs" />

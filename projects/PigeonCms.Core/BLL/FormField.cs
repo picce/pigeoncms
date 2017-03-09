@@ -12,7 +12,6 @@ namespace PigeonCms
         Text = 0,
         List,
         Combo,
-        Radio,
         Check,
         Calendar,
         Custom,
@@ -20,14 +19,36 @@ namespace PigeonCms
         Hidden,
         Error,
         Html,
-        Numeric,
-        Address
-        /*TextTranslated*/
+        Image,
+        File,
+        Numeric
     }
 
     [DebuggerDisplay("Name={name}, DefaultValue={defaultValue}, Type={type}")]
+    [AttributeUsage(AttributeTargets.Property)]
     [Serializable]
-    public class FormField : ITable
+    public class FileFormField : FormField
+    {
+        public string AllowedFileTypes { get; set; }
+
+        public FileFormField(bool localized = false, string allowedFileTypes = "")
+            :base(localized, FormFieldTypeEnum.Image)
+        {
+            this.AllowedFileTypes = allowedFileTypes;
+        }
+    }
+
+    [DebuggerDisplay("Name={name}, DefaultValue={defaultValue}, Type={type}")]
+    [AttributeUsage(AttributeTargets.Property)]
+    [Serializable]
+    public class ImageFormField : FileFormField
+    {
+    }
+
+    [DebuggerDisplay("Name={name}, DefaultValue={defaultValue}, Type={type}")]
+	[AttributeUsage(AttributeTargets.Property)]
+    [Serializable]
+    public class FormField : System.Attribute, ITable
     {
         int formId = 0;
         bool enabled = true;
@@ -44,9 +65,33 @@ namespace PigeonCms
         string cssStyle = "";
         List<FormFieldOption> options = new List<FormFieldOption>();
         FormFieldTypeEnum type = FormFieldTypeEnum.Text;
-        bool isTranslationField = false;
+        bool localized = false;
 
-        public FormField() { }
+        //public FormField() { }
+
+        public FormField(
+            bool localized = false,
+            FormFieldTypeEnum type = FormFieldTypeEnum.Text,
+            string value = "")
+        {
+            this.localized = localized;
+            this.type = type;
+            this.defaultValue = value;
+
+            if (this.type == FormFieldTypeEnum.Combo
+                || this.type == FormFieldTypeEnum.List)
+            {
+                this.options = new List<FormFieldOption>();
+                if (!string.IsNullOrEmpty(this.defaultValue))
+                {
+                    var list = new List<string>(this.defaultValue.Split(';'));
+                    foreach(string s in list)
+                    {
+                        options.Add(new FormFieldOption(s, s));
+                    }
+                }
+            }
+        }
 
         public int Id { get; set; } //used when from db
 
@@ -160,11 +205,12 @@ namespace PigeonCms
             {
                 if (options == null)
                 {
+                    //20170309 NEVER USED
                     //null when from db
-                    var man = new FormFieldOptionsManager();
-                    var filter = new FormFieldOptionFilter();
-                    filter.FormFieldId = this.Id;
-                    options = man.GetByFilter(filter, "");
+                    //var man = new FormFieldOptionsManager();
+                    //var filter = new FormFieldOptionFilter();
+                    //filter.FormFieldId = this.Id;
+                    //options = man.GetByFilter(filter, "");
                 }
                 return options; 
             }
@@ -183,12 +229,12 @@ namespace PigeonCms
         /// <summary>
         /// this field will be splitted for different cultures
         /// </summary>
-        public bool IsTranslationField
+        public bool Localized
         {
             [DebuggerStepThrough()]
-            get { return isTranslationField; }
+            get { return localized; }
             [DebuggerStepThrough()]
-            set { isTranslationField = value; }
+            set { localized = value; }
         }            
     }
 

@@ -57,6 +57,7 @@ namespace PigeonCms
             this.Path = path;
 
             this.ParseSteps += this.parseTagInstallAttributes;
+            this.ParseSteps += this.parseTagFiles;
             if (!parseOnlyTagInstallAttributes)
             {
                 this.ParseSteps += this.parseTagsInstallUninstall;
@@ -303,6 +304,39 @@ namespace PigeonCms
             {
                 if (nodeFileName.Attributes["file"] != null)
                     result.InstallSqlFiles.Add(nodeFileName.Attributes["file"].Value);
+            }
+            foreach (XmlNode nodeFileName in doc.SelectNodes("//install//uninstall//sql//filename"))
+            {
+                if (nodeFileName.Attributes["file"] != null)
+                    result.UninstallSqlFiles.Add(nodeFileName.Attributes["file"].Value);
+            }
+            foreach (XmlNode nodeFileName in doc.SelectNodes("//install//install//sql//query"))
+            {
+                if (!string.IsNullOrEmpty(nodeFileName.InnerText))
+                    result.InstallQueries.Add(nodeFileName.InnerText);
+            }
+            foreach (XmlNode nodeFileName in doc.SelectNodes("//install//uninstall//sql//query"))
+            {
+                if (!string.IsNullOrEmpty(nodeFileName.InnerText))
+                    result.UninstallQueries.Add(nodeFileName.InnerText);
+            }
+        }
+
+        private void parseTagFiles(T result, XmlDocument doc)
+        {
+            foreach (XmlNode nodeFileName in doc.SelectNodes("//install//files//filename"))
+            {
+                if (nodeFileName.Attributes["file"] != null)
+                {
+                    var includeFile = new XmlType.IncludeFile();
+                    includeFile.File = nodeFileName.Attributes["file"].Value;
+
+                    if (nodeFileName.Attributes["type"] != null)
+                    {
+                        includeFile.Type = nodeFileName.Attributes["type"].Value;
+                    }
+                    result.Files.Add(includeFile);
+                }
             }
             foreach (XmlNode nodeFileName in doc.SelectNodes("//install//uninstall//sql//filename"))
             {

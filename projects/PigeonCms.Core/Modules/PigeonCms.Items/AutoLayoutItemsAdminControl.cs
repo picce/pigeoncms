@@ -2,18 +2,19 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using PigeonCms.Core.Helpers;
 using System.Web.UI.WebControls;
 using System.Web.UI;
-using PigeonCms.Controls;
-//using PigeonCms.Controls.ItemFields;
 using System.Web;
 using System.Collections;
 using System.Reflection;
 using System.Globalization;
 using System.Web.Security;
 using System.Text.RegularExpressions;
+using PigeonCms.Core;
+using PigeonCms.Core.Helpers;
+using PigeonCms.Controls;
 using PigeonCms.Controls.ItemFields;
+
 
 namespace PigeonCms.Modules
 {
@@ -82,7 +83,6 @@ namespace PigeonCms.Modules
 		protected abstract PigeonCms.Controls.ItemParamsControl _ItemParams { get; }
 		protected abstract PigeonCms.Controls.ItemParamsControl _ItemFields { get; }
 
-		//protected abstract HiddenField _HidCurrentId { get; }
 		protected abstract HiddenField _HidCurrentItemType { get; }
 
 		#endregion
@@ -163,9 +163,6 @@ namespace PigeonCms.Modules
 			_BtnSave.Click += BtnSave_Click;
 			_BtnCancel.Click += BtnCancel_Click;
 
-
-            //TODO load xml template
-            string xmlTemplatePath = $"{base.CurrViewPath} + TEMPLATE.XML";
 
             // Recreate form to handle control events and viewstate
             // TODO: avoid on "list mode" postbacks
@@ -297,9 +294,7 @@ namespace PigeonCms.Modules
 		protected void RepPaging_ItemDataBound(object sender, RepeaterItemEventArgs e)
 		{
 			if (e.Item.ItemType == ListItemType.Header)
-			{
 				return;
-			}
 
 			int page = int.Parse(e.Item.DataItem.ToString());
 			if (page - 1 == base.ListCurrentPage)
@@ -321,9 +316,7 @@ namespace PigeonCms.Modules
 		protected void Rep1_ItemDataBound(object sender, RepeaterItemEventArgs e)
 		{
 			if (e.Item.ItemType == ListItemType.Header)
-			{
 				return;
-			}
 
 			var item = (IItem)e.Item.DataItem;
 
@@ -430,18 +423,20 @@ namespace PigeonCms.Modules
 				switch (e.CommandName)
 				{
 					case "Select":
-
                         var itemsProxy = new ItemsProxy(itemType, true, true);
                         var item = itemsProxy.GetByKey(itemId);
 						editRow(item, itemType);
 						break;
+
 					case "DeleteRow":
 						deleteRow(itemId, itemType);
 						break;
+
 					case "Enabled0":
 						setFlag(itemId, itemType, false, "enabled");
 						loadList();
 						break;
+
 					case "Enabled1":
 						setFlag(itemId, itemType, true, "enabled");
 						loadList();
@@ -777,6 +772,7 @@ namespace PigeonCms.Modules
 
 		private void loadList()
 		{
+            //TODO - list with multiple itemtypes
             var itemsProxy = new ItemsProxy(this.ItemType, true, true);
             var filter = itemsProxy.GetNewItemFilter();
 
@@ -794,6 +790,7 @@ namespace PigeonCms.Modules
 					break;
 			}
 
+            //TODO allora filter witu multiple itemtypes
 			if (_DropItemTypesFilter.SelectedValue != "")
 				filter.ItemType = _DropItemTypesFilter.SelectedValue;
 
@@ -817,17 +814,18 @@ namespace PigeonCms.Modules
 			if (base.CategoryId > 0)
 				filter.CategoryId = base.CategoryId;*/
 
-			//var list = man.GetByFilter(filter, "");
 			var list = itemsProxy.GetByFilter(filter, "");
 
 			//post filter on itemTypes
 			if (!string.IsNullOrWhiteSpace(ItemTypes))
 			{
-				List<string> itemTypeList = new List<string>(ItemTypes.Split(','));
-				//list = new List<Item>(list.Where(i => { return itemTypeList.Contains(i.ItemTypeName); }));
-                list = (list.Where(i => { return itemTypeList.Contains(i.ItemTypeName); })).ToList();
+				var itemTypeList = new List<string>(ItemTypes.Split(','));
+                list = (list.Where(
+                        i => { return itemTypeList.Contains(i.ItemTypeName); })
+                    ).ToList();
 			}
 
+            //TODO - to complete - filter catid and parent in GetByFilter method
 			//post filter on catId 
 			if (catId > 0)
 			{
@@ -966,7 +964,10 @@ namespace PigeonCms.Modules
 			if (!string.IsNullOrWhiteSpace(this.ItemTypes))
 			{
                 var itemTypeList = new List<string>(this.ItemTypes.Split(','));
-				recordList = new List<ItemType>(recordList.Where(i => { return itemTypeList.Contains(i.FullName); }));
+			
+                //recordList = new List<ItemType>(recordList.Where(i => { return itemTypeList.Contains(i.FullName); }));
+                recordList = new List<ItemType>(recordList.Where(
+                    i => { return this.AllowedItems.ContainsKey(i.FullName); }));
 			}
 			
 			foreach (ItemType record1 in recordList)
@@ -1115,6 +1116,7 @@ namespace PigeonCms.Modules
 			ValidTo = obj.ValidTo;
 		}
 
+
 		#endregion
 
 		#region Dynamic properties management
@@ -1205,7 +1207,7 @@ namespace PigeonCms.Modules
         /// <returns>the control to add to the panel</returns>
         private AbstractFieldContainer createEditorAndContainer(PropertyInfo property, string propDefName, IItem item, object value, bool setFieldValues)
 		{
-			ItemFieldAttribute attribute = (ItemFieldAttribute)property.GetCustomAttribute(typeof(ItemFieldAttribute));
+            FormField attribute = (FormField)property.GetCustomAttribute(typeof(FormField));
 			if (attribute == null)
 				return null;
 
@@ -1213,32 +1215,32 @@ namespace PigeonCms.Modules
 			Control innerControl = null;
 			IUploadControl uploadControl = null;
 
-			switch (attribute.EditorType)
+			switch (attribute.Type)
 			{
-				case ItemFieldEditorType.Select:
+				case FormFieldTypeEnum.Combo:
 					container.CSSClass = "form-select-wrapper form-select-detail-item";
 
 					var dropDownList = new DropDownList();
 					dropDownList.ID = "property_" + propDefName + "-" + property.Name;
 					dropDownList.EnableViewState = true;
-					dropDownList.Enabled = true;
-					dropDownList.CssClass = "form-control";
-					foreach (string dropDownItemValue in attribute.Values)
+					dropDownList.Enabled = attribute.Enabled;
+					dropDownList.CssClass = "form-control " + attribute.CssClass;
+					foreach (var option in attribute.Options)
 					{
 						dropDownList.Items.Add(
                             new ListItem(
-                                GetLabel("AutoLayout." + item.ItemType.Name + "_" + propDefName + "-" + property.Name + ".Option_" + dropDownItemValue, dropDownItemValue), 
-                                dropDownItemValue)
+                                GetLabel("AutoLayout." + item.ItemType.Name + "_" + propDefName + "-" + property.Name + ".Option_" + option.Label, option.Value), 
+                                option.Value)
                         );
 
-						if (setFieldValues && value != null && Convert.ToString(value) == dropDownItemValue)
-							dropDownList.SelectedValue = dropDownItemValue;
+						if (setFieldValues && value != null && Convert.ToString(value) == option.Value)
+							dropDownList.SelectedValue = option.Value;
 					}
 
 					innerControl = dropDownList;
 					break;
 
-				case ItemFieldEditorType.Html:
+				case FormFieldTypeEnum.Html:
 					container = (AbstractFieldContainer)LoadControl("~/Controls/FieldContainer/TextAreaFieldContainer.ascx");
 					container.CSSClass = "spacing-detail";
 
@@ -1265,8 +1267,9 @@ namespace PigeonCms.Modules
                             editorControl = htmlEditor as IContentEditorControl;
 							if (editorControl != null)
 							{
-								editorControl.Configuration = new ContentEditorProvider.Configuration()
+                                editorControl.Configuration = new ContentEditorProvider.Configuration()
 								{
+                                    //TODO editortype
 									EditorType = ContentEditorProvider.Configuration.EditorTypeEnum.BasicHtml,
 									FileButton = false,
 									PageBreakButton = false,
@@ -1313,22 +1316,24 @@ namespace PigeonCms.Modules
 					innerControl = textareaPanel;
 					break;
 
-				case ItemFieldEditorType.Flag:
+				case FormFieldTypeEnum.Check:
 					container = (AbstractFieldContainer)LoadControl("~/Controls/FieldContainer/CheckboxFieldContainer.ascx");
 					container.ControlLargeSize = 3;
 
 					CheckBox checkbox = new CheckBox();
 					checkbox.ID = "property_" + propDefName + "-" + property.Name;
 					checkbox.EnableViewState = true;
-					checkbox.Enabled = true;
-					checkbox.Text = "";
+                    checkbox.Enabled = attribute.Enabled;
+                    checkbox.CssClass = attribute.CssClass;
+
+                    checkbox.Text = "";
 					if (setFieldValues)
 						checkbox.Checked = value == null ? false : Convert.ToBoolean(value);
 
 					innerControl = checkbox;
 					break;
 
-				case ItemFieldEditorType.TextBox:
+				case FormFieldTypeEnum.Text:
 					if (attribute.Localized)
 					{
 						Panel translationContainer = new Panel();
@@ -1346,7 +1351,9 @@ namespace PigeonCms.Modules
 									string text = "";
 									localizedValue.TryGetValue(culture.Key, out text);
 									textbox.Text = text;
-								}
+                                    textbox.Enabled = attribute.Enabled;
+                                    textbox.CssClass = attribute.CssClass;
+                                }
 							}
 						}
 						innerControl = translationContainer;
@@ -1355,8 +1362,9 @@ namespace PigeonCms.Modules
 					{
 						TextBox textbox = new TextBox();
 						textbox.ID = "property_" + propDefName + "-" + property.Name;
-						textbox.CssClass = "form-control";
-						textbox.EnableViewState = true;
+                        textbox.Enabled = attribute.Enabled;
+                        textbox.CssClass = "form-control " + attribute.CssClass;
+                        textbox.EnableViewState = true;
 						if (setFieldValues)
 							textbox.Text = value == null ? "" : value.ToString();
 
@@ -1364,12 +1372,13 @@ namespace PigeonCms.Modules
 					}
 					break;
 
-				case ItemFieldEditorType.Number:
+				case FormFieldTypeEnum.Numeric:
 					container.ControlLargeSize = 3;
 					TextBox number = new TextBox();
 					number.ID = "property_" + propDefName + "-" + property.Name;
-					number.CssClass = "form-control";
-					number.EnableViewState = true;
+                    number.Enabled = attribute.Enabled;
+                    number.CssClass = "form-control " + attribute.CssClass;
+                    number.EnableViewState = true;
 					if (setFieldValues)
 						number.Text = value == null || string.IsNullOrWhiteSpace(Convert.ToString(value)) ? "" : value.ToString();
 
@@ -1383,19 +1392,21 @@ namespace PigeonCms.Modules
 					innerControl = number;
 					break;
 
-				case ItemFieldEditorType.Image:
+				case FormFieldTypeEnum.Image:
 					Control imageUpload = LoadControl("~/Controls/ImageUpload/ImageUploadModern.ascx");
                     imageUpload.ID = "property_" + propDefName + "-" + property.Name;
 					imageUpload.EnableViewState = true;
+                    //imageUpload.Enabled = attribute.Enabled;
+                    //imageUpload.CssClass = "form-control " + attribute.CssClass;
 
-					uploadControl = imageUpload as IUploadControl;
+                    uploadControl = imageUpload as IUploadControl;
 					if (uploadControl != null)
 					{
 						uploadControl.AllowedFileTypes = GetStringParam("ItemImagesTypes", "jpg,png");
 						uploadControl.MaxFileSize = GetIntParam("ItemImagesMaxFileSize", 1024);
 						uploadControl.FilePath = value == null ? "" : value.ToString();
 
-						ImageFieldAttribute imageAttribute = attribute as ImageFieldAttribute;
+                        ImageFormField imageAttribute = attribute as ImageFormField;
 						if (imageAttribute != null && !string.IsNullOrWhiteSpace(imageAttribute.AllowedFileTypes))
 							uploadControl.AllowedFileTypes = imageAttribute.AllowedFileTypes;
 					}
@@ -1403,7 +1414,7 @@ namespace PigeonCms.Modules
 					innerControl = imageUpload;
 					break;
 
-				case ItemFieldEditorType.File:
+				case FormFieldTypeEnum.File:
 					if (attribute.Localized)
 					{
 						Panel translationContainer = new Panel();
@@ -1419,7 +1430,7 @@ namespace PigeonCms.Modules
 								uploadControl.AllowedFileTypes = GetStringParam("ItemFilesTypes", "*");
 								uploadControl.MaxFileSize = GetIntParam("ItemFilesMaxFileSize", 10240);
 
-								FileFieldAttribute fileAttribute = attribute as FileFieldAttribute;
+                                FileFormField fileAttribute = attribute as FileFormField;
 								if (fileAttribute != null && !string.IsNullOrWhiteSpace(fileAttribute.AllowedFileTypes))
 									uploadControl.AllowedFileTypes = fileAttribute.AllowedFileTypes;
 							}
@@ -1450,7 +1461,7 @@ namespace PigeonCms.Modules
 							uploadControl.AllowedFileTypes = GetStringParam("ItemFilesTypes", "*");
 							uploadControl.MaxFileSize = GetIntParam("ItemFilesMaxFileSize", 10240);
 
-							FileFieldAttribute fileAttribute = (FileFieldAttribute)attribute;
+                            FileFormField fileAttribute = (FileFormField)attribute;
 							if (fileAttribute != null && !string.IsNullOrWhiteSpace(fileAttribute.AllowedFileTypes))
 								uploadControl.AllowedFileTypes = fileAttribute.AllowedFileTypes;
 
@@ -1482,13 +1493,13 @@ namespace PigeonCms.Modules
 		{
             string propDefName = propDef.MapAttributeValue;
 
-            ItemFieldAttribute attribute = (ItemFieldAttribute)property.GetCustomAttribute(typeof(ItemFieldAttribute));
+            FormField attribute = (FormField)property.GetCustomAttribute(typeof(FormField));
 			if (attribute == null)
 				return;
 
-			switch (attribute.EditorType)
+			switch (attribute.Type)
 			{
-				case ItemFieldEditorType.Html:
+				case FormFieldTypeEnum.Html:
 					if (attribute.Localized)
 					{
 						Translation localizedValue = new Translation();
@@ -1515,7 +1526,7 @@ namespace PigeonCms.Modules
 					}
 					break;
 
-				case ItemFieldEditorType.Select:
+				case FormFieldTypeEnum.Combo:
 					DropDownList dropDownList = Utility.Controls.FindControlRecursive<DropDownList>(
                         _FieldsContainer, 
                         "property_" + propDefName + "-" + property.Name);
@@ -1524,7 +1535,7 @@ namespace PigeonCms.Modules
 						property.SetValue(propDef, dropDownList.SelectedValue, null);
 					break;
 
-				case ItemFieldEditorType.Number:
+				case FormFieldTypeEnum.Numeric:
 					TextBox number = Utility.Controls.FindControlRecursive<TextBox>(
                         _FieldsContainer, 
                         "property_" + propDefName + "-" + property.Name);
@@ -1545,7 +1556,7 @@ namespace PigeonCms.Modules
 					}
 					break;
 
-				case ItemFieldEditorType.Flag:
+				case FormFieldTypeEnum.Check:
 					CheckBox checkbox = Utility.Controls.FindControlRecursive<CheckBox>(
                         _FieldsContainer, 
                         "property_" + propDefName + "-" + property.Name);
@@ -1554,7 +1565,7 @@ namespace PigeonCms.Modules
 						property.SetValue(propDef, checkbox.Checked, null);
 					break;
 
-				case ItemFieldEditorType.TextBox:
+				case FormFieldTypeEnum.Text:
 					if (attribute.Localized)
 					{
 						Translation localizedValue = new Translation();
@@ -1580,7 +1591,7 @@ namespace PigeonCms.Modules
 					}
 					break;
 
-				case ItemFieldEditorType.File:
+				case FormFieldTypeEnum.File:
 					// TODO: refactor
 					if (attribute.Localized)
 					{
@@ -1635,7 +1646,7 @@ namespace PigeonCms.Modules
 					}
 					break;
 
-				case ItemFieldEditorType.Image:
+				case FormFieldTypeEnum.Image:
 					IUploadControl imageUpload = Utility.Controls.FindControlRecursive<Control>(
                         _FieldsContainer, 
                         "property_" + propDefName + "-" + property.Name) as IUploadControl;
@@ -1744,14 +1755,23 @@ namespace PigeonCms.Modules
 			set { SetItemDate(_TxtValidTo, value); }
 		}
 
+        /// <summary>
+        /// selected item type
+        /// PigeonCms.Item as default value
+        /// </summary>
 		protected string CurrentItemType
 		{
 			get
 			{
-				if (_HidCurrentItemType == null)
-					return string.Empty;
+                string res = "";
 
-				return Request[_HidCurrentItemType.UniqueID];
+                if (_HidCurrentItemType != null)
+                    res = Request[_HidCurrentItemType.UniqueID];
+
+                if (string.IsNullOrEmpty(res))
+                    res = new PigeonCms.Item().ItemTypeName;
+
+                return res;
 			}
 			set
 			{

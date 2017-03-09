@@ -56,9 +56,6 @@ namespace PigeonCms
                 case FormFieldTypeEnum.Combo:
                     result = (Control)getComboControl(field, currentValue, defaultCssClass);
                     break;
-                case FormFieldTypeEnum.Radio:
-                    result = (Control)getHiddenControl(field, currentValue);    //TODO
-                    break;
                 case FormFieldTypeEnum.Check:
                     result = (Control)getHiddenControl(field, currentValue);    //TODO
                     break;

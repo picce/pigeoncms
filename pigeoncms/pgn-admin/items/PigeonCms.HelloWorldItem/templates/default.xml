@@ -8,15 +8,16 @@
     name="HelloWorldItem"
 	  view="default"
     author="picce"
-    creationDate="2017-02-23"
+    creationDate="2017-03-07"
     copyright="Copyright(C) 2017 Nicola Ridolfi. All rights reserved."
     license=""
     authorEmail="picce@yahoo.it"
-    authorUrl="https://github.com/picce/pigeoncms"
+    authorUrl="https://github.com/picce/"
     description="Sample template for HelloWorldItem">
 	
   <files>
-    <filename type="js" file="js/init.js" />
+    <filename type="js" file="assets/default.init.js" />
+    <filename type="css" file="assets/default.css" />
 	</files>
 
   <list>
@@ -28,10 +29,27 @@
     <param name="CustomProp1.TextSimple" cssStyle="" minValue="" maxValue="" cssClass="" type="text" default="simple default value" 
            label="Simple text" description="Simple text description" />
 
+    <param name="CustomProp1.TextSimpleLocalized" localized="true" cssStyle="" minValue="" maxValue="" cssClass="" type="text" default="simple default value"
+           label="Simple text localized" description="" />
+
+    <!--TOADD attribute localized-->
+    <param name="CustomProp1.TextHtml" cssStyle="" localized="" minValue="" maxValue="" cssClass="" type="html" default="simple default value"
+           label="Html text" description="" />
+
+    <param name="CustomProp1.TextHtmlLocalized" cssStyle="" localized="true" minValue="" maxValue="" cssClass="" type="html" default="simple default value"
+           label="Html text localized" description="" />
+    
+  </params>
+
+  <params group="SecondTab" label="Second tab" cssClass="">
+
+    <param name="CustomProp2.OtherSimpleText" cssStyle="" minValue="" maxValue="" cssClass="" type="text" default="simple default value"
+           label="Other simple text" description="" />
+
     <!--TOADD attribute localized-->
     <param name="CustomProp1.TextHtml" cssStyle="" localized="true" minValue="" maxValue="" cssClass="" type="html" default="simple default value"
            label="Simple text" description="Simple text description" />
-    
+
   </params>
 
 </install>
