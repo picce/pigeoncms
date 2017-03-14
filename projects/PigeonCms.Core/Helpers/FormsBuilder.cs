@@ -346,6 +346,24 @@ namespace PigeonCms
             {
                 item.Group = nodeParams.Attributes["group"].Value;
             }
+            if (nodeParam.Attributes["localized"] != null)
+            {
+                bool value = false;
+                bool.TryParse(nodeParam.Attributes["localized"].Value, out value);
+                item.Localized = value;
+            }
+            if (nodeParam.Attributes["minValue"] != null)
+            {
+                int value = 0;
+                int.TryParse(nodeParam.Attributes["minValue"].Value, out value);
+                item.MinValue = value;
+            }
+            if (nodeParam.Attributes["maxValue"] != null)
+            {
+                int value = 0;
+                int.TryParse(nodeParam.Attributes["maxValue"].Value, out value);
+                item.MaxValue = value;
+            }
 
             //options list
             XmlNodeList optionsList = nodeParam.SelectNodes("option");

@@ -233,7 +233,7 @@ namespace PigeonCms
         /// allow PigeonCms.Item item with its default template (default.xml)
         /// allow PigeonCms.HelloWorldItem con hello1.xml template
         /// </summary>
-        protected string itemTypes;
+        protected string itemTypes = "";
 		public string ItemTypes
 		{
 			get { return GetStringParam("ItemTypes", itemTypes); }
@@ -261,13 +261,15 @@ namespace PigeonCms
                         var split = p.Trim().Split('|');
                         string type = split[0];
                         string templateName = "default.xml";
-                        if (split.Length > 0 && !string.IsNullOrEmpty(split[1]))
+                        if (split.Length > 1 && !string.IsNullOrEmpty(split[1]))
                         {
                             templateName = split[1];
                         }
-
-                        var template = new ItemTemplateTypeManager().GetByFullName(itemType);
-                        allowedItems.Add(type, template);
+                        if (!string.IsNullOrEmpty(type))
+                        {
+                            var template = new ItemTemplateTypeManager().GetByFullName(type + "/templates", templateName);
+                            allowedItems.Add(type, template);
+                        }
                     }
 
                     //add itemtype if present (for backward compatibility)

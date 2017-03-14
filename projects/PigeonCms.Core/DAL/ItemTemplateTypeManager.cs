@@ -19,7 +19,7 @@ namespace PigeonCms.Core
 {
     public class ItemTemplateTypeManager : XmlTypeManager<ItemTemplateType, ItemTemplateTypeFilter>
     {
-        public ItemTemplateTypeManager() : base(Config.ItemsPath + "templates")
+        public ItemTemplateTypeManager() : base(Config.ItemsPath)
         {
             //specific xml parse steps
         }

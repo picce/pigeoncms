@@ -1146,8 +1146,32 @@ namespace PigeonCms.Modules
             //remove all dynamic controls
             _FieldsContainer.Controls.Clear();
 
+            var template = new ItemTemplateType();
+
+            if (this.AllowedItems.ContainsKey(obj.ItemTypeName))
+            {
+                //template set in itemsAdmin instance params
+                template = this.AllowedItems[obj.ItemTypeName];
+            }
+            else
+            {
+                //default template for current itemtype
+                template = new ItemTemplateTypeManager().GetByFullName(obj.ItemTypeName + "/templates", "default.xml");
+            }
+            //if (template.Params.Count > 0)
+            //{
+            //    //load fields from template
+            //    foreach(var param in template.Params)
+            //    {
+
+            //    }
+            //}
+
+            //load fields using class attributes
             foreach (var propDef in obj.PropertiesList)
             {
+                string propDefName = propDef.GetType().Name;
+
                 PropertyInfo[] properties = getItemPropertiesInfo(propDef);
                 if (properties == null)
                     continue;
@@ -1155,20 +1179,30 @@ namespace PigeonCms.Modules
                 foreach (PropertyInfo property in properties)
                 {
                     object value = property.GetValue(propDef, null);
-                    string propDefName = propDef.MapAttributeValue;
+                    //string propDefName = propDef.MapAttributeValue;
 
-                    AbstractFieldContainer control = createEditorAndContainer(property, propDefName, item, value, setFieldValues);
+                    //default field definition from attributes
+                    FormField field = (FormField)property.GetCustomAttribute(typeof(FormField));
+
+                    //try to load field definition from template
+                    FormField templateField = template.Params
+                        .Where(a => a.Name == $"{propDefName}.{property.Name}")
+                        .FirstOrDefault();
+
+                    if (templateField != null)
+                        field = templateField;
+
+                    AbstractFieldContainer control = createEditorAndContainer(field, property.Name, propDefName, item, value, setFieldValues);
                     if (control == null)
                         continue;
 
                     control.ID = propDefName + "-" + property.Name + "_container";
                     control.Label = GetLabel(
-                        "AutoLayout." + item.ItemType.Name + "_" + propDefName + "-" + property.Name, 
+                        "AutoLayout." + item.ItemTypeName + "_" + propDefName + "-" + property.Name,
                         property.Name);
 
                     _FieldsContainer.Controls.Add(control);
                 }
-
             }
 		}
 
@@ -1200,36 +1234,37 @@ namespace PigeonCms.Modules
         /// TODO: implement all editor types
         /// </summary>
         /// <param name="property">the item property to map in the control</param>
-        /// <param name="propDef"></param>
+        /// <param name="propDefName">name of property</param>
         /// <param name="item">the current item</param>
         /// <param name="value">the current value of the control</param>
         /// <param name="setFieldValues">if true set the value</param>
         /// <returns>the control to add to the panel</returns>
-        private AbstractFieldContainer createEditorAndContainer(PropertyInfo property, string propDefName, IItem item, object value, bool setFieldValues)
+        private AbstractFieldContainer createEditorAndContainer(FormField field, 
+            string propertyName, string propDefName, IItem item, object value, bool setFieldValues)
 		{
-            FormField attribute = (FormField)property.GetCustomAttribute(typeof(FormField));
-			if (attribute == null)
+
+            if (field == null)
 				return null;
 
             AbstractFieldContainer container = (AbstractFieldContainer)LoadControl("~/Controls/FieldContainer/FieldContainer.ascx");
 			Control innerControl = null;
 			IUploadControl uploadControl = null;
 
-			switch (attribute.Type)
+			switch (field.Type)
 			{
 				case FormFieldTypeEnum.Combo:
 					container.CSSClass = "form-select-wrapper form-select-detail-item";
 
 					var dropDownList = new DropDownList();
-					dropDownList.ID = "property_" + propDefName + "-" + property.Name;
+					dropDownList.ID = "property_" + propDefName + "-" + propertyName;
 					dropDownList.EnableViewState = true;
-					dropDownList.Enabled = attribute.Enabled;
-					dropDownList.CssClass = "form-control " + attribute.CssClass;
-					foreach (var option in attribute.Options)
+					dropDownList.Enabled = field.Enabled;
+					dropDownList.CssClass = "form-control " + field.CssClass;
+					foreach (var option in field.Options)
 					{
 						dropDownList.Items.Add(
                             new ListItem(
-                                GetLabel("AutoLayout." + item.ItemType.Name + "_" + propDefName + "-" + property.Name + ".Option_" + option.Label, option.Value), 
+                                GetLabel("AutoLayout." + item.ItemType.Name + "_" + propDefName + "-" + propertyName + ".Option_" + option.Label, option.Value), 
                                 option.Value)
                         );
 
@@ -1247,7 +1282,7 @@ namespace PigeonCms.Modules
 					var textareaPanel = new Panel();
 					IContentEditorControl editorControl = null;
 
-					if (attribute.Localized)
+					if (field.Localized)
 					{
 						Translation localizedValue = value as Translation;
 
@@ -1262,7 +1297,7 @@ namespace PigeonCms.Modules
 							textareaPanel.Controls.Add(litCulture);
 
 							Control htmlEditor = LoadControl("~/Controls/ContentEditorControl.ascx");
-							htmlEditor.ID = "property_" + propDefName + "-" + property.Name + culture.Value;
+							htmlEditor.ID = "property_" + propDefName + "-" + propertyName + culture.Value;
 
                             editorControl = htmlEditor as IContentEditorControl;
 							if (editorControl != null)
@@ -1291,7 +1326,7 @@ namespace PigeonCms.Modules
 					else
 					{
 						Control htmlEditor = LoadControl("~/Controls/ContentEditorControl.ascx");
-						htmlEditor.ID = "property_" + propDefName + "-" + property.Name;
+						htmlEditor.ID = "property_" + propDefName + "-" + propertyName;
 
 						editorControl = htmlEditor as IContentEditorControl;
 						if (editorControl != null)
@@ -1321,10 +1356,10 @@ namespace PigeonCms.Modules
 					container.ControlLargeSize = 3;
 
 					CheckBox checkbox = new CheckBox();
-					checkbox.ID = "property_" + propDefName + "-" + property.Name;
+					checkbox.ID = "property_" + propDefName + "-" + propertyName;
 					checkbox.EnableViewState = true;
-                    checkbox.Enabled = attribute.Enabled;
-                    checkbox.CssClass = attribute.CssClass;
+                    checkbox.Enabled = field.Enabled;
+                    checkbox.CssClass = field.CssClass;
 
                     checkbox.Text = "";
 					if (setFieldValues)
@@ -1334,25 +1369,25 @@ namespace PigeonCms.Modules
 					break;
 
 				case FormFieldTypeEnum.Text:
-					if (attribute.Localized)
+					if (field.Localized)
 					{
 						Panel translationContainer = new Panel();
 						Translation localizedValue = value as Translation;
 						foreach (KeyValuePair<string, string> culture in Config.CultureList)
 						{
-							AddTransText("property_" + propDefName + "-" + property.Name, translationContainer, ContentEditorConfig, culture, /*TODO max len attr*/200, "form-control");
+							AddTransText("property_" + propDefName + "-" + propertyName, translationContainer, ContentEditorConfig, culture, /*TODO max len attr*/200, "form-control");
 							if (setFieldValues)
 							{
                                 TextBox textbox = Utility.Controls.FindControlRecursive<TextBox>(translationContainer,
-                                    "property_" + propDefName + "-" + property.Name + culture.Value);
+                                    "property_" + propDefName + "-" + propertyName + culture.Value);
 
 								if (textbox != null && localizedValue != null)
 								{
 									string text = "";
 									localizedValue.TryGetValue(culture.Key, out text);
 									textbox.Text = text;
-                                    textbox.Enabled = attribute.Enabled;
-                                    textbox.CssClass = attribute.CssClass;
+                                    textbox.Enabled = field.Enabled;
+                                    textbox.CssClass = field.CssClass;
                                 }
 							}
 						}
@@ -1361,9 +1396,9 @@ namespace PigeonCms.Modules
 					else
 					{
 						TextBox textbox = new TextBox();
-						textbox.ID = "property_" + propDefName + "-" + property.Name;
-                        textbox.Enabled = attribute.Enabled;
-                        textbox.CssClass = "form-control " + attribute.CssClass;
+						textbox.ID = "property_" + propDefName + "-" + propertyName;
+                        textbox.Enabled = field.Enabled;
+                        textbox.CssClass = "form-control " + field.CssClass;
                         textbox.EnableViewState = true;
 						if (setFieldValues)
 							textbox.Text = value == null ? "" : value.ToString();
@@ -1375,9 +1410,9 @@ namespace PigeonCms.Modules
 				case FormFieldTypeEnum.Numeric:
 					container.ControlLargeSize = 3;
 					TextBox number = new TextBox();
-					number.ID = "property_" + propDefName + "-" + property.Name;
-                    number.Enabled = attribute.Enabled;
-                    number.CssClass = "form-control " + attribute.CssClass;
+					number.ID = "property_" + propDefName + "-" + propertyName;
+                    number.Enabled = field.Enabled;
+                    number.CssClass = "form-control " + field.CssClass;
                     number.EnableViewState = true;
 					if (setFieldValues)
 						number.Text = value == null || string.IsNullOrWhiteSpace(Convert.ToString(value)) ? "" : value.ToString();
@@ -1394,7 +1429,7 @@ namespace PigeonCms.Modules
 
 				case FormFieldTypeEnum.Image:
 					Control imageUpload = LoadControl("~/Controls/ImageUpload/ImageUploadModern.ascx");
-                    imageUpload.ID = "property_" + propDefName + "-" + property.Name;
+                    imageUpload.ID = "property_" + propDefName + "-" + propertyName;
 					imageUpload.EnableViewState = true;
                     //imageUpload.Enabled = attribute.Enabled;
                     //imageUpload.CssClass = "form-control " + attribute.CssClass;
@@ -1406,7 +1441,7 @@ namespace PigeonCms.Modules
 						uploadControl.MaxFileSize = GetIntParam("ItemImagesMaxFileSize", 1024);
 						uploadControl.FilePath = value == null ? "" : value.ToString();
 
-                        ImageFormField imageAttribute = attribute as ImageFormField;
+                        ImageFormField imageAttribute = field as ImageFormField;
 						if (imageAttribute != null && !string.IsNullOrWhiteSpace(imageAttribute.AllowedFileTypes))
 							uploadControl.AllowedFileTypes = imageAttribute.AllowedFileTypes;
 					}
@@ -1415,7 +1450,7 @@ namespace PigeonCms.Modules
 					break;
 
 				case FormFieldTypeEnum.File:
-					if (attribute.Localized)
+					if (field.Localized)
 					{
 						Panel translationContainer = new Panel();
 						Translation localizedValue = value as Translation;
@@ -1430,12 +1465,12 @@ namespace PigeonCms.Modules
 								uploadControl.AllowedFileTypes = GetStringParam("ItemFilesTypes", "*");
 								uploadControl.MaxFileSize = GetIntParam("ItemFilesMaxFileSize", 10240);
 
-                                FileFormField fileAttribute = attribute as FileFormField;
+                                FileFormField fileAttribute = field as FileFormField;
 								if (fileAttribute != null && !string.IsNullOrWhiteSpace(fileAttribute.AllowedFileTypes))
 									uploadControl.AllowedFileTypes = fileAttribute.AllowedFileTypes;
 							}
 
-							AddTransControl(fileUpload, "property_" + propDefName + "-" + property.Name, translationContainer, culture, "form-control");
+							AddTransControl(fileUpload, "property_" + propDefName + "-" + propertyName, translationContainer, culture, "form-control");
 
 							if (setFieldValues)
 							{
@@ -1452,7 +1487,7 @@ namespace PigeonCms.Modules
 					else
 					{
 						Control fileUpload = LoadControl("~/Controls/ImageUpload/FileUploadModern.ascx");
-						fileUpload.ID = "property_" + propDefName + "-" + property.Name;
+						fileUpload.ID = "property_" + propDefName + "-" + propertyName;
 						fileUpload.EnableViewState = true;
 
 						uploadControl = fileUpload as IUploadControl;
@@ -1461,7 +1496,7 @@ namespace PigeonCms.Modules
 							uploadControl.AllowedFileTypes = GetStringParam("ItemFilesTypes", "*");
 							uploadControl.MaxFileSize = GetIntParam("ItemFilesMaxFileSize", 10240);
 
-                            FileFormField fileAttribute = (FileFormField)attribute;
+                            FileFormField fileAttribute = (FileFormField)field;
 							if (fileAttribute != null && !string.IsNullOrWhiteSpace(fileAttribute.AllowedFileTypes))
 								uploadControl.AllowedFileTypes = fileAttribute.AllowedFileTypes;
 

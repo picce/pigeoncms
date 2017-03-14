@@ -1725,6 +1725,9 @@ namespace PigeonCms
 			return Reflection.PropertiesToString(this);
 		}
 
+        /// <summary>
+        /// target field to serialize data (default CustomString1)
+        /// </summary>
         [ScriptIgnore]
         public string MapAttributeValue
         {

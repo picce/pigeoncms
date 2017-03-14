@@ -41,8 +41,15 @@ namespace PigeonCms
     [DebuggerDisplay("Name={name}, DefaultValue={defaultValue}, Type={type}")]
     [AttributeUsage(AttributeTargets.Property)]
     [Serializable]
-    public class ImageFormField : FileFormField
+    public class ImageFormField : FormField
     {
+        public string AllowedFileTypes { get; set; }
+
+        public ImageFormField(bool localized = false, string allowedFileTypes = "")
+            :base(localized, FormFieldTypeEnum.File)
+        {
+            this.AllowedFileTypes = allowedFileTypes;
+        }
     }
 
     [DebuggerDisplay("Name={name}, DefaultValue={defaultValue}, Type={type}")]

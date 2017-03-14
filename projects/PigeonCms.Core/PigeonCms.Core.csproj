@@ -114,9 +114,6 @@
     <Compile Include="Controls\ItemFields\AbstractFieldContainer.cs">
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="Controls\ItemFields\FileFieldAttribute.cs" />
-    <Compile Include="Controls\ItemFields\ImageFieldAttribute.cs" />
-    <Compile Include="Controls\ItemFields\ItemFieldAttribute.cs" />
     <Compile Include="Controls\ItemFields\Translation.cs" />
     <Compile Include="Controls\ItemParamsControl.cs">
       <SubType>ASPXCodeBehind</SubType>
@@ -159,6 +156,7 @@
     <Compile Include="DAL\ItemAttributesValuesManager.cs" />
     <Compile Include="DAL\Geo\ZonesManager.cs" />
     <Compile Include="DAL\Geo\CountriesManager.cs" />
+    <Compile Include="DAL\ItemTemplateTypeManager.cs" />
     <Compile Include="DAL\SeoManager.cs" />
     <Compile Include="DAL\ItemTagsManager.cs" />
     <Compile Include="DAL\TagTypesManager.cs" />
