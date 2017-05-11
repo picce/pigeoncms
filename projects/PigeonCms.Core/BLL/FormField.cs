@@ -32,7 +32,7 @@ namespace PigeonCms
         public string AllowedFileTypes { get; set; }
 
         public FileFormField(bool localized = false, string allowedFileTypes = "")
-            :base(localized, FormFieldTypeEnum.Image)
+            :base(localized, FormFieldTypeEnum.File)
         {
             this.AllowedFileTypes = allowedFileTypes;
         }
@@ -46,7 +46,7 @@ namespace PigeonCms
         public string AllowedFileTypes { get; set; }
 
         public ImageFormField(bool localized = false, string allowedFileTypes = "")
-            :base(localized, FormFieldTypeEnum.File)
+            :base(localized, FormFieldTypeEnum.Image)
         {
             this.AllowedFileTypes = allowedFileTypes;
         }

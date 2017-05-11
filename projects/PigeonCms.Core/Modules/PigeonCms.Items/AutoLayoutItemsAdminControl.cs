@@ -233,7 +233,7 @@ namespace PigeonCms.Modules
 				//DivDropNewContainer.Visible = false;
 				_BtnNew.Visible = false;
 				_BtnCancel.OnClientClick = "closePopup();";
-				editRow(base.CurrItem, null);
+				//editRow(base.CurrItem, null);
 			}
 		}
 
@@ -455,8 +455,12 @@ namespace PigeonCms.Modules
             {
                 if (checkAddNewFilters())
                 {
-                    Utility.SetDropByValue(_DropNew, this.ItemType);
-                    editRow(null, this.ItemType);
+                    string itemType = new Item().ItemTypeName;//default value
+                    Utility.SetDropByValue(_DropNew, itemType);
+                    if (this.AllowedItems.Count > 0)
+                        itemType = this.AllowedItems.First().Key;
+
+                    editRow(null,  itemType);
                 }
             }
             catch (Exception e1)
@@ -482,8 +486,8 @@ namespace PigeonCms.Modules
             {
                 string propDefName = propDef.MapAttributeValue;
 
-                PropertyInfo[] properties = getItemPropertiesInfo(propDef);
-                if (properties == null)
+                List<PropertyInfo> properties = getItemPropertiesInfo(propDef);
+                if (properties == null || properties.Count == 0)
                     continue;
 
                 foreach (PropertyInfo property in properties)
@@ -956,19 +960,13 @@ namespace PigeonCms.Modules
 			_DropItemTypesFilter.Items.Add(new ListItem(Utility.GetLabel("LblSelectItem", "Select item"), ""));
 
 			var filter = new ItemTypeFilter();
-			if (!string.IsNullOrEmpty(this.ItemType))
-				filter.FullName = this.ItemType;
-
 			List<ItemType> recordList = new ItemTypeManager().GetByFilter(filter, "FullName");
-
-			if (!string.IsNullOrWhiteSpace(this.ItemTypes))
-			{
-                var itemTypeList = new List<string>(this.ItemTypes.Split(','));
-			
-                //recordList = new List<ItemType>(recordList.Where(i => { return itemTypeList.Contains(i.FullName); }));
+            if (this.AllowedItems.Count > 0)
+            {
                 recordList = new List<ItemType>(recordList.Where(
                     i => { return this.AllowedItems.ContainsKey(i.FullName); }));
-			}
+            }
+
 			
 			foreach (ItemType record1 in recordList)
 			{
@@ -978,7 +976,7 @@ namespace PigeonCms.Modules
 				_DropItemTypesFilter.Items.Add(new ListItem(itemFriendlyName, record1.FullName));
 			}
 
-			if (!string.IsNullOrEmpty(this.ItemType))
+			if (this.AllowedItems.Count == 1)
 			{
 				_BtnNew.Visible = true;
 				_DropNew.Visible = false;
@@ -1121,14 +1119,16 @@ namespace PigeonCms.Modules
 
 		#region Dynamic properties management
 
-		private PropertyInfo[] getItemPropertiesInfo(ItemPropertiesDefs itemPropertyDef)
+		private List<PropertyInfo> getItemPropertiesInfo(ItemPropertiesDefs itemPropertyDef)
 		{
+            //var res = new Dictionary<string, PropertyInfo>();
+
             if (itemPropertyDef == null)
                 return null;
 
-			Type type = itemPropertyDef.GetType();
-
-			return type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            Type type = itemPropertyDef.GetType();
+			var list = type.GetProperties(BindingFlags.Public | BindingFlags.Instance).ToList();
+            return list;
 		}
 
         /// <summary>
@@ -1158,10 +1158,11 @@ namespace PigeonCms.Modules
                 //default template for current itemtype
                 template = new ItemTemplateTypeManager().GetByFullName(obj.ItemTypeName + "/templates", "default.xml");
             }
+
             //if (template.Params.Count > 0)
             //{
             //    //load fields from template
-            //    foreach(var param in template.Params)
+            //    foreach (var param in template.Params)
             //    {
 
             //    }
@@ -1172,9 +1173,15 @@ namespace PigeonCms.Modules
             {
                 string propDefName = propDef.GetType().Name;
 
-                PropertyInfo[] properties = getItemPropertiesInfo(propDef);
-                if (properties == null)
+                var properties = getItemPropertiesInfo(propDef);
+                if (properties == null || properties.Count == 0)
                     continue;
+
+                //TODO re-order array using template order using ILookup
+                //http://stackoverflow.com/questions/16926821/matching-the-order-of-one-array-to-another-using-linq
+                //ILookup<string, FormField> resultLookup = template.Params.ToLookup(x => x.Name);
+                //var propkeys = properties.Keys.SelectMany(key => resultLookup[key]).ToList();
+
 
                 foreach (PropertyInfo property in properties)
                 {
@@ -1219,7 +1226,7 @@ namespace PigeonCms.Modules
 
             foreach (var propDef in obj.PropertiesList)
             {
-                PropertyInfo[] properties = getItemPropertiesInfo(propDef);
+                List<PropertyInfo> properties = getItemPropertiesInfo(propDef);
                 foreach (PropertyInfo property in properties)
                 {
                     readEditor(property, propDef, item);
@@ -1387,7 +1394,7 @@ namespace PigeonCms.Modules
 									localizedValue.TryGetValue(culture.Key, out text);
 									textbox.Text = text;
                                     textbox.Enabled = field.Enabled;
-                                    textbox.CssClass = field.CssClass;
+                                    textbox.CssClass = "form-control " + field.CssClass;
                                 }
 							}
 						}

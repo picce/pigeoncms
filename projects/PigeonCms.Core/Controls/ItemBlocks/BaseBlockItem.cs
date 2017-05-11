@@ -50,9 +50,7 @@ namespace PigeonCms.Core.Controls.ItemBlocks
                     case "data":
                         Type propertiesType = Reflection.GetNestedType<ItemPropertiesDefs>(blockType);
                         reader.Read();
-                        //TOCHECK
                         result.PropertiesList = (List<ItemPropertiesDefs>)serializer.Deserialize(reader, propertiesType);
-                        //result.PropertiesList = (ItemPropertiesDefs)serializer.Deserialize(reader, propertiesType);
                         break;
                     default:
                         reader.Skip();

@@ -17,11 +17,7 @@ namespace PigeonCms
 		ITableWithOrdering, ITableWithComments,
 		ITableExternalId, ITableWithSeo
 	{
-		//IItem();
-		//IItem(string itemTypeName);
 		List<ItemPropertiesDefs> PropertiesList { get; set; }
-        //ITableManager<IItem, IItemsFilter, int> MyManager(bool checkUserContext, bool writeMode);
-        //TableManager<IItem, IItemsFilter, int> MyManager(bool checkUserContext, bool writeMode);
         ItemsManager MyManager(bool checkUserContext, bool writeMode);
 		string Alias { get; set; }
 		int CategoryId { get; set; }
