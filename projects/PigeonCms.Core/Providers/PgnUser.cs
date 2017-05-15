@@ -73,7 +73,7 @@ namespace PigeonCms
             else
             {
                 user = new PgnUser("PgnUserProvider", 
-                    0, username, "", "", "", "", true, false,
+                    0, username, username, "", "", "", "", true, false,
                     DateTime.MinValue, DateTime.MinValue, DateTime.MinValue,
                     DateTime.MinValue, DateTime.MinValue);
             }
@@ -99,6 +99,14 @@ namespace PigeonCms
             set { enabled = value; }
         }
 
+        private string nickName = "";
+        public string NickName
+        {
+            [DebuggerStepThrough()]
+            get { return nickName; }
+            [DebuggerStepThrough()]
+            set { nickName = value; }
+        }
 
         private string accessCode = "";
         public string AccessCode
@@ -298,6 +306,7 @@ namespace PigeonCms
         public PgnUser(string providername,
                         int id,
                         string username,
+                        string nickName,
                         object providerUserKey,
                         string email,
                         string passwordQuestion,
