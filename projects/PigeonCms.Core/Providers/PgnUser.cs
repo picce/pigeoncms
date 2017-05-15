@@ -8,6 +8,7 @@ using System.Web.UI.WebControls;
 using System.Web.UI.WebControls.WebParts;
 using System.Web.UI.HtmlControls;
 using System.Diagnostics;
+using System.ComponentModel;
 
 namespace PigeonCms
 {
@@ -81,6 +82,7 @@ namespace PigeonCms
         }
     }
 
+
     /// <summary>
     /// a PigeonCms authenticated user
     /// </summary>
@@ -100,10 +102,18 @@ namespace PigeonCms
         }
 
         private string nickName = "";
+        /// <summary>
+        /// default is the same as username
+        /// </summary>
         public string NickName
         {
             [DebuggerStepThrough()]
-            get { return nickName; }
+            get
+            {
+                if (string.IsNullOrEmpty(nickName))
+                    nickName = this.UserName;
+                return nickName;
+            }
             [DebuggerStepThrough()]
             set { nickName = value; }
         }
