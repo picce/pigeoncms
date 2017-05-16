@@ -32,13 +32,30 @@
     <param name="CustomProp1.TextSimpleLocalized" localized="true" cssStyle="" minValue="" maxValue="" cssClass="" type="text" default="simple default value"
            label="Simple text localized" description="" />
 
-    <!--TOADD attribute localized-->
+
     <param name="CustomProp1.TextHtml" cssStyle="" localized="" minValue="" maxValue="" cssClass="" type="html" default="simple default value"
            label="Html text" description="" />
 
     <param name="CustomProp1.TextHtmlLocalized" cssStyle="" localized="true" minValue="" maxValue="" cssClass="" type="html" default="simple default value"
            label="Html text localized" description="" />
-    
+
+    <!--you can add options with tags, enum or datasource or with mix of these-->
+    <param name="CustomProp1.SelectColor" type="combo" default="1" label="Select color">
+      <option value="0" label="Green"></option>
+      <option value="1" label="Red"></option>
+      <option value="2" label="Yellow"></option>
+      <option value="3" label="White"></option>
+      <enum TypeName="PigeonCms.TicketItem+TicketStatusEnum" />
+      <datasource SelectMethod="GetList" TypeName="PigeonCms.SectionsManager" />
+      <datasource SelectMethod="GetListByItemType" SelectParams="Acme.MyItem" TypeName="PigeonCms.SectionsManager" />
+    </param>
+
+    <param name="CustomProp1.Flag1" cssStyle="" type="check" default="true" label="Flag 1" description="" />
+
+    <!--this param upload files in item folder eg: public/gallery/items/{id}/myfolder-->
+    <param name="CustomProp1.Image1" cssStyle="" type="image" default="myfolder" label="Sample image" description="" />
+
+
   </params>
 
   <params group="SecondTab" label="Second tab" cssClass="">

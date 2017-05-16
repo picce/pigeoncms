@@ -1131,6 +1131,7 @@ namespace PigeonCms.Modules
             return list;
 		}
 
+
         /// <summary>
         /// load current item (obj) dynamic fields values in form
         /// item.PropertiesList --> form
@@ -1138,10 +1139,10 @@ namespace PigeonCms.Modules
         /// <param name="obj"></param>
         /// <param name="setFieldValues"></param>
 		private void loadItemDynamicFields(IItem obj, bool setFieldValues = true)
-		{
-			IItem item = obj as IItem;
-			if (item == null)
-				return;
+        {
+            IItem item = obj as IItem;
+            if (item == null)
+                return;
 
             //remove all dynamic controls
             _FieldsContainer.Controls.Clear();
@@ -1159,34 +1160,53 @@ namespace PigeonCms.Modules
                 template = new ItemTemplateTypeManager().GetByFullName(obj.ItemTypeName + "/templates", "default.xml");
             }
 
-            //if (template.Params.Count > 0)
-            //{
-            //    //load fields from template
-            //    foreach (var param in template.Params)
-            //    {
 
-            //    }
-            //}
+            //TODO re-order array using template order using ILookup
+            //http://stackoverflow.com/questions/16926821/matching-the-order-of-one-array-to-another-using-linq
+            //ILookup<string, FormField> resultLookup = template.Params.ToLookup(x => x.Name);
+            //var propkeys = properties.Keys.SelectMany(key => resultLookup[key]).ToList();
+
+
+            //TODO load from template only
+            //TOCHECK keep safe not added fields
+            if (template.Params.Count > 0)
+            {
+                //load groups as tabs
+                var groups = template.Params
+                    .GroupBy(t => t.Group)
+                    .Select(g => g.First())
+                    .ToList();
+                foreach (var g in groups)
+                {
+                    //TODO add tabs
+                    foreach (var param in template.Params.Where(t => t.Group == g.Group))
+                    {
+
+                    }
+                }
+
+            }
+            else
+            {
+                //load through reflection only
+            }
+
 
             //load fields using class attributes
             foreach (var propDef in obj.PropertiesList)
             {
                 string propDefName = propDef.GetType().Name;
+                //string propDefName = propDef.MapAttributeValue;
 
                 var properties = getItemPropertiesInfo(propDef);
                 if (properties == null || properties.Count == 0)
                     continue;
 
-                //TODO re-order array using template order using ILookup
-                //http://stackoverflow.com/questions/16926821/matching-the-order-of-one-array-to-another-using-linq
-                //ILookup<string, FormField> resultLookup = template.Params.ToLookup(x => x.Name);
-                //var propkeys = properties.Keys.SelectMany(key => resultLookup[key]).ToList();
-
 
                 foreach (PropertyInfo property in properties)
                 {
                     object value = property.GetValue(propDef, null);
-                    //string propDefName = propDef.MapAttributeValue;
+
 
                     //default field definition from attributes
                     FormField field = (FormField)property.GetCustomAttribute(typeof(FormField));
@@ -1199,14 +1219,23 @@ namespace PigeonCms.Modules
                     if (templateField != null)
                         field = templateField;
 
+                    if (obj.Id == 0 && !string.IsNullOrEmpty(field.DefaultValue))
+                    {
+                        //value = field.DefaultValue;
+                    }
+
                     AbstractFieldContainer control = createEditorAndContainer(field, property.Name, propDefName, item, value, setFieldValues);
                     if (control == null)
                         continue;
 
+                    string labelValue = field.LabelValue;
+                    if (string.IsNullOrEmpty(labelValue))
+                        labelValue = property.Name;
+
                     control.ID = propDefName + "-" + property.Name + "_container";
                     control.Label = GetLabel(
                         "AutoLayout." + item.ItemTypeName + "_" + propDefName + "-" + property.Name,
-                        property.Name);
+                        labelValue);
 
                     _FieldsContainer.Controls.Add(control);
                 }
@@ -1269,11 +1298,13 @@ namespace PigeonCms.Modules
 					dropDownList.CssClass = "form-control " + field.CssClass;
 					foreach (var option in field.Options)
 					{
-						dropDownList.Items.Add(
-                            new ListItem(
-                                GetLabel("AutoLayout." + item.ItemType.Name + "_" + propDefName + "-" + propertyName + ".Option_" + option.Label, option.Value), 
-                                option.Value)
-                        );
+                        dropDownList.Items.Add(new ListItem(option.Label, option.Value));
+
+                        //dropDownList.Items.Add(
+                        //    new ListItem(
+                        //        GetLabel("AutoLayout." + item.ItemType.Name + "_" + propDefName + "-" + propertyName + ".Option_" + option.Label, option.Value), 
+                        //        option.Value)
+                        //);
 
 						if (setFieldValues && value != null && Convert.ToString(value) == option.Value)
 							dropDownList.SelectedValue = option.Value;
@@ -1366,7 +1397,8 @@ namespace PigeonCms.Modules
 					checkbox.ID = "property_" + propDefName + "-" + propertyName;
 					checkbox.EnableViewState = true;
                     checkbox.Enabled = field.Enabled;
-                    checkbox.CssClass = field.CssClass;
+                    //removed cssClass because aspnet add a span wrapper
+                    //checkbox.CssClass = field.CssClass;
 
                     checkbox.Text = "";
 					if (setFieldValues)
@@ -1424,12 +1456,15 @@ namespace PigeonCms.Modules
 					if (setFieldValues)
 						number.Text = value == null || string.IsNullOrWhiteSpace(Convert.ToString(value)) ? "" : value.ToString();
 
-					RegularExpressionValidator revNumber = new RegularExpressionValidator();
-					revNumber.ControlToValidate = number.ClientID;
+                    //TODO clientside without validator using attribute validation
+                    RegularExpressionValidator revNumber = new RegularExpressionValidator();
+                    revNumber.ControlToValidate = number.ClientID;
 					revNumber.ValidationExpression = @"\d+";
 					revNumber.Display = ValidatorDisplay.Dynamic;
 					revNumber.EnableClientScript = true;
-					revNumber.ErrorMessage = GetLabel("AQItemsAdmin.NumberValidationErrorMessage", "Please enter numbers only");
+                    revNumber.ErrorMessage = GetLabel(
+                        "AutoLayout." + item.ItemTypeName + "_" + propDefName + "-NumberValidationErrorMessage",
+                        "Please enter numbers only");
 
 					innerControl = number;
 					break;
@@ -1533,7 +1568,8 @@ namespace PigeonCms.Modules
         /// <param name="item"></param>
 		private void readEditor(PropertyInfo property, ItemPropertiesDefs propDef, IItem item)
 		{
-            string propDefName = propDef.MapAttributeValue;
+            string propDefName = propDef.GetType().Name;
+            //string propDefName = propDef.MapAttributeValue;
 
             FormField attribute = (FormField)property.GetCustomAttribute(typeof(FormField));
 			if (attribute == null)

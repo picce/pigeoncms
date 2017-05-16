@@ -122,7 +122,12 @@ public partial class ImageUploadModern : UserControl, IUploadControl
             if (Session["ImageUpload_" + UniqueID] != null)
                 return "/Controls/ImageUpload/ImageUploadModernHandler.ashx?action=preview&parameters=" + EncodedParameters + "&ts=" + new DateTime().Ticks;
             else if (!string.IsNullOrWhiteSpace(FilePath))
-                return "/Handlers/ImageHandler.ashx?filename=" + FilePath;
+            {
+                string p = FilePath;
+                if (p.StartsWith("~"))
+                    p = p.Substring(1);
+                return p + "?w=300";
+            }
 
             return string.Empty;
         }
