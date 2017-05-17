@@ -50,8 +50,6 @@
       <datasource SelectMethod="GetListByItemType" SelectParams="Acme.MyItem" TypeName="PigeonCms.SectionsManager" />
     </param>
 
-    <param name="CustomProp1.Flag1" cssStyle="" type="check" default="true" label="Flag 1" description="" />
-
     <!--this param upload files in item folder eg: public/gallery/items/{id}/myfolder-->
     <param name="CustomProp1.Image1" cssStyle="" type="image" label="Sample image"
            folder="myfolder" allowedFileTypes="jpg,png" maxFileSize="2048" />
@@ -66,12 +64,11 @@
 
   <params group="SecondTab" label="Second tab" cssClass="">
 
+    <param name="CustomProp1.Flag1" cssStyle="" type="check" default="true" label="Flag 1" description="" />
+
     <param name="CustomProp2.OtherSimpleText" cssStyle="" minValue="" maxValue="" cssClass="" type="text" default="simple default value"
            label="Other simple text" description="" />
 
-    <!--TOADD attribute localized-->
-    <param name="CustomProp1.TextHtml" cssStyle="" localized="true" minValue="" maxValue="" cssClass="" type="html" default="simple default value"
-           label="Simple text" description="Simple text description" />
 
   </params>
 

@@ -1167,9 +1167,37 @@ namespace PigeonCms.Modules
                     .ToList();
                 foreach (var g in groups)
                 {
-                    //TODO add tabs
-                    foreach (var param in template.Params.Where(t => t.Group == g.Group))
+                    //TODO add tabs foreach group
+
+                    foreach (var field in template.Params.Where(t => t.Group == g.Group))
                     {
+                        string propDefName = field.Name.Split('.')[0];
+                        string propName = field.Name.Split('.')[1];
+
+                        ItemPropertiesDefs propDef = obj.PropertiesList
+                            .Where(t => t.GetType().Name == propDefName)
+                            .FirstOrDefault();
+
+                        //invalid param propdef
+                        if (propDef == null)
+                            continue;
+
+                        var properties = getItemPropertiesInfo(propDef);
+                        if (properties == null || properties.Count == 0)
+                            continue;
+
+                        PropertyInfo property = properties.Where(t => t.Name == propName).FirstOrDefault();
+                        //invalid param name
+                        if (property == null)
+                            continue;
+
+                        object value = property.GetValue(propDef, null);
+
+                        AbstractFieldContainer control = createEditorAndContainer(field, property.Name, propDefName, item, value, setFieldValues);
+                        if (control == null)
+                            continue;
+
+                        _FieldsContainer.Controls.Add(control);
 
                     }
                 }
@@ -1178,59 +1206,58 @@ namespace PigeonCms.Modules
             else
             {
                 //load through reflection only
-            }
-
-
-            //load fields using class attributes
-            foreach (var propDef in obj.PropertiesList)
-            {
-                string propDefName = propDef.GetType().Name;
-                //string propDefName = propDef.MapAttributeValue;
-
-                var properties = getItemPropertiesInfo(propDef);
-                if (properties == null || properties.Count == 0)
-                    continue;
-
-                foreach (PropertyInfo property in properties)
+                foreach (var propDef in obj.PropertiesList)
                 {
-                    object value = property.GetValue(propDef, null);
+                    string propDefName = propDef.GetType().Name;
+                    //string propDefName = propDef.MapAttributeValue;
 
-
-                    //default field definition from attributes
-                    FormField field = (FormField)property.GetCustomAttribute(typeof(FormField));
-
-                    //try to load field definition from template
-                    FormField templateField = template.Params
-                        .Where(a => a.Name == $"{propDefName}.{property.Name}")
-                        .FirstOrDefault();
-
-                    if (templateField != null)
-                        field = templateField;
-
-                    if (field == null)
+                    var properties = getItemPropertiesInfo(propDef);
+                    if (properties == null || properties.Count == 0)
                         continue;
 
-                    if (obj.Id == 0 && !string.IsNullOrEmpty(field.DefaultValue))
+                    foreach (PropertyInfo property in properties)
                     {
-                        //value = field.DefaultValue;
+                        object value = property.GetValue(propDef, null);
+
+                        //default field definition from attributes
+                        FormField field = (FormField)property.GetCustomAttribute(typeof(FormField));
+
+                        //try to load field definition from template
+                        FormField templateField = template.Params
+                            .Where(a => a.Name == $"{propDefName}.{property.Name}")
+                            .FirstOrDefault();
+
+                        if (templateField != null)
+                            field = templateField;
+
+                        if (field == null)
+                            continue;
+
+                        //if (obj.Id == 0 && !string.IsNullOrEmpty(field.DefaultValue))
+                        //{
+                        //    value = field.DefaultValue;
+                        //}
+
+                        AbstractFieldContainer control = createEditorAndContainer(field, property.Name, propDefName, item, value, setFieldValues);
+                        if (control == null)
+                            continue;
+
+                        //string labelValue = field.LabelValue;
+                        //if (string.IsNullOrEmpty(labelValue))
+                        //    labelValue = property.Name;
+
+                        //control.ID = propDefName + "-" + property.Name + "_container";
+                        //control.Label = GetLabel(
+                        //    "AutoLayout." + item.ItemTypeName + "_" + propDefName + "-" + property.Name,
+                        //    labelValue);
+
+                        _FieldsContainer.Controls.Add(control);
                     }
-
-                    AbstractFieldContainer control = createEditorAndContainer(field, property.Name, propDefName, item, value, setFieldValues);
-                    if (control == null)
-                        continue;
-
-                    string labelValue = field.LabelValue;
-                    if (string.IsNullOrEmpty(labelValue))
-                        labelValue = property.Name;
-
-                    control.ID = propDefName + "-" + property.Name + "_container";
-                    control.Label = GetLabel(
-                        "AutoLayout." + item.ItemTypeName + "_" + propDefName + "-" + property.Name,
-                        labelValue);
-
-                    _FieldsContainer.Controls.Add(control);
                 }
             }
+
+
+
 		}
 
         /// <summary>
@@ -1272,7 +1299,6 @@ namespace PigeonCms.Modules
 
         /// <summary>
         /// create an instance of control linked to the item prop
-        /// TODO: implement all editor types
         /// </summary>
         /// <param name="property">the item property to map in the control</param>
         /// <param name="propDefName">name of property</param>
@@ -1568,7 +1594,18 @@ namespace PigeonCms.Modules
 				return null;
 
 			container.InnerControl = innerControl;
-			return container;
+
+            //add label
+            string labelValue = field.LabelValue;
+            if (string.IsNullOrEmpty(labelValue))
+                labelValue = propertyName;
+
+            container.ID = propDefName + "-" + propertyName + "_container";
+            container.Label = GetLabel(
+                "AutoLayout." + item.ItemTypeName + "_" + propDefName + "-" + propertyName,
+                labelValue);
+
+            return container;
 		}
 
 		// TODO: implement all editor types
