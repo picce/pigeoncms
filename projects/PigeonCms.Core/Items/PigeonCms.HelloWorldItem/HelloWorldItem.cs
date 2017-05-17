@@ -44,6 +44,9 @@ namespace PigeonCms
             [ImageFormField(false, "jpg")]
             public string Image1 { get; set; }
 
+            [FileFormField(false, "")]
+            public string File1 { get; set; }
+
             [FormField(false, FormFieldTypeEnum.Check)]
             public bool Flag1 { get; set; }
 

@@ -365,6 +365,24 @@ namespace PigeonCms
                 item.MaxValue = value;
             }
 
+            //for Image and File types only
+            if (nodeParam.Attributes["allowedFileTypes"] != null)
+            {
+                item.AllowedFileTypes = nodeParam.Attributes["allowedFileTypes"].Value;
+            }
+            //for Image and File types only
+            if (nodeParam.Attributes["folder"] != null)
+            {
+                item.Folder = nodeParam.Attributes["folder"].Value;
+            }
+            //for Image and File types only
+            if (nodeParam.Attributes["maxFileSize"] != null)
+            {
+                int value = 0;
+                int.TryParse(nodeParam.Attributes["maxFileSize"].Value, out value);
+                item.MaxFileSize = value;
+            }
+
             //options list
             XmlNodeList optionsList = nodeParam.SelectNodes("option");
             foreach (XmlNode nodeOption in optionsList)

@@ -127,7 +127,7 @@ namespace PigeonCms
             while (true)
             {
                 newFileName = AddFilenameSuffix(fileName, (suffix > 0 ? suffix.ToString() : ""));
-                string fullPath = basePath + newFileName;
+                string fullPath = Path.Combine(basePath, newFileName);
                 if (!File.Exists(fullPath))
                     return fullPath;
 

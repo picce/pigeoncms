@@ -14,7 +14,7 @@ using PigeonCms.Core;
 using PigeonCms.Core.Helpers;
 using PigeonCms.Controls;
 using PigeonCms.Controls.ItemFields;
-
+using System.IO;
 
 namespace PigeonCms.Modules
 {
@@ -1147,18 +1147,7 @@ namespace PigeonCms.Modules
             //remove all dynamic controls
             _FieldsContainer.Controls.Clear();
 
-            var template = new ItemTemplateType();
-
-            if (this.AllowedItems.ContainsKey(obj.ItemTypeName))
-            {
-                //template set in itemsAdmin instance params
-                template = this.AllowedItems[obj.ItemTypeName];
-            }
-            else
-            {
-                //default template for current itemtype
-                template = new ItemTemplateTypeManager().GetByFullName(obj.ItemTypeName + "/templates", "default.xml");
-            }
+            var template = getItemTemplate(obj);
 
 
             //TODO re-order array using template order using ILookup
@@ -1202,7 +1191,6 @@ namespace PigeonCms.Modules
                 if (properties == null || properties.Count == 0)
                     continue;
 
-
                 foreach (PropertyInfo property in properties)
                 {
                     object value = property.GetValue(propDef, null);
@@ -1218,6 +1206,9 @@ namespace PigeonCms.Modules
 
                     if (templateField != null)
                         field = templateField;
+
+                    if (field == null)
+                        continue;
 
                     if (obj.Id == 0 && !string.IsNullOrEmpty(field.DefaultValue))
                     {
@@ -1253,12 +1244,26 @@ namespace PigeonCms.Modules
 			if (item == null)
 				return;
 
+            var template = getItemTemplate(obj);
+
             foreach (var propDef in obj.PropertiesList)
             {
-                List<PropertyInfo> properties = getItemPropertiesInfo(propDef);
+                string propDefName = propDef.GetType().Name;
+
+                var properties = getItemPropertiesInfo(propDef);
                 foreach (PropertyInfo property in properties)
                 {
-                    readEditor(property, propDef, item);
+                    FormField field = (FormField)property.GetCustomAttribute(typeof(FormField));
+                    
+                    //try to load field definition from template
+                    FormField templateField = template.Params
+                        .Where(a => a.Name == $"{propDefName}.{property.Name}")
+                        .FirstOrDefault();
+
+                    if (templateField != null)
+                        field = templateField;
+
+                    readEditor(field, property, propDef, item);
                 }
             }
 
@@ -1275,8 +1280,13 @@ namespace PigeonCms.Modules
         /// <param name="value">the current value of the control</param>
         /// <param name="setFieldValues">if true set the value</param>
         /// <returns>the control to add to the panel</returns>
-        private AbstractFieldContainer createEditorAndContainer(FormField field, 
-            string propertyName, string propDefName, IItem item, object value, bool setFieldValues)
+        private AbstractFieldContainer createEditorAndContainer(
+            FormField field, 
+            string propertyName, 
+            string propDefName, 
+            IItem item, 
+            object value, 
+            bool setFieldValues)
 		{
 
             if (field == null)
@@ -1479,8 +1489,9 @@ namespace PigeonCms.Modules
                     uploadControl = imageUpload as IUploadControl;
 					if (uploadControl != null)
 					{
-						uploadControl.AllowedFileTypes = GetStringParam("ItemImagesTypes", "jpg,png");
-						uploadControl.MaxFileSize = GetIntParam("ItemImagesMaxFileSize", 1024);
+                        uploadControl.AllowedFileTypes = field.AllowedFileTypes;
+                        uploadControl.MaxFileSize = field.MaxFileSize;
+                        //field.Folder --> set in readEditor()
 						uploadControl.FilePath = value == null ? "" : value.ToString();
 
                         ImageFormField imageAttribute = field as ImageFormField;
@@ -1504,9 +1515,9 @@ namespace PigeonCms.Modules
 							uploadControl = fileUpload as IUploadControl;
 							if (uploadControl != null)
 							{
-								uploadControl.AllowedFileTypes = GetStringParam("ItemFilesTypes", "*");
-								uploadControl.MaxFileSize = GetIntParam("ItemFilesMaxFileSize", 10240);
-
+								uploadControl.AllowedFileTypes = field.AllowedFileTypes;
+								uploadControl.MaxFileSize = field.MaxFileSize;
+                                //field.Folder --> set in readEditor()
                                 FileFormField fileAttribute = field as FileFormField;
 								if (fileAttribute != null && !string.IsNullOrWhiteSpace(fileAttribute.AllowedFileTypes))
 									uploadControl.AllowedFileTypes = fileAttribute.AllowedFileTypes;
@@ -1535,10 +1546,10 @@ namespace PigeonCms.Modules
 						uploadControl = fileUpload as IUploadControl;
 						if (uploadControl != null)
 						{
-							uploadControl.AllowedFileTypes = GetStringParam("ItemFilesTypes", "*");
-							uploadControl.MaxFileSize = GetIntParam("ItemFilesMaxFileSize", 10240);
+                            uploadControl.AllowedFileTypes = field.AllowedFileTypes;
+                            uploadControl.MaxFileSize = field.MaxFileSize;
 
-                            FileFormField fileAttribute = (FileFormField)field;
+                            FileFormField fileAttribute = field as FileFormField;
 							if (fileAttribute != null && !string.IsNullOrWhiteSpace(fileAttribute.AllowedFileTypes))
 								uploadControl.AllowedFileTypes = fileAttribute.AllowedFileTypes;
 
@@ -1566,19 +1577,22 @@ namespace PigeonCms.Modules
         /// </summary>
         /// <param name="property"></param>
         /// <param name="item"></param>
-		private void readEditor(PropertyInfo property, ItemPropertiesDefs propDef, IItem item)
+		private void readEditor(
+            FormField field, 
+            PropertyInfo property, 
+            ItemPropertiesDefs propDef, 
+            IItem item)
 		{
             string propDefName = propDef.GetType().Name;
             //string propDefName = propDef.MapAttributeValue;
 
-            FormField attribute = (FormField)property.GetCustomAttribute(typeof(FormField));
-			if (attribute == null)
+			if (field == null)
 				return;
 
-			switch (attribute.Type)
+			switch (field.Type)
 			{
 				case FormFieldTypeEnum.Html:
-					if (attribute.Localized)
+					if (field.Localized)
 					{
 						Translation localizedValue = new Translation();
 						foreach (KeyValuePair<string, string> culture in Config.CultureList)
@@ -1644,7 +1658,7 @@ namespace PigeonCms.Modules
 					break;
 
 				case FormFieldTypeEnum.Text:
-					if (attribute.Localized)
+					if (field.Localized)
 					{
 						Translation localizedValue = new Translation();
 						foreach (KeyValuePair<string, string> culture in Config.CultureList)
@@ -1671,7 +1685,7 @@ namespace PigeonCms.Modules
 
 				case FormFieldTypeEnum.File:
 					// TODO: refactor
-					if (attribute.Localized)
+					if (field.Localized)
 					{
 						Translation localizedValue = new Translation();
 						foreach (KeyValuePair<string, string> culture in Config.CultureList)
@@ -1692,9 +1706,12 @@ namespace PigeonCms.Modules
 							{
 								string fileName = Regex.Replace(item.Alias + " " + property.Name, "[^a-zA-Z0-9]", "-") + "." + fileUpload.GetExtension();
 								string newFileName;
-								string filePath = FilesHelper.GetUniqueFilename(item.StaticFilesPath, fileName.ToLower(), out newFileName);
+                                string basePath = Path.Combine(item.StaticFilesPath, field.Folder);
+                                string filePath = FilesHelper.GetUniqueFilename(
+                                    basePath, fileName.ToLower(), out newFileName);
+
 								fileUpload.SaveTo(filePath);
-								localizedValue[culture.Key] = item.StaticFilesPath + newFileName;
+								localizedValue[culture.Key] = Path.Combine(basePath, newFileName).Replace("\\", "/");
 							}
 						}
 
@@ -1717,9 +1734,14 @@ namespace PigeonCms.Modules
 						{
 							string fileName = Regex.Replace(item.Alias + " " + property.Name, "[^a-zA-Z0-9]", "-") + "." + fileUpload.GetExtension();
 							string newFileName;
-							string filePath = FilesHelper.GetUniqueFilename(item.StaticFilesPath, fileName.ToLower(), out newFileName);
+                            string basePath = Path.Combine(item.StaticFilesPath, field.Folder);
+                            string filePath = FilesHelper.GetUniqueFilename(
+                                basePath, fileName.ToLower(), out newFileName);
+
 							fileUpload.SaveTo(filePath);
-							property.SetValue(propDef, item.StaticFilesPath + newFileName, null);
+							property.SetValue(propDef, 
+                                Path.Combine(basePath, newFileName).Replace("\\", "/"), 
+                                null);
 						}
 					}
 					break;
@@ -1739,15 +1761,38 @@ namespace PigeonCms.Modules
 					}
 					else if (imageUpload.HasChanged)
 					{
-						string fileName = Regex.Replace(item.Alias + " " + property.Name, "[^a-zA-Z0-9]", "-") + "." + imageUpload.GetExtension();
+                        string fileName = Regex.Replace(item.Alias + " " + property.Name, "[^a-zA-Z0-9]", "-") + "." + imageUpload.GetExtension();
 						string newFileName;
-						string filePath = FilesHelper.GetUniqueFilename(item.StaticImagesPath, fileName.ToLower(), out newFileName);
-						imageUpload.SaveTo(filePath);
-						property.SetValue(propDef, item.StaticImagesPath + newFileName, null);
+                        string basePath = Path.Combine(item.StaticImagesPath, field.Folder);
+                        string filePath = FilesHelper.GetUniqueFilename(
+                                basePath, fileName.ToLower(), out newFileName);
+
+                        imageUpload.SaveTo(filePath);
+						property.SetValue(propDef, 
+                            Path.Combine(basePath, newFileName).Replace("\\", "/"), 
+                            null);
 					}
 					break;
 			}
 		}
+
+        private ItemTemplateType getItemTemplate(IItem item)
+        {
+            var template = new ItemTemplateType();
+
+            if (this.AllowedItems.ContainsKey(item.ItemTypeName))
+            {
+                //template set in itemsAdmin instance params
+                template = this.AllowedItems[item.ItemTypeName];
+            }
+            else
+            {
+                //default template for current itemtype
+                template = new ItemTemplateTypeManager().GetByFullName(item.ItemTypeName + "/templates", "default.xml");
+            }
+
+            return template;
+        }
 
 		#endregion
 

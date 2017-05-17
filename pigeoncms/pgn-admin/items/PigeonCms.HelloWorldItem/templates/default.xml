@@ -53,8 +53,14 @@
     <param name="CustomProp1.Flag1" cssStyle="" type="check" default="true" label="Flag 1" description="" />
 
     <!--this param upload files in item folder eg: public/gallery/items/{id}/myfolder-->
-    <param name="CustomProp1.Image1" cssStyle="" type="image" default="myfolder" label="Sample image" description="" />
+    <param name="CustomProp1.Image1" cssStyle="" type="image" label="Sample image"
+           folder="myfolder" allowedFileTypes="jpg,png" maxFileSize="2048" />
 
+    <!--this param upload files in item folder eg: public/files/items/{id}/myfolder
+    TOCOMPLETE localized=true
+    -->
+    <param name="CustomProp1.File1" cssStyle="" type="file" label="Sample file"
+           folder="myfolder" localized="false" allowedFileTypes="doc,pdf" maxFileSize="2048" />
 
   </params>
 

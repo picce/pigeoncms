@@ -24,13 +24,32 @@ namespace PigeonCms
         Numeric
     }
 
+    public interface IFormField
+    {
+        int Id { get; set; }
+        int FormId { get; set; }
+        bool Enabled { get; set; }
+        string Group { get; set; }
+        string Name { get; set; }
+        string DefaultValue { get; set; }
+        int MinValue { get; set; }
+        int MaxValue { get; set; }
+        int Rows { get; set; }
+        int Cols { get; set; }
+        string LabelValue { get; set; }
+        string Description { get; set; }
+        string CssClass { get; set; }
+        string CssStyle { get; set; }
+        List<FormFieldOption> Options { get; set; }
+        FormFieldTypeEnum Type { get; set; }
+        bool Localized { get; set; }
+    }
+
     [DebuggerDisplay("Name={name}, DefaultValue={defaultValue}, Type={type}")]
     [AttributeUsage(AttributeTargets.Property)]
     [Serializable]
     public class FileFormField : FormField
     {
-        public string AllowedFileTypes { get; set; }
-
         public FileFormField(bool localized = false, string allowedFileTypes = "")
             :base(localized, FormFieldTypeEnum.File)
         {
@@ -41,21 +60,22 @@ namespace PigeonCms
     [DebuggerDisplay("Name={name}, DefaultValue={defaultValue}, Type={type}")]
     [AttributeUsage(AttributeTargets.Property)]
     [Serializable]
-    public class ImageFormField : FormField
+    public class ImageFormField : FileFormField
     {
-        public string AllowedFileTypes { get; set; }
 
         public ImageFormField(bool localized = false, string allowedFileTypes = "")
-            :base(localized, FormFieldTypeEnum.Image)
+            :base(localized, allowedFileTypes)
         {
+            base.Type = FormFieldTypeEnum.Image;
             this.AllowedFileTypes = allowedFileTypes;
         }
     }
 
+
     [DebuggerDisplay("Name={name}, DefaultValue={defaultValue}, Type={type}")]
 	[AttributeUsage(AttributeTargets.Property)]
     [Serializable]
-    public class FormField : System.Attribute, ITable
+    public class FormField : System.Attribute, ITable, IFormField
     {
         int formId = 0;
         bool enabled = true;
@@ -74,7 +94,6 @@ namespace PigeonCms
         FormFieldTypeEnum type = FormFieldTypeEnum.Text;
         bool localized = false;
 
-        //public FormField() { }
 
         public FormField(
             bool localized = false,
@@ -242,7 +261,25 @@ namespace PigeonCms
             get { return localized; }
             [DebuggerStepThrough()]
             set { localized = value; }
-        }            
+        }
+
+        /// <summary>
+        /// for Image and File only
+        /// default: '' no files allowed
+        /// </summary>
+        public string AllowedFileTypes { get; set; } = "";
+
+        /// <summary>
+        /// for Image and File only
+        /// </summary>
+        public string Folder { get; set; }
+
+        /// <summary>
+        /// for Image and File only
+        /// max file size in KB, default 1024
+        /// </summary>
+        public int MaxFileSize { get; set; } = 1024;
+
     }
 
 
