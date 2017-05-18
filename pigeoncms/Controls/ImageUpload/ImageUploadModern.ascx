@@ -3,7 +3,7 @@
 
 <div class="pgn-imageUploadSingle clearfix">    
 
-    <div class="box-container" <asp:Literal ID="litTranslations" runat="server"/>>
+    <div class="box-container" <asp:Literal runat="server" ID="LitName" /> <asp:Literal ID="litTranslations" runat="server"/>>
 
         <div class="dragandrophandler box box-insert" <asp:Literal ID="litDataMaxSize" runat="server"/>>
             <span class="icon icon-image"></span>

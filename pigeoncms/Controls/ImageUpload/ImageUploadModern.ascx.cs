@@ -14,14 +14,13 @@ using PigeonCms.Core.Helpers;
 
 public partial class ImageUploadModern : BaseModuleControl, IUploadControl
 {
-    public delegate void FileDeletedDelegate(object sender, EventArgs e);
-    public event FileDeletedDelegate FileDeleted;
+    public event UploadControlFileDeletedDelegate FileDeleted;
 
 
     public string AllowedFileTypes { get; set; }
     public int MaxFileSize { get; set; }
     public string FilePath { get; set; }
-
+    public string Name { get; set; }
     protected bool deleted = false;
 
     private Module fakeModule = new Module();
@@ -52,6 +51,8 @@ public partial class ImageUploadModern : BaseModuleControl, IUploadControl
             GetLabel("UploadFile_FileTypes", "File type"),
             AllowedFileTypes
         );
+
+        LitName.Text = "name='" + this.Name + "'";
 
         litPreview.Text = PreviewUrl;
 

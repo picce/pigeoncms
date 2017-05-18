@@ -1238,23 +1238,9 @@ namespace PigeonCms.Modules
                         if (field == null)
                             continue;
 
-                        //if (obj.Id == 0 && !string.IsNullOrEmpty(field.DefaultValue))
-                        //{
-                        //    value = field.DefaultValue;
-                        //}
-
                         AbstractFieldContainer control = createEditorAndContainer(field, property.Name, propDefName, item, value, setFieldValues);
                         if (control == null)
                             continue;
-
-                        //string labelValue = field.LabelValue;
-                        //if (string.IsNullOrEmpty(labelValue))
-                        //    labelValue = property.Name;
-
-                        //control.ID = propDefName + "-" + property.Name + "_container";
-                        //control.Label = GetLabel(
-                        //    "AutoLayout." + item.ItemTypeName + "_" + propDefName + "-" + property.Name,
-                        //    labelValue);
 
                         _FieldsContainer.Controls.Add(control);
                     }
@@ -1324,7 +1310,10 @@ namespace PigeonCms.Modules
 				return null;
 
             AbstractFieldContainer container = (AbstractFieldContainer)LoadControl("~/Controls/FieldContainer/FieldContainer.ascx");
-			Control innerControl = null;
+            //used for in page linking
+            string containerName = "container_" + propDefName + "-" + propertyName;
+
+            Control innerControl = null;
 			IUploadControl uploadControl = null;
 
 			switch (field.Type)
@@ -1337,7 +1326,9 @@ namespace PigeonCms.Modules
 					dropDownList.EnableViewState = true;
 					dropDownList.Enabled = field.Enabled;
 					dropDownList.CssClass = "form-control " + field.CssClass;
-					foreach (var option in field.Options)
+                    dropDownList.Attributes.Add("name", containerName);
+
+                    foreach (var option in field.Options)
 					{
                         dropDownList.Items.Add(new ListItem(option.Label, option.Value));
 
@@ -1359,7 +1350,9 @@ namespace PigeonCms.Modules
 					container.CSSClass = "spacing-detail";
 
 					var textareaPanel = new Panel();
-					IContentEditorControl editorControl = null;
+                    textareaPanel.Attributes.Add("name", containerName);
+
+                    IContentEditorControl editorControl = null;
 
 					if (field.Localized)
 					{
@@ -1438,6 +1431,8 @@ namespace PigeonCms.Modules
 					checkbox.ID = "property_" + propDefName + "-" + propertyName;
 					checkbox.EnableViewState = true;
                     checkbox.Enabled = field.Enabled;
+                    checkbox.Attributes.Add("name", containerName);
+
                     //removed cssClass because aspnet add a span wrapper
                     //checkbox.CssClass = field.CssClass;
 
@@ -1452,7 +1447,9 @@ namespace PigeonCms.Modules
 					if (field.Localized)
 					{
 						Panel translationContainer = new Panel();
-						Translation localizedValue = value as Translation;
+                        translationContainer.Attributes.Add("name", containerName);
+
+                        Translation localizedValue = value as Translation;
 						foreach (KeyValuePair<string, string> culture in Config.CultureList)
 						{
 							AddTransText("property_" + propDefName + "-" + propertyName, translationContainer, ContentEditorConfig, culture, /*TODO max len attr*/200, "form-control");
@@ -1480,7 +1477,9 @@ namespace PigeonCms.Modules
                         textbox.Enabled = field.Enabled;
                         textbox.CssClass = "form-control " + field.CssClass;
                         textbox.EnableViewState = true;
-						if (setFieldValues)
+                        textbox.Attributes.Add("name", containerName);
+
+                        if (setFieldValues)
 							textbox.Text = value == null ? "" : value.ToString();
 
 						innerControl = textbox;
@@ -1494,7 +1493,9 @@ namespace PigeonCms.Modules
                     number.Enabled = field.Enabled;
                     number.CssClass = "form-control " + field.CssClass;
                     number.EnableViewState = true;
-					if (setFieldValues)
+                    number.Attributes.Add("name", containerName);
+
+                    if (setFieldValues)
 						number.Text = value == null || string.IsNullOrWhiteSpace(Convert.ToString(value)) ? "" : value.ToString();
 
                     //TODO clientside without validator using attribute validation
@@ -1524,13 +1525,11 @@ namespace PigeonCms.Modules
                         uploadControl.MaxFileSize = field.MaxFileSize;
                         //field.Folder --> set in readEditor()
 						uploadControl.FilePath = value == null ? "" : value.ToString();
+                        uploadControl.Name = containerName;
 
-                        uploadControl.FileDeleted += delegate (object sender, CompoundButton.CheckedChangeEventArgs e)
+                        uploadControl.FileDeleted += delegate (object sender, EventArgs e)
                         {
-                            buttonPublications.Locked = e.IsChecked;
-                            buttonEvents.Locked = e.IsChecked;
-                            buttonNews.Locked = e.IsChecked;
-                            needSave = true;
+                            changeClientTab("tab-autolayout", containerName);
                         };
 
                         ImageFormField imageAttribute = field as ImageFormField;
@@ -1554,8 +1553,15 @@ namespace PigeonCms.Modules
 							uploadControl = fileUpload as IUploadControl;
 							if (uploadControl != null)
 							{
-								uploadControl.AllowedFileTypes = field.AllowedFileTypes;
+                                uploadControl.FileDeleted += delegate (object sender, EventArgs e)
+                                {
+                                    changeClientTab("tab-autolayout", containerName);
+                                };
+
+                                uploadControl.AllowedFileTypes = field.AllowedFileTypes;
 								uploadControl.MaxFileSize = field.MaxFileSize;
+                                uploadControl.Name = containerName;
+
                                 //field.Folder --> set in readEditor()
                                 FileFormField fileAttribute = field as FileFormField;
 								if (fileAttribute != null && !string.IsNullOrWhiteSpace(fileAttribute.AllowedFileTypes))
@@ -1585,8 +1591,14 @@ namespace PigeonCms.Modules
 						uploadControl = fileUpload as IUploadControl;
 						if (uploadControl != null)
 						{
+                            uploadControl.FileDeleted += delegate (object sender, EventArgs e)
+                            {
+                                changeClientTab("tab-autolayout", containerName);
+                            };
+
                             uploadControl.AllowedFileTypes = field.AllowedFileTypes;
                             uploadControl.MaxFileSize = field.MaxFileSize;
+                            uploadControl.Name = containerName;
 
                             FileFormField fileAttribute = field as FileFormField;
 							if (fileAttribute != null && !string.IsNullOrWhiteSpace(fileAttribute.AllowedFileTypes))
@@ -1606,7 +1618,7 @@ namespace PigeonCms.Modules
 			if (innerControl == null)
 				return null;
 
-			container.InnerControl = innerControl;
+            container.InnerControl = innerControl;
 
             //add label
             string labelValue = field.LabelValue;
@@ -1873,9 +1885,9 @@ namespace PigeonCms.Modules
 			_LblOkInsert.Text = _LblOkSee.Text = RenderSuccess(content);
 		}
 
-        protected void changeClientTab(string tabId)
+        protected void changeClientTab(string tabId, string scrollAnchor = "")
         {
-            Utility.Script.RegisterStartupScript(_Upd1, "changeTab", $@"changeTab('{tabId}');");
+            Utility.Script.RegisterStartupScript(_Upd1, "changeTab", $@"changeTab('{tabId}', '{scrollAnchor}');");
         }
 
         /// <summary>

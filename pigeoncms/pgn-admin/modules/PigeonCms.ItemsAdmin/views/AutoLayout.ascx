@@ -46,8 +46,12 @@
 		}
 	}
 
-    function changeTab(tabId) {
+    function changeTab(tabId, scrollAnchor) {
         $('.nav-pills a[href="#' + tabId + '"]').tab('show');
+
+        if (typeof scrollAnchor !== "undefined" && scrollAnchor !== null && scrollAnchor != "") {
+            //$(".panel-modern--scrollable")[0].scrollTop = $("[name='" + scrollAnchor + "']").parent().offset().top;
+        }
     }
 
 
