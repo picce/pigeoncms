@@ -15,6 +15,7 @@ using PigeonCms.Core.Helpers;
 using PigeonCms.Controls;
 using PigeonCms.Controls.ItemFields;
 using System.IO;
+using System.Web.UI.HtmlControls;
 
 namespace PigeonCms.Modules
 {
@@ -46,6 +47,7 @@ namespace PigeonCms.Modules
 
 		protected abstract Panel _PanelInsert { get; }
 		protected abstract Panel _PanelDescription { get; }
+		protected abstract Literal _LitFieldsTabs { get; }
 		protected abstract PlaceHolder _FieldsContainer { get; }
 
 		protected abstract Repeater _Rep1 { get; }
@@ -1153,7 +1155,7 @@ namespace PigeonCms.Modules
             _FieldsContainer.Controls.Clear();
 
             var template = getItemTemplate(obj);
-
+            _LitFieldsTabs.Text = "";
 
             //TODO re-order array using template order using ILookup
             //http://stackoverflow.com/questions/16926821/matching-the-order-of-one-array-to-another-using-linq
@@ -1161,8 +1163,7 @@ namespace PigeonCms.Modules
             //var propkeys = properties.Keys.SelectMany(key => resultLookup[key]).ToList();
 
 
-            //TODO load from template only
-            //TOCHECK keep safe not added fields
+            //load from template only
             if (template.Params.Count > 0)
             {
                 //load groups as tabs
@@ -1172,7 +1173,16 @@ namespace PigeonCms.Modules
                     .ToList();
                 foreach (var g in groups)
                 {
-                    //TODO add tabs foreach group
+                    //add tab title foreach group
+                    string groupLabel = GetLabel( "AutoLayout." + item.ItemTypeName + "_tab-" + g.Group, g.Group);
+                    _LitFieldsTabs.Text += "<li><a href='#tab-"+ g.Group +"' data-toggle='tab'>"+ groupLabel + "</a></li>";
+
+                    //add tab content foreach group
+                    HtmlGenericControl tabContent = new HtmlGenericControl("div");
+                    tabContent.ClientIDMode = ClientIDMode.Static;
+                    tabContent.ID = "tab-" + g.Group;
+                    tabContent.Attributes.Add("class", "tab-pane fade");
+                    _FieldsContainer.Controls.Add(tabContent);
 
                     foreach (var field in template.Params.Where(t => t.Group == g.Group))
                     {
@@ -1198,11 +1208,13 @@ namespace PigeonCms.Modules
 
                         object value = property.GetValue(propDef, null);
 
-                        AbstractFieldContainer control = createEditorAndContainer(field, property.Name, propDefName, item, value, setFieldValues);
+                        AbstractFieldContainer control = createEditorAndContainer(
+                            g.Group, field, property.Name, propDefName, item, value, setFieldValues);
                         if (control == null)
                             continue;
 
-                        _FieldsContainer.Controls.Add(control);
+                        //_FieldsContainer.Controls.Add(control);
+                        tabContent.Controls.Add(control);
 
                     }
                 }
@@ -1210,6 +1222,20 @@ namespace PigeonCms.Modules
             }
             else
             {
+
+                //add tab content foreach group
+                HtmlGenericControl tabContent = new HtmlGenericControl("div");
+                if (obj.PropertiesList.Count > 0)
+                {
+                    string groupLabel = "Detail";
+                    _LitFieldsTabs.Text += "<li><a href='#tab-autolayout' data-toggle='tab'>" + groupLabel + "</a></li>";
+
+                    tabContent.ClientIDMode = ClientIDMode.Static;
+                    tabContent.ID = "tab-autolayout";
+                    tabContent.Attributes.Add("class", "tab-pane fade");
+                    _FieldsContainer.Controls.Add(tabContent);
+                }
+
                 //load through reflection only
                 foreach (var propDef in obj.PropertiesList)
                 {
@@ -1238,11 +1264,13 @@ namespace PigeonCms.Modules
                         if (field == null)
                             continue;
 
-                        AbstractFieldContainer control = createEditorAndContainer(field, property.Name, propDefName, item, value, setFieldValues);
+                        AbstractFieldContainer control = createEditorAndContainer(
+                            "autolayout", field, property.Name, propDefName, item, value, setFieldValues);
                         if (control == null)
                             continue;
 
-                        _FieldsContainer.Controls.Add(control);
+                        //_FieldsContainer.Controls.Add(control);
+                        tabContent.Controls.Add(control);
                     }
                 }
             }
@@ -1298,6 +1326,7 @@ namespace PigeonCms.Modules
         /// <param name="setFieldValues">if true set the value</param>
         /// <returns>the control to add to the panel</returns>
         private AbstractFieldContainer createEditorAndContainer(
+            string group,
             FormField field, 
             string propertyName, 
             string propDefName, 
@@ -1331,12 +1360,6 @@ namespace PigeonCms.Modules
                     foreach (var option in field.Options)
 					{
                         dropDownList.Items.Add(new ListItem(option.Label, option.Value));
-
-                        //dropDownList.Items.Add(
-                        //    new ListItem(
-                        //        GetLabel("AutoLayout." + item.ItemType.Name + "_" + propDefName + "-" + propertyName + ".Option_" + option.Label, option.Value), 
-                        //        option.Value)
-                        //);
 
 						if (setFieldValues && value != null && Convert.ToString(value) == option.Value)
 							dropDownList.SelectedValue = option.Value;
@@ -1431,10 +1454,10 @@ namespace PigeonCms.Modules
 					checkbox.ID = "property_" + propDefName + "-" + propertyName;
 					checkbox.EnableViewState = true;
                     checkbox.Enabled = field.Enabled;
-                    checkbox.Attributes.Add("name", containerName);
 
                     //removed cssClass because aspnet add a span wrapper
                     //checkbox.CssClass = field.CssClass;
+                    //checkbox.Attributes.Add("name", containerName);
 
                     checkbox.Text = "";
 					if (setFieldValues)
@@ -1529,7 +1552,7 @@ namespace PigeonCms.Modules
 
                         uploadControl.FileDeleted += delegate (object sender, EventArgs e)
                         {
-                            changeClientTab("tab-autolayout", containerName);
+                            changeClientTab("tab-" + group, containerName);
                         };
 
                         ImageFormField imageAttribute = field as ImageFormField;
@@ -1555,7 +1578,7 @@ namespace PigeonCms.Modules
 							{
                                 uploadControl.FileDeleted += delegate (object sender, EventArgs e)
                                 {
-                                    changeClientTab("tab-autolayout", containerName);
+                                    changeClientTab("tab-" + group, containerName);
                                 };
 
                                 uploadControl.AllowedFileTypes = field.AllowedFileTypes;
@@ -1593,7 +1616,7 @@ namespace PigeonCms.Modules
 						{
                             uploadControl.FileDeleted += delegate (object sender, EventArgs e)
                             {
-                                changeClientTab("tab-autolayout", containerName);
+                                changeClientTab("tab-" + group, containerName);
                             };
 
                             uploadControl.AllowedFileTypes = field.AllowedFileTypes;

@@ -272,7 +272,7 @@ namespace PigeonCms
         /// <summary>
         /// for Image and File only
         /// </summary>
-        public string Folder { get; set; }
+        public string Folder { get; set; } = "";
 
         /// <summary>
         /// for Image and File only
