@@ -582,12 +582,17 @@ namespace PigeonCms.Modules
 				{
 					form2obj(o1);
 					o1 = proxy.Insert(o1);
-				}
+                    //store after insert to save file resource in the right place
+                    o1 = proxy.GetByKey(o1.Id);
+                    storeDynamicFields(o1);
+                    proxy.Update(o1);
+                }
 				else
 				{
                     o1 = proxy.GetByKey(this.CurrentId);
                     form2obj(o1);
-					proxy.Update(o1);
+                    storeDynamicFields(o1);
+                    proxy.Update(o1);
 				}
 
 				OnAfterUpdate(o1);
@@ -680,7 +685,7 @@ namespace PigeonCms.Modules
 
 			_PermissionsControl.Form2obj(obj);
 			_SeoControl.Form2obj(obj);
-			storeDynamicFields(obj);
+			//storeDynamicFields(obj);
 
 			//obj.Alias = GetAlias(obj as BaseItem);
 			//CheckTitle(obj as BaseItem);
@@ -1520,6 +1525,14 @@ namespace PigeonCms.Modules
                         //field.Folder --> set in readEditor()
 						uploadControl.FilePath = value == null ? "" : value.ToString();
 
+                        uploadControl.FileDeleted += delegate (object sender, CompoundButton.CheckedChangeEventArgs e)
+                        {
+                            buttonPublications.Locked = e.IsChecked;
+                            buttonEvents.Locked = e.IsChecked;
+                            buttonNews.Locked = e.IsChecked;
+                            needSave = true;
+                        };
+
                         ImageFormField imageAttribute = field as ImageFormField;
 						if (imageAttribute != null && !string.IsNullOrWhiteSpace(imageAttribute.AllowedFileTypes))
 							uploadControl.AllowedFileTypes = imageAttribute.AllowedFileTypes;
@@ -1795,8 +1808,8 @@ namespace PigeonCms.Modules
 					{
 						property.SetValue(propDef, null, null);
 						imageUpload.PerformDelete();
-					}
-					else if (imageUpload.HasChanged)
+                    }
+                    else if (imageUpload.HasChanged)
 					{
                         string fileName = Regex.Replace(item.Alias + " " + property.Name, "[^a-zA-Z0-9]", "-") + "." + imageUpload.GetExtension();
 						string newFileName;
@@ -1860,10 +1873,15 @@ namespace PigeonCms.Modules
 			_LblOkInsert.Text = _LblOkSee.Text = RenderSuccess(content);
 		}
 
-		/// <summary>
-		/// remove all items from cache
-		/// </summary>
-		protected static void removeFromCache()
+        protected void changeClientTab(string tabId)
+        {
+            Utility.Script.RegisterStartupScript(_Upd1, "changeTab", $@"changeTab('{tabId}');");
+        }
+
+        /// <summary>
+        /// remove all items from cache
+        /// </summary>
+        protected static void removeFromCache()
 		{
 			//new CacheManager<PigeonCms.Item>("PigeonCms.Item").Clear();
 		}

@@ -7,7 +7,9 @@ namespace PigeonCms.Controls
 {
 	public interface IUploadControl
 	{
-		string AllowedFileTypes { get; set; }
+        
+        event FileDeletedDelegate FileDeleted;
+        string AllowedFileTypes { get; set; }
 		bool Deleted { get; }
 		string FilePath { get; set; }
 		bool HasChanged { get; }

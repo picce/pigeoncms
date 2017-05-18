@@ -46,6 +46,10 @@
 		}
 	}
 
+    function changeTab(tabId) {
+        $('.nav-pills a[href="#' + tabId + '"]').tab('show');
+    }
+
 
 	function onSuccess(result) { }
 	function onFailure(result) { }

@@ -14,6 +14,10 @@ using PigeonCms.Core.Helpers;
 
 public partial class ImageUploadModern : BaseModuleControl, IUploadControl
 {
+    public delegate void FileDeletedDelegate(object sender, EventArgs e);
+    public event FileDeletedDelegate FileDeleted;
+
+
     public string AllowedFileTypes { get; set; }
     public int MaxFileSize { get; set; }
     public string FilePath { get; set; }
@@ -104,6 +108,9 @@ public partial class ImageUploadModern : BaseModuleControl, IUploadControl
     {       
         BoxPreview.Style.Add("opacity", "0");
         Session["ImageUpload_" + UniqueID + "_Deleted"] = "__deleted__";
+
+        if (this.FileDeleted != null)
+            this.FileDeleted.Invoke(this, e);
     }
 
     protected void LoadInfo()
