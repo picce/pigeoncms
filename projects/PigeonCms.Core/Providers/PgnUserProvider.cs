@@ -1035,6 +1035,8 @@ namespace PigeonCms
                 if (deleteAllRelatedData)
                 {
                     // Process commands to delete all data for the user in the database.
+                    var usermetaMan = new PgnUserMetaManager();
+                    usermetaMan.DeleteByUsername(username);
                 }
             }
             catch (Exception e)

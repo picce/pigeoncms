@@ -168,6 +168,33 @@ namespace PigeonCms
             return result;
         }
 
+        public int DeleteByUsername(string username)
+        {
+            if (string.IsNullOrEmpty(username))
+                throw new ArgumentException("Invalid username", "username");
+
+            DbProviderFactory myProv = Database.ProviderFactory;
+            DbConnection myConn = myProv.CreateConnection();
+            var p = new DynamicParameters();
+            string sSql;
+            int res = 0;
+
+            try
+            {
+                myConn.ConnectionString = Database.ConnString;
+                myConn.Open();
+
+                sSql = "DELETE FROM [" + this.TableName + "] WHERE username = @username ";
+                p.Add("username", username, null, null, null);
+                res = myConn.Execute(Database.ParseSql(sSql), p);
+            }
+            finally
+            {
+                myConn.Dispose();
+            }
+            return res;
+        }
+
         public int UpdateById(int id, string metaValue)
         {
             DbProviderFactory myProv = Database.ProviderFactory;
@@ -234,8 +261,6 @@ namespace PigeonCms
                 p.Add("MetaValue", theObj.MetaValue, null, null, null);
 
                 theObj.Id = (int)(decimal)myConn.ExecuteScalar(Database.ParseSql(sSql), p, null, null, null);
-
-                myConn.Execute(Database.ParseSql(sSql), p);
             }
             catch (Exception e)
             {
@@ -247,5 +272,7 @@ namespace PigeonCms
             }
             return theObj;
         }
+
+
     }
 }
