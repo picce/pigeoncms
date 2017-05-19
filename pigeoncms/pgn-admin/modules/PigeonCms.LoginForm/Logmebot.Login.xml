@@ -21,9 +21,9 @@
       <param name="EnableUserRegistration" type="combo" default="0" label="Enable new user login and registration">
           <option value="1" label="Enabled"></option>
           <option value="0" label="Disabled"></option>
-        </param>
-    </params>
+      </param>
+      <param name="DefaultRoles" type="text" default="" label="New user default roles" description="Example: logmebot,guest" />
 
-    <param name="DefaultRoles" type="text" default="" label="New user default roles" description="Example: logmebot,guest" />
+    </params>
 
 </install>

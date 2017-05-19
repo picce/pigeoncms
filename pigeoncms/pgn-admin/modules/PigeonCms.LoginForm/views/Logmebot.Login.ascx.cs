@@ -10,12 +10,16 @@ using System.Web.UI.WebControls.WebParts;
 using System.Web.UI.HtmlControls;
 using System.Web.Caching;
 using PigeonCms;
-
+using System.Text;
+using System.Collections.Generic;
 
 public partial class Controls_Logmebot_Login : PigeonCms.LoginFormControl
 {
-    public string LblErrore = "";
+    protected string LblErr = "";
     private LogMeBot.LogMeBotClient logMeBotClient;
+    private static Random random = new Random();
+    private const string oauthMetaKey = "oauth_logmebot";
+    private const string oauthMetaValueTemplate = "{UserId}|{Email}";
 
 
     private string appClientId = "";
@@ -53,32 +57,43 @@ public partial class Controls_Logmebot_Login : PigeonCms.LoginFormControl
         set { defaultRoles = value; }
     }
 
-    protected string SiteTitle
+
+    private bool checkRolesValidity()
     {
-        get
+        bool res = true;
+        if (!string.IsNullOrEmpty(this.DefaultRoles))
         {
-            string res = AppSettingsManager.GetValue("MetaSiteTitle");
-            return res;
+            string[] rolesToAdd = this.DefaultRoles.Split(',');
+            foreach(string role in rolesToAdd)
+            {
+                res = res && Roles.RoleExists(role);
+            }
         }
+
+        return res;
     }
 
     protected void Page_Load(object sender, EventArgs e)
     {
-        if (string.IsNullOrEmpty(this.AppClientId)
-            || string.IsNullOrEmpty(this.AppClientSecret)
-            || string.IsNullOrEmpty(this.AppCallbackUri))
-        {
-            LblErrore = RenderError("Invalid Logmebot app settings");
-            return;
-        }
-
-        logMeBotClient = new LogMeBot.LogMeBotClient(
-            this.AppClientId,
-            this.AppClientSecret,
-            this.AppCallbackUri);
+        bool showButton = false;
 
         try
         {
+
+            logMeBotClient = new LogMeBot.LogMeBotClient(
+                this.AppClientId,
+                this.AppClientSecret,
+                this.AppCallbackUri);
+
+            //extra security check
+            if (this.DefaultRoles.ToLower().Contains("admin"))
+                throw new ArgumentException("Invalid default roles");
+
+            if (!checkRolesValidity())
+                throw new ArgumentException("Invalid roles");
+
+            showButton = true;
+
             if (Request.Params["code"] != null)
             {
                 if (string.IsNullOrEmpty(logMeBotClient.AccessToken))
@@ -88,23 +103,26 @@ public partial class Controls_Logmebot_Login : PigeonCms.LoginFormControl
                 }
             }
 
+
             if (!string.IsNullOrEmpty(logMeBotClient.AccessToken))
             {
                 var me = logMeBotClient.GetMe(logMeBotClient.AccessToken);
-                LogProvider.Write(this.BaseModule, "LogMeBot provider Authorized. Username:{username};Email:{email}"
-                    .Replace("{username}", me.Username)
-                    .Replace("{email}", me.Email));
+                LogProvider.Write(this.BaseModule, "LogMeBot provider Authorized. UserId:{UserId}; Nickname:{Nickname}; Email:{Email}"
+                    .Replace("{UserId}", me.UserId)
+                    .Replace("{Nickname}", me.Nickname)
+                    .Replace("{Email}", me.Email));
 
                 var user = new PgnUser();
                 var userMetaMan = new PgnUserMetaManager();
 
-                var userMeta = userMetaMan.GetByMetaKeyValue("oauth_logmebot", 
-                    "{username}|{email}"
-                    .Replace("{username}", me.Username)
-                    .Replace("{email}", me.Email));
+                //look for meta value matching
+                var userMeta = userMetaMan.GetFirstByMetaKeyValue(
+                    oauthMetaKey, 
+                    oauthMetaValueTemplate.Replace("{UserId}", me.UserId).Replace("{Email}", me.Email));
 
                 if (userMeta.Id > 0)
                 {
+                    //found matching user
                     user = (PgnUser)Membership.GetUser(userMeta.Username);
                     if (user.Enabled && user.IsApproved)
                     {
@@ -115,54 +133,69 @@ public partial class Controls_Logmebot_Login : PigeonCms.LoginFormControl
                     else
                     {
                         LogProvider.Write(this.BaseModule, user.UserName + " is not enabled", TracerItemType.Warning);
-                        LblErrore = RenderError(Resources.PublicLabels.LblInvalidLogin);
+                        LblErr = RenderError(Resources.PublicLabels.LblInvalidLogin);
                     }
                 }
                 else
                 {
-                    //register user
+                    //register new user
                     if (this.EnableUserRegistration)
                     {
-                        string username = "";
-                        string password = "";
+                        //create user
+                        string username = "logmebot-" + me.UserId;  //unique username 
+                        string password = generatePassword();
                         var prov = new PgnUserProvider();
                         user = (PgnUser)Membership.CreateUser(username, password, me.Email);
 
+                        //enable user and update nickname
                         user.Enabled = true;
-                        user.NickName = me.Username;
+                        user.IsApproved = true;
+                        user.NickName = me.Nickname;
                         Membership.UpdateUser(user);
 
+                        //add default roles
                         if (!string.IsNullOrEmpty(this.DefaultRoles))
                         {
                             string[] rolesToAdd = this.DefaultRoles.Split(',');
                             string[] users = { user.UserName };
                             Roles.AddUsersToRoles(users, rolesToAdd);
                         }
+
+                        //add meta value
+                        userMeta = new PngUserMeta();
+                        userMeta.Username = username;
+                        userMeta.MetaKey = oauthMetaKey;
+                        userMeta.MetaValue = oauthMetaValueTemplate.Replace("{UserId}", me.UserId).Replace("{Email}", me.Email);
+                        userMetaMan.Insert(userMeta);
+
+                        //retrieve just created full user
+                        user = (PgnUser)Membership.GetUser(userMeta.Username);
+                        if (user.Enabled && user.IsApproved)
+                        {
+                            FormsAuthentication.RedirectFromLoginPage(user.UserName, ChkRememberMe.Checked);
+                            LogProvider.Write(this.BaseModule, user.UserName + " logged in");
+                            redirAfterLogin();
+                        }
                     }
                     else
                     {
                         LogProvider.Write(this.BaseModule, "Your Logmebot user is actually not allowed on this site", TracerItemType.Warning);
-                        LblErrore = RenderError(base.GetLabel("Oauth_Logmebot_NotAllowed", "Your Logmebot user is actually not allowed on this site"));
+                        LblErr = RenderError(base.GetLabel("Oauth_Logmebot_NotAllowed", "Your Logmebot user is actually not allowed on this site"));
                     }
                 }
 
-            }
-            else
-            {
-                LblErrore = RenderError(base.GetLabel("Oauth_Logmebot_NotAuthorized", "Not authorized."));
-                LogProvider.Write(this.BaseModule, "LogMeBot provider Not Authorized. ", TracerItemType.Warning);
-            }
+            }//access token
+
         }
         catch (Exception ex)
         {
-            LblErrore = RenderError(base.GetLabel("Oauth_Logmebot_Exception", "LogMeBot provider error. " + ex.Message));
-            LogProvider.Write(this.BaseModule, "LogMeBot provider error. " + ex.Message, TracerItemType.Warning);
+            LblErr = RenderError(base.GetLabel("Oauth_Logmebot_Exception", "LogMeBot provider error."));
+            LogProvider.Write(this.BaseModule, "LogMeBot provider error. " + ex.ToString(), TracerItemType.Error);
         }
 
         if (!Page.IsPostBack)
         {
-            TxtUser.Attributes.Add("placeholder", base.GetLabel("Username", "Username").ToUpper());
-            TxtPassword.Attributes.Add("placeholder", base.GetLabel("Password", "Password").ToUpper());
+            CmdOauthLogmebot.Visible = showButton;
             LitRememberMe.Text = base.GetLabel("RememberMe", "Remember me");
         }
     }
@@ -188,5 +221,31 @@ public partial class Controls_Logmebot_Login : PigeonCms.LoginFormControl
             Response.Redirect(redirUrl, false);
             Context.ApplicationInstance.CompleteRequest();
         }
+    }
+
+    public string generatePassword()
+    {
+        StringBuilder builder = new StringBuilder();
+        builder.Append(randomString(random, 6));
+        builder.Append(randomNumber(random, 100, 999));
+
+        return builder.ToString();
+    }
+
+    private int randomNumber(Random random, int min, int max)
+    {
+        return random.Next(min, max);
+    }
+
+    private string randomString(Random random, int size)
+    {
+        var builder = new StringBuilder();
+        char ch;
+        for (int i = 0; i < size; i++)
+        {
+            ch = Convert.ToChar(Convert.ToInt32(Math.Floor(26 * random.NextDouble() + 65)));
+            builder.Append(ch);
+        }
+        return builder.ToString().ToUpper();
     }
 }

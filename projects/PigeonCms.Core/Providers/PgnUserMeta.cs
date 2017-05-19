@@ -150,7 +150,7 @@ namespace PigeonCms
             return result;
         }
 
-        public PngUserMeta GetByMetaKeyValue(string metaKey, string metaValue)
+        public PngUserMeta GetFirstByMetaKeyValue(string metaKey, string metaValue)
         {
             var result = new PngUserMeta();
             var list = new List<PngUserMeta>();
@@ -166,6 +166,86 @@ namespace PigeonCms
                 result = list[0];
 
             return result;
+        }
+
+        public int UpdateById(int id, string metaValue)
+        {
+            DbProviderFactory myProv = Database.ProviderFactory;
+            DbConnection myConn = myProv.CreateConnection();
+            var p = new DynamicParameters();
+            string sSql;
+            int result = 0;
+
+            if (id <= 0)
+                return result;  
+
+            try
+            {
+                myConn.ConnectionString = Database.ConnString;
+                myConn.Open();
+
+                sSql = "UPDATE [" + this.TableName + "] "
+                    + " SET MetaValue=@MetaValue "
+                    + " WHERE Id = @Id";
+
+                p.Add("MetaValue", metaValue, null, null, null);
+                p.Add("Id", id, null, null, null);
+
+                result = myConn.Execute(Database.ParseSql(sSql), p);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+            finally
+            {
+                myConn.Dispose();
+            }
+            return result;
+        }
+
+        public override PngUserMeta Insert(PngUserMeta theObj)
+        {
+            DbProviderFactory myProv = Database.ProviderFactory;
+            DbConnection myConn = myProv.CreateConnection();
+            var p = new DynamicParameters();
+            string sSql;
+
+            if (string.IsNullOrEmpty(theObj.Username))
+                throw new ArgumentNullException("Invalid Username");
+
+            if (string.IsNullOrEmpty(theObj.MetaKey))
+                throw new ArgumentNullException("Invalid MetaKey");
+
+            try
+            {
+                myConn.ConnectionString = Database.ConnString;
+                myConn.Open();
+
+                //TODO delete this key
+                //TODO in usersmanager: delete meta data of the user on deletebyid
+
+                sSql = "INSERT INTO [" + this.TableName + "] "
+                    + " (Username, MetaKey, MetaValue) "
+                    + " VALUES(@Username, @MetaKey, @MetaValue) ";
+
+                p.Add("Username", theObj.Username, null, null, null);
+                p.Add("MetaKey", theObj.MetaKey, null, null, null);
+                p.Add("MetaValue", theObj.MetaValue, null, null, null);
+
+                theObj.Id = (int)(decimal)myConn.ExecuteScalar(Database.ParseSql(sSql), p, null, null, null);
+
+                myConn.Execute(Database.ParseSql(sSql), p);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+            finally
+            {
+                myConn.Dispose();
+            }
+            return theObj;
         }
     }
 }

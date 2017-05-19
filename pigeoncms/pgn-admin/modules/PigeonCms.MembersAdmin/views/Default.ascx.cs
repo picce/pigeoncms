@@ -100,23 +100,43 @@ public partial class Controls_Default : PigeonCms.MemberEditorControl
 		//+ "</a>";
 
 
-		var LitName = (Literal)e.Item.FindControl("LitName");
-		LitName.Text = "";
-		if (!string.IsNullOrEmpty(currItem.CompanyName))
-			LitName.Text += currItem.CompanyName + "<br />";
+		var LitMoreInfo = (Literal)e.Item.FindControl("LitMoreInfo");
+        LitMoreInfo.Text = "";
+
+        if (!string.IsNullOrEmpty(currItem.Email))
+        {
+            LitMoreInfo.Text = "<a href='mailto:" + currItem.Email + "'>"
+            + Utility.Html.GetTextPreview(currItem.Email, 30, "")
+            + "</a><br>";
+        }
+
+        if (!string.IsNullOrEmpty(currItem.CompanyName))
+            LitMoreInfo.Text += currItem.CompanyName + "<br />";
 		if (!string.IsNullOrEmpty(currItem.FirstName + currItem.SecondName))
-			LitName.Text += currItem.FirstName + " " + currItem.SecondName + "<br />";
-		if (string.IsNullOrEmpty(LitName.Text))
-			LitName.Text = "<br>" + LitName.Text;
+            LitMoreInfo.Text += currItem.FirstName + " " + currItem.SecondName + "<br />";
+        if (!string.IsNullOrEmpty(currItem.NickName))
+            LitMoreInfo.Text += "[" + currItem.NickName + "]<br />";
 
+        if (!string.IsNullOrEmpty(LitMoreInfo.Text))
+            LitMoreInfo.Text = "<br>" + LitMoreInfo.Text;
 
-		var LitEmail = (Literal)e.Item.FindControl("LitEmail");
-		LitEmail.Text = "<a href='mailto:" + currItem.Email + "'>"
-			+ Utility.Html.GetTextPreview(currItem.Email, 30, "")
-			+ "</a>";
+        //meta info
+        var LitMeta = (Literal)e.Item.FindControl("LitMeta");
+        var metaMan = new PgnUserMetaManager();
+        var metaFilter = new PngUserMetaFilter();
+        metaFilter.Username = currItem.UserName;
+        var metaList = metaMan.GetByFilter(metaFilter, "");
+        string metaText = "";
+        foreach(var meta in metaList)
+        {
+            metaText += "{MetaKey}: {MetaValue}<br>"
+                .Replace("{MetaKey}", meta.MetaKey)
+                .Replace("{MetaValue}", meta.MetaValue);
+        }
+        LitMeta.Text = metaText;
 
-
-		var LitPermissions = (Literal)e.Item.FindControl("LitPermissions");
+        //permissions
+        var LitPermissions = (Literal)e.Item.FindControl("LitPermissions");
 		string rolesForUser = "";
 		foreach (string item in Roles.GetRolesForUser(currItem.UserName))
 		{

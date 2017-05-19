@@ -26,9 +26,11 @@ namespace LogMeBot
     /// </summary>
     public class MeResult
     {
-        public string Username { get; set; }
+        public string UserId { get; set; }
 
         public string Email { get; set; }
+
+        public string Nickname { get; set; }
 
         public bool Expired { get; set; }
 
@@ -119,6 +121,13 @@ namespace LogMeBot
 
         public LogMeBotClient(string clientId, string clientSecret, string callbackUri)
         {
+            if (string.IsNullOrEmpty(clientId)
+                || string.IsNullOrEmpty(clientSecret)
+                || string.IsNullOrEmpty(callbackUri))
+            {
+                throw new ArgumentException("Invalid Logmebot app settings");
+            }
+
             this.clientId = clientId;
             this.clientSecret = clientSecret;
             this.callbackUri = callbackUri;

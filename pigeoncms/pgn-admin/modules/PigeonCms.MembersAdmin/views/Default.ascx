@@ -77,8 +77,8 @@
 
 								<div class="table-modern--row table-modern--row-title">
 
-									<div class="table-modern__col align-left col-md-2"><%=base.GetLabel("Username", "Username")%></div>
-									<div class="table-modern__col align-center col-md-2"><%=base.GetLabel("Email", "Email")%></div>
+									<div class="table-modern__col align-left col-md-2"><%=base.GetLabel("UsernameEmail", "Username/email")%></div>
+									<div class="table-modern__col align-center col-md-2"><%=base.GetLabel("MetaInfo", "Meta info")%></div>
 									<div class="table-modern__col align-left col-md-2"><%=base.GetLabel("Roles", "Roles")%></div>
 									<div class="table-modern__col col-md-1"><%=base.GetLabel("ChangePwd", "Change password")%></div><%--#action pwd--%>
 									<div class="table-modern__col col-md-1"><%=base.GetLabel("ChangeRoles", "Change roles")%></div><%--#action roles--%>
@@ -105,7 +105,7 @@
 														<asp:LinkButton runat="server" ID="LnkEdit" CausesValidation="false" CommandName="Select" CommandArgument='<%#Eval("Username")%>' class="table-modern--media" ClientIDMode="AutoID" data-title-mobile="EDIT">
 															<%#Eval("Username")%>
 														</asp:LinkButton>
-														<asp:Literal ID="LitName" runat="server" />
+														<asp:Literal ID="LitMoreInfo" runat="server" />
 													</div>
 												</div>
 
@@ -113,8 +113,12 @@
 
 
 											<div class="table-modern__col col-md-2">
-												<div class="table-modern__col--value" data-menu="email">
-													<asp:Literal ID="LitEmail" runat="server" />
+                                                <div class="table-modern--description" data-menu="meta">
+	                                                <div class="table-modern--description--wrapper">
+														<span class="table-modern--smallcontent">
+															<asp:Literal ID="LitMeta" runat="server" />
+														</span>
+													</div>
 												</div>
 											</div>
 
