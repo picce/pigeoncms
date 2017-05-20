@@ -129,7 +129,7 @@ public partial class Masterpages_PigeonModern : BaseMasterPage
                     </li>"
             .Replace("[[menuvoices]]", menuVoice)
             .Replace("[[userphoto]]", "/pgn-admin/masterpages/PigeonModern/img/user_default.jpg") //default image user icon
-            .Replace("[[username]]", PgnUserCurrent.UserName);
+            .Replace("[[username]]", PgnUserCurrent.Current.NickName);
         }
         return res;
     }

@@ -195,6 +195,39 @@ namespace PigeonCms
             return res;
         }
 
+        public int DeleteByKey(string username, string metaKey)
+        {
+            if (string.IsNullOrEmpty(username))
+                throw new ArgumentException("Invalid username", "username");
+
+            if (string.IsNullOrEmpty(metaKey))
+                throw new ArgumentException("Invalid metaKey", "metaKey");
+
+            DbProviderFactory myProv = Database.ProviderFactory;
+            DbConnection myConn = myProv.CreateConnection();
+            var p = new DynamicParameters();
+            string sSql;
+            int res = 0;
+
+            try
+            {
+                myConn.ConnectionString = Database.ConnString;
+                myConn.Open();
+
+                sSql = "DELETE FROM [" + this.TableName + "] "
+                    + " WHERE username = @username "
+                    + " AND metaKey = @metaKey ";
+                p.Add("username", username, null, null, null);
+                p.Add("metaKey", metaKey, null, null, null);
+                res = myConn.Execute(Database.ParseSql(sSql), p);
+            }
+            finally
+            {
+                myConn.Dispose();
+            }
+            return res;
+        }
+
         public int UpdateById(int id, string metaValue)
         {
             DbProviderFactory myProv = Database.ProviderFactory;
@@ -249,8 +282,8 @@ namespace PigeonCms
                 myConn.ConnectionString = Database.ConnString;
                 myConn.Open();
 
-                //TODO delete this key
-                //TODO in usersmanager: delete meta data of the user on deletebyid
+                //double check to avoid errors
+                this.DeleteByKey(theObj.Username, theObj.MetaKey);
 
                 sSql = "INSERT INTO [" + this.TableName + "] "
                     + " (Username, MetaKey, MetaValue) "
@@ -260,7 +293,7 @@ namespace PigeonCms
                 p.Add("MetaKey", theObj.MetaKey, null, null, null);
                 p.Add("MetaValue", theObj.MetaValue, null, null, null);
 
-                theObj.Id = (int)(decimal)myConn.ExecuteScalar(Database.ParseSql(sSql), p, null, null, null);
+                theObj.Id = myConn.ExecuteScalar<int>(Database.ParseSql(sSql), p, null, null, null);
             }
             catch (Exception e)
             {

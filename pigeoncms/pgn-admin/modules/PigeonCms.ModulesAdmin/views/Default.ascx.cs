@@ -60,7 +60,7 @@ public partial class Controls_ModulesAdmin : PigeonCms.BaseModuleControl
             if (base.CurrentId > 0)
             {
                 currModule = new ModulesManager().GetByKey(base.CurrentId);
-                ModuleParams1.LoadParams(currModule);
+                ModuleParams1.RenderDynamicFields(currModule);
             }
             else
             {
@@ -70,7 +70,7 @@ public partial class Controls_ModulesAdmin : PigeonCms.BaseModuleControl
                     currModule.ModuleNamespace = LitModuleType.Text.Split('.')[0];
                     currModule.ModuleName = LitModuleType.Text.Split('.')[1];
                     currModule.CurrView = DropViews.SelectedValue;
-                    ModuleParams1.LoadParams(currModule);
+                    ModuleParams1.RenderDynamicFields(currModule);
                 }
                 catch { }
             }

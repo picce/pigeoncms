@@ -19,7 +19,7 @@ public partial class Controls_Logmebot_Login : PigeonCms.LoginFormControl
     private LogMeBot.LogMeBotClient logMeBotClient;
     private static Random random = new Random();
     private const string oauthMetaKey = "oauth_logmebot";
-    private const string oauthMetaValueTemplate = "{UserId}|{Email}";
+    private const string oauthMetaValueTemplate = "{UserId}";
 
 
     private string appClientId = "";
@@ -118,7 +118,7 @@ public partial class Controls_Logmebot_Login : PigeonCms.LoginFormControl
                 //look for meta value matching
                 var userMeta = userMetaMan.GetFirstByMetaKeyValue(
                     oauthMetaKey, 
-                    oauthMetaValueTemplate.Replace("{UserId}", me.UserId).Replace("{Email}", me.Email));
+                    oauthMetaValueTemplate.Replace("{UserId}", me.UserId));
 
                 if (userMeta.Id > 0)
                 {
@@ -165,7 +165,7 @@ public partial class Controls_Logmebot_Login : PigeonCms.LoginFormControl
                         userMeta = new PngUserMeta();
                         userMeta.Username = username;
                         userMeta.MetaKey = oauthMetaKey;
-                        userMeta.MetaValue = oauthMetaValueTemplate.Replace("{UserId}", me.UserId).Replace("{Email}", me.Email);
+                        userMeta.MetaValue = oauthMetaValueTemplate.Replace("{UserId}", me.UserId);
                         userMetaMan.Insert(userMeta);
 
                         //retrieve just created full user

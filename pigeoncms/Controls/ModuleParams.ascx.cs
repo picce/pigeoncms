@@ -174,7 +174,6 @@ public partial class Controls_ModuleParams : PigeonCms.BaseModuleControl
     public void LoadParams(Module currentModule)
     {
         PigeonCms.ModuleType modType = null;
-        PigeonCms.ModuleType viewType = null;
         
         try
         {
@@ -197,6 +196,23 @@ public partial class Controls_ModuleParams : PigeonCms.BaseModuleControl
             ChkDirectEditMode.Enabled = false;
         }
 
+        RenderDynamicFields(currentModule);
+    }
+
+    public void RenderDynamicFields(Module currentModule)
+    {
+        PigeonCms.ModuleType modType = null;
+        PigeonCms.ModuleType viewType = null;
+
+        try
+        {
+            modType = currentModule.ModuleType;
+        }
+        catch (Exception ex)
+        {
+            Tracer.Log("LoadParams(): error loading module params", TracerItemType.Error, ex);
+        }
+
         List<ResLabel> labelsList;  //localized labels for module params
         labelsList = LabelsProvider.GetLabelsByResourceSet(currentModule.ModuleFullName);
         if (!string.IsNullOrEmpty(currentModule.CurrView))
@@ -207,7 +223,7 @@ public partial class Controls_ModuleParams : PigeonCms.BaseModuleControl
         }
 
         //clear previous params list
-        while (PanelParams.Controls.Count > 0) 
+        while (PanelParams.Controls.Count > 0)
         {
             PanelParams.Controls.RemoveAt(0);
         }

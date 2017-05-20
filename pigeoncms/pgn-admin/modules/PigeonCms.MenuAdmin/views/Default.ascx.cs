@@ -70,6 +70,7 @@ public partial class Controls_MenuAdmin : PigeonCms.BaseModuleControl
         TxtAlias.Attributes.Add("onfocus", "preloadAlias('" + TxtName.ClientID + "', this)");
     }
 
+
     protected void Page_Load(object sender, EventArgs e)
     {
         setSuccess("");
@@ -107,7 +108,7 @@ public partial class Controls_MenuAdmin : PigeonCms.BaseModuleControl
                     currModule.ModuleName = DropModuleTypes.SelectedValue.Split('.')[1];
                 }
                 currModule.CurrView = DropViews.SelectedValue;
-                ModuleParams1.LoadParams(currModule);
+                ModuleParams1.RenderDynamicFields(currModule);
             }
             catch { }
         }
