@@ -332,7 +332,7 @@ namespace PigeonCms
 
         protected string GetSqlSelect()
         {
-            string res = "SELECT [Id], Username, Email, PasswordQuestion," +
+            string res = "SELECT [Id], Username, NickName, Email, PasswordQuestion," +
                  " Comment, IsApproved, IsLockedOut, CreationDate, LastLoginDate," +
                  " LastActivityDate, LastPasswordChangedDate, LastLockedOutDate, " +
                  " Enabled, AccessCode, AccessLevel, IsCore, " +
@@ -369,6 +369,7 @@ namespace PigeonCms
             object providerUserKey = null; //= myRd.GetValue(0);
             int id = 0;
             string username = "";
+            string nickName = "";//added 20170513
             string email = "";
             string passwordQuestion = "";
             string comment = "";
@@ -410,6 +411,8 @@ namespace PigeonCms
                 id = (int)myRd["Id"];
             if (!Convert.IsDBNull(myRd["Username"]))
                 username = (string)myRd["Username"];
+            if (!Convert.IsDBNull(myRd["nickName"]))
+                nickName = (string)myRd["nickName"];
             if (!Convert.IsDBNull(myRd["Email"]))
                 email = (string)myRd["Email"];
             if (!Convert.IsDBNull(myRd["PasswordQuestion"]))
@@ -482,6 +485,7 @@ namespace PigeonCms
             PgnUser u = new PgnUser(name,
                                   id,
                                   username,
+                                  nickName,
                                   providerUserKey,
                                   email,
                                   passwordQuestion,
@@ -826,7 +830,8 @@ namespace PigeonCms
 
             return this.CreateUser(
                 newUser,
-                username, 
+                username,
+                username/*as NickName*/,
                 password, 
                 email,
                 passwordQuestion, 
@@ -839,6 +844,7 @@ namespace PigeonCms
         public PgnUser CreateUser(
                         PgnUser newUser,
                         string username,
+                        string nickName,
                         string password,
                         string email,
                         string passwordQuestion,
@@ -894,7 +900,7 @@ namespace PigeonCms
 
                     //PKID
                     sSql = "INSERT INTO " + tableName + " "
-                    + " (/*[Id],*/ Username, ApplicationName, Email, Comment, "
+                    + " (/*[Id],*/ Username, NickName, ApplicationName, Email, Comment, "
                     + " Password, PasswordQuestion, PasswordAnswer, IsApproved, "
                     + " LastActivityDate, LastPasswordChangedDate, CreationDate, "
                     + " IsLockedOut, LastLockedOutDate,"
@@ -904,7 +910,7 @@ namespace PigeonCms
                     + " Sex, CompanyName, Vat, Ssn, FirstName, SecondName, "
                     + " Address1, Address2, City, [State], ZipCode, "
                     + " Nation, Tel1, Mobile1, Website1, AllowMessages, AllowEmails, ValidationCode) "
-                    + " Values(@Username, @ApplicationName, @Email, @Comment, "
+                    + " Values(@Username, @NickName, @ApplicationName, @Email, @Comment, "
                     + " @Password, @PasswordQuestion, @PasswordAnswer, @IsApproved, "
                     + " @LastActivityDate, @LastPasswordChangedDate, @CreationDate, "
                     + " @IsLockedOut, @LastLockedOutDate,"
@@ -925,6 +931,7 @@ namespace PigeonCms
 
                     //cmd.Parameters.Add("@PKID", OdbcType.UniqueIdentifier).Value = providerUserKey;
                     myCmd.Parameters.Add(Database.Parameter(myProv, "Username", username));
+                    myCmd.Parameters.Add(Database.Parameter(myProv, "NickName", nickName));
                     myCmd.Parameters.Add(Database.Parameter(myProv, "ApplicationName", pApplicationName));
                     myCmd.Parameters.Add(Database.Parameter(myProv, "Email", email));
                     myCmd.Parameters.Add(Database.Parameter(myProv, "Comment", ""));
@@ -1028,6 +1035,8 @@ namespace PigeonCms
                 if (deleteAllRelatedData)
                 {
                     // Process commands to delete all data for the user in the database.
+                    var usermetaMan = new PgnUserMetaManager();
+                    usermetaMan.DeleteByUsername(username);
                 }
             }
             catch (Exception e)
@@ -1629,7 +1638,7 @@ namespace PigeonCms
                 myCmd.Connection = myConn;
 
                 sSql = "UPDATE "+ tableName +" "
-                + " SET Email = @Email, Comment = @Comment, IsApproved = @IsApproved, "
+                + " SET NickName = @NickName, Email = @Email, Comment = @Comment, IsApproved = @IsApproved, "
                 + " Enabled = @Enabled, AccessCode = @AccessCode, AccessLevel = @AccessLevel, "
                 + " Sex=@Sex, CompanyName=@CompanyName, Vat=@Vat, "
                 + " Ssn=@Ssn, FirstName=@FirstName, SecondName=@SecondName, "
@@ -1640,6 +1649,7 @@ namespace PigeonCms
                 + " WHERE Username = @Username AND ApplicationName = @ApplicationName ";
                 myCmd.CommandText = Database.ParseSql(sSql);
 
+                myCmd.Parameters.Add(Database.Parameter(myProv, "NickName", u.NickName));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "Email", u.Email));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "Comment", u.Comment));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "IsApproved", u.IsApproved));

@@ -1,2 +1,0 @@
-IMPORTANT
-rename this file 'Install.txt' in 'Install_completed.txt' once installation completed

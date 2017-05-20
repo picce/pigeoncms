@@ -103,7 +103,7 @@ namespace PigeonCms
         //CHECK
         public override MembershipUser GetUser(string username, bool userIsOnline)
         {
-            var res = new PgnUser(providerName, 0, username, "", "", "", "", true, false,
+            var res = new PgnUser(providerName, 0, username, username, "", "", "", "", true, false,
                 DateTime.MinValue, DateTime.MinValue, DateTime.MinValue,
                 DateTime.MinValue, DateTime.MinValue);
             return res;

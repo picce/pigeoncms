@@ -345,10 +345,58 @@ GO
 	      ) WITH( STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
       GO
 
+    --version fallback for manual db upgrade
+    INSERT INTO #__dbVersion(componentFullName, versionId, versionDate, versionDev, versionNotes, dateUpdated, userUpdated)
+    VALUES('PigeonCms.Core', 8/*version*/, GETDATE(), '', '', GETDATE(), 'MANUAL')
+    GO
 ]]>
 
     </item>
 
+  <item id="9" date="2017-05-13" dev="https://github.com/picce/" notes="feature/usermeta-oauth added members meta and user nickname">
+    <![CDATA[
+    
+    ALTER TABLE #__memberUsers ADD
+	    nickName nvarchar(255) NULL
+    GO    
+    
+    update #__memberUsers set nickName=username where nickName is null
+    GO
+    
+    
+    CREATE TABLE #__memberUsers_Meta
+	    (
+	    id int NOT NULL IDENTITY (1, 1),
+	    username nvarchar(200) NOT NULL,
+	    metaKey nvarchar(200) NOT NULL,
+	    metaValue nvarchar(500) NULL
+	    )  ON [PRIMARY]
+    GO
+    ALTER TABLE #__memberUsers_Meta ADD CONSTRAINT
+	    PK_#__memberUsers_Meta PRIMARY KEY CLUSTERED 
+	    (
+	    id
+	    ) WITH( STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+
+    GO
+    CREATE UNIQUE NONCLUSTERED INDEX IX_#__memberUsers_Meta ON #__memberUsers_Meta
+	    (
+	    username,
+	    metaKey
+	    ) WITH( STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+    GO
+    ALTER TABLE #__memberUsers_Meta SET (LOCK_ESCALATION = TABLE)
+    GO    
+		
+    --version fallback for manual db upgrade
+    INSERT INTO #__dbVersion(componentFullName, versionId, versionDate, versionDev, versionNotes, dateUpdated, userUpdated)
+    VALUES('PigeonCms.Core', 9/*version*/, GETDATE(), '', '', GETDATE(), 'MANUAL')
+    GO
+
+]]>
+
+  </item>
+  
 </updates>
 
 

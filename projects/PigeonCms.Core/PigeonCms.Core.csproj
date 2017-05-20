@@ -264,6 +264,7 @@
     <Compile Include="Providers\MessageProvider.cs" />
     <Compile Include="Providers\LogProvider.cs" />
     <Compile Include="Providers\LabelsProvider.cs" />
+    <Compile Include="Providers\PgnUserMeta.cs" />
     <Compile Include="Providers\SeoProvider.cs" />
     <Compile Include="Providers\PermissionProvider.cs" />
     <Compile Include="Providers\PgnRoleProvider.cs" />
