@@ -12,7 +12,7 @@ using System.ComponentModel;
 using System.Collections.Generic;
 using System.IO;
 using PigeonCms;
-
+using System.Linq;
 
 namespace PigeonCms.Core
 {
@@ -23,6 +23,35 @@ namespace PigeonCms.Core
     {
         public ItemTemplateType() { }
 
+
+        public void IncludeJsFilesContent(Page page)
+        {
+            foreach (var file in this.Files.Where(t => t.Type == "js"))
+            {
+                string url = Config.ItemsPath + this.FullName + "/templates/" + file.File;
+                string content = File.ReadAllText(HttpContext.Current.Server.MapPath(url));
+
+                Utility.Script.RegisterStartupScript(page, $"template-{this.FullName}-{file.File}", content);
+            }
+        }
+
+        public string GetCssFilesContent()
+        {
+            string res = ""; 
+            foreach (var file in this.Files.Where(t => t.Type == "css"))
+            {
+                string url = Config.ItemsPath + this.FullName + "/templates/" + file.File;
+                string content = File.ReadAllText(HttpContext.Current.Server.MapPath(url));
+
+                res += $@"
+                <style>
+                /*init template css include {file.File}*/
+                {content}
+                </style>
+                ";
+            }
+            return res;
+        }
     }
 
 

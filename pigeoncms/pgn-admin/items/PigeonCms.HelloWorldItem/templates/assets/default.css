@@ -1,3 +1,37 @@
-﻿.sample1{
+﻿/*
+allowed placeholders: 
+    [[itemType]]:       ex: pigeoncms_helloworlditem
+    [[templateName]]:   ex: default 
+*/
+
+/*simple class*/
+/*[[itemType]].[[templateName]].sample1{
     color: slategrey;
+}*/
+
+
+/*specific tab group */
+.tab-FirstTab{
+    border: 1px solid white;
+    border-radius: 0 !important;
+}
+
+/*specific field input label*/
+.label-CustomProp1_TextSimple{
+    text-decoration: underline;
+}
+
+/*specific field input value*/
+.field-CustomProp1_TextSimple{
+    border: 1px solid white !important;
+}
+
+/*save button*/
+.btnSave {
+
+}
+
+/*cancel button*/
+.btnCancel{
+
 }

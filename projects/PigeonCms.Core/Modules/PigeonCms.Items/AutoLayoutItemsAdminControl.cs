@@ -33,11 +33,15 @@ namespace PigeonCms.Modules
 
         #endregion
 
+
         public string TitleItem = "";
+        protected bool doEdit = false;
+        IItem editingItem;
 
-		#region Abstract Usercontrol (implemented in derived class)
 
-		protected abstract DropDownList _DropSectionsFilter { get; }
+        #region Abstract Usercontrol (implemented in derived class)
+
+        protected abstract DropDownList _DropSectionsFilter { get; }
 		protected abstract DropDownList _DropCategoriesFilter { get; }
 		protected abstract DropDownList _DropNew { get; }
 		protected abstract DropDownList _DropEnabledFilter { get; }
@@ -50,7 +54,9 @@ namespace PigeonCms.Modules
 		protected abstract Literal _LitFieldsTabs { get; }
 		protected abstract PlaceHolder _FieldsContainer { get; }
 
-		protected abstract Repeater _Rep1 { get; }
+        protected abstract Literal _LitTemplateResources { get; }
+
+        protected abstract Repeater _Rep1 { get; }
 		protected abstract Repeater _RepPaging { get; }
 
 		protected abstract UpdatePanel _Upd1 { get; }
@@ -168,14 +174,38 @@ namespace PigeonCms.Modules
 
             // Recreate form to handle control events and viewstate
             // TODO: avoid on "list mode" postbacks
-            var itemsProxy = new ItemsProxy(this.CurrentItemType, true, true);
-            itemsProxy.LogExceptions = false;
-            itemsProxy.ThrowExceptions = false;
-			var genericItem = itemsProxy.GetByKey(this.CurrentId);
-			loadItemDynamicFields(genericItem, false);
+            ItemsProxy itemsProxy;
+            if (!string.IsNullOrWhiteSpace(Request.Params["__EVENTARGUMENT"]))
+            {
+                if (Regex.IsMatch(Request.Params["__EVENTARGUMENT"], @"^[0-9]+\|.*"))
+                {
+                    string[] arguments = Request.Params["__EVENTARGUMENT"].Split('|');
+                    int argItemId = Convert.ToInt32(arguments[0]);
+                    string argItemType = arguments[1];
 
-			ItemsAdminHelper.RegisterCss("FieldContainer/FieldContainer", Page);
-			ItemsAdminHelper.RegisterCss("ImageUpload/ImageUpload", Page);
+                    itemsProxy = new ItemsProxy(argItemType, true, true);
+                    itemsProxy.LogExceptions = false;
+                    itemsProxy.ThrowExceptions = false;
+                    editingItem = itemsProxy.GetByKey(argItemId);
+                    doEdit = true;
+
+                    loadItemDynamicFields(editingItem, false);
+
+                }
+            }
+            else
+            { 
+                itemsProxy = new ItemsProxy(this.CurrentItemType, true, true);
+                itemsProxy.LogExceptions = false;
+                itemsProxy.ThrowExceptions = false;
+                editingItem = itemsProxy.GetByKey(this.CurrentId);
+
+                loadItemDynamicFields(editingItem, false);
+            }
+
+
+            ItemsAdminHelper.RegisterCss("FieldContainer/FieldContainer", Page);
+			//ItemsAdminHelper.RegisterCss("ImageUpload/ImageUpload", Page);
 
 			ItemsAdminHelper.InsertJsIntoPageScriptManager("ImageUpload/ImageUploadModern", Page);
 			ItemsAdminHelper.InsertJsIntoPageScriptManager("ImageUpload/FileUploadModern", Page);
@@ -224,7 +254,13 @@ namespace PigeonCms.Modules
 					updateSortedTable();
 					loadList();
 				}
-			}
+                else if (doEdit)
+                {
+                    editRow(editingItem, null);
+                }
+
+                //var 
+            }
 			OnAfterLoad();
 		}
 
@@ -329,7 +365,15 @@ namespace PigeonCms.Modules
 			LitEnabled.Text = "<span class='table-modern--checkbox--square " + enabledClass + "'></span>";
 
 
-			var LnkEnabled = (LinkButton)e.Item.FindControl("LnkEnabled");
+            //20170523 only works if code behind
+            var LnkEdit = (LinkButton)e.Item.FindControl("LnkEdit");
+            if (LnkEdit != null)
+            {
+                LnkEdit.OnClientClick = "__doPostBack('" + LnkEdit.ClientID + "', '" + item.Id + "|" + item.ItemTypeName + "'); return false;";
+            }
+
+
+            var LnkEnabled = (LinkButton)e.Item.FindControl("LnkEnabled");
 			LnkEnabled.CssClass = "table-modern--checkbox " + enabledClass;
 			LnkEnabled.CommandName = item.Enabled ? "Enabled0" : "Enabled1";
 
@@ -1155,7 +1199,15 @@ namespace PigeonCms.Modules
             _FieldsContainer.Controls.Clear();
 
             var template = getItemTemplate(obj);
-            _LitFieldsTabs.Text = "";
+
+            //load template resources
+            _LitTemplateResources.Text = "";
+            _LitTemplateResources.Text += template.GetCssFilesContent()
+                    .Replace("[[itemType]]", obj.ItemTypeName.Replace(".", "_"))
+                    .Replace("[[templateName]]", template.Name);
+            template.IncludeJsFilesContent(Page);
+
+
 
             //TODO re-order array using template order using ILookup
             //http://stackoverflow.com/questions/16926821/matching-the-order-of-one-array-to-another-using-linq
@@ -1164,6 +1216,7 @@ namespace PigeonCms.Modules
 
 
             //load from template only
+            _LitFieldsTabs.Text = "";
             if (template.Params.Count > 0)
             {
                 //load groups as tabs
@@ -1175,7 +1228,7 @@ namespace PigeonCms.Modules
                 {
                     //add tab title foreach group
                     string groupLabel = GetLabel( "AutoLayout." + item.ItemTypeName + "_tab-" + g.Group, g.Group);
-                    _LitFieldsTabs.Text += "<li><a href='#tab-"+ g.Group +"' data-toggle='tab'>"+ groupLabel + "</a></li>";
+                    _LitFieldsTabs.Text += $"<li><a href='#tab-{g.Group}' class='tab-{g.Group}' data-toggle='tab'>{groupLabel}</a></li>";
 
                     //add tab content foreach group
                     HtmlGenericControl tabContent = new HtmlGenericControl("div");
@@ -1213,7 +1266,6 @@ namespace PigeonCms.Modules
                         if (control == null)
                             continue;
 
-                        //_FieldsContainer.Controls.Add(control);
                         tabContent.Controls.Add(control);
 
                     }
@@ -1269,7 +1321,6 @@ namespace PigeonCms.Modules
                         if (control == null)
                             continue;
 
-                        //_FieldsContainer.Controls.Add(control);
                         tabContent.Controls.Add(control);
                     }
                 }
@@ -1403,8 +1454,9 @@ namespace PigeonCms.Modules
 									EditorType = ContentEditorProvider.Configuration.EditorTypeEnum.BasicHtml,
 									FileButton = false,
 									PageBreakButton = false,
-									ReadMoreButton = false
-								};
+									ReadMoreButton = false,
+                                    CssClass = $"field-{propDefName}.{propertyName}"
+                                };
 
 								if (setFieldValues && localizedValue != null)
 								{
@@ -1431,7 +1483,8 @@ namespace PigeonCms.Modules
 								EditorType = ContentEditorProvider.Configuration.EditorTypeEnum.BasicHtml,
 								FileButton = false,
 								PageBreakButton = false,
-								ReadMoreButton = false
+								ReadMoreButton = false,
+                                CssClass = $"field-{propDefName}.{propertyName}"
 							};
 
 							if (setFieldValues && value != null)
@@ -1487,9 +1540,9 @@ namespace PigeonCms.Modules
 									localizedValue.TryGetValue(culture.Key, out text);
 									textbox.Text = text;
                                     textbox.Enabled = field.Enabled;
-                                    textbox.CssClass = "form-control " + field.CssClass;
+                                    textbox.CssClass = $"form-control {field.CssClass} field-{propDefName}_{propertyName}";
                                 }
-							}
+                            }
 						}
 						innerControl = translationContainer;
 					}
@@ -1498,7 +1551,7 @@ namespace PigeonCms.Modules
 						TextBox textbox = new TextBox();
 						textbox.ID = "property_" + propDefName + "-" + propertyName;
                         textbox.Enabled = field.Enabled;
-                        textbox.CssClass = "form-control " + field.CssClass;
+                        textbox.CssClass = $"form-control {field.CssClass} field-{propDefName}_{propertyName}";
                         textbox.EnableViewState = true;
                         textbox.Attributes.Add("name", containerName);
 
@@ -1652,6 +1705,8 @@ namespace PigeonCms.Modules
             container.Label = GetLabel(
                 "AutoLayout." + item.ItemTypeName + "_" + propDefName + "-" + propertyName,
                 labelValue);
+
+            container.LabelClass = $"label-{propDefName}_{propertyName}";
 
             return container;
 		}

@@ -32,7 +32,10 @@ public partial class Controls_AutoLayout : PigeonCms.Modules.AutoLayoutItemsAdmi
     protected override Literal _LitFieldsTabs { get { return LitFieldsTabs; } }
     protected override PlaceHolder _FieldsContainer { get { return PlhItemFieldsContainer; } }
 
-	protected override Repeater _Rep1 { get { return Rep1; } }
+    protected override Literal _LitTemplateResources { get { return LitTemplateResources; } }
+
+
+    protected override Repeater _Rep1 { get { return Rep1; } }
 	protected override Repeater _RepPaging { get { return RepPaging; } }
 
 	protected override UpdatePanel _Upd1 { get { return Upd1; } }

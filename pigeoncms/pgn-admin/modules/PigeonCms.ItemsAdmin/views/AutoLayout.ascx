@@ -83,6 +83,8 @@
 
     <ContentTemplate>
 
+        <asp:Literal runat="server" ID="LitTemplateResources"></asp:Literal>
+
         <div class="row">
 
             <asp:Panel runat="server" ID="PanelSee">
@@ -507,7 +509,7 @@
                                                     </asp:LinkButton>
                                                 </div>
                                                 <div class="table-modern--hover--col">
-                                                    <asp:LinkButton runat="server" ID="LnkEdit" CausesValidation="false" CommandName="Select" CommandArgument='<%#Eval("Id") + "|" + Eval("ItemTypeName") %>' class="table-modern--media" ClientIDMode="AutoID" data-title-mobile="EDIT">
+                                                    <asp:LinkButton runat="server" ID="LnkEdit" CausesValidation="false" CommandName="Select" class="table-modern--media" ClientIDMode="AutoID" data-title-mobile="EDIT">
 															<div class="table-modern--media--wrapper">
 																<div class="table-modern--media--modify"></div>
 																<span class="table-modern--media--label"><%=base.GetLabel("edit", "edit") %></span>
@@ -592,8 +594,8 @@
                             <span class="title-modern-insert"><%=TitleItem %></span>
                             <div class="btn-group clearfix">
                                 <div class="btn-group-follow clearfix">
-                                    <asp:Button ID="BtnCancel" runat="server" Text="<%$ Resources:PublicLabels, CmdCancel %>" CssClass="btn btn-default btn-xs btn-modern btn-modern--cancel" CausesValidation="false" />
-                                    <asp:Button ID="BtnSave" runat="server" Text="<%$ Resources:PublicLabels, CmdSave %>" CssClass="btn btn-primary btn-xs btn-modern" />
+                                    <asp:Button ID="BtnCancel" runat="server" Text="<%$ Resources:PublicLabels, CmdCancel %>" CssClass="btnCancel btn btn-default btn-xs btn-modern btn-modern--cancel" CausesValidation="false" />
+                                    <asp:Button ID="BtnSave" runat="server" Text="<%$ Resources:PublicLabels, CmdSave %>" CssClass="btnSave btn btn-primary btn-xs btn-modern" />
                                     <div class="btn-group-alert">
                                         <asp:Label ID="LblErrInsert" runat="server" Text=""></asp:Label>
                                         <asp:Label ID="LblOkInsert" runat="server" Text=""></asp:Label>
