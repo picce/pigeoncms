@@ -22,6 +22,7 @@ namespace PigeonCms.Controls.ItemFields
 		public string CSSClass { get; set; }
 
 		public string Label { get; set; }
+        public string LabelClass { get; set; }
 
 		public Control InnerControl { get; set; }
 

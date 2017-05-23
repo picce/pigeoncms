@@ -1805,6 +1805,15 @@ namespace PigeonCms
             }
         }
 
+        public static void DeleteFolder(string path)
+        {
+            DirectoryInfo dir = new DirectoryInfo(path);
+            if (dir.Exists)
+            {
+                dir.Delete(true);
+            }
+        }
+
         public static long GetDirectorySize(string virtualPath)
         {
             long res = 0;

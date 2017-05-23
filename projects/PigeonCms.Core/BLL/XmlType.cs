@@ -18,6 +18,12 @@ namespace PigeonCms
 {
     public class XmlType
     {
+        public class IncludeFile
+        {
+            public string File { get; set; } = "";
+            public string Type { get; set; } = "";
+        }
+
         private string installerFullVersion = "1.0.0";
         private string fullVersion = "1.0.0";
         private string moduleNamespace = "";
@@ -39,6 +45,7 @@ namespace PigeonCms
         private List<string> installSqlFiles = new List<string>();
         private List<string> uninstallQueries = new List<string>();
         private List<string> uninstallSqlFiles = new List<string>();
+        private List<IncludeFile> files = new List<IncludeFile>();
 
         public XmlType() { }
 
@@ -278,6 +285,17 @@ namespace PigeonCms
             get { return uninstallSqlFiles; }
             [DebuggerStepThrough()]
             set { uninstallSqlFiles = value; }
+        }
+
+        /// <summary>
+        /// files tag contains file references list
+        /// </summary>
+        public List<IncludeFile> Files
+        {
+            [DebuggerStepThrough()]
+            get { return files; }
+            [DebuggerStepThrough()]
+            set { files = value; }
         }
 
         /*public List<FormField> CommonParams

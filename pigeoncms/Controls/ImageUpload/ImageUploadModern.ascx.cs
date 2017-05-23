@@ -11,31 +11,48 @@ using PigeonCms.Controls;
 using PigeonCms.Controls.ItemsAdmin;
 using PigeonCms.Core.Helpers;
 
-public partial class ImageUploadModern : UserControl, IUploadControl
+
+public partial class ImageUploadModern : BaseModuleControl, IUploadControl
 {
+    public event UploadControlFileDeletedDelegate FileDeleted;
+
+
     public string AllowedFileTypes { get; set; }
     public int MaxFileSize { get; set; }
     public string FilePath { get; set; }
-
+    public string Name { get; set; }
     protected bool deleted = false;
+
+    private Module fakeModule = new Module();
 
     protected override void OnInit(EventArgs e)
     {
         base.OnInit(e);
+
+        if (!PgnUserCurrent.IsAuthenticated)
+            throw new Exception("Not allowed");
+
+        fakeModule.ModuleNamespace = "PigeonCms";
+        fakeModule.ModuleName = "ImageUploadModernControl";
+        fakeModule.UseLog = Utility.TristateBool.True;
+        this.BaseModule = fakeModule;
+
         fileUpload.Attributes["accept"] = AcceptedMime;
         fileUpload.Attributes["data-max-file-size"] = MaxFileSize.ToString();
         litDataMaxSize.Text = string.Format(" data-max-file-size='{0}' ", MaxFileSize);
         litTranslations.Text = string.Format(" data-lbl-FileTooBig='{0}' data-lbl-FileNotAllowed='{1}' ",
-            Utility.GetLabel("UploadFile_FileTooBig", "File exceed size limits").Replace("'", ""),
-            Utility.GetLabel("UploadFile_FileNotAllowed", "File type is not allowed").Replace("'", "")
+            GetLabel("UploadFile_FileTooBig", "File exceed size limits").Replace("'", ""),
+            GetLabel("UploadFile_FileNotAllowed", "File type is not allowed").Replace("'", "")
         );
 
         LitRestrictions.Text = string.Format("{0}: <strong>{1}</strong> KB, {2}: <strong>{3}</strong>",
-            Utility.GetLabel("UploadFile_MaxFileSize", "Dim. max file"),
+            GetLabel("UploadFile_MaxFileSize", "Dim. max file"),
             MaxFileSize,
-            Utility.GetLabel("UploadFile_FileTypes", "Tipo file"),
+            GetLabel("UploadFile_FileTypes", "File type"),
             AllowedFileTypes
         );
+
+        LitName.Text = "name='" + this.Name + "'";
 
         litPreview.Text = PreviewUrl;
 
@@ -92,6 +109,9 @@ public partial class ImageUploadModern : UserControl, IUploadControl
     {       
         BoxPreview.Style.Add("opacity", "0");
         Session["ImageUpload_" + UniqueID + "_Deleted"] = "__deleted__";
+
+        if (this.FileDeleted != null)
+            this.FileDeleted.Invoke(this, e);
     }
 
     protected void LoadInfo()
@@ -108,11 +128,11 @@ public partial class ImageUploadModern : UserControl, IUploadControl
 
         BoxPreview.Style.Add("background-image", "url('" + PreviewUrl + "')");        
 
-        lblDelete.Attributes.Add("title", Utility.GetLabel("delete_image_title", "Conferma eliminazione immagine"));
-        lblDelete.Attributes.Add("data-msg-title", Utility.GetLabel("delete_image_title", "Conferma eliminazione immagine"));
-        lblDelete.Attributes.Add("data-msg-subtitle", Utility.GetLabel("delete_image", "Sei sicuro di voler eliminare l'immagine ?"));
-        lblDelete.Attributes.Add("data-msg-cancel", Utility.GetLabel("cancel", "cancel"));
-        lblDelete.Attributes.Add("data-msg-confirm", Utility.GetLabel("confirm", "confirm"));
+        lblDelete.Attributes.Add("title", GetLabel("delete_image_title", "Confirm delete"));
+        lblDelete.Attributes.Add("data-msg-title", GetLabel("delete_image_title", "Confirm delete"));
+        lblDelete.Attributes.Add("data-msg-subtitle", GetLabel("delete_image", "Delete image?"));
+        lblDelete.Attributes.Add("data-msg-cancel", GetLabel("cancel", "cancel"));
+        lblDelete.Attributes.Add("data-msg-confirm", GetLabel("confirm", "confirm"));
     }
     
     protected string PreviewUrl
@@ -122,7 +142,12 @@ public partial class ImageUploadModern : UserControl, IUploadControl
             if (Session["ImageUpload_" + UniqueID] != null)
                 return "/Controls/ImageUpload/ImageUploadModernHandler.ashx?action=preview&parameters=" + EncodedParameters + "&ts=" + new DateTime().Ticks;
             else if (!string.IsNullOrWhiteSpace(FilePath))
-                return "/Handlers/ImageHandler.ashx?filename=" + FilePath;
+            {
+                string p = FilePath;
+                if (p.StartsWith("~"))
+                    p = p.Substring(1);
+                return p + "?w=300";
+            }
 
             return string.Empty;
         }
@@ -147,7 +172,7 @@ public partial class ImageUploadModern : UserControl, IUploadControl
         }
     }
 
-    public void CleanSession ()
+    public void CleanSession()
     {
         if (Session["ImageUpload_" + UniqueID] == null)
             return;
@@ -172,7 +197,7 @@ public partial class ImageUploadModern : UserControl, IUploadControl
         }
     }
 
-    public void PerformDelete ()
+    public void PerformDelete()
     {
         if (Session["ImageUpload_" + UniqueID] != null)
         {

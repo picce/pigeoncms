@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using PigeonCms.Core.Helpers;
 using System.Web.UI.WebControls;
+using PigeonCms.Core;
 
 namespace PigeonCms
 {
@@ -215,19 +216,76 @@ namespace PigeonCms
 		}
 
         private string itemType = "";
+        /// <summary>
+        /// OBSOLETE 
+        /// </summary>
+        [Obsolete("Use ItemTypes instead")]
         public string ItemType
         {
             get { return GetStringParam("ItemType", itemType); }
             set { itemType = value; }
         }
 
-		//20161229 - @rsartori
-		protected string itemTypes;
+        /// <summary>
+        /// 20161229 - @rsartori
+        /// list of allowed itemTypes and default templates coma separated
+        /// example: PigeonCms.Item, PigeonCms.HelloWorldItem|hello1.xml
+        /// allow PigeonCms.Item item with its default template (default.xml)
+        /// allow PigeonCms.HelloWorldItem con hello1.xml template
+        /// </summary>
+        protected string itemTypes = "";
 		public string ItemTypes
 		{
 			get { return GetStringParam("ItemTypes", itemTypes); }
 			set { itemTypes = value; }
 		}
+
+        private Dictionary<string, ItemTemplateType> allowedItems = null;
+        /// <summary>
+        /// dictionary of allowed itemTypes and selected templates parsing this.ItemTypes param
+        /// key: ItemType string (example: PigeonCms.HelloWorldItem)
+        /// value: ItemTemplateType - default.xml if not selected
+        /// template folder is: ~/pgn-admin/items/<this.ItemType>/templates/
+        /// </summary>
+        public Dictionary<string, ItemTemplateType> AllowedItems
+        {
+            get
+            {
+                if (allowedItems == null)
+                {
+                    allowedItems = new Dictionary<string, ItemTemplateType>();
+
+                    var itemTypeList = new List<string>(this.ItemTypes.Split(','));
+                    foreach (string p in itemTypeList)
+                    {
+                        var split = p.Trim().Split('|');
+                        string type = split[0];
+                        string templateName = "default.xml";
+                        if (split.Length > 1 && !string.IsNullOrEmpty(split[1]))
+                        {
+                            templateName = split[1];
+                        }
+                        if (!string.IsNullOrEmpty(type))
+                        {
+                            var template = new ItemTemplateTypeManager().GetByFullName(type + "/templates", templateName);
+                            allowedItems.Add(type, template);
+                        }
+                    }
+
+                    //add itemtype if present (for backward compatibility)
+                    if (!string.IsNullOrEmpty(this.ItemType))
+                    {
+                        if (!allowedItems.ContainsKey(this.ItemType))
+                        {
+                            var template = new ItemTemplateType();
+                            allowedItems.Add(this.ItemType, template);
+                        }
+                    }
+                }
+
+                return allowedItems;
+            }
+        }        
 
         #endregion
 

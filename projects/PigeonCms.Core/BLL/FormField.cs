@@ -12,7 +12,6 @@ namespace PigeonCms
         Text = 0,
         List,
         Combo,
-        Radio,
         Check,
         Calendar,
         Custom,
@@ -20,14 +19,63 @@ namespace PigeonCms
         Hidden,
         Error,
         Html,
-        Numeric,
-        Address
-        /*TextTranslated*/
+        Image,
+        File,
+        Numeric
+    }
+
+    public interface IFormField
+    {
+        int Id { get; set; }
+        int FormId { get; set; }
+        bool Enabled { get; set; }
+        string Group { get; set; }
+        string Name { get; set; }
+        string DefaultValue { get; set; }
+        int MinValue { get; set; }
+        int MaxValue { get; set; }
+        int Rows { get; set; }
+        int Cols { get; set; }
+        string LabelValue { get; set; }
+        string Description { get; set; }
+        string CssClass { get; set; }
+        string CssStyle { get; set; }
+        List<FormFieldOption> Options { get; set; }
+        FormFieldTypeEnum Type { get; set; }
+        bool Localized { get; set; }
     }
 
     [DebuggerDisplay("Name={name}, DefaultValue={defaultValue}, Type={type}")]
+    [AttributeUsage(AttributeTargets.Property)]
     [Serializable]
-    public class FormField : ITable
+    public class FileFormField : FormField
+    {
+        public FileFormField(bool localized = false, string allowedFileTypes = "")
+            :base(localized, FormFieldTypeEnum.File)
+        {
+            this.AllowedFileTypes = allowedFileTypes;
+        }
+    }
+
+    [DebuggerDisplay("Name={name}, DefaultValue={defaultValue}, Type={type}")]
+    [AttributeUsage(AttributeTargets.Property)]
+    [Serializable]
+    public class ImageFormField : FileFormField
+    {
+
+        public ImageFormField(bool localized = false, string allowedFileTypes = "")
+            :base(localized, allowedFileTypes)
+        {
+            base.Type = FormFieldTypeEnum.Image;
+            this.AllowedFileTypes = allowedFileTypes;
+        }
+    }
+
+
+    [DebuggerDisplay("Name={name}, DefaultValue={defaultValue}, Type={type}")]
+	[AttributeUsage(AttributeTargets.Property)]
+    [Serializable]
+    public class FormField : System.Attribute, ITable, IFormField
     {
         int formId = 0;
         bool enabled = true;
@@ -44,9 +92,32 @@ namespace PigeonCms
         string cssStyle = "";
         List<FormFieldOption> options = new List<FormFieldOption>();
         FormFieldTypeEnum type = FormFieldTypeEnum.Text;
-        bool isTranslationField = false;
+        bool localized = false;
 
-        public FormField() { }
+
+        public FormField(
+            bool localized = false,
+            FormFieldTypeEnum type = FormFieldTypeEnum.Text,
+            string value = "")
+        {
+            this.localized = localized;
+            this.type = type;
+            this.defaultValue = value;
+
+            if (this.type == FormFieldTypeEnum.Combo
+                || this.type == FormFieldTypeEnum.List)
+            {
+                this.options = new List<FormFieldOption>();
+                if (!string.IsNullOrEmpty(this.defaultValue))
+                {
+                    var list = new List<string>(this.defaultValue.Split(';'));
+                    foreach(string s in list)
+                    {
+                        options.Add(new FormFieldOption(s, s));
+                    }
+                }
+            }
+        }
 
         public int Id { get; set; } //used when from db
 
@@ -160,11 +231,12 @@ namespace PigeonCms
             {
                 if (options == null)
                 {
+                    //20170309 NEVER USED
                     //null when from db
-                    var man = new FormFieldOptionsManager();
-                    var filter = new FormFieldOptionFilter();
-                    filter.FormFieldId = this.Id;
-                    options = man.GetByFilter(filter, "");
+                    //var man = new FormFieldOptionsManager();
+                    //var filter = new FormFieldOptionFilter();
+                    //filter.FormFieldId = this.Id;
+                    //options = man.GetByFilter(filter, "");
                 }
                 return options; 
             }
@@ -183,13 +255,31 @@ namespace PigeonCms
         /// <summary>
         /// this field will be splitted for different cultures
         /// </summary>
-        public bool IsTranslationField
+        public bool Localized
         {
             [DebuggerStepThrough()]
-            get { return isTranslationField; }
+            get { return localized; }
             [DebuggerStepThrough()]
-            set { isTranslationField = value; }
-        }            
+            set { localized = value; }
+        }
+
+        /// <summary>
+        /// for Image and File only
+        /// default: '' no files allowed
+        /// </summary>
+        public string AllowedFileTypes { get; set; } = "";
+
+        /// <summary>
+        /// for Image and File only
+        /// </summary>
+        public string Folder { get; set; } = "";
+
+        /// <summary>
+        /// for Image and File only
+        /// max file size in KB, default 1024
+        /// </summary>
+        public int MaxFileSize { get; set; } = 1024;
+
     }
 
 

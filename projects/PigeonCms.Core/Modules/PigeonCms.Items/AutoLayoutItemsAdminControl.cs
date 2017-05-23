@@ -2,18 +2,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using PigeonCms.Core.Helpers;
 using System.Web.UI.WebControls;
 using System.Web.UI;
-using PigeonCms.Controls;
-//using PigeonCms.Controls.ItemFields;
 using System.Web;
 using System.Collections;
 using System.Reflection;
 using System.Globalization;
 using System.Web.Security;
 using System.Text.RegularExpressions;
+using PigeonCms.Core;
+using PigeonCms.Core.Helpers;
+using PigeonCms.Controls;
 using PigeonCms.Controls.ItemFields;
+using System.IO;
+using System.Web.UI.HtmlControls;
 
 namespace PigeonCms.Modules
 {
@@ -31,11 +33,15 @@ namespace PigeonCms.Modules
 
         #endregion
 
+
         public string TitleItem = "";
+        protected bool doEdit = false;
+        IItem editingItem;
 
-		#region Abstract Usercontrol (implemented in derived class)
 
-		protected abstract DropDownList _DropSectionsFilter { get; }
+        #region Abstract Usercontrol (implemented in derived class)
+
+        protected abstract DropDownList _DropSectionsFilter { get; }
 		protected abstract DropDownList _DropCategoriesFilter { get; }
 		protected abstract DropDownList _DropNew { get; }
 		protected abstract DropDownList _DropEnabledFilter { get; }
@@ -45,9 +51,12 @@ namespace PigeonCms.Modules
 
 		protected abstract Panel _PanelInsert { get; }
 		protected abstract Panel _PanelDescription { get; }
+		protected abstract Literal _LitFieldsTabs { get; }
 		protected abstract PlaceHolder _FieldsContainer { get; }
 
-		protected abstract Repeater _Rep1 { get; }
+        protected abstract Literal _LitTemplateResources { get; }
+
+        protected abstract Repeater _Rep1 { get; }
 		protected abstract Repeater _RepPaging { get; }
 
 		protected abstract UpdatePanel _Upd1 { get; }
@@ -82,7 +91,6 @@ namespace PigeonCms.Modules
 		protected abstract PigeonCms.Controls.ItemParamsControl _ItemParams { get; }
 		protected abstract PigeonCms.Controls.ItemParamsControl _ItemFields { get; }
 
-		//protected abstract HiddenField _HidCurrentId { get; }
 		protected abstract HiddenField _HidCurrentItemType { get; }
 
 		#endregion
@@ -164,19 +172,40 @@ namespace PigeonCms.Modules
 			_BtnCancel.Click += BtnCancel_Click;
 
 
-            //TODO load xml template
-            string xmlTemplatePath = $"{base.CurrViewPath} + TEMPLATE.XML";
-
             // Recreate form to handle control events and viewstate
             // TODO: avoid on "list mode" postbacks
-            var itemsProxy = new ItemsProxy(this.CurrentItemType, true, true);
-            itemsProxy.LogExceptions = false;
-            itemsProxy.ThrowExceptions = false;
-			var genericItem = itemsProxy.GetByKey(this.CurrentId);
-			loadItemDynamicFields(genericItem, false);
+            ItemsProxy itemsProxy;
+            if (!string.IsNullOrWhiteSpace(Request.Params["__EVENTARGUMENT"]))
+            {
+                if (Regex.IsMatch(Request.Params["__EVENTARGUMENT"], @"^[0-9]+\|.*"))
+                {
+                    string[] arguments = Request.Params["__EVENTARGUMENT"].Split('|');
+                    int argItemId = Convert.ToInt32(arguments[0]);
+                    string argItemType = arguments[1];
 
-			ItemsAdminHelper.RegisterCss("FieldContainer/FieldContainer", Page);
-			ItemsAdminHelper.RegisterCss("ImageUpload/ImageUpload", Page);
+                    itemsProxy = new ItemsProxy(argItemType, true, true);
+                    itemsProxy.LogExceptions = false;
+                    itemsProxy.ThrowExceptions = false;
+                    editingItem = itemsProxy.GetByKey(argItemId);
+                    doEdit = true;
+
+                    loadItemDynamicFields(editingItem, false);
+
+                }
+            }
+            else
+            { 
+                itemsProxy = new ItemsProxy(this.CurrentItemType, true, true);
+                itemsProxy.LogExceptions = false;
+                itemsProxy.ThrowExceptions = false;
+                editingItem = itemsProxy.GetByKey(this.CurrentId);
+
+                loadItemDynamicFields(editingItem, false);
+            }
+
+
+            ItemsAdminHelper.RegisterCss("FieldContainer/FieldContainer", Page);
+			//ItemsAdminHelper.RegisterCss("ImageUpload/ImageUpload", Page);
 
 			ItemsAdminHelper.InsertJsIntoPageScriptManager("ImageUpload/ImageUploadModern", Page);
 			ItemsAdminHelper.InsertJsIntoPageScriptManager("ImageUpload/FileUploadModern", Page);
@@ -225,7 +254,13 @@ namespace PigeonCms.Modules
 					updateSortedTable();
 					loadList();
 				}
-			}
+                else if (doEdit)
+                {
+                    editRow(editingItem, null);
+                }
+
+                //var 
+            }
 			OnAfterLoad();
 		}
 
@@ -236,7 +271,7 @@ namespace PigeonCms.Modules
 				//DivDropNewContainer.Visible = false;
 				_BtnNew.Visible = false;
 				_BtnCancel.OnClientClick = "closePopup();";
-				editRow(base.CurrItem, null);
+				//editRow(base.CurrItem, null);
 			}
 		}
 
@@ -297,9 +332,7 @@ namespace PigeonCms.Modules
 		protected void RepPaging_ItemDataBound(object sender, RepeaterItemEventArgs e)
 		{
 			if (e.Item.ItemType == ListItemType.Header)
-			{
 				return;
-			}
 
 			int page = int.Parse(e.Item.DataItem.ToString());
 			if (page - 1 == base.ListCurrentPage)
@@ -321,9 +354,7 @@ namespace PigeonCms.Modules
 		protected void Rep1_ItemDataBound(object sender, RepeaterItemEventArgs e)
 		{
 			if (e.Item.ItemType == ListItemType.Header)
-			{
 				return;
-			}
 
 			var item = (IItem)e.Item.DataItem;
 
@@ -334,7 +365,15 @@ namespace PigeonCms.Modules
 			LitEnabled.Text = "<span class='table-modern--checkbox--square " + enabledClass + "'></span>";
 
 
-			var LnkEnabled = (LinkButton)e.Item.FindControl("LnkEnabled");
+            //20170523 only works if code behind
+            var LnkEdit = (LinkButton)e.Item.FindControl("LnkEdit");
+            if (LnkEdit != null)
+            {
+                LnkEdit.OnClientClick = "__doPostBack('" + LnkEdit.ClientID + "', '" + item.Id + "|" + item.ItemTypeName + "'); return false;";
+            }
+
+
+            var LnkEnabled = (LinkButton)e.Item.FindControl("LnkEnabled");
 			LnkEnabled.CssClass = "table-modern--checkbox " + enabledClass;
 			LnkEnabled.CommandName = item.Enabled ? "Enabled0" : "Enabled1";
 
@@ -430,18 +469,20 @@ namespace PigeonCms.Modules
 				switch (e.CommandName)
 				{
 					case "Select":
-
                         var itemsProxy = new ItemsProxy(itemType, true, true);
                         var item = itemsProxy.GetByKey(itemId);
 						editRow(item, itemType);
 						break;
+
 					case "DeleteRow":
 						deleteRow(itemId, itemType);
 						break;
+
 					case "Enabled0":
 						setFlag(itemId, itemType, false, "enabled");
 						loadList();
 						break;
+
 					case "Enabled1":
 						setFlag(itemId, itemType, true, "enabled");
 						loadList();
@@ -460,8 +501,12 @@ namespace PigeonCms.Modules
             {
                 if (checkAddNewFilters())
                 {
-                    Utility.SetDropByValue(_DropNew, this.ItemType);
-                    editRow(null, this.ItemType);
+                    string itemType = new Item().ItemTypeName;//default value
+                    Utility.SetDropByValue(_DropNew, itemType);
+                    if (this.AllowedItems.Count > 0)
+                        itemType = this.AllowedItems.First().Key;
+
+                    editRow(null,  itemType);
                 }
             }
             catch (Exception e1)
@@ -487,8 +532,8 @@ namespace PigeonCms.Modules
             {
                 string propDefName = propDef.MapAttributeValue;
 
-                PropertyInfo[] properties = getItemPropertiesInfo(propDef);
-                if (properties == null)
+                List<PropertyInfo> properties = getItemPropertiesInfo(propDef);
+                if (properties == null || properties.Count == 0)
                     continue;
 
                 foreach (PropertyInfo property in properties)
@@ -583,12 +628,17 @@ namespace PigeonCms.Modules
 				{
 					form2obj(o1);
 					o1 = proxy.Insert(o1);
-				}
+                    //store after insert to save file resource in the right place
+                    o1 = proxy.GetByKey(o1.Id);
+                    storeDynamicFields(o1);
+                    proxy.Update(o1);
+                }
 				else
 				{
                     o1 = proxy.GetByKey(this.CurrentId);
                     form2obj(o1);
-					proxy.Update(o1);
+                    storeDynamicFields(o1);
+                    proxy.Update(o1);
 				}
 
 				OnAfterUpdate(o1);
@@ -681,7 +731,7 @@ namespace PigeonCms.Modules
 
 			_PermissionsControl.Form2obj(obj);
 			_SeoControl.Form2obj(obj);
-			storeDynamicFields(obj);
+			//storeDynamicFields(obj);
 
 			//obj.Alias = GetAlias(obj as BaseItem);
 			//CheckTitle(obj as BaseItem);
@@ -777,6 +827,7 @@ namespace PigeonCms.Modules
 
 		private void loadList()
 		{
+            //TODO - list with multiple itemtypes
             var itemsProxy = new ItemsProxy(this.ItemType, true, true);
             var filter = itemsProxy.GetNewItemFilter();
 
@@ -794,6 +845,7 @@ namespace PigeonCms.Modules
 					break;
 			}
 
+            //TODO allora filter witu multiple itemtypes
 			if (_DropItemTypesFilter.SelectedValue != "")
 				filter.ItemType = _DropItemTypesFilter.SelectedValue;
 
@@ -817,17 +869,18 @@ namespace PigeonCms.Modules
 			if (base.CategoryId > 0)
 				filter.CategoryId = base.CategoryId;*/
 
-			//var list = man.GetByFilter(filter, "");
 			var list = itemsProxy.GetByFilter(filter, "");
 
 			//post filter on itemTypes
 			if (!string.IsNullOrWhiteSpace(ItemTypes))
 			{
-				List<string> itemTypeList = new List<string>(ItemTypes.Split(','));
-				//list = new List<Item>(list.Where(i => { return itemTypeList.Contains(i.ItemTypeName); }));
-                list = (list.Where(i => { return itemTypeList.Contains(i.ItemTypeName); })).ToList();
+				var itemTypeList = new List<string>(ItemTypes.Split(','));
+                list = (list.Where(
+                        i => { return itemTypeList.Contains(i.ItemTypeName); })
+                    ).ToList();
 			}
 
+            //TODO - to complete - filter catid and parent in GetByFilter method
 			//post filter on catId 
 			if (catId > 0)
 			{
@@ -958,16 +1011,13 @@ namespace PigeonCms.Modules
 			_DropItemTypesFilter.Items.Add(new ListItem(Utility.GetLabel("LblSelectItem", "Select item"), ""));
 
 			var filter = new ItemTypeFilter();
-			if (!string.IsNullOrEmpty(this.ItemType))
-				filter.FullName = this.ItemType;
-
 			List<ItemType> recordList = new ItemTypeManager().GetByFilter(filter, "FullName");
+            if (this.AllowedItems.Count > 0)
+            {
+                recordList = new List<ItemType>(recordList.Where(
+                    i => { return this.AllowedItems.ContainsKey(i.FullName); }));
+            }
 
-			if (!string.IsNullOrWhiteSpace(this.ItemTypes))
-			{
-                var itemTypeList = new List<string>(this.ItemTypes.Split(','));
-				recordList = new List<ItemType>(recordList.Where(i => { return itemTypeList.Contains(i.FullName); }));
-			}
 			
 			foreach (ItemType record1 in recordList)
 			{
@@ -977,7 +1027,7 @@ namespace PigeonCms.Modules
 				_DropItemTypesFilter.Items.Add(new ListItem(itemFriendlyName, record1.FullName));
 			}
 
-			if (!string.IsNullOrEmpty(this.ItemType))
+			if (this.AllowedItems.Count == 1)
 			{
 				_BtnNew.Visible = true;
 				_DropNew.Visible = false;
@@ -1115,19 +1165,23 @@ namespace PigeonCms.Modules
 			ValidTo = obj.ValidTo;
 		}
 
+
 		#endregion
 
 		#region Dynamic properties management
 
-		private PropertyInfo[] getItemPropertiesInfo(ItemPropertiesDefs itemPropertyDef)
+		private List<PropertyInfo> getItemPropertiesInfo(ItemPropertiesDefs itemPropertyDef)
 		{
+            //var res = new Dictionary<string, PropertyInfo>();
+
             if (itemPropertyDef == null)
                 return null;
 
-			Type type = itemPropertyDef.GetType();
-
-			return type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            Type type = itemPropertyDef.GetType();
+			var list = type.GetProperties(BindingFlags.Public | BindingFlags.Instance).ToList();
+            return list;
 		}
+
 
         /// <summary>
         /// load current item (obj) dynamic fields values in form
@@ -1136,38 +1190,144 @@ namespace PigeonCms.Modules
         /// <param name="obj"></param>
         /// <param name="setFieldValues"></param>
 		private void loadItemDynamicFields(IItem obj, bool setFieldValues = true)
-		{
-			IItem item = obj as IItem;
-			if (item == null)
-				return;
+        {
+            IItem item = obj as IItem;
+            if (item == null)
+                return;
 
             //remove all dynamic controls
             _FieldsContainer.Controls.Clear();
 
-            foreach (var propDef in obj.PropertiesList)
+            var template = getItemTemplate(obj);
+
+            //load template resources
+            _LitTemplateResources.Text = "";
+            _LitTemplateResources.Text += template.GetCssFilesContent()
+                    .Replace("[[itemType]]", obj.ItemTypeName.Replace(".", "_"))
+                    .Replace("[[templateName]]", template.Name);
+            template.IncludeJsFilesContent(Page);
+
+
+
+            //TODO re-order array using template order using ILookup
+            //http://stackoverflow.com/questions/16926821/matching-the-order-of-one-array-to-another-using-linq
+            //ILookup<string, FormField> resultLookup = template.Params.ToLookup(x => x.Name);
+            //var propkeys = properties.Keys.SelectMany(key => resultLookup[key]).ToList();
+
+
+            //load from template only
+            _LitFieldsTabs.Text = "";
+            if (template.Params.Count > 0)
             {
-                PropertyInfo[] properties = getItemPropertiesInfo(propDef);
-                if (properties == null)
-                    continue;
-
-                foreach (PropertyInfo property in properties)
+                //load groups as tabs
+                var groups = template.Params
+                    .GroupBy(t => t.Group)
+                    .Select(g => g.First())
+                    .ToList();
+                foreach (var g in groups)
                 {
-                    object value = property.GetValue(propDef, null);
-                    string propDefName = propDef.MapAttributeValue;
+                    //add tab title foreach group
+                    string groupLabel = GetLabel( "AutoLayout." + item.ItemTypeName + "_tab-" + g.Group, g.Group);
+                    _LitFieldsTabs.Text += $"<li><a href='#tab-{g.Group}' class='tab-{g.Group}' data-toggle='tab'>{groupLabel}</a></li>";
 
-                    AbstractFieldContainer control = createEditorAndContainer(property, propDefName, item, value, setFieldValues);
-                    if (control == null)
-                        continue;
+                    //add tab content foreach group
+                    HtmlGenericControl tabContent = new HtmlGenericControl("div");
+                    tabContent.ClientIDMode = ClientIDMode.Static;
+                    tabContent.ID = "tab-" + g.Group;
+                    tabContent.Attributes.Add("class", "tab-pane fade");
+                    _FieldsContainer.Controls.Add(tabContent);
 
-                    control.ID = propDefName + "-" + property.Name + "_container";
-                    control.Label = GetLabel(
-                        "AutoLayout." + item.ItemType.Name + "_" + propDefName + "-" + property.Name, 
-                        property.Name);
+                    foreach (var field in template.Params.Where(t => t.Group == g.Group))
+                    {
+                        string propDefName = field.Name.Split('.')[0];
+                        string propName = field.Name.Split('.')[1];
 
-                    _FieldsContainer.Controls.Add(control);
+                        ItemPropertiesDefs propDef = obj.PropertiesList
+                            .Where(t => t.GetType().Name == propDefName)
+                            .FirstOrDefault();
+
+                        //invalid param propdef
+                        if (propDef == null)
+                            continue;
+
+                        var properties = getItemPropertiesInfo(propDef);
+                        if (properties == null || properties.Count == 0)
+                            continue;
+
+                        PropertyInfo property = properties.Where(t => t.Name == propName).FirstOrDefault();
+                        //invalid param name
+                        if (property == null)
+                            continue;
+
+                        object value = property.GetValue(propDef, null);
+
+                        AbstractFieldContainer control = createEditorAndContainer(
+                            g.Group, field, property.Name, propDefName, item, value, setFieldValues);
+                        if (control == null)
+                            continue;
+
+                        tabContent.Controls.Add(control);
+
+                    }
                 }
 
             }
+            else
+            {
+
+                //add tab content foreach group
+                HtmlGenericControl tabContent = new HtmlGenericControl("div");
+                if (obj.PropertiesList.Count > 0)
+                {
+                    string groupLabel = "Detail";
+                    _LitFieldsTabs.Text += "<li><a href='#tab-autolayout' data-toggle='tab'>" + groupLabel + "</a></li>";
+
+                    tabContent.ClientIDMode = ClientIDMode.Static;
+                    tabContent.ID = "tab-autolayout";
+                    tabContent.Attributes.Add("class", "tab-pane fade");
+                    _FieldsContainer.Controls.Add(tabContent);
+                }
+
+                //load through reflection only
+                foreach (var propDef in obj.PropertiesList)
+                {
+                    string propDefName = propDef.GetType().Name;
+                    //string propDefName = propDef.MapAttributeValue;
+
+                    var properties = getItemPropertiesInfo(propDef);
+                    if (properties == null || properties.Count == 0)
+                        continue;
+
+                    foreach (PropertyInfo property in properties)
+                    {
+                        object value = property.GetValue(propDef, null);
+
+                        //default field definition from attributes
+                        FormField field = (FormField)property.GetCustomAttribute(typeof(FormField));
+
+                        //try to load field definition from template
+                        FormField templateField = template.Params
+                            .Where(a => a.Name == $"{propDefName}.{property.Name}")
+                            .FirstOrDefault();
+
+                        if (templateField != null)
+                            field = templateField;
+
+                        if (field == null)
+                            continue;
+
+                        AbstractFieldContainer control = createEditorAndContainer(
+                            "autolayout", field, property.Name, propDefName, item, value, setFieldValues);
+                        if (control == null)
+                            continue;
+
+                        tabContent.Controls.Add(control);
+                    }
+                }
+            }
+
+
+
 		}
 
         /// <summary>
@@ -1181,12 +1341,26 @@ namespace PigeonCms.Modules
 			if (item == null)
 				return;
 
+            var template = getItemTemplate(obj);
+
             foreach (var propDef in obj.PropertiesList)
             {
-                PropertyInfo[] properties = getItemPropertiesInfo(propDef);
+                string propDefName = propDef.GetType().Name;
+
+                var properties = getItemPropertiesInfo(propDef);
                 foreach (PropertyInfo property in properties)
                 {
-                    readEditor(property, propDef, item);
+                    FormField field = (FormField)property.GetCustomAttribute(typeof(FormField));
+                    
+                    //try to load field definition from template
+                    FormField templateField = template.Params
+                        .Where(a => a.Name == $"{propDefName}.{property.Name}")
+                        .FirstOrDefault();
+
+                    if (templateField != null)
+                        field = templateField;
+
+                    readEditor(field, property, propDef, item);
                 }
             }
 
@@ -1195,57 +1369,66 @@ namespace PigeonCms.Modules
 
         /// <summary>
         /// create an instance of control linked to the item prop
-        /// TODO: implement all editor types
         /// </summary>
         /// <param name="property">the item property to map in the control</param>
-        /// <param name="propDef"></param>
+        /// <param name="propDefName">name of property</param>
         /// <param name="item">the current item</param>
         /// <param name="value">the current value of the control</param>
         /// <param name="setFieldValues">if true set the value</param>
         /// <returns>the control to add to the panel</returns>
-        private AbstractFieldContainer createEditorAndContainer(PropertyInfo property, string propDefName, IItem item, object value, bool setFieldValues)
+        private AbstractFieldContainer createEditorAndContainer(
+            string group,
+            FormField field, 
+            string propertyName, 
+            string propDefName, 
+            IItem item, 
+            object value, 
+            bool setFieldValues)
 		{
-			ItemFieldAttribute attribute = (ItemFieldAttribute)property.GetCustomAttribute(typeof(ItemFieldAttribute));
-			if (attribute == null)
+
+            if (field == null)
 				return null;
 
             AbstractFieldContainer container = (AbstractFieldContainer)LoadControl("~/Controls/FieldContainer/FieldContainer.ascx");
-			Control innerControl = null;
+            //used for in page linking
+            string containerName = "container_" + propDefName + "-" + propertyName;
+
+            Control innerControl = null;
 			IUploadControl uploadControl = null;
 
-			switch (attribute.EditorType)
+			switch (field.Type)
 			{
-				case ItemFieldEditorType.Select:
+				case FormFieldTypeEnum.Combo:
 					container.CSSClass = "form-select-wrapper form-select-detail-item";
 
 					var dropDownList = new DropDownList();
-					dropDownList.ID = "property_" + propDefName + "-" + property.Name;
+					dropDownList.ID = "property_" + propDefName + "-" + propertyName;
 					dropDownList.EnableViewState = true;
-					dropDownList.Enabled = true;
-					dropDownList.CssClass = "form-control";
-					foreach (string dropDownItemValue in attribute.Values)
-					{
-						dropDownList.Items.Add(
-                            new ListItem(
-                                GetLabel("AutoLayout." + item.ItemType.Name + "_" + propDefName + "-" + property.Name + ".Option_" + dropDownItemValue, dropDownItemValue), 
-                                dropDownItemValue)
-                        );
+					dropDownList.Enabled = field.Enabled;
+					dropDownList.CssClass = "form-control " + field.CssClass;
+                    dropDownList.Attributes.Add("name", containerName);
 
-						if (setFieldValues && value != null && Convert.ToString(value) == dropDownItemValue)
-							dropDownList.SelectedValue = dropDownItemValue;
+                    foreach (var option in field.Options)
+					{
+                        dropDownList.Items.Add(new ListItem(option.Label, option.Value));
+
+						if (setFieldValues && value != null && Convert.ToString(value) == option.Value)
+							dropDownList.SelectedValue = option.Value;
 					}
 
 					innerControl = dropDownList;
 					break;
 
-				case ItemFieldEditorType.Html:
+				case FormFieldTypeEnum.Html:
 					container = (AbstractFieldContainer)LoadControl("~/Controls/FieldContainer/TextAreaFieldContainer.ascx");
 					container.CSSClass = "spacing-detail";
 
 					var textareaPanel = new Panel();
-					IContentEditorControl editorControl = null;
+                    textareaPanel.Attributes.Add("name", containerName);
 
-					if (attribute.Localized)
+                    IContentEditorControl editorControl = null;
+
+					if (field.Localized)
 					{
 						Translation localizedValue = value as Translation;
 
@@ -1260,18 +1443,20 @@ namespace PigeonCms.Modules
 							textareaPanel.Controls.Add(litCulture);
 
 							Control htmlEditor = LoadControl("~/Controls/ContentEditorControl.ascx");
-							htmlEditor.ID = "property_" + propDefName + "-" + property.Name + culture.Value;
+							htmlEditor.ID = "property_" + propDefName + "-" + propertyName + culture.Value;
 
                             editorControl = htmlEditor as IContentEditorControl;
 							if (editorControl != null)
 							{
-								editorControl.Configuration = new ContentEditorProvider.Configuration()
+                                editorControl.Configuration = new ContentEditorProvider.Configuration()
 								{
+                                    //TODO editortype
 									EditorType = ContentEditorProvider.Configuration.EditorTypeEnum.BasicHtml,
 									FileButton = false,
 									PageBreakButton = false,
-									ReadMoreButton = false
-								};
+									ReadMoreButton = false,
+                                    CssClass = $"field-{propDefName}.{propertyName}"
+                                };
 
 								if (setFieldValues && localizedValue != null)
 								{
@@ -1288,7 +1473,7 @@ namespace PigeonCms.Modules
 					else
 					{
 						Control htmlEditor = LoadControl("~/Controls/ContentEditorControl.ascx");
-						htmlEditor.ID = "property_" + propDefName + "-" + property.Name;
+						htmlEditor.ID = "property_" + propDefName + "-" + propertyName;
 
 						editorControl = htmlEditor as IContentEditorControl;
 						if (editorControl != null)
@@ -1298,7 +1483,8 @@ namespace PigeonCms.Modules
 								EditorType = ContentEditorProvider.Configuration.EditorTypeEnum.BasicHtml,
 								FileButton = false,
 								PageBreakButton = false,
-								ReadMoreButton = false
+								ReadMoreButton = false,
+                                CssClass = $"field-{propDefName}.{propertyName}"
 							};
 
 							if (setFieldValues && value != null)
@@ -1313,89 +1499,116 @@ namespace PigeonCms.Modules
 					innerControl = textareaPanel;
 					break;
 
-				case ItemFieldEditorType.Flag:
+				case FormFieldTypeEnum.Check:
 					container = (AbstractFieldContainer)LoadControl("~/Controls/FieldContainer/CheckboxFieldContainer.ascx");
 					container.ControlLargeSize = 3;
 
 					CheckBox checkbox = new CheckBox();
-					checkbox.ID = "property_" + propDefName + "-" + property.Name;
+					checkbox.ID = "property_" + propDefName + "-" + propertyName;
 					checkbox.EnableViewState = true;
-					checkbox.Enabled = true;
-					checkbox.Text = "";
+                    checkbox.Enabled = field.Enabled;
+
+                    //removed cssClass because aspnet add a span wrapper
+                    //checkbox.CssClass = field.CssClass;
+                    //checkbox.Attributes.Add("name", containerName);
+
+                    checkbox.Text = "";
 					if (setFieldValues)
 						checkbox.Checked = value == null ? false : Convert.ToBoolean(value);
 
 					innerControl = checkbox;
 					break;
 
-				case ItemFieldEditorType.TextBox:
-					if (attribute.Localized)
+				case FormFieldTypeEnum.Text:
+					if (field.Localized)
 					{
 						Panel translationContainer = new Panel();
-						Translation localizedValue = value as Translation;
+                        translationContainer.Attributes.Add("name", containerName);
+
+                        Translation localizedValue = value as Translation;
 						foreach (KeyValuePair<string, string> culture in Config.CultureList)
 						{
-							AddTransText("property_" + propDefName + "-" + property.Name, translationContainer, ContentEditorConfig, culture, /*TODO max len attr*/200, "form-control");
+							AddTransText("property_" + propDefName + "-" + propertyName, translationContainer, ContentEditorConfig, culture, /*TODO max len attr*/200, "form-control");
 							if (setFieldValues)
 							{
                                 TextBox textbox = Utility.Controls.FindControlRecursive<TextBox>(translationContainer,
-                                    "property_" + propDefName + "-" + property.Name + culture.Value);
+                                    "property_" + propDefName + "-" + propertyName + culture.Value);
 
 								if (textbox != null && localizedValue != null)
 								{
 									string text = "";
 									localizedValue.TryGetValue(culture.Key, out text);
 									textbox.Text = text;
-								}
-							}
+                                    textbox.Enabled = field.Enabled;
+                                    textbox.CssClass = $"form-control {field.CssClass} field-{propDefName}_{propertyName}";
+                                }
+                            }
 						}
 						innerControl = translationContainer;
 					}
 					else
 					{
 						TextBox textbox = new TextBox();
-						textbox.ID = "property_" + propDefName + "-" + property.Name;
-						textbox.CssClass = "form-control";
-						textbox.EnableViewState = true;
-						if (setFieldValues)
+						textbox.ID = "property_" + propDefName + "-" + propertyName;
+                        textbox.Enabled = field.Enabled;
+                        textbox.CssClass = $"form-control {field.CssClass} field-{propDefName}_{propertyName}";
+                        textbox.EnableViewState = true;
+                        textbox.Attributes.Add("name", containerName);
+
+                        if (setFieldValues)
 							textbox.Text = value == null ? "" : value.ToString();
 
 						innerControl = textbox;
 					}
 					break;
 
-				case ItemFieldEditorType.Number:
+				case FormFieldTypeEnum.Numeric:
 					container.ControlLargeSize = 3;
 					TextBox number = new TextBox();
-					number.ID = "property_" + propDefName + "-" + property.Name;
-					number.CssClass = "form-control";
-					number.EnableViewState = true;
-					if (setFieldValues)
+					number.ID = "property_" + propDefName + "-" + propertyName;
+                    number.Enabled = field.Enabled;
+                    number.CssClass = "form-control " + field.CssClass;
+                    number.EnableViewState = true;
+                    number.Attributes.Add("name", containerName);
+
+                    if (setFieldValues)
 						number.Text = value == null || string.IsNullOrWhiteSpace(Convert.ToString(value)) ? "" : value.ToString();
 
-					RegularExpressionValidator revNumber = new RegularExpressionValidator();
-					revNumber.ControlToValidate = number.ClientID;
+                    //TODO clientside without validator using attribute validation
+                    RegularExpressionValidator revNumber = new RegularExpressionValidator();
+                    revNumber.ControlToValidate = number.ClientID;
 					revNumber.ValidationExpression = @"\d+";
 					revNumber.Display = ValidatorDisplay.Dynamic;
 					revNumber.EnableClientScript = true;
-					revNumber.ErrorMessage = GetLabel("AQItemsAdmin.NumberValidationErrorMessage", "Please enter numbers only");
+                    revNumber.ErrorMessage = GetLabel(
+                        "AutoLayout." + item.ItemTypeName + "_" + propDefName + "-NumberValidationErrorMessage",
+                        "Please enter numbers only");
 
 					innerControl = number;
 					break;
 
-				case ItemFieldEditorType.Image:
+				case FormFieldTypeEnum.Image:
 					Control imageUpload = LoadControl("~/Controls/ImageUpload/ImageUploadModern.ascx");
-                    imageUpload.ID = "property_" + propDefName + "-" + property.Name;
+                    imageUpload.ID = "property_" + propDefName + "-" + propertyName;
 					imageUpload.EnableViewState = true;
+                    //imageUpload.Enabled = attribute.Enabled;
+                    //imageUpload.CssClass = "form-control " + attribute.CssClass;
 
-					uploadControl = imageUpload as IUploadControl;
+                    uploadControl = imageUpload as IUploadControl;
 					if (uploadControl != null)
 					{
-						uploadControl.AllowedFileTypes = GetStringParam("ItemImagesTypes", "jpg,png");
-						uploadControl.MaxFileSize = GetIntParam("ItemImagesMaxFileSize", 1024);
+                        uploadControl.AllowedFileTypes = field.AllowedFileTypes;
+                        uploadControl.MaxFileSize = field.MaxFileSize;
+                        //field.Folder --> set in readEditor()
 						uploadControl.FilePath = value == null ? "" : value.ToString();
+                        uploadControl.Name = containerName;
 
-						ImageFieldAttribute imageAttribute = attribute as ImageFieldAttribute;
+                        uploadControl.FileDeleted += delegate (object sender, EventArgs e)
+                        {
+                            changeClientTab("tab-" + group, containerName);
+                        };
+
+                        ImageFormField imageAttribute = field as ImageFormField;
 						if (imageAttribute != null && !string.IsNullOrWhiteSpace(imageAttribute.AllowedFileTypes))
 							uploadControl.AllowedFileTypes = imageAttribute.AllowedFileTypes;
 					}
@@ -1403,8 +1616,8 @@ namespace PigeonCms.Modules
 					innerControl = imageUpload;
 					break;
 
-				case ItemFieldEditorType.File:
-					if (attribute.Localized)
+				case FormFieldTypeEnum.File:
+					if (field.Localized)
 					{
 						Panel translationContainer = new Panel();
 						Translation localizedValue = value as Translation;
@@ -1416,15 +1629,22 @@ namespace PigeonCms.Modules
 							uploadControl = fileUpload as IUploadControl;
 							if (uploadControl != null)
 							{
-								uploadControl.AllowedFileTypes = GetStringParam("ItemFilesTypes", "*");
-								uploadControl.MaxFileSize = GetIntParam("ItemFilesMaxFileSize", 10240);
+                                uploadControl.FileDeleted += delegate (object sender, EventArgs e)
+                                {
+                                    changeClientTab("tab-" + group, containerName);
+                                };
 
-								FileFieldAttribute fileAttribute = attribute as FileFieldAttribute;
+                                uploadControl.AllowedFileTypes = field.AllowedFileTypes;
+								uploadControl.MaxFileSize = field.MaxFileSize;
+                                uploadControl.Name = containerName;
+
+                                //field.Folder --> set in readEditor()
+                                FileFormField fileAttribute = field as FileFormField;
 								if (fileAttribute != null && !string.IsNullOrWhiteSpace(fileAttribute.AllowedFileTypes))
 									uploadControl.AllowedFileTypes = fileAttribute.AllowedFileTypes;
 							}
 
-							AddTransControl(fileUpload, "property_" + propDefName + "-" + property.Name, translationContainer, culture, "form-control");
+							AddTransControl(fileUpload, "property_" + propDefName + "-" + propertyName, translationContainer, culture, "form-control");
 
 							if (setFieldValues)
 							{
@@ -1441,16 +1661,22 @@ namespace PigeonCms.Modules
 					else
 					{
 						Control fileUpload = LoadControl("~/Controls/ImageUpload/FileUploadModern.ascx");
-						fileUpload.ID = "property_" + propDefName + "-" + property.Name;
+						fileUpload.ID = "property_" + propDefName + "-" + propertyName;
 						fileUpload.EnableViewState = true;
 
 						uploadControl = fileUpload as IUploadControl;
 						if (uploadControl != null)
 						{
-							uploadControl.AllowedFileTypes = GetStringParam("ItemFilesTypes", "*");
-							uploadControl.MaxFileSize = GetIntParam("ItemFilesMaxFileSize", 10240);
+                            uploadControl.FileDeleted += delegate (object sender, EventArgs e)
+                            {
+                                changeClientTab("tab-" + group, containerName);
+                            };
 
-							FileFieldAttribute fileAttribute = (FileFieldAttribute)attribute;
+                            uploadControl.AllowedFileTypes = field.AllowedFileTypes;
+                            uploadControl.MaxFileSize = field.MaxFileSize;
+                            uploadControl.Name = containerName;
+
+                            FileFormField fileAttribute = field as FileFormField;
 							if (fileAttribute != null && !string.IsNullOrWhiteSpace(fileAttribute.AllowedFileTypes))
 								uploadControl.AllowedFileTypes = fileAttribute.AllowedFileTypes;
 
@@ -1468,8 +1694,21 @@ namespace PigeonCms.Modules
 			if (innerControl == null)
 				return null;
 
-			container.InnerControl = innerControl;
-			return container;
+            container.InnerControl = innerControl;
+
+            //add label
+            string labelValue = field.LabelValue;
+            if (string.IsNullOrEmpty(labelValue))
+                labelValue = propertyName;
+
+            container.ID = propDefName + "-" + propertyName + "_container";
+            container.Label = GetLabel(
+                "AutoLayout." + item.ItemTypeName + "_" + propDefName + "-" + propertyName,
+                labelValue);
+
+            container.LabelClass = $"label-{propDefName}_{propertyName}";
+
+            return container;
 		}
 
 		// TODO: implement all editor types
@@ -1478,18 +1717,22 @@ namespace PigeonCms.Modules
         /// </summary>
         /// <param name="property"></param>
         /// <param name="item"></param>
-		private void readEditor(PropertyInfo property, ItemPropertiesDefs propDef, IItem item)
+		private void readEditor(
+            FormField field, 
+            PropertyInfo property, 
+            ItemPropertiesDefs propDef, 
+            IItem item)
 		{
-            string propDefName = propDef.MapAttributeValue;
+            string propDefName = propDef.GetType().Name;
+            //string propDefName = propDef.MapAttributeValue;
 
-            ItemFieldAttribute attribute = (ItemFieldAttribute)property.GetCustomAttribute(typeof(ItemFieldAttribute));
-			if (attribute == null)
+			if (field == null)
 				return;
 
-			switch (attribute.EditorType)
+			switch (field.Type)
 			{
-				case ItemFieldEditorType.Html:
-					if (attribute.Localized)
+				case FormFieldTypeEnum.Html:
+					if (field.Localized)
 					{
 						Translation localizedValue = new Translation();
 						foreach (KeyValuePair<string, string> culture in Config.CultureList)
@@ -1515,7 +1758,7 @@ namespace PigeonCms.Modules
 					}
 					break;
 
-				case ItemFieldEditorType.Select:
+				case FormFieldTypeEnum.Combo:
 					DropDownList dropDownList = Utility.Controls.FindControlRecursive<DropDownList>(
                         _FieldsContainer, 
                         "property_" + propDefName + "-" + property.Name);
@@ -1524,7 +1767,7 @@ namespace PigeonCms.Modules
 						property.SetValue(propDef, dropDownList.SelectedValue, null);
 					break;
 
-				case ItemFieldEditorType.Number:
+				case FormFieldTypeEnum.Numeric:
 					TextBox number = Utility.Controls.FindControlRecursive<TextBox>(
                         _FieldsContainer, 
                         "property_" + propDefName + "-" + property.Name);
@@ -1545,7 +1788,7 @@ namespace PigeonCms.Modules
 					}
 					break;
 
-				case ItemFieldEditorType.Flag:
+				case FormFieldTypeEnum.Check:
 					CheckBox checkbox = Utility.Controls.FindControlRecursive<CheckBox>(
                         _FieldsContainer, 
                         "property_" + propDefName + "-" + property.Name);
@@ -1554,8 +1797,8 @@ namespace PigeonCms.Modules
 						property.SetValue(propDef, checkbox.Checked, null);
 					break;
 
-				case ItemFieldEditorType.TextBox:
-					if (attribute.Localized)
+				case FormFieldTypeEnum.Text:
+					if (field.Localized)
 					{
 						Translation localizedValue = new Translation();
 						foreach (KeyValuePair<string, string> culture in Config.CultureList)
@@ -1580,9 +1823,9 @@ namespace PigeonCms.Modules
 					}
 					break;
 
-				case ItemFieldEditorType.File:
+				case FormFieldTypeEnum.File:
 					// TODO: refactor
-					if (attribute.Localized)
+					if (field.Localized)
 					{
 						Translation localizedValue = new Translation();
 						foreach (KeyValuePair<string, string> culture in Config.CultureList)
@@ -1603,9 +1846,12 @@ namespace PigeonCms.Modules
 							{
 								string fileName = Regex.Replace(item.Alias + " " + property.Name, "[^a-zA-Z0-9]", "-") + "." + fileUpload.GetExtension();
 								string newFileName;
-								string filePath = FilesHelper.GetUniqueFilename(item.StaticFilesPath, fileName.ToLower(), out newFileName);
+                                string basePath = Path.Combine(item.StaticFilesPath, field.Folder);
+                                string filePath = FilesHelper.GetUniqueFilename(
+                                    basePath, fileName.ToLower(), out newFileName);
+
 								fileUpload.SaveTo(filePath);
-								localizedValue[culture.Key] = item.StaticFilesPath + newFileName;
+								localizedValue[culture.Key] = Path.Combine(basePath, newFileName).Replace("\\", "/");
 							}
 						}
 
@@ -1628,14 +1874,19 @@ namespace PigeonCms.Modules
 						{
 							string fileName = Regex.Replace(item.Alias + " " + property.Name, "[^a-zA-Z0-9]", "-") + "." + fileUpload.GetExtension();
 							string newFileName;
-							string filePath = FilesHelper.GetUniqueFilename(item.StaticFilesPath, fileName.ToLower(), out newFileName);
+                            string basePath = Path.Combine(item.StaticFilesPath, field.Folder);
+                            string filePath = FilesHelper.GetUniqueFilename(
+                                basePath, fileName.ToLower(), out newFileName);
+
 							fileUpload.SaveTo(filePath);
-							property.SetValue(propDef, item.StaticFilesPath + newFileName, null);
+							property.SetValue(propDef, 
+                                Path.Combine(basePath, newFileName).Replace("\\", "/"), 
+                                null);
 						}
 					}
 					break;
 
-				case ItemFieldEditorType.Image:
+				case FormFieldTypeEnum.Image:
 					IUploadControl imageUpload = Utility.Controls.FindControlRecursive<Control>(
                         _FieldsContainer, 
                         "property_" + propDefName + "-" + property.Name) as IUploadControl;
@@ -1647,18 +1898,41 @@ namespace PigeonCms.Modules
 					{
 						property.SetValue(propDef, null, null);
 						imageUpload.PerformDelete();
-					}
-					else if (imageUpload.HasChanged)
+                    }
+                    else if (imageUpload.HasChanged)
 					{
-						string fileName = Regex.Replace(item.Alias + " " + property.Name, "[^a-zA-Z0-9]", "-") + "." + imageUpload.GetExtension();
+                        string fileName = Regex.Replace(item.Alias + " " + property.Name, "[^a-zA-Z0-9]", "-") + "." + imageUpload.GetExtension();
 						string newFileName;
-						string filePath = FilesHelper.GetUniqueFilename(item.StaticImagesPath, fileName.ToLower(), out newFileName);
-						imageUpload.SaveTo(filePath);
-						property.SetValue(propDef, item.StaticImagesPath + newFileName, null);
+                        string basePath = Path.Combine(item.StaticImagesPath, field.Folder);
+                        string filePath = FilesHelper.GetUniqueFilename(
+                                basePath, fileName.ToLower(), out newFileName);
+
+                        imageUpload.SaveTo(filePath);
+						property.SetValue(propDef, 
+                            Path.Combine(basePath, newFileName).Replace("\\", "/"), 
+                            null);
 					}
 					break;
 			}
 		}
+
+        private ItemTemplateType getItemTemplate(IItem item)
+        {
+            var template = new ItemTemplateType();
+
+            if (this.AllowedItems.ContainsKey(item.ItemTypeName))
+            {
+                //template set in itemsAdmin instance params
+                template = this.AllowedItems[item.ItemTypeName];
+            }
+            else
+            {
+                //default template for current itemtype
+                template = new ItemTemplateTypeManager().GetByFullName(item.ItemTypeName + "/templates", "default.xml");
+            }
+
+            return template;
+        }
 
 		#endregion
 
@@ -1689,10 +1963,15 @@ namespace PigeonCms.Modules
 			_LblOkInsert.Text = _LblOkSee.Text = RenderSuccess(content);
 		}
 
-		/// <summary>
-		/// remove all items from cache
-		/// </summary>
-		protected static void removeFromCache()
+        protected void changeClientTab(string tabId, string scrollAnchor = "")
+        {
+            Utility.Script.RegisterStartupScript(_Upd1, "changeTab", $@"changeTab('{tabId}', '{scrollAnchor}');");
+        }
+
+        /// <summary>
+        /// remove all items from cache
+        /// </summary>
+        protected static void removeFromCache()
 		{
 			//new CacheManager<PigeonCms.Item>("PigeonCms.Item").Clear();
 		}
@@ -1744,14 +2023,23 @@ namespace PigeonCms.Modules
 			set { SetItemDate(_TxtValidTo, value); }
 		}
 
+        /// <summary>
+        /// selected item type
+        /// PigeonCms.Item as default value
+        /// </summary>
 		protected string CurrentItemType
 		{
 			get
 			{
-				if (_HidCurrentItemType == null)
-					return string.Empty;
+                string res = "";
 
-				return Request[_HidCurrentItemType.UniqueID];
+                if (_HidCurrentItemType != null)
+                    res = Request[_HidCurrentItemType.UniqueID];
+
+                if (string.IsNullOrEmpty(res))
+                    res = new PigeonCms.Item().ItemTypeName;
+
+                return res;
 			}
 			set
 			{

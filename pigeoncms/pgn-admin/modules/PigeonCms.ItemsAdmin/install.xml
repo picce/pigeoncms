@@ -44,12 +44,14 @@
 			<option value="0" label="No category"></option>
 			<datasource SelectMethod="GetList" TypeName="PigeonCms.CategoriesManager" />
 		</param>
-		<param name="ItemType" type="combo" default="0" label="Item type" description="Item type filter">
+    
+    <!--[Obsolete("Use ItemTypes insted")]-->
+    <param name="ItemType" type="combo" default="0" label="Item type" description="Item type filter">
 			<option value="" label="All"></option>
 			<datasource SelectMethod="GetList" TypeName="PigeonCms.ItemTypeManager" />
 		</param>
-		<!--20161229-@rsartori-->
-		<param name="ItemTypes" type="text" default="" label="Item types" description="Comma separated list of item type names" />
+    
+		<param name="ItemTypes" type="text" default="" label="Item types" description="Comma separated list of item type names|template. (example: PigeonCms.Item, PigeonCms.HelloWorldItem|hello1.xml)" />
     <param name="ListPageSize" type="text" default="20" label="List page size" description="Set 0 to avoid pagination" />
 	</params>
 

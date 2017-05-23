@@ -3,10 +3,10 @@
 
 <div class="pgn-fileUploadSingle clearfix">    
 
-    <div class="box-container" <asp:Literal ID="litTranslations" runat="server"/>>
+    <div class="box-container" <asp:Literal runat="server" ID="LitName" /> <asp:Literal ID="litTranslations" runat="server"/>>
 
         <div class="dragandrophandler box box-insert" <asp:Literal ID="litDataMaxSize" runat="server"/>>
-            <span class="drop-label drop-file"><%=Utility.GetLabel("click or drag", "clicca qui o trascina") %></span>
+            <span class="drop-label drop-file"><%=Utility.GetLabel("click or drag", "click or drag here") %></span>
             <div class="progress-bar">
                 <div></div>
             </div>

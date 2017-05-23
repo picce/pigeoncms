@@ -17,10 +17,10 @@ namespace Acme.MyPrj
         [ItemPropertiesMap(ItemPropertiesMapAttribute.MapTargetEnum.CustomString1)]
         public class CustomProp1 : ItemPropertiesDefs
         {
-            [ItemField]
+            [FormField]
             public string Brand { get; set; }
 
-            [ItemField(ItemFieldEditorType.Number)]
+            [FormField(false, FormFieldTypeEnum.Numeric)]
             public int Sticks { get; set; }
         }
 

@@ -26,38 +26,39 @@ namespace PigeonCms
         public class CustomProp1 : ItemPropertiesDefs
         {
 
-            [ItemField]
+            [FormField]
             public string TextSimple { get; set; }
 
-            [ItemField(true)]
+            [FormField(true)]
             public Translation TextSimpleLocalized { get; set; }
 
-            [ItemField(ItemFieldEditorType.Html)]
+            [FormField(false, FormFieldTypeEnum.Html)]
             public string TextHtml { get; set; }
 
-            [ItemField(ItemFieldEditorType.Html, true)]
+            [FormField(true, FormFieldTypeEnum.Html)]
             public Translation TextHtmlLocalized { get; set; }
 
-            [ItemField(ItemFieldEditorType.Select, "green;red;yellow;white;black")]
+            [FormField(false, FormFieldTypeEnum.Combo, "green;red;yellow;white;black")]
             public string SelectColor { get; set; }
 
-            [ImageField("jpg")]
+            [ImageFormField(false, "jpg")]
             public string Image1 { get; set; }
 
-            [ItemField(ItemFieldEditorType.Flag)]
+            [FileFormField(false, "")]
+            public string File1 { get; set; }
+
+            [FormField(false, FormFieldTypeEnum.Check)]
             public bool Flag1 { get; set; }
 
-            [ItemField(ItemFieldEditorType.Number)]
+            [FormField(false, FormFieldTypeEnum.Numeric)]
             public int Number1 { get; set; }
         }
 
         [ItemPropertiesMap(ItemPropertiesMapAttribute.MapTargetEnum.CustomString2)]
         public class CustomProp2 : ItemPropertiesDefs
         {
-
-            [ItemField]
+            [FormField]
             public string OtherSimpleText { get; set; }
-
         }
 
         public FileMetaInfo ImageHeader

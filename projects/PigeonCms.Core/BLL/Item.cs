@@ -1167,7 +1167,9 @@ namespace PigeonCms
         /// </summary>
         public void DeleteImages()
         {
-            new FilesGallery(ImagesPath, this.Id.ToString()).DeleteFolderContent();
+            var g = new FilesGallery(ImagesPath, this.Id.ToString());
+            g.DeleteFolderContent();
+            g.DeleteFolder();
             this.images = null;
         }
 
@@ -1176,7 +1178,9 @@ namespace PigeonCms
         /// </summary>
         public void DeleteFiles()
         {
-            new FilesGallery(FilesPath, this.Id.ToString()).DeleteFolderContent();
+            var g = new FilesGallery(FilesPath, this.Id.ToString());
+            g.DeleteFolderContent();
+            g.DeleteFolder();
             this.files = null;
         }
 
@@ -1725,6 +1729,9 @@ namespace PigeonCms
 			return Reflection.PropertiesToString(this);
 		}
 
+        /// <summary>
+        /// target field to serialize data (default CustomString1)
+        /// </summary>
         [ScriptIgnore]
         public string MapAttributeValue
         {
