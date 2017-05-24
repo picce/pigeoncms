@@ -117,8 +117,8 @@ public partial class Controls_Default : PigeonCms.MemberEditorControl
         if (!string.IsNullOrEmpty(currItem.NickName))
             LitMoreInfo.Text += "[" + currItem.NickName + "]<br />";
 
-        if (!string.IsNullOrEmpty(LitMoreInfo.Text))
-            LitMoreInfo.Text = "<br>" + LitMoreInfo.Text;
+        //if (!string.IsNullOrEmpty(LitMoreInfo.Text))
+        //    LitMoreInfo.Text = "<br>" + LitMoreInfo.Text;
 
         //meta info
         var LitMeta = (Literal)e.Item.FindControl("LitMeta");

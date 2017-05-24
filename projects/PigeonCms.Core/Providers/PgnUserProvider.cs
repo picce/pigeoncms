@@ -503,6 +503,7 @@ namespace PigeonCms
             u.IsCore = isCore;
             u.AllowMessages = allowMessages;
             u.AllowEmails = allowEmails;
+            u.NickName = nickName;
 
             u.Sex = sex;
             u.CompanyName = companyName;

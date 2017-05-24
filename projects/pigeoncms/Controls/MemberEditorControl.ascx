@@ -12,6 +12,11 @@
     </div>
 
     <div class="form-group col-md-6">
+        <label><%=LitNickname %></label>
+        <asp:TextBox ID="TxtInsNickname" MaxLength="255" CssClass="form-control" Enabled="true" runat="server"></asp:TextBox>
+    </div>
+
+    <div class="form-group col-md-6">
         <label><%=LitEmail %></label>
         <asp:TextBox ID="TxtInsEmail" MaxLength="255" runat="server" CssClass="form-control"></asp:TextBox>
     </div>
@@ -115,9 +120,14 @@
 
 
 <asp:Panel runat="server" ID="PanelUpdate">
-    <div class="form-group col-md-12">
+    <div class="form-group col-md-6">
         <label><%=LitUsername %></label>
         <asp:TextBox ID="TextUpdUserName" CssClass="form-control" Enabled="false" runat="server"></asp:TextBox>
+    </div>
+
+    <div class="form-group col-md-6">
+        <label><%=LitNickname %></label>
+        <asp:TextBox ID="TxtUpdNickname" CssClass="form-control" Enabled="true" runat="server"></asp:TextBox>
     </div>
 
 	<div class="form-group col-md-6 checkbox-container">

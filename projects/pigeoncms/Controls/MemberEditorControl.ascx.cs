@@ -17,6 +17,7 @@ using System.Net;
 public partial class Controls_MemberEditorControl : PigeonCms.MemberEditorControl
 {
     protected string LitUsername = "";
+    protected string LitNickname = "";
     protected string LitEmail = "";
     protected string LitPassword = "";
     protected string LitPasswordControl = "";
@@ -262,6 +263,7 @@ public partial class Controls_MemberEditorControl : PigeonCms.MemberEditorContro
     {
         //ins
         TxtInsUserName.Text = "";
+        TxtInsNickname.Text = "";
         ChkInsEnabled.Checked = true;
         TxtInsEmail.Text = "";
         TxtInsPassword.Text = "";
@@ -286,6 +288,7 @@ public partial class Controls_MemberEditorControl : PigeonCms.MemberEditorContro
 
         //upd
 		TextUpdUserName.Text = "";
+        TxtUpdNickname.Text = "";
         ChkUpdEnabled.Checked = true;
         ChkUpdApproved.Checked = false;
         TxtUpdEmail.Text = "";
@@ -387,6 +390,7 @@ public partial class Controls_MemberEditorControl : PigeonCms.MemberEditorContro
 
         //update
 		TextUpdUserName.Text = obj.UserName;
+        TxtUpdNickname.Text = obj.NickName;
         ChkUpdEnabled.Checked = obj.Enabled;
         ChkUpdApproved.Checked = obj.IsApproved;
         TxtUpdEmail.Text = obj.Email;
@@ -509,6 +513,7 @@ public partial class Controls_MemberEditorControl : PigeonCms.MemberEditorContro
         }
 
         LitUsername = base.GetLabel("LblUsername", "Username");
+        LitNickname = base.GetLabel("LitNickname", "Nickname");
         LitEmail = base.GetLabel("LblEmail", "E-mail");
         LitPassword = base.GetLabel("LblPassword", "Password");
         LitPasswordControl = base.GetLabel("LblPasswordControl", "Repeat password");
@@ -699,6 +704,7 @@ public partial class Controls_MemberEditorControl : PigeonCms.MemberEditorContro
 
         obj.AccessCode = this.DefaultAccessCode;
         obj.AccessLevel = this.DefaultAccessLevel;
+        obj.NickName = TxtInsNickname.Text;
         obj.Enabled = ChkInsEnabled.Checked;
         obj.CompanyName = TxtInsCompanyName.Text;
         obj.Vat = TxtInsVat.Text;
@@ -746,6 +752,7 @@ public partial class Controls_MemberEditorControl : PigeonCms.MemberEditorContro
         PgnUser obj = null;
 
         obj = (PgnUser)Membership.GetUser(CurrentUser);
+        obj.NickName = TxtUpdNickname.Text;
         obj.Email = TxtUpdEmail.Text;
         obj.Comment = TxtUpdComment.Text;
         obj.Enabled = ChkUpdEnabled.Checked;

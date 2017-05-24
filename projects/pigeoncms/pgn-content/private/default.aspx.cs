@@ -32,6 +32,7 @@ public partial class private_default : Acme.BasePage
 
         Description = "This area is reserved. <i>System.Web.Security</i> namespace is available.<br><br>" +
                 "<strong>PgnUserCurrent.UserName</strong>: " + PgnUserCurrent.UserName + "<br>" +
+                "<strong>PgnUserCurrent.Current.NickName</strong>: " + PgnUserCurrent.Current.NickName + "<br>" +
                 "<strong>PgnUserCurrent.IsAuthenticated</strong>: " + PgnUserCurrent.IsAuthenticated.ToString() + "<br>" +
                 "<strong>Roles.IsUserInRole(\"admin\")</strong>: " + Roles.IsUserInRole("admin").ToString() + "<br>" +
                 "<strong>Roles.GetRolesForUser()</strong>: " + roles + "<br><br>" +
