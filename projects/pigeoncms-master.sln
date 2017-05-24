@@ -3,19 +3,19 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "pigeoncms", "..\pigeoncms\", "{9BBB1122-2347-44A8-A085-7D86DEFB9E7E}"
+Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "pigeoncms", "pigeoncms\", "{9BBB1122-2347-44A8-A085-7D86DEFB9E7E}"
 	ProjectSection(WebsiteProperties) = preProject
 		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.5.1"
 		ProjectReferences = "{B5680C69-ADE4-4233-AF97-ED41E7C10E13}|PigeonCms.Core.dll;{6CE8F051-18B4-44E0-ADE8-D39EBADB9D71}|PigeonCms.Core.Offline.dll;{9b7c9bbb-9618-4e2a-b6eb-e267cdd82f4f}|PigeonCms.Shop.dll;{4a2c46b0-7a0c-4c32-b276-dfe055ba8891}|Acme.MyPrj.dll;"
 		Debug.AspNetCompiler.VirtualPath = "/pigeoncms"
-		Debug.AspNetCompiler.PhysicalPath = "..\pigeoncms\"
+		Debug.AspNetCompiler.PhysicalPath = "pigeoncms\"
 		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\pigeoncms\"
 		Debug.AspNetCompiler.Updateable = "true"
 		Debug.AspNetCompiler.ForceOverwrite = "true"
 		Debug.AspNetCompiler.FixedNames = "false"
 		Debug.AspNetCompiler.Debug = "True"
 		Release.AspNetCompiler.VirtualPath = "/pigeoncms"
-		Release.AspNetCompiler.PhysicalPath = "..\pigeoncms\"
+		Release.AspNetCompiler.PhysicalPath = "pigeoncms\"
 		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\pigeoncms\"
 		Release.AspNetCompiler.Updateable = "true"
 		Release.AspNetCompiler.ForceOverwrite = "true"
@@ -23,7 +23,7 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "pigeoncms", "..\pigeoncms\"
 		Release.AspNetCompiler.Debug = "False"
 		VWDPort = "56718"
 		VWDVirtualPath = "/"
-		SlnRelativePath = "..\pigeoncms\"
+		SlnRelativePath = "pigeoncms\"
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PigeonCms.Core", "PigeonCms.Core\PigeonCms.Core.csproj", "{B5680C69-ADE4-4233-AF97-ED41E7C10E13}"

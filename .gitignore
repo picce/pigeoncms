@@ -34,9 +34,9 @@ $RECYCLE.BIN/
 ## PigeonCms
 #############
 
-pigeoncms/web.config
-pigeoncms/pgn-admin/installation/Install_completed.txt
-pigeoncms/web--picce.config
+projects/pigeoncms/web.config
+projects/pigeoncms/pgn-admin/installation/Install_completed.txt
+projects/pigeoncms/web--picce.config
 projects/packages/
 projects/pigeoncms-picce.sln
 projects/.vs/
