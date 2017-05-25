@@ -44,7 +44,13 @@ namespace PigeonCms.Core.Controls.ItemBlocks
                 switch (propertyName)
                 {
                     case "type":
-                        blockType = Type.GetType(string.Format("{0}.{1}BlockItem", typeof(BaseBlockItem).Namespace, reader.ReadAsString()), false);
+                        //TODO allow namespace from different Assembly
+                        //example: "PigeonCms.Core.Controls.ItemBlocks.HeaderBlockItem"
+                        string typeName = string.Format("{0}.{1}BlockItem",
+                            typeof(BaseBlockItem).Namespace,
+                            reader.ReadAsString());
+
+                        blockType = Type.GetType(typeName, false);
                         result = (BaseBlockItem)Activator.CreateInstance(blockType);
                         break;
                     case "data":

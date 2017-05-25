@@ -125,6 +125,7 @@
     <Compile Include="Controls\ItemsAdmin\AbstractUploadHandler.cs" />
     <Compile Include="Controls\ItemsAdmin\UploadHandlerResult.cs" />
     <Compile Include="Controls\ItemsAdmin\UploadParameters.cs" />
+    <Compile Include="Controls\IPageComposer.cs" />
     <Compile Include="Controls\IUploadControl.cs" />
     <Compile Include="Controls\SeoControl.cs">
       <SubType>ASPXCodeBehind</SubType>

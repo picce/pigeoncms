@@ -1814,6 +1814,12 @@ head {
   opacity: 0.8;
   -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=80)";
   filter: alpha(opacity=80);
+  -ms-transform: scale(0.5, 0.5);
+  /* IE 9 */
+  -webkit-transform: scale(0.5, 0.5);
+  /* Safari */
+  transform: scale(0.5, 0.5);
+  transition: 1s ease-in-out;
 }
 
 .gu-hide {
@@ -1860,7 +1866,6 @@ head {
   height: 15px;
   border: 1px solid #362f4c;
   opacity: 0;
-  -webkit-transition: opacity 0.7s ease 0s;
   transition: opacity 0.7s ease 0s;
 }
 
@@ -1896,9 +1901,22 @@ head {
   display: none;
 }
 
+.image-upload-container .tasks .task.task-preview {
+  display: none;
+}
+
 .fade-transition {
-  -webkit-transition: opacity 0.4s ease 0s;
   transition: opacity 0.4s ease 0s;
+}
+
+#sticky-toolbar {
+  -webkit-transform: translateZ(0);
+          transform: translateZ(0);
+  z-index: 100;
+}
+
+#sticky-toolbar.is-sticky {
+  margin-left: 0;
 }
 
 #aq-composer-wrapper .grid-container {
@@ -1938,6 +1956,8 @@ head {
   color: white;
   margin: 0 0 20px;
   font-family: 'ralewaylight', Arial, sans-serif;
+  -webkit-transition: all 1s ease;
+  max-height: auto;
 }
 
 #aq-composer-wrapper .composer-content .block-item.block-template,
@@ -1949,7 +1969,7 @@ head {
   background-color: #463d63;
   color: white;
   padding: 15px;
-  -webkit-transition: all 0.2s ease 0s;
+  cursor: move;
   transition: all 0.2s ease 0s;
 }
 
@@ -1963,25 +1983,42 @@ head {
   color: white;
 }
 
+#aq-composer-wrapper .composer-content .block-item.block-item-collapsed,
+#aq-composer-wrapper .composer-toolbar .block-item.block-item-collapsed {
+  max-height: 35px;
+  overflow: hidden;
+}
+
 #aq-composer-wrapper .composer-content .block-item:last-child,
 #aq-composer-wrapper .composer-toolbar .block-item:last-child {
   margin-bottom: 0;
 }
 
-#aq-composer-wrapper .composer-content .block-item.image-text_render .grid-45.prefix-5,
-#aq-composer-wrapper .composer-toolbar .block-item.image-text_render .grid-45.prefix-5 {
+#aq-composer-wrapper .composer-content .block-item.image-text .right-column, #aq-composer-wrapper .composer-content .block-item.double-image .right-column,
+#aq-composer-wrapper .composer-toolbar .block-item.image-text .right-column,
+#aq-composer-wrapper .composer-toolbar .block-item.double-image .right-column {
   padding-right: 0;
 }
 
-#aq-composer-wrapper .composer-content .block-item.image-text_render .grid-45.suffix-5,
-#aq-composer-wrapper .composer-toolbar .block-item.image-text_render .grid-45.suffix-5 {
+#aq-composer-wrapper .composer-content .block-item.image-text .left-column, #aq-composer-wrapper .composer-content .block-item.double-image .left-column,
+#aq-composer-wrapper .composer-toolbar .block-item.image-text .left-column,
+#aq-composer-wrapper .composer-toolbar .block-item.double-image .left-column {
   padding-left: 0;
+}
+
+#aq-composer-wrapper .composer-content .block-item.double-image .columns-container,
+#aq-composer-wrapper .composer-toolbar .block-item.double-image .columns-container {
+  margin-bottom: 10px;
+}
+
+#aq-composer-wrapper .composer-content .block-item.double-image .columns-container:after,
+#aq-composer-wrapper .composer-toolbar .block-item.double-image .columns-container:after {
+  clear: both;
 }
 
 #aq-composer-wrapper .composer-content .block-item .block-task,
 #aq-composer-wrapper .composer-toolbar .block-item .block-task {
   opacity: 0;
-  -webkit-transition: opacity 0.7s;
   transition: opacity 0.7s;
   position: absolute;
   padding: 5px 5px 2px;
@@ -2049,6 +2086,26 @@ head {
   padding: 20px 25px;
 }
 
+button.btn {
+  padding: 20px;
+  cursor: pointer;
+  margin: 20px 0;
+  background: #463d63;
+  border: none;
+  color: white;
+  /* Safari */
+  transition-duration: 0.4s;
+  transition: all 0.2s ease 0s;
+}
+
+button.btn:hover, button.btn:focus {
+  -webkit-transform: scale(1.01);
+      -ms-transform: scale(1.01);
+          transform: scale(1.01);
+  background-color: #615489;
+  color: white;
+}
+
 .field-wrapper {
   margin-bottom: 15px;
   clear: both;
@@ -2082,16 +2139,6 @@ head {
   background: #463d63;
   line-height: 20px;
   width: 100%;
-  -webkit-transition: all 0.2s ease 0s;
-  transition: all 0.2s ease 0s;
-}
-
-.field-wrapper .composer-field:hover, .field-wrapper .composer-field:focus {
-  -webkit-transform: scale(1.01);
-      -ms-transform: scale(1.01);
-          transform: scale(1.01);
-  background-color: #615489;
-  color: white;
 }
 
 .field-wrapper .composer-field.select {
@@ -2102,8 +2149,62 @@ head {
   min-height: 80px;
 }
 
+.field-wrapper .composer-field.textbox, .field-wrapper .composer-field.select, .field-wrapper .composer-field.tinymce {
+  transition: all 0.2s ease 0s;
+}
+
+.field-wrapper .composer-field.textbox:hover, .field-wrapper .composer-field.textbox:focus, .field-wrapper .composer-field.select:hover, .field-wrapper .composer-field.select:focus, .field-wrapper .composer-field.tinymce:hover, .field-wrapper .composer-field.tinymce:focus {
+  -webkit-transform: scale(1.01);
+      -ms-transform: scale(1.01);
+          transform: scale(1.01);
+  background-color: #615489;
+  color: white;
+}
+
 .field-wrapper .composer-field:focus {
   outline: none;
+}
+
+.map-fake {
+  height: 1px;
+  width: 1px;
+  opacity: 0;
+}
+
+.algolia-autocomplete {
+  width: 100%;
+}
+
+.algolia-autocomplete .aa-input,
+.algolia-autocomplete .aa-hint {
+  width: 100%;
+}
+
+.algolia-autocomplete .aa-hint {
+  color: #999;
+}
+
+.algolia-autocomplete .aa-dropdown-menu {
+  width: 100%;
+  background-color: #fff;
+  border: 1px solid #999;
+  border-top: none;
+  z-index: 9999 !important;
+}
+
+.algolia-autocomplete .aa-dropdown-menu .aa-suggestion {
+  cursor: pointer;
+  padding: 5px 4px;
+  color: #362f4c;
+}
+
+.algolia-autocomplete .aa-dropdown-menu .aa-suggestion em {
+  font-weight: bold;
+  font-style: normal;
+}
+
+.algolia-autocomplete .aa-dropdown-menu .aa-suggestion.aa-cursor {
+  background-color: #B2D7FF;
 }
 
 .mce-container,
@@ -2151,7 +2252,6 @@ head {
 
 .mce-fade {
   opacity: 0;
-  -webkit-transition: opacity .15s linear;
   transition: opacity .15s linear;
 }
 
@@ -2767,7 +2867,6 @@ div.mce-fullscreen {
   -webkit-transform: scale(0.1);
       -ms-transform: scale(0.1);
           transform: scale(0.1);
-  -webkit-transition: opacity 150ms ease-in, -webkit-transform 100ms ease-in;
   transition: opacity 150ms ease-in, -webkit-transform 100ms ease-in;
   transition: transform 100ms ease-in, opacity 150ms ease-in;
   transition: transform 100ms ease-in, opacity 150ms ease-in, -webkit-transform 100ms ease-in;
@@ -3013,7 +3112,6 @@ div.mce-fullscreen {
   width: 0;
   height: 100%;
   background-color: #d7d7d7;
-  -webkit-transition: width .2s ease;
   transition: width .2s ease;
 }
 
@@ -3025,7 +3123,6 @@ div.mce-fullscreen {
   border-width: 1px;
   border-style: solid;
   border-color: #CCCCCC;
-  -webkit-transition: opacity 150ms ease-in, -webkit-transform 100ms ease-in;
   transition: opacity 150ms ease-in, -webkit-transform 100ms ease-in;
   transition: transform 100ms ease-in, opacity 150ms ease-in;
   transition: transform 100ms ease-in, opacity 150ms ease-in, -webkit-transform 100ms ease-in;
@@ -3644,14 +3741,12 @@ i.mce-i-checkbox {
 .mce-colorpicker-overlay1 {
   filter: progid:DXImageTransform.Microsoft.gradient(GradientType=1, startColorstr='#ffffff', endColorstr='#00ffffff');
   -ms-filter: "progid:DXImageTransform.Microsoft.gradient(GradientType=1,startColorstr='#ffffff', endColorstr='#00ffffff')";
-  background: -webkit-linear-gradient(left, #fff, rgba(255, 255, 255, 0));
   background: linear-gradient(to right, #fff, rgba(255, 255, 255, 0));
 }
 
 .mce-colorpicker-overlay2 {
   filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, startColorstr='#00000000', endColorstr='#000000');
   -ms-filter: "progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='#00000000', endColorstr='#000000')";
-  background: -webkit-linear-gradient(top, transparent, #000);
   background: linear-gradient(to bottom, transparent, #000);
 }
 
@@ -4426,7 +4521,6 @@ i.mce-i-resize {
   background: #fff;
   border: 1px solid #c5c5c5;
   display: inline-block;
-  -webkit-transition: border linear .2s, box-shadow linear .2s;
   transition: border linear .2s, box-shadow linear .2s;
   height: 28px;
   resize: none;
@@ -5228,7 +5322,6 @@ body.swal2-iosfix {
 }
 
 .swal2-container.swal2-fade {
-  -webkit-transition: background-color .1s;
   transition: background-color .1s;
 }
 
@@ -5342,7 +5435,6 @@ body.swal2-iosfix {
   right: 13px;
   cursor: pointer;
   color: #cccccc;
-  -webkit-transition: color .1s ease;
   transition: color .1s ease;
 }
 
@@ -5389,7 +5481,6 @@ body.swal2-iosfix {
   border: 1px solid #d9d9d9;
   font-size: 18px;
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.06);
-  -webkit-transition: border-color box-shadow .3s;
   transition: border-color box-shadow .3s;
 }
 
@@ -5410,15 +5501,6 @@ body.swal2-iosfix {
 .swal2-modal .swal2-input:focus::-webkit-input-placeholder,
 .swal2-modal .swal2-file:focus::-webkit-input-placeholder,
 .swal2-modal .swal2-textarea:focus::-webkit-input-placeholder {
-  -webkit-transition: opacity .3s .03s ease;
-  transition: opacity .3s .03s ease;
-  opacity: .8;
-}
-
-.swal2-modal .swal2-input:focus::-moz-placeholder,
-.swal2-modal .swal2-file:focus::-moz-placeholder,
-.swal2-modal .swal2-textarea:focus::-moz-placeholder {
-  -webkit-transition: opacity .3s .03s ease;
   transition: opacity .3s .03s ease;
   opacity: .8;
 }
@@ -5426,7 +5508,6 @@ body.swal2-iosfix {
 .swal2-modal .swal2-input:focus:-ms-input-placeholder,
 .swal2-modal .swal2-file:focus:-ms-input-placeholder,
 .swal2-modal .swal2-textarea:focus:-ms-input-placeholder {
-  -webkit-transition: opacity .3s .03s ease;
   transition: opacity .3s .03s ease;
   opacity: .8;
 }
@@ -5434,7 +5515,6 @@ body.swal2-iosfix {
 .swal2-modal .swal2-input:focus::placeholder,
 .swal2-modal .swal2-file:focus::placeholder,
 .swal2-modal .swal2-textarea:focus::placeholder {
-  -webkit-transition: opacity .3s .03s ease;
   transition: opacity .3s .03s ease;
   opacity: .8;
 }
@@ -5442,12 +5522,6 @@ body.swal2-iosfix {
 .swal2-modal .swal2-input::-webkit-input-placeholder,
 .swal2-modal .swal2-file::-webkit-input-placeholder,
 .swal2-modal .swal2-textarea::-webkit-input-placeholder {
-  color: #e6e6e6;
-}
-
-.swal2-modal .swal2-input::-moz-placeholder,
-.swal2-modal .swal2-file::-moz-placeholder,
-.swal2-modal .swal2-textarea::-moz-placeholder {
   color: #e6e6e6;
 }
 

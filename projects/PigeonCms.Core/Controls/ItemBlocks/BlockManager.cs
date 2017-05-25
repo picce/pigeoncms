@@ -89,61 +89,71 @@ namespace PigeonCms.Core.Controls.ItemBlocks
         public static void Deserialize(this BaseBlockItem block, JObject json, Func<string, string> fileTranslator)
         {
             //TOCHECK PropertiesList
-            /*ItemPropertiesDefs props = block.PropertiesList;
-            Type type = props.GetType();
-            PropertyInfo[] properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
-
-            foreach (PropertyInfo property in properties)
+            if (block.PropertiesList.Count > 0)
             {
-                ItemFieldAttribute attribute = (ItemFieldAttribute)property.GetCustomAttribute(typeof(ItemFieldAttribute));
-                if (attribute == null)
-                    continue;
 
-                Func<string, string> useTranslator = (s) => { return s; };
-                if (attribute is ImageFieldAttribute)
-                    useTranslator = fileTranslator;
+                ItemPropertiesDefs props = block.PropertiesList[0];
+                Type type = props.GetType();
+                PropertyInfo[] properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
 
-                if (attribute.Localized)
+                foreach (PropertyInfo property in properties)
                 {
-                    property.SetValue(props, json.GetTranslation(property.Name.ToLower(), useTranslator), null);
+                    FormField attribute = (FormField)property.GetCustomAttribute(typeof(FormField));
+                    if (attribute == null)
+                        continue;
+
+                    Func<string, string> useTranslator = (s) => { return s; };
+                    if (attribute is FileFormField)
+                        useTranslator = fileTranslator;
+
+                    if (attribute.Localized)
+                    {
+                        property.SetValue(props, json.GetTranslation(property.Name.ToLower(), useTranslator), null);
+                    }
+                    else
+                    {
+                        property.SetValue(props, useTranslator(json.GetString(property.Name.ToLower())), null);
+                    }
                 }
-                else
-                {
-                    property.SetValue(props, useTranslator(json.GetString(property.Name.ToLower())), null);
-                }
-            }*/
+
+            }
         }
 
         public static void TranslateFileProperty(this BaseBlockItem block, Func<string, string> fileTranslator)
         {
             //TOCHECK PropertiesList
-            /*ItemPropertiesDefs props = block.PropertiesList;
-            Type type = props.GetType();
-            PropertyInfo[] properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
-
-            foreach (PropertyInfo property in properties)
+            if (block.PropertiesList.Count > 0)
             {
-                ImageFieldAttribute attribute = (ImageFieldAttribute)property.GetCustomAttribute(typeof(ImageFieldAttribute));
-                if (attribute == null)
-                    continue;
+                ItemPropertiesDefs props = block.PropertiesList[0];
 
-                if (attribute.Localized)
+                Type type = props.GetType();
+                PropertyInfo[] properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+
+                foreach (PropertyInfo property in properties)
                 {
-                    Translation translation = (Translation)property.GetValue(props);
-                    if (translation != null)
+                    FileFormField attribute = (FileFormField)property.GetCustomAttribute(typeof(FileFormField));
+                    if (attribute == null)
+                        continue;
+
+                    if (attribute.Localized)
                     {
-                        foreach (KeyValuePair<string, string> pair in translation)
+                        Translation translation = (Translation)property.GetValue(props);
+                        if (translation != null)
                         {
-                            translation[pair.Key] = fileTranslator(pair.Value);
+                            foreach (KeyValuePair<string, string> pair in translation)
+                            {
+                                translation[pair.Key] = fileTranslator(pair.Value);
+                            }
+                            property.SetValue(props, translation);
                         }
-                        property.SetValue(props, translation);
+                    }
+                    else
+                    {
+                        property.SetValue(props, fileTranslator((string)property.GetValue(props)));
                     }
                 }
-                else
-                {
-                    property.SetValue(props, fileTranslator((string)property.GetValue(props)));
-                }
-            }*/
+            }
+
         }
 
         public static string SerializeForStore(List<BaseBlockItem> blocks)

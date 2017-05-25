@@ -52,10 +52,13 @@ public partial class Masterpages_PigeonModern : BaseMasterPage
 		get
 		{
 			string res = "<script src='"+ THEME_FOLDER +"/js/min/pigeon-modern.min.js'></script>";
-			if (Roles.IsUserInRole("debug"))
+
+            if (Roles.IsUserInRole("debug"))
 				res = "<script src='" + THEME_FOLDER + "/js/pigeon-modern.js'></script>";
 
-			return res;
+            res += "<script src='" + THEME_FOLDER + "/js/modernizr.js'></script>";
+
+            return res;
 		}
 	}
 

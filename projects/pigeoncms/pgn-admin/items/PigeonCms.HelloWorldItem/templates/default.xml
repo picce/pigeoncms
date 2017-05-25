@@ -69,7 +69,12 @@
     <param name="CustomProp2.OtherSimpleText" cssStyle="" minValue="" maxValue="" cssClass="" type="text" default="simple default value"
            label="Other simple text" description="" />
 
+  </params>
 
+  <params group="Composer" label="Page composer">
+
+    <param name="CustomProp2.PageComposer" cssStyle="" type="composer" label="Page composer" />
+    
   </params>
 
 </install>

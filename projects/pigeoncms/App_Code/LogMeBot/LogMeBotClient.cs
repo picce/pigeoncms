@@ -66,12 +66,12 @@ namespace LogMeBot
 
         public string TokenEndpoint
         {
-            get { return BasePath + "authbot/oauth/AccessToken"; }
+            get { return BasePath + "oauth/AccessToken"; }
         }
 
         public string MeEndpoint
         {
-            get { return BasePath + "authbot/oauth/Me"; }
+            get { return BasePath + "oauth/Me"; }
         }
 
         private string clientId = "";

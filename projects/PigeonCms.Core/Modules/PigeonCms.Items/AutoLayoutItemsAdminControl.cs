@@ -92,12 +92,13 @@ namespace PigeonCms.Modules
 		protected abstract PigeonCms.Controls.ItemParamsControl _ItemFields { get; }
 
 		protected abstract HiddenField _HidCurrentItemType { get; }
+        protected abstract IPageComposer _PageComposer { get; }
 
-		#endregion
+        #endregion
 
-		#region init
+        #region init
 
-		protected override void OnInit(EventArgs e)
+        protected override void OnInit(EventArgs e)
 		{
 			base.OnInit(e);
 
@@ -189,7 +190,7 @@ namespace PigeonCms.Modules
                     editingItem = itemsProxy.GetByKey(argItemId);
                     doEdit = true;
 
-                    loadItemDynamicFields(editingItem, false);
+                    LoadItemDynamicFields(editingItem, false);
 
                 }
             }
@@ -200,7 +201,7 @@ namespace PigeonCms.Modules
                 itemsProxy.ThrowExceptions = false;
                 editingItem = itemsProxy.GetByKey(this.CurrentId);
 
-                loadItemDynamicFields(editingItem, false);
+                LoadItemDynamicFields(editingItem, false);
             }
 
 
@@ -532,7 +533,7 @@ namespace PigeonCms.Modules
             {
                 string propDefName = propDef.MapAttributeValue;
 
-                List<PropertyInfo> properties = getItemPropertiesInfo(propDef);
+                List<PropertyInfo> properties = GetItemPropertiesInfo(propDef);
                 if (properties == null || properties.Count == 0)
                     continue;
 
@@ -630,14 +631,14 @@ namespace PigeonCms.Modules
 					o1 = proxy.Insert(o1);
                     //store after insert to save file resource in the right place
                     o1 = proxy.GetByKey(o1.Id);
-                    storeDynamicFields(o1);
+                    StoreDynamicFields(o1);
                     proxy.Update(o1);
                 }
 				else
 				{
                     o1 = proxy.GetByKey(this.CurrentId);
                     form2obj(o1);
-                    storeDynamicFields(o1);
+                    StoreDynamicFields(o1);
                     proxy.Update(o1);
 				}
 
@@ -740,13 +741,15 @@ namespace PigeonCms.Modules
 		protected virtual void obj2form(IItem obj)
 		{
 			loadItemCommonData(obj);
-			loadItemDynamicFields(obj);
+			LoadItemDynamicFields(obj);
 
 			_ItemParams.ClearParams();
 			_ItemParams.LoadParams(obj);
 
 			_ItemFields.ClearParams();
 			_ItemFields.LoadFields(obj);
+
+            _PageComposer.Load(obj);
 		}
 
 		protected virtual void editRow(IItem obj, string itemType)
@@ -800,10 +803,14 @@ namespace PigeonCms.Modules
 			_ItemParams.LoadParams(obj);
 			_ItemFields.LoadFields(obj);
 
-			showInsertPanel(true);
-		}
+            //TOCHECK
+            _PageComposer.RegisterScripts();
 
-		private void deleteRow(int recordId, string itemType)
+            showInsertPanel(true);
+
+        }
+
+		protected void deleteRow(int recordId, string itemType)
 		{
 			setSuccess("");
 			setError("");
@@ -1105,7 +1112,7 @@ namespace PigeonCms.Modules
         /// <summary>
         /// function for display insert panel
         /// </summary>
-        private void showInsertPanel(bool toShow)
+        protected void showInsertPanel(bool toShow)
 		{
 
 			PigeonCms.Utility.Script.RegisterStartupScript(_Upd1, "bodyBlocked", "bodyBlocked(" + toShow.ToString().ToLower() + ");");
@@ -1119,7 +1126,7 @@ namespace PigeonCms.Modules
         /// <summary>
         /// load current item (obj) common field values in form
         /// </summary>
-		private void loadItemCommonData(IItem obj)
+		protected void loadItemCommonData(IItem obj)
 		{
 			_LblId.Text = obj.Id.ToString();
 			_LblOrderId.Text = obj.Ordering.ToString();
@@ -1170,7 +1177,7 @@ namespace PigeonCms.Modules
 
 		#region Dynamic properties management
 
-		private List<PropertyInfo> getItemPropertiesInfo(ItemPropertiesDefs itemPropertyDef)
+		protected List<PropertyInfo> GetItemPropertiesInfo(ItemPropertiesDefs itemPropertyDef)
 		{
             //var res = new Dictionary<string, PropertyInfo>();
 
@@ -1189,7 +1196,7 @@ namespace PigeonCms.Modules
         /// </summary>
         /// <param name="obj"></param>
         /// <param name="setFieldValues"></param>
-		private void loadItemDynamicFields(IItem obj, bool setFieldValues = true)
+		protected void LoadItemDynamicFields(IItem obj, bool setFieldValues = true)
         {
             IItem item = obj as IItem;
             if (item == null)
@@ -1250,7 +1257,7 @@ namespace PigeonCms.Modules
                         if (propDef == null)
                             continue;
 
-                        var properties = getItemPropertiesInfo(propDef);
+                        var properties = GetItemPropertiesInfo(propDef);
                         if (properties == null || properties.Count == 0)
                             continue;
 
@@ -1261,7 +1268,7 @@ namespace PigeonCms.Modules
 
                         object value = property.GetValue(propDef, null);
 
-                        AbstractFieldContainer control = createEditorAndContainer(
+                        AbstractFieldContainer control = CreateEditorAndContainer(
                             g.Group, field, property.Name, propDefName, item, value, setFieldValues);
                         if (control == null)
                             continue;
@@ -1294,7 +1301,7 @@ namespace PigeonCms.Modules
                     string propDefName = propDef.GetType().Name;
                     //string propDefName = propDef.MapAttributeValue;
 
-                    var properties = getItemPropertiesInfo(propDef);
+                    var properties = GetItemPropertiesInfo(propDef);
                     if (properties == null || properties.Count == 0)
                         continue;
 
@@ -1316,7 +1323,7 @@ namespace PigeonCms.Modules
                         if (field == null)
                             continue;
 
-                        AbstractFieldContainer control = createEditorAndContainer(
+                        AbstractFieldContainer control = CreateEditorAndContainer(
                             "autolayout", field, property.Name, propDefName, item, value, setFieldValues);
                         if (control == null)
                             continue;
@@ -1335,7 +1342,7 @@ namespace PigeonCms.Modules
         /// form(dynamic fields) --> item.PropertiesList
         /// </summary>
         /// <param name="obj"></param>
-        private void storeDynamicFields(IItem obj)
+        protected virtual void StoreDynamicFields(IItem obj)
 		{
 			IItem item = obj as IItem;
 			if (item == null)
@@ -1343,11 +1350,13 @@ namespace PigeonCms.Modules
 
             var template = getItemTemplate(obj);
 
+            _PageComposer.Store(obj);
+
             foreach (var propDef in obj.PropertiesList)
             {
                 string propDefName = propDef.GetType().Name;
 
-                var properties = getItemPropertiesInfo(propDef);
+                var properties = GetItemPropertiesInfo(propDef);
                 foreach (PropertyInfo property in properties)
                 {
                     FormField field = (FormField)property.GetCustomAttribute(typeof(FormField));
@@ -1360,7 +1369,7 @@ namespace PigeonCms.Modules
                     if (templateField != null)
                         field = templateField;
 
-                    readEditor(field, property, propDef, item);
+                    ReadEditor(field, property, propDef, item);
                 }
             }
 
@@ -1376,7 +1385,7 @@ namespace PigeonCms.Modules
         /// <param name="value">the current value of the control</param>
         /// <param name="setFieldValues">if true set the value</param>
         /// <returns>the control to add to the panel</returns>
-        private AbstractFieldContainer createEditorAndContainer(
+        protected AbstractFieldContainer CreateEditorAndContainer(
             string group,
             FormField field, 
             string propertyName, 
@@ -1717,7 +1726,7 @@ namespace PigeonCms.Modules
         /// </summary>
         /// <param name="property"></param>
         /// <param name="item"></param>
-		private void readEditor(
+		protected void ReadEditor(
             FormField field, 
             PropertyInfo property, 
             ItemPropertiesDefs propDef, 

@@ -6,14 +6,13 @@ using PigeonCms.Core.Controls.ItemBlocks;
 using PigeonCms.Core.Helpers;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using System.Web;
 using System.Web.UI;
-using System.Web.UI.WebControls;
 
-public partial class Controls_PageComposer_PageComposer : UserControl
+
+public partial class Controls_PageComposer_PageComposer : 
+    UserControl, PigeonCms.Controls.IPageComposer
 {
     protected override void OnInit(EventArgs e)
     {
@@ -57,16 +56,19 @@ public partial class Controls_PageComposer_PageComposer : UserControl
         if (item == null)
             return;
 
-        //TOCHECK PropertiesList
-        /*BlocksItemsPropertiesDefs newsProps = item.Properties as BlocksItemsPropertiesDefs;
-        if (newsProps == null)
-            return;
-
-        if (newsProps.Blocks != null && newsProps.Blocks.Count > 0)
+        //TOCHECK PropertiesList --
+        if (item.PropertiesList.Count > 0)
         {
-            newsProps.Blocks.ForEach((block) => { TranslateFileToEditor(block); });
-            aq_pagecomposer_value.Value = UrlUtils.Base64Encode(BlockManager.SerializeForEditor(newsProps.Blocks));
-        }*/
+            var newsProps = item.PropertiesList[0];
+            if (newsProps == null)
+                return;
+
+            if (newsProps.Blocks != null && newsProps.Blocks.Count > 0)
+            {
+                newsProps.Blocks.ForEach((block) => { TranslateFileToEditor(block); });
+                aq_pagecomposer_value.Value = UrlUtils.Base64Encode(BlockManager.SerializeForEditor(newsProps.Blocks));
+            }
+        }
     }
 
     public void Store(IItem obj)
@@ -76,21 +78,25 @@ public partial class Controls_PageComposer_PageComposer : UserControl
             return;
 
         //TOCHECK PropertiesList
-        /*BlocksItemsPropertiesDefs props = item.Properties as BlocksItemsPropertiesDefs;
-        if (props == null)
-            return;
-
-        props.Blocks = new List<BaseBlockItem>();
-
-        string blockB64Json = aq_pagecomposer_value.Value;
-        if (!string.IsNullOrWhiteSpace(blockB64Json))
+        if (item.PropertiesList.Count > 0)
         {
-            string source = UrlUtils.Base64Decode(blockB64Json);
-            props.Blocks = BlockManager.DeserializeFromEditor(source, (fieldId) =>
+            var props = item.PropertiesList[0];
+            if (props == null)
+                return;
+
+            props.Blocks = new List<BaseBlockItem>();
+
+            string blockB64Json = aq_pagecomposer_value.Value;
+            if (!string.IsNullOrWhiteSpace(blockB64Json))
             {
-                return TranslateFileFromEditor(item, fieldId);
-            });
-        }*/
+                string source = UrlUtils.Base64Decode(blockB64Json);
+                props.Blocks = BlockManager.DeserializeFromEditor(source, (fieldId) =>
+                {
+                    return TranslateFileFromEditor(item, fieldId);
+                });
+            }
+        }
+
     }
 
     public void TranslateFileToEditor(IItem block)
@@ -101,37 +107,41 @@ public partial class Controls_PageComposer_PageComposer : UserControl
                 return;
 
             //TOCHECK PropertiesList
-            /*ItemPropertiesDefs props = block.PropertiesList;
-            PropertyInfo[] properties = props.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
-            string uid = string.Empty;
-
-            foreach (PropertyInfo property in properties)
+            if (block.PropertiesList.Count > 0)
             {
-                ImageFieldAttribute attribute = (ImageFieldAttribute)property.GetCustomAttribute(typeof(ImageFieldAttribute));
-                if (attribute == null)
-                    continue;
+                ItemPropertiesDefs props = block.PropertiesList[0];
+                PropertyInfo[] properties = props.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
+                string uid = string.Empty;
 
-                if (attribute.Localized)
+                foreach (PropertyInfo property in properties)
                 {
-                    Translation translation = (Translation)property.GetValue(props);
-                    if (translation != null)
+                    FileFormField attribute = (FileFormField)property.GetCustomAttribute(typeof(FileFormField));
+                    if (attribute == null)
+                        continue;
+
+                    if (attribute.Localized)
                     {
-                        foreach (KeyValuePair<string, string> pair in translation)
+                        Translation translation = (Translation)property.GetValue(props);
+                        if (translation != null)
                         {
-                            uid = ItemsAdminHelper.CreateUid(pair.Key);
-                            AbstractUploadHandler.SetFile(Context, "PageComposer", uid, pair.Value);
-                            translation[pair.Key] = uid;
+                            foreach (KeyValuePair<string, string> pair in translation)
+                            {
+                                uid = ItemsAdminHelper.CreateUid(pair.Key);
+                                AbstractUploadHandler.SetFile(Context, "PageComposer", uid, pair.Value);
+                                translation[pair.Key] = uid;
+                            }
+                            property.SetValue(props, translation);
                         }
-                        property.SetValue(props, translation);
+                    }
+                    else
+                    {
+                        uid = ItemsAdminHelper.CreateUid("no-lang");
+                        AbstractUploadHandler.SetFile(Context, "PageComposer", uid, (string)property.GetValue(props));
+                        property.SetValue(props, uid);
                     }
                 }
-                else
-                {
-                    uid = ItemsAdminHelper.CreateUid("no-lang");
-                    AbstractUploadHandler.SetFile(Context, "PageComposer", uid, (string)property.GetValue(props));
-                    property.SetValue(props, uid);
-                }
-            }*/
+            }
+
         }
         catch (Exception e)
         {
