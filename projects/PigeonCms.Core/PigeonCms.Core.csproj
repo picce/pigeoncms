@@ -112,6 +112,7 @@
     <Compile Include="BLL\CustomDataType.cs" />
     <Compile Include="BLL\LogItem.cs" />
     <Compile Include="BLL\Label.cs" />
+    <Compile Include="Controls\ItemBlocks\HeaderBlockItem.cs" />
     <Compile Include="Controls\ItemBlocks\BlockManager.cs" />
     <Compile Include="Controls\ItemBlocks\BaseBlockItem.cs" />
     <Compile Include="Controls\ItemFields\AbstractFieldContainer.cs">
