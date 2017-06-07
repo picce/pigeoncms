@@ -83,7 +83,7 @@ namespace PigeonCms.Core.Controls.ItemBlocks
             serializer.Serialize(writer, new
             {
                 type = block.GetType().Name.Replace("BlockItem", ""),
-                data = block.PropertiesList
+                data = block.PropertiesList[0]
             });
         }
     }

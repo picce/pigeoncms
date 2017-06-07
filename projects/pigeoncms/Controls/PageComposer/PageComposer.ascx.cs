@@ -59,7 +59,7 @@ public partial class Controls_PageComposer_PageComposer :
         //TOCHECK PropertiesList --
         if (item.PropertiesList.Count > 0)
         {
-            var newsProps = item.PropertiesList[0];
+            ItemPropertiesDefs newsProps = item.PropertiesList[0];
             if (newsProps == null)
                 return;
 
