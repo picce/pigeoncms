@@ -29,11 +29,8 @@ namespace PigeonCms.Core.Controls.ItemBlocks
             [ImageFormField(false, "jpg")]
             public string Image { get; set; }
 
-            [ImageFormField(false, "jpg")]
-            public string MobileImage { get; set; }
-
             [FormField(true)]
-            public Translation Subtitle { get; set; }
+            public Translation Abstract { get; set; }
 
         }
     }

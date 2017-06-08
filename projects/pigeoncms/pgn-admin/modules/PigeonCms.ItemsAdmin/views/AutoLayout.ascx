@@ -82,11 +82,13 @@
     //TOCHECK
     function aq_composer_save() {
         try {
-            window.AQuest.PageComposer.save();
+            if (typeof window.AQuest.PageComposer !== "undefined") {
+                window.AQuest.PageComposer.save();
+            }
             return true;
         }
         catch (exc) {
-            return false;
+            return true;
         }
     }
 
@@ -623,7 +625,6 @@
 
                                 <li class="active"><a href="#tab-main" data-toggle="tab"><%=base.GetLabel("Main", "Main") %></a></li>
                                 <asp:Literal ID="LitFieldsTabs" runat="server"></asp:Literal>
-                                <li><a href="#tab-composer" data-toggle="tab">Composer</a></li>
                                 <li><a href="#tab-seo" data-toggle="tab"><%=base.GetLabel("Seo", "Seo") %></a></li>
                                 <li><a href="#tab-security" data-toggle="tab"><%=base.GetLabel("Security", "Security") %></a></li>
                                 <li><a href="#tab-parameters" data-toggle="tab"><%=base.GetLabel("Parameters", "Parameters") %></a></li>
@@ -708,11 +709,11 @@
                                 <asp:PlaceHolder ID="PlhItemFieldsContainer" runat="server"></asp:PlaceHolder>                                
 
                                 <%--tab-COMPOSER--%>
-                                <div class="tab-pane fade " id="tab-composer">
+<%--                                <div class="tab-pane fade " id="tab-composer">
 
                                     <uc1:PageComposer runat="server" ID="PageComposer" />
 
-                                </div>
+                                </div>--%>
 
                                 <%--tab-SEO--%>
                                 <div class="tab-pane fade " id="tab-seo">

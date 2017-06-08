@@ -17,57 +17,20 @@ public partial class Controls_PageComposer_PageComposer :
     protected override void OnInit(EventArgs e)
     {
         base.OnInit(e);
-
-        ItemsAdminHelper.RegisterCss("Pagecomposer/assets/css/application", Page);
-        ItemsAdminHelper.InsertJsIntoPageScriptManager("Pagecomposer/assets/js/app", Page);
     }
 
-    public void RegisterScripts()
+    public void Load(List<BaseBlockItem> blocks)
     {
-        JObject pageComposerSettings = new JObject
-        {
-            { "sources", new JArray { "element:input[id=aq_pagecomposer_value]" } },
-            { "targets", new JArray { "element:input[id=aq_pagecomposer_value]" } },
-            { "endpoints", new JObject {
-                    { "getPreview", "/Controls/ImageUpload/PageComposerUploadHandler.ashx?action=previewurl" },
-                    { "upload", "/Controls/ImageUpload/PageComposerUploadHandler.ashx" },
-                    { "delete", "/Controls/ImageUpload/PageComposerUploadHandler.ashx?action=delete" },
-                }
-            }
-        };
-
-        ScriptManager.RegisterClientScriptBlock(Page, GetType(), "aq_pagecomposer_start", @"
-            try 
-            {                 
-                window.AQuest.PageComposer.init(" + pageComposerSettings.ToString() + @");
-            }
-            catch (exc)
-            {
-                document.addEventListener('DOMContentLoaded', function () {
-                    window.AQuest.PageComposer.init(" + pageComposerSettings.ToString() + @");
-                });
-            }
-        ", true);
-    }
-
-    public void Load(IItem obj)
-    {
-        var item = obj;
-        if (item == null)
+        if (blocks == null)
             return;
 
-        //TOCHECK PropertiesList --
-        if (item.PropertiesList.Count > 0)
+        if (blocks != null && blocks.Count > 0)
         {
-            ItemPropertiesDefs newsProps = item.PropertiesList[0];
-            if (newsProps == null)
-                return;
-
-            if (newsProps.Blocks != null && newsProps.Blocks.Count > 0)
+            blocks.ForEach((block) => 
             {
-                newsProps.Blocks.ForEach((block) => { TranslateFileToEditor(block); });
-                aq_pagecomposer_value.Value = UrlUtils.Base64Encode(BlockManager.SerializeForEditor(newsProps.Blocks));
-            }
+                TranslateFileToEditor(block);
+            });
+            aq_pagecomposer_value.Value = UrlUtils.Base64Encode(BlockManager.SerializeForEditor(blocks));
         }
     }
 

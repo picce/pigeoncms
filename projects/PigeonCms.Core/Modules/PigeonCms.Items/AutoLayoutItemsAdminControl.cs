@@ -16,6 +16,7 @@ using PigeonCms.Controls;
 using PigeonCms.Controls.ItemFields;
 using System.IO;
 using System.Web.UI.HtmlControls;
+using PigeonCms.Core.Controls.ItemBlocks;
 
 namespace PigeonCms.Modules
 {
@@ -92,7 +93,7 @@ namespace PigeonCms.Modules
 		protected abstract PigeonCms.Controls.ItemParamsControl _ItemFields { get; }
 
 		protected abstract HiddenField _HidCurrentItemType { get; }
-        protected abstract IPageComposer _PageComposer { get; }
+        //protected abstract IPageComposer _PageComposer { get; }
 
         #endregion
 
@@ -749,7 +750,7 @@ namespace PigeonCms.Modules
 			_ItemFields.ClearParams();
 			_ItemFields.LoadFields(obj);
 
-            _PageComposer.Load(obj);
+            //_PageComposer.Load(obj);
 		}
 
 		protected virtual void editRow(IItem obj, string itemType)
@@ -803,8 +804,8 @@ namespace PigeonCms.Modules
 			_ItemParams.LoadParams(obj);
 			_ItemFields.LoadFields(obj);
 
-            //TOCHECK
-            _PageComposer.RegisterScripts();
+            PageComposerHelper.RegisterScripts(_Upd1/*, this.Page, GetType()*/);
+            //_PageComposer.RegisterScripts();
 
             showInsertPanel(true);
 
@@ -1214,7 +1215,9 @@ namespace PigeonCms.Modules
                     .Replace("[[templateName]]", template.Name);
             template.IncludeJsFilesContent(Page);
 
-
+            //load pagecomposer resources
+            _LitTemplateResources.Text += PageComposerHelper.GetCssFilesContent();
+            PageComposerHelper.IncludeJsFileContent(Page);
 
             //TODO re-order array using template order using ILookup
             //http://stackoverflow.com/questions/16926821/matching-the-order-of-one-array-to-another-using-linq
@@ -1350,7 +1353,8 @@ namespace PigeonCms.Modules
 
             var template = getItemTemplate(obj);
 
-            _PageComposer.Store(obj);
+            //TODO
+            //_PageComposer.Store(obj);
 
             foreach (var propDef in obj.PropertiesList)
             {
@@ -1696,7 +1700,24 @@ namespace PigeonCms.Modules
 					}
 
 					break;
-				default:
+
+                case FormFieldTypeEnum.Composer:
+
+                    IPageComposer composerControl = null;
+                    Control composer = LoadControl("~/Controls/PageComposer/PageComposer.ascx");
+                    composer.ID = "property_" + propDefName + "-" + propertyName;
+                    composer.EnableViewState = true;
+                    composerControl = composer as IPageComposer;
+
+                    if (composerControl != null)
+                    {
+                        composerControl.Load((List<BaseBlockItem>)value);
+                    }
+
+                    innerControl = composer;
+                    break;
+
+                default:
 					return null;
 			}
 
@@ -1738,190 +1759,203 @@ namespace PigeonCms.Modules
 			if (field == null)
 				return;
 
-			switch (field.Type)
-			{
-				case FormFieldTypeEnum.Html:
-					if (field.Localized)
-					{
-						Translation localizedValue = new Translation();
-						foreach (KeyValuePair<string, string> culture in Config.CultureList)
-						{
-							ITextControl htmlEditor = Utility.Controls.FindControlRecursive<Control>(
-                                _FieldsContainer, 
+            switch (field.Type)
+            {
+                case FormFieldTypeEnum.Html:
+                    if (field.Localized)
+                    {
+                        Translation localizedValue = new Translation();
+                        foreach (KeyValuePair<string, string> culture in Config.CultureList)
+                        {
+                            ITextControl htmlEditor = Utility.Controls.FindControlRecursive<Control>(
+                                _FieldsContainer,
                                 "property_" + propDefName + "-" + property.Name + culture.Value) as ITextControl;
 
                             if (htmlEditor != null)
-								localizedValue[culture.Key] = htmlEditor == null ? null : htmlEditor.Text;
-						}
+                                localizedValue[culture.Key] = htmlEditor == null ? null : htmlEditor.Text;
+                        }
 
-						property.SetValue(propDef, localizedValue, null);
-					}
-					else
-					{
-						ITextControl htmlEditor = Utility.Controls.FindControlRecursive<Control>(
-                            _FieldsContainer, 
+                        property.SetValue(propDef, localizedValue, null);
+                    }
+                    else
+                    {
+                        ITextControl htmlEditor = Utility.Controls.FindControlRecursive<Control>(
+                            _FieldsContainer,
                             "property_" + propDefName + "-" + property.Name) as ITextControl;
 
-						if (htmlEditor != null)
-							property.SetValue(propDef, htmlEditor == null ? null : htmlEditor.Text, null);
-					}
-					break;
+                        if (htmlEditor != null)
+                            property.SetValue(propDef, htmlEditor == null ? null : htmlEditor.Text, null);
+                    }
+                    break;
 
-				case FormFieldTypeEnum.Combo:
-					DropDownList dropDownList = Utility.Controls.FindControlRecursive<DropDownList>(
-                        _FieldsContainer, 
+                case FormFieldTypeEnum.Combo:
+                    DropDownList dropDownList = Utility.Controls.FindControlRecursive<DropDownList>(
+                        _FieldsContainer,
                         "property_" + propDefName + "-" + property.Name);
 
-					if (dropDownList != null)
-						property.SetValue(propDef, dropDownList.SelectedValue, null);
-					break;
+                    if (dropDownList != null)
+                        property.SetValue(propDef, dropDownList.SelectedValue, null);
+                    break;
 
-				case FormFieldTypeEnum.Numeric:
-					TextBox number = Utility.Controls.FindControlRecursive<TextBox>(
-                        _FieldsContainer, 
+                case FormFieldTypeEnum.Numeric:
+                    TextBox number = Utility.Controls.FindControlRecursive<TextBox>(
+                        _FieldsContainer,
                         "property_" + propDefName + "-" + property.Name);
-					if (number != null)
-					{
-						if (string.IsNullOrWhiteSpace(number.Text))
-						{
-							property.SetValue(propDef, null, null);
-						}
-						else
-						{
-							int value = 0;
-							if (int.TryParse(number.Text, out value))
-							{
-								property.SetValue(propDef, value, null);
-							}
-						}
-					}
-					break;
+                    if (number != null)
+                    {
+                        if (string.IsNullOrWhiteSpace(number.Text))
+                        {
+                            property.SetValue(propDef, null, null);
+                        }
+                        else
+                        {
+                            int value = 0;
+                            if (int.TryParse(number.Text, out value))
+                            {
+                                property.SetValue(propDef, value, null);
+                            }
+                        }
+                    }
+                    break;
 
-				case FormFieldTypeEnum.Check:
-					CheckBox checkbox = Utility.Controls.FindControlRecursive<CheckBox>(
-                        _FieldsContainer, 
+                case FormFieldTypeEnum.Check:
+                    CheckBox checkbox = Utility.Controls.FindControlRecursive<CheckBox>(
+                        _FieldsContainer,
                         "property_" + propDefName + "-" + property.Name);
 
-					if (checkbox != null)
-						property.SetValue(propDef, checkbox.Checked, null);
-					break;
+                    if (checkbox != null)
+                        property.SetValue(propDef, checkbox.Checked, null);
+                    break;
 
-				case FormFieldTypeEnum.Text:
-					if (field.Localized)
-					{
-						Translation localizedValue = new Translation();
-						foreach (KeyValuePair<string, string> culture in Config.CultureList)
-						{
-							TextBox textbox = Utility.Controls.FindControlRecursive<TextBox>(
-                                _FieldsContainer, 
+                case FormFieldTypeEnum.Text:
+                    if (field.Localized)
+                    {
+                        Translation localizedValue = new Translation();
+                        foreach (KeyValuePair<string, string> culture in Config.CultureList)
+                        {
+                            TextBox textbox = Utility.Controls.FindControlRecursive<TextBox>(
+                                _FieldsContainer,
                                 "property_" + propDefName + "-" + property.Name + culture.Value);
 
-							localizedValue[culture.Key] = textbox == null ? null : textbox.Text;
-						}
+                            localizedValue[culture.Key] = textbox == null ? null : textbox.Text;
+                        }
 
-						property.SetValue(propDef, localizedValue, null);
-					}
-					else
-					{
-						TextBox textbox = Utility.Controls.FindControlRecursive<TextBox>(
-                            _FieldsContainer, 
+                        property.SetValue(propDef, localizedValue, null);
+                    }
+                    else
+                    {
+                        TextBox textbox = Utility.Controls.FindControlRecursive<TextBox>(
+                            _FieldsContainer,
                             "property_" + propDefName + "-" + property.Name);
 
-						if (textbox != null)
-							property.SetValue(propDef, textbox.Text, null);
-					}
-					break;
+                        if (textbox != null)
+                            property.SetValue(propDef, textbox.Text, null);
+                    }
+                    break;
 
-				case FormFieldTypeEnum.File:
-					// TODO: refactor
-					if (field.Localized)
-					{
-						Translation localizedValue = new Translation();
-						foreach (KeyValuePair<string, string> culture in Config.CultureList)
-						{
-							IUploadControl fileUpload = Utility.Controls.FindControlRecursive<Control>(
-                                _FieldsContainer, 
+                case FormFieldTypeEnum.File:
+                    // TODO: refactor
+                    if (field.Localized)
+                    {
+                        Translation localizedValue = new Translation();
+                        foreach (KeyValuePair<string, string> culture in Config.CultureList)
+                        {
+                            IUploadControl fileUpload = Utility.Controls.FindControlRecursive<Control>(
+                                _FieldsContainer,
                                 "property_" + propDefName + "-" + property.Name + culture.Value) as IUploadControl;
 
-							if (fileUpload == null)
-								break;
+                            if (fileUpload == null)
+                                break;
 
-							if (fileUpload.Deleted)
-							{
-								localizedValue[culture.Key] = null;
-								fileUpload.PerformDelete();
-							}
-							else if (fileUpload.HasChanged)
-							{
-								string fileName = Regex.Replace(item.Alias + " " + property.Name, "[^a-zA-Z0-9]", "-") + "." + fileUpload.GetExtension();
-								string newFileName;
+                            if (fileUpload.Deleted)
+                            {
+                                localizedValue[culture.Key] = null;
+                                fileUpload.PerformDelete();
+                            }
+                            else if (fileUpload.HasChanged)
+                            {
+                                string fileName = Regex.Replace(item.Alias + " " + property.Name, "[^a-zA-Z0-9]", "-") + "." + fileUpload.GetExtension();
+                                string newFileName;
                                 string basePath = Path.Combine(item.StaticFilesPath, field.Folder);
                                 string filePath = FilesHelper.GetUniqueFilename(
                                     basePath, fileName.ToLower(), out newFileName);
 
-								fileUpload.SaveTo(filePath);
-								localizedValue[culture.Key] = Path.Combine(basePath, newFileName).Replace("\\", "/");
-							}
-						}
+                                fileUpload.SaveTo(filePath);
+                                localizedValue[culture.Key] = Path.Combine(basePath, newFileName).Replace("\\", "/");
+                            }
+                        }
 
-						property.SetValue(propDef, localizedValue, null);
-					}
-					else
-					{
-						IUploadControl fileUpload = Utility.Controls.FindControlRecursive<Control>(
-                            _FieldsContainer, 
+                        property.SetValue(propDef, localizedValue, null);
+                    }
+                    else
+                    {
+                        IUploadControl fileUpload = Utility.Controls.FindControlRecursive<Control>(
+                            _FieldsContainer,
                             "property_" + propDefName + "-" + property.Name) as IUploadControl;
-						if (fileUpload == null)
-							break;
+                        if (fileUpload == null)
+                            break;
 
-						if (fileUpload.Deleted)
-						{
-							property.SetValue(propDef, null, null);
-							fileUpload.PerformDelete();
-						}
-						else if (fileUpload.HasChanged)
-						{
-							string fileName = Regex.Replace(item.Alias + " " + property.Name, "[^a-zA-Z0-9]", "-") + "." + fileUpload.GetExtension();
-							string newFileName;
+                        if (fileUpload.Deleted)
+                        {
+                            property.SetValue(propDef, null, null);
+                            fileUpload.PerformDelete();
+                        }
+                        else if (fileUpload.HasChanged)
+                        {
+                            string fileName = Regex.Replace(item.Alias + " " + property.Name, "[^a-zA-Z0-9]", "-") + "." + fileUpload.GetExtension();
+                            string newFileName;
                             string basePath = Path.Combine(item.StaticFilesPath, field.Folder);
                             string filePath = FilesHelper.GetUniqueFilename(
                                 basePath, fileName.ToLower(), out newFileName);
 
-							fileUpload.SaveTo(filePath);
-							property.SetValue(propDef, 
-                                Path.Combine(basePath, newFileName).Replace("\\", "/"), 
+                            fileUpload.SaveTo(filePath);
+                            property.SetValue(propDef,
+                                Path.Combine(basePath, newFileName).Replace("\\", "/"),
                                 null);
-						}
-					}
-					break;
+                        }
+                    }
+                    break;
 
-				case FormFieldTypeEnum.Image:
-					IUploadControl imageUpload = Utility.Controls.FindControlRecursive<Control>(
-                        _FieldsContainer, 
+                case FormFieldTypeEnum.Image:
+                    IUploadControl imageUpload = Utility.Controls.FindControlRecursive<Control>(
+                        _FieldsContainer,
                         "property_" + propDefName + "-" + property.Name) as IUploadControl;
 
-					if (imageUpload == null)
-						break;
+                    if (imageUpload == null)
+                        break;
 
-					if (imageUpload.Deleted)
-					{
-						property.SetValue(propDef, null, null);
-						imageUpload.PerformDelete();
+                    if (imageUpload.Deleted)
+                    {
+                        property.SetValue(propDef, null, null);
+                        imageUpload.PerformDelete();
                     }
                     else if (imageUpload.HasChanged)
-					{
+                    {
                         string fileName = Regex.Replace(item.Alias + " " + property.Name, "[^a-zA-Z0-9]", "-") + "." + imageUpload.GetExtension();
-						string newFileName;
+                        string newFileName;
                         string basePath = Path.Combine(item.StaticImagesPath, field.Folder);
                         string filePath = FilesHelper.GetUniqueFilename(
                                 basePath, fileName.ToLower(), out newFileName);
 
                         imageUpload.SaveTo(filePath);
-						property.SetValue(propDef, 
-                            Path.Combine(basePath, newFileName).Replace("\\", "/"), 
+                        property.SetValue(propDef,
+                            Path.Combine(basePath, newFileName).Replace("\\", "/"),
                             null);
-					}
-					break;
+                    }
+                    break;
+
+                case FormFieldTypeEnum.Composer:
+
+                    IPageComposer composerControl = Utility.Controls.FindControlRecursive<Control>(
+                        _FieldsContainer,
+                        "property_" + propDefName + "-" + property.Name) as IPageComposer;
+
+                    if (composerControl != null)
+                    {
+                        composerControl.Store(item);
+                    }
+
+                    break;
 			}
 		}
 

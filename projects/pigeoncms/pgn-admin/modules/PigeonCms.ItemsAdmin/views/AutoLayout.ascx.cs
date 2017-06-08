@@ -73,5 +73,5 @@ public partial class Controls_AutoLayout : PigeonCms.Modules.AutoLayoutItemsAdmi
 
 	//protected override HiddenField _HidCurrentId { get { return HidCurrentId; } }
 	protected override HiddenField _HidCurrentItemType { get { return HidCurrentItemType; } }
-    protected override IPageComposer _PageComposer { get { return PageComposer; } }
+    //protected override IPageComposer _PageComposer { get { return PageComposer; } }
 }

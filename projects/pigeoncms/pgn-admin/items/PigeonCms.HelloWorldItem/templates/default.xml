@@ -71,9 +71,10 @@
 
   </params>
 
+  
   <params group="Composer" label="Page composer">
-
-    <param name="CustomProp2.PageComposer" cssStyle="" type="composer" label="Page composer" />
+    <!--actually 1 page composer (name is equal to "Blocks") per item, only in first customProp-->
+    <param name="CustomProp1.Blocks" cssStyle="" type="composer" label="Page composer" />
     
   </params>
 
