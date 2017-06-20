@@ -13,7 +13,7 @@ using System.IO;
 using System.Data.Common;
 using System.Diagnostics;
 using PigeonCms;
-using StackExchange.Dapper;
+using Dapper;
 
 
 namespace PigeonCms.Geo

@@ -10,7 +10,7 @@ using System.Web.UI.HtmlControls;
 using System.Diagnostics;
 using System.ComponentModel;
 using System.Data.Common;
-using StackExchange.Dapper;
+using Dapper;
 using System.Collections.Generic;
 
 namespace PigeonCms

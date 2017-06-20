@@ -8,7 +8,7 @@ using System.IO;
 using System.Data.Common;
 using PigeonCms;
 using System.Diagnostics;
-using StackExchange.Dapper;
+using Dapper;
 using System.Collections;
 
 
