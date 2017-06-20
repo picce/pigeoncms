@@ -1709,7 +1709,7 @@ namespace PigeonCms.Modules
                     composer.EnableViewState = true;
                     composerControl = composer as IPageComposer;
 
-                    if (composerControl != null)
+                    if (composerControl != null && setFieldValues)
                     {
                         composerControl.Load((List<BaseBlockItem>)value);
                     }
