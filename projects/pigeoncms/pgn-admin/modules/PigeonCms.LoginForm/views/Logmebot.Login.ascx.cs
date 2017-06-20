@@ -12,11 +12,12 @@ using System.Web.Caching;
 using PigeonCms;
 using System.Text;
 using System.Collections.Generic;
+using Logmebot.Net;
 
 public partial class Controls_Logmebot_Login : PigeonCms.LoginFormControl
 {
     protected string LblErr = "";
-    private LogMeBot.LogMeBotClient logMeBotClient;
+    private LogmebotClient logmebotClient;
     private static Random random = new Random();
     private const string oauthMetaKey = "oauth_logmebot";
     private const string oauthMetaValueTemplate = "{UserId}";
@@ -80,7 +81,7 @@ public partial class Controls_Logmebot_Login : PigeonCms.LoginFormControl
         try
         {
 
-            logMeBotClient = new LogMeBot.LogMeBotClient(
+            logmebotClient = new LogmebotClient(
                 this.AppClientId,
                 this.AppClientSecret,
                 this.AppCallbackUri);
@@ -96,17 +97,17 @@ public partial class Controls_Logmebot_Login : PigeonCms.LoginFormControl
 
             if (Request.Params["code"] != null)
             {
-                if (string.IsNullOrEmpty(logMeBotClient.AccessToken))
+                if (string.IsNullOrEmpty(logmebotClient.AccessToken))
                 {
-                    string token = logMeBotClient.GetAccessToken(
+                    string token = logmebotClient.GetAccessToken(
                         Request.Params["code"], Request.Params["state"]);
                 }
             }
 
 
-            if (!string.IsNullOrEmpty(logMeBotClient.AccessToken))
+            if (!string.IsNullOrEmpty(logmebotClient.AccessToken))
             {
-                var me = logMeBotClient.GetMe(logMeBotClient.AccessToken);
+                var me = logmebotClient.GetMe(logmebotClient.AccessToken);
                 LogProvider.Write(this.BaseModule, "LogMeBot provider Authorized. UserId:{UserId}; Nickname:{Nickname}; Email:{Email}"
                     .Replace("{UserId}", me.UserId)
                     .Replace("{Nickname}", me.Nickname)
@@ -203,7 +204,7 @@ public partial class Controls_Logmebot_Login : PigeonCms.LoginFormControl
     protected void CmdOauthLogmebot_Click(object sender, EventArgs e)
     {
         //server side redir
-        logMeBotClient.LogOn();
+        logmebotClient.LogOn();
     }
 
     private void redirAfterLogin()

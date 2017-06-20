@@ -16,6 +16,7 @@ using PigeonCms.Controls;
 using PigeonCms.Controls.ItemFields;
 using System.IO;
 using System.Web.UI.HtmlControls;
+using PigeonCms.Core.Controls.ItemBlocks;
 
 namespace PigeonCms.Modules
 {
@@ -92,12 +93,13 @@ namespace PigeonCms.Modules
 		protected abstract PigeonCms.Controls.ItemParamsControl _ItemFields { get; }
 
 		protected abstract HiddenField _HidCurrentItemType { get; }
+        //protected abstract IPageComposer _PageComposer { get; }
 
-		#endregion
+        #endregion
 
-		#region init
+        #region init
 
-		protected override void OnInit(EventArgs e)
+        protected override void OnInit(EventArgs e)
 		{
 			base.OnInit(e);
 
@@ -189,7 +191,7 @@ namespace PigeonCms.Modules
                     editingItem = itemsProxy.GetByKey(argItemId);
                     doEdit = true;
 
-                    loadItemDynamicFields(editingItem, false);
+                    LoadItemDynamicFields(editingItem, false);
 
                 }
             }
@@ -200,7 +202,7 @@ namespace PigeonCms.Modules
                 itemsProxy.ThrowExceptions = false;
                 editingItem = itemsProxy.GetByKey(this.CurrentId);
 
-                loadItemDynamicFields(editingItem, false);
+                LoadItemDynamicFields(editingItem, false);
             }
 
 
@@ -532,7 +534,7 @@ namespace PigeonCms.Modules
             {
                 string propDefName = propDef.MapAttributeValue;
 
-                List<PropertyInfo> properties = getItemPropertiesInfo(propDef);
+                List<PropertyInfo> properties = GetItemPropertiesInfo(propDef);
                 if (properties == null || properties.Count == 0)
                     continue;
 
@@ -630,14 +632,14 @@ namespace PigeonCms.Modules
 					o1 = proxy.Insert(o1);
                     //store after insert to save file resource in the right place
                     o1 = proxy.GetByKey(o1.Id);
-                    storeDynamicFields(o1);
+                    StoreDynamicFields(o1);
                     proxy.Update(o1);
                 }
 				else
 				{
                     o1 = proxy.GetByKey(this.CurrentId);
                     form2obj(o1);
-                    storeDynamicFields(o1);
+                    StoreDynamicFields(o1);
                     proxy.Update(o1);
 				}
 
@@ -740,13 +742,15 @@ namespace PigeonCms.Modules
 		protected virtual void obj2form(IItem obj)
 		{
 			loadItemCommonData(obj);
-			loadItemDynamicFields(obj);
+			LoadItemDynamicFields(obj);
 
 			_ItemParams.ClearParams();
 			_ItemParams.LoadParams(obj);
 
 			_ItemFields.ClearParams();
 			_ItemFields.LoadFields(obj);
+
+            //_PageComposer.Load(obj);
 		}
 
 		protected virtual void editRow(IItem obj, string itemType)
@@ -800,10 +804,14 @@ namespace PigeonCms.Modules
 			_ItemParams.LoadParams(obj);
 			_ItemFields.LoadFields(obj);
 
-			showInsertPanel(true);
-		}
+            PageComposerHelper.RegisterScripts(_Upd1/*, this.Page, GetType()*/);
+            //_PageComposer.RegisterScripts();
 
-		private void deleteRow(int recordId, string itemType)
+            showInsertPanel(true);
+
+        }
+
+		protected void deleteRow(int recordId, string itemType)
 		{
 			setSuccess("");
 			setError("");
@@ -1105,7 +1113,7 @@ namespace PigeonCms.Modules
         /// <summary>
         /// function for display insert panel
         /// </summary>
-        private void showInsertPanel(bool toShow)
+        protected void showInsertPanel(bool toShow)
 		{
 
 			PigeonCms.Utility.Script.RegisterStartupScript(_Upd1, "bodyBlocked", "bodyBlocked(" + toShow.ToString().ToLower() + ");");
@@ -1119,7 +1127,7 @@ namespace PigeonCms.Modules
         /// <summary>
         /// load current item (obj) common field values in form
         /// </summary>
-		private void loadItemCommonData(IItem obj)
+		protected void loadItemCommonData(IItem obj)
 		{
 			_LblId.Text = obj.Id.ToString();
 			_LblOrderId.Text = obj.Ordering.ToString();
@@ -1170,7 +1178,7 @@ namespace PigeonCms.Modules
 
 		#region Dynamic properties management
 
-		private List<PropertyInfo> getItemPropertiesInfo(ItemPropertiesDefs itemPropertyDef)
+		protected List<PropertyInfo> GetItemPropertiesInfo(ItemPropertiesDefs itemPropertyDef)
 		{
             //var res = new Dictionary<string, PropertyInfo>();
 
@@ -1189,7 +1197,7 @@ namespace PigeonCms.Modules
         /// </summary>
         /// <param name="obj"></param>
         /// <param name="setFieldValues"></param>
-		private void loadItemDynamicFields(IItem obj, bool setFieldValues = true)
+		protected void LoadItemDynamicFields(IItem obj, bool setFieldValues = true)
         {
             IItem item = obj as IItem;
             if (item == null)
@@ -1207,7 +1215,9 @@ namespace PigeonCms.Modules
                     .Replace("[[templateName]]", template.Name);
             template.IncludeJsFilesContent(Page);
 
-
+            //load pagecomposer resources
+            _LitTemplateResources.Text += PageComposerHelper.GetCssFilesContent();
+            PageComposerHelper.IncludeJsFileContent(Page);
 
             //TODO re-order array using template order using ILookup
             //http://stackoverflow.com/questions/16926821/matching-the-order-of-one-array-to-another-using-linq
@@ -1250,7 +1260,7 @@ namespace PigeonCms.Modules
                         if (propDef == null)
                             continue;
 
-                        var properties = getItemPropertiesInfo(propDef);
+                        var properties = GetItemPropertiesInfo(propDef);
                         if (properties == null || properties.Count == 0)
                             continue;
 
@@ -1261,7 +1271,7 @@ namespace PigeonCms.Modules
 
                         object value = property.GetValue(propDef, null);
 
-                        AbstractFieldContainer control = createEditorAndContainer(
+                        AbstractFieldContainer control = CreateEditorAndContainer(
                             g.Group, field, property.Name, propDefName, item, value, setFieldValues);
                         if (control == null)
                             continue;
@@ -1294,7 +1304,7 @@ namespace PigeonCms.Modules
                     string propDefName = propDef.GetType().Name;
                     //string propDefName = propDef.MapAttributeValue;
 
-                    var properties = getItemPropertiesInfo(propDef);
+                    var properties = GetItemPropertiesInfo(propDef);
                     if (properties == null || properties.Count == 0)
                         continue;
 
@@ -1316,7 +1326,7 @@ namespace PigeonCms.Modules
                         if (field == null)
                             continue;
 
-                        AbstractFieldContainer control = createEditorAndContainer(
+                        AbstractFieldContainer control = CreateEditorAndContainer(
                             "autolayout", field, property.Name, propDefName, item, value, setFieldValues);
                         if (control == null)
                             continue;
@@ -1335,7 +1345,7 @@ namespace PigeonCms.Modules
         /// form(dynamic fields) --> item.PropertiesList
         /// </summary>
         /// <param name="obj"></param>
-        private void storeDynamicFields(IItem obj)
+        protected virtual void StoreDynamicFields(IItem obj)
 		{
 			IItem item = obj as IItem;
 			if (item == null)
@@ -1343,11 +1353,14 @@ namespace PigeonCms.Modules
 
             var template = getItemTemplate(obj);
 
+            //TODO
+            //_PageComposer.Store(obj);
+
             foreach (var propDef in obj.PropertiesList)
             {
                 string propDefName = propDef.GetType().Name;
 
-                var properties = getItemPropertiesInfo(propDef);
+                var properties = GetItemPropertiesInfo(propDef);
                 foreach (PropertyInfo property in properties)
                 {
                     FormField field = (FormField)property.GetCustomAttribute(typeof(FormField));
@@ -1360,7 +1373,7 @@ namespace PigeonCms.Modules
                     if (templateField != null)
                         field = templateField;
 
-                    readEditor(field, property, propDef, item);
+                    ReadEditor(field, property, propDef, item);
                 }
             }
 
@@ -1376,7 +1389,7 @@ namespace PigeonCms.Modules
         /// <param name="value">the current value of the control</param>
         /// <param name="setFieldValues">if true set the value</param>
         /// <returns>the control to add to the panel</returns>
-        private AbstractFieldContainer createEditorAndContainer(
+        protected AbstractFieldContainer CreateEditorAndContainer(
             string group,
             FormField field, 
             string propertyName, 
@@ -1687,7 +1700,24 @@ namespace PigeonCms.Modules
 					}
 
 					break;
-				default:
+
+                case FormFieldTypeEnum.Composer:
+
+                    IPageComposer composerControl = null;
+                    Control composer = LoadControl("~/Controls/PageComposer/PageComposer.ascx");
+                    composer.ID = "property_" + propDefName + "-" + propertyName;
+                    composer.EnableViewState = true;
+                    composerControl = composer as IPageComposer;
+
+                    if (composerControl != null && setFieldValues)
+                    {
+                        composerControl.Load((List<BaseBlockItem>)value);
+                    }
+
+                    innerControl = composer;
+                    break;
+
+                default:
 					return null;
 			}
 
@@ -1717,7 +1747,7 @@ namespace PigeonCms.Modules
         /// </summary>
         /// <param name="property"></param>
         /// <param name="item"></param>
-		private void readEditor(
+		protected void ReadEditor(
             FormField field, 
             PropertyInfo property, 
             ItemPropertiesDefs propDef, 
@@ -1729,190 +1759,203 @@ namespace PigeonCms.Modules
 			if (field == null)
 				return;
 
-			switch (field.Type)
-			{
-				case FormFieldTypeEnum.Html:
-					if (field.Localized)
-					{
-						Translation localizedValue = new Translation();
-						foreach (KeyValuePair<string, string> culture in Config.CultureList)
-						{
-							ITextControl htmlEditor = Utility.Controls.FindControlRecursive<Control>(
-                                _FieldsContainer, 
+            switch (field.Type)
+            {
+                case FormFieldTypeEnum.Html:
+                    if (field.Localized)
+                    {
+                        Translation localizedValue = new Translation();
+                        foreach (KeyValuePair<string, string> culture in Config.CultureList)
+                        {
+                            ITextControl htmlEditor = Utility.Controls.FindControlRecursive<Control>(
+                                _FieldsContainer,
                                 "property_" + propDefName + "-" + property.Name + culture.Value) as ITextControl;
 
                             if (htmlEditor != null)
-								localizedValue[culture.Key] = htmlEditor == null ? null : htmlEditor.Text;
-						}
+                                localizedValue[culture.Key] = htmlEditor == null ? null : htmlEditor.Text;
+                        }
 
-						property.SetValue(propDef, localizedValue, null);
-					}
-					else
-					{
-						ITextControl htmlEditor = Utility.Controls.FindControlRecursive<Control>(
-                            _FieldsContainer, 
+                        property.SetValue(propDef, localizedValue, null);
+                    }
+                    else
+                    {
+                        ITextControl htmlEditor = Utility.Controls.FindControlRecursive<Control>(
+                            _FieldsContainer,
                             "property_" + propDefName + "-" + property.Name) as ITextControl;
 
-						if (htmlEditor != null)
-							property.SetValue(propDef, htmlEditor == null ? null : htmlEditor.Text, null);
-					}
-					break;
+                        if (htmlEditor != null)
+                            property.SetValue(propDef, htmlEditor == null ? null : htmlEditor.Text, null);
+                    }
+                    break;
 
-				case FormFieldTypeEnum.Combo:
-					DropDownList dropDownList = Utility.Controls.FindControlRecursive<DropDownList>(
-                        _FieldsContainer, 
+                case FormFieldTypeEnum.Combo:
+                    DropDownList dropDownList = Utility.Controls.FindControlRecursive<DropDownList>(
+                        _FieldsContainer,
                         "property_" + propDefName + "-" + property.Name);
 
-					if (dropDownList != null)
-						property.SetValue(propDef, dropDownList.SelectedValue, null);
-					break;
+                    if (dropDownList != null)
+                        property.SetValue(propDef, dropDownList.SelectedValue, null);
+                    break;
 
-				case FormFieldTypeEnum.Numeric:
-					TextBox number = Utility.Controls.FindControlRecursive<TextBox>(
-                        _FieldsContainer, 
+                case FormFieldTypeEnum.Numeric:
+                    TextBox number = Utility.Controls.FindControlRecursive<TextBox>(
+                        _FieldsContainer,
                         "property_" + propDefName + "-" + property.Name);
-					if (number != null)
-					{
-						if (string.IsNullOrWhiteSpace(number.Text))
-						{
-							property.SetValue(propDef, null, null);
-						}
-						else
-						{
-							int value = 0;
-							if (int.TryParse(number.Text, out value))
-							{
-								property.SetValue(propDef, value, null);
-							}
-						}
-					}
-					break;
+                    if (number != null)
+                    {
+                        if (string.IsNullOrWhiteSpace(number.Text))
+                        {
+                            property.SetValue(propDef, null, null);
+                        }
+                        else
+                        {
+                            int value = 0;
+                            if (int.TryParse(number.Text, out value))
+                            {
+                                property.SetValue(propDef, value, null);
+                            }
+                        }
+                    }
+                    break;
 
-				case FormFieldTypeEnum.Check:
-					CheckBox checkbox = Utility.Controls.FindControlRecursive<CheckBox>(
-                        _FieldsContainer, 
+                case FormFieldTypeEnum.Check:
+                    CheckBox checkbox = Utility.Controls.FindControlRecursive<CheckBox>(
+                        _FieldsContainer,
                         "property_" + propDefName + "-" + property.Name);
 
-					if (checkbox != null)
-						property.SetValue(propDef, checkbox.Checked, null);
-					break;
+                    if (checkbox != null)
+                        property.SetValue(propDef, checkbox.Checked, null);
+                    break;
 
-				case FormFieldTypeEnum.Text:
-					if (field.Localized)
-					{
-						Translation localizedValue = new Translation();
-						foreach (KeyValuePair<string, string> culture in Config.CultureList)
-						{
-							TextBox textbox = Utility.Controls.FindControlRecursive<TextBox>(
-                                _FieldsContainer, 
+                case FormFieldTypeEnum.Text:
+                    if (field.Localized)
+                    {
+                        Translation localizedValue = new Translation();
+                        foreach (KeyValuePair<string, string> culture in Config.CultureList)
+                        {
+                            TextBox textbox = Utility.Controls.FindControlRecursive<TextBox>(
+                                _FieldsContainer,
                                 "property_" + propDefName + "-" + property.Name + culture.Value);
 
-							localizedValue[culture.Key] = textbox == null ? null : textbox.Text;
-						}
+                            localizedValue[culture.Key] = textbox == null ? null : textbox.Text;
+                        }
 
-						property.SetValue(propDef, localizedValue, null);
-					}
-					else
-					{
-						TextBox textbox = Utility.Controls.FindControlRecursive<TextBox>(
-                            _FieldsContainer, 
+                        property.SetValue(propDef, localizedValue, null);
+                    }
+                    else
+                    {
+                        TextBox textbox = Utility.Controls.FindControlRecursive<TextBox>(
+                            _FieldsContainer,
                             "property_" + propDefName + "-" + property.Name);
 
-						if (textbox != null)
-							property.SetValue(propDef, textbox.Text, null);
-					}
-					break;
+                        if (textbox != null)
+                            property.SetValue(propDef, textbox.Text, null);
+                    }
+                    break;
 
-				case FormFieldTypeEnum.File:
-					// TODO: refactor
-					if (field.Localized)
-					{
-						Translation localizedValue = new Translation();
-						foreach (KeyValuePair<string, string> culture in Config.CultureList)
-						{
-							IUploadControl fileUpload = Utility.Controls.FindControlRecursive<Control>(
-                                _FieldsContainer, 
+                case FormFieldTypeEnum.File:
+                    // TODO: refactor
+                    if (field.Localized)
+                    {
+                        Translation localizedValue = new Translation();
+                        foreach (KeyValuePair<string, string> culture in Config.CultureList)
+                        {
+                            IUploadControl fileUpload = Utility.Controls.FindControlRecursive<Control>(
+                                _FieldsContainer,
                                 "property_" + propDefName + "-" + property.Name + culture.Value) as IUploadControl;
 
-							if (fileUpload == null)
-								break;
+                            if (fileUpload == null)
+                                break;
 
-							if (fileUpload.Deleted)
-							{
-								localizedValue[culture.Key] = null;
-								fileUpload.PerformDelete();
-							}
-							else if (fileUpload.HasChanged)
-							{
-								string fileName = Regex.Replace(item.Alias + " " + property.Name, "[^a-zA-Z0-9]", "-") + "." + fileUpload.GetExtension();
-								string newFileName;
+                            if (fileUpload.Deleted)
+                            {
+                                localizedValue[culture.Key] = null;
+                                fileUpload.PerformDelete();
+                            }
+                            else if (fileUpload.HasChanged)
+                            {
+                                string fileName = Regex.Replace(item.Alias + " " + property.Name, "[^a-zA-Z0-9]", "-") + "." + fileUpload.GetExtension();
+                                string newFileName;
                                 string basePath = Path.Combine(item.StaticFilesPath, field.Folder);
                                 string filePath = FilesHelper.GetUniqueFilename(
                                     basePath, fileName.ToLower(), out newFileName);
 
-								fileUpload.SaveTo(filePath);
-								localizedValue[culture.Key] = Path.Combine(basePath, newFileName).Replace("\\", "/");
-							}
-						}
+                                fileUpload.SaveTo(filePath);
+                                localizedValue[culture.Key] = Path.Combine(basePath, newFileName).Replace("\\", "/");
+                            }
+                        }
 
-						property.SetValue(propDef, localizedValue, null);
-					}
-					else
-					{
-						IUploadControl fileUpload = Utility.Controls.FindControlRecursive<Control>(
-                            _FieldsContainer, 
+                        property.SetValue(propDef, localizedValue, null);
+                    }
+                    else
+                    {
+                        IUploadControl fileUpload = Utility.Controls.FindControlRecursive<Control>(
+                            _FieldsContainer,
                             "property_" + propDefName + "-" + property.Name) as IUploadControl;
-						if (fileUpload == null)
-							break;
+                        if (fileUpload == null)
+                            break;
 
-						if (fileUpload.Deleted)
-						{
-							property.SetValue(propDef, null, null);
-							fileUpload.PerformDelete();
-						}
-						else if (fileUpload.HasChanged)
-						{
-							string fileName = Regex.Replace(item.Alias + " " + property.Name, "[^a-zA-Z0-9]", "-") + "." + fileUpload.GetExtension();
-							string newFileName;
+                        if (fileUpload.Deleted)
+                        {
+                            property.SetValue(propDef, null, null);
+                            fileUpload.PerformDelete();
+                        }
+                        else if (fileUpload.HasChanged)
+                        {
+                            string fileName = Regex.Replace(item.Alias + " " + property.Name, "[^a-zA-Z0-9]", "-") + "." + fileUpload.GetExtension();
+                            string newFileName;
                             string basePath = Path.Combine(item.StaticFilesPath, field.Folder);
                             string filePath = FilesHelper.GetUniqueFilename(
                                 basePath, fileName.ToLower(), out newFileName);
 
-							fileUpload.SaveTo(filePath);
-							property.SetValue(propDef, 
-                                Path.Combine(basePath, newFileName).Replace("\\", "/"), 
+                            fileUpload.SaveTo(filePath);
+                            property.SetValue(propDef,
+                                Path.Combine(basePath, newFileName).Replace("\\", "/"),
                                 null);
-						}
-					}
-					break;
+                        }
+                    }
+                    break;
 
-				case FormFieldTypeEnum.Image:
-					IUploadControl imageUpload = Utility.Controls.FindControlRecursive<Control>(
-                        _FieldsContainer, 
+                case FormFieldTypeEnum.Image:
+                    IUploadControl imageUpload = Utility.Controls.FindControlRecursive<Control>(
+                        _FieldsContainer,
                         "property_" + propDefName + "-" + property.Name) as IUploadControl;
 
-					if (imageUpload == null)
-						break;
+                    if (imageUpload == null)
+                        break;
 
-					if (imageUpload.Deleted)
-					{
-						property.SetValue(propDef, null, null);
-						imageUpload.PerformDelete();
+                    if (imageUpload.Deleted)
+                    {
+                        property.SetValue(propDef, null, null);
+                        imageUpload.PerformDelete();
                     }
                     else if (imageUpload.HasChanged)
-					{
+                    {
                         string fileName = Regex.Replace(item.Alias + " " + property.Name, "[^a-zA-Z0-9]", "-") + "." + imageUpload.GetExtension();
-						string newFileName;
+                        string newFileName;
                         string basePath = Path.Combine(item.StaticImagesPath, field.Folder);
                         string filePath = FilesHelper.GetUniqueFilename(
                                 basePath, fileName.ToLower(), out newFileName);
 
                         imageUpload.SaveTo(filePath);
-						property.SetValue(propDef, 
-                            Path.Combine(basePath, newFileName).Replace("\\", "/"), 
+                        property.SetValue(propDef,
+                            Path.Combine(basePath, newFileName).Replace("\\", "/"),
                             null);
-					}
-					break;
+                    }
+                    break;
+
+                case FormFieldTypeEnum.Composer:
+
+                    IPageComposer composerControl = Utility.Controls.FindControlRecursive<Control>(
+                        _FieldsContainer,
+                        "property_" + propDefName + "-" + property.Name) as IPageComposer;
+
+                    if (composerControl != null)
+                    {
+                        composerControl.Store(item);
+                    }
+
+                    break;
 			}
 		}
 

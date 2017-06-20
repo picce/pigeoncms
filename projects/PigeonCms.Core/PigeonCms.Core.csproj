@@ -112,6 +112,8 @@
     <Compile Include="BLL\CustomDataType.cs" />
     <Compile Include="BLL\LogItem.cs" />
     <Compile Include="BLL\Label.cs" />
+    <Compile Include="Controls\PageComposerHelper.cs" />
+    <Compile Include="Controls\ItemBlocks\HeaderBlockItem.cs" />
     <Compile Include="Controls\ItemBlocks\BlockManager.cs" />
     <Compile Include="Controls\ItemBlocks\BaseBlockItem.cs" />
     <Compile Include="Controls\ItemFields\AbstractFieldContainer.cs">
@@ -125,6 +127,7 @@
     <Compile Include="Controls\ItemsAdmin\AbstractUploadHandler.cs" />
     <Compile Include="Controls\ItemsAdmin\UploadHandlerResult.cs" />
     <Compile Include="Controls\ItemsAdmin\UploadParameters.cs" />
+    <Compile Include="Controls\IPageComposer.cs" />
     <Compile Include="Controls\IUploadControl.cs" />
     <Compile Include="Controls\SeoControl.cs">
       <SubType>ASPXCodeBehind</SubType>

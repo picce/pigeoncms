@@ -21,7 +21,8 @@ namespace PigeonCms
         Html,
         Image,
         File,
-        Numeric
+        Numeric,
+        Composer
     }
 
     public interface IFormField

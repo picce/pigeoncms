@@ -44,13 +44,24 @@ namespace PigeonCms.Core.Controls.ItemBlocks
                 switch (propertyName)
                 {
                     case "type":
-                        blockType = Type.GetType(string.Format("{0}.{1}BlockItem", typeof(BaseBlockItem).Namespace, reader.ReadAsString()), false);
+                        //TODO allow namespace from different Assembly
+                        //example: "PigeonCms.Core.Controls.ItemBlocks.HeaderBlockItem"
+                        string typeName = string.Format("{0}.{1}BlockItem",
+                            typeof(BaseBlockItem).Namespace,
+                            reader.ReadAsString());
+
+                        blockType = Type.GetType(typeName, false);
                         result = (BaseBlockItem)Activator.CreateInstance(blockType);
                         break;
                     case "data":
                         Type propertiesType = Reflection.GetNestedType<ItemPropertiesDefs>(blockType);
                         reader.Read();
-                        result.PropertiesList = (List<ItemPropertiesDefs>)serializer.Deserialize(reader, propertiesType);
+                        if (result != null)
+                        {
+                            result.PropertiesList[0] = (ItemPropertiesDefs)serializer.Deserialize(reader, propertiesType);
+                            //result.PropertiesList = (List<ItemPropertiesDefs>)serializer.Deserialize(reader, propertiesType);
+
+                        }
                         break;
                     default:
                         reader.Skip();
@@ -72,7 +83,7 @@ namespace PigeonCms.Core.Controls.ItemBlocks
             serializer.Serialize(writer, new
             {
                 type = block.GetType().Name.Replace("BlockItem", ""),
-                data = block.PropertiesList
+                data = block.PropertiesList[0]
             });
         }
     }

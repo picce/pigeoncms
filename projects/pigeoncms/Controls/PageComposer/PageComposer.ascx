@@ -2,14 +2,17 @@
 
 <asp:Panel ID="pnlNewsComposer" runat="server">
     <div class="form-group col-md-12">
-        <div id="aq-composer-wrapper">
+   
+             <div id="aq-composer-wrapper" data-sticky-container>
+
             <div class="composer-content col-md-9">
                 <div class="composer-title">
                     Trascina qui un template per aggiungere un blocco alla pagina 
                                                    
                 </div>
             </div>
-            <div class="composer-toolbar col-md-3">
+
+            <div id="sticky-toolbar" class="composer-toolbar col-md-3">
                 <div class="composer-title">
                     Lingua
                                                    

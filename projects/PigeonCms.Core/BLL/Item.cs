@@ -1730,6 +1730,11 @@ namespace PigeonCms
 		}
 
         /// <summary>
+        /// page composer blocks
+        /// </summary>
+        public List<PigeonCms.Core.Controls.ItemBlocks.BaseBlockItem> Blocks { get; set; }
+
+        /// <summary>
         /// target field to serialize data (default CustomString1)
         /// </summary>
         [ScriptIgnore]
@@ -1749,10 +1754,6 @@ namespace PigeonCms
         }
 	}
 
-    public abstract class BlocksItemsPropertiesDefs : ItemPropertiesDefs
-    {
-        public List<PigeonCms.Core.Controls.ItemBlocks.BaseBlockItem> Blocks { get; set; }
-    }
 
     /// <summary>
     /// map #__items table column target of ItemPropertiesDefs serialization

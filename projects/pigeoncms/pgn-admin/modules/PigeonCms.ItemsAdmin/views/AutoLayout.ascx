@@ -6,10 +6,13 @@
 <%@ Register Src="~/Controls/PermissionsControl.ascx" TagName="PermissionsControl" TagPrefix="uc1" %>
 <%@ Register Src="~/Controls/SeoControl.ascx" TagName="SeoControl" TagPrefix="uc1" %>
 <%@ Register Src="~/Controls/ContentEditorControl.ascx" TagName="ContentEditorControl" TagPrefix="uc1" %>
+<%@ Register Src="~/Controls/PageComposer/PageComposer.ascx" TagName="PageComposer" TagPrefix="uc1" %>
 
+<%--
 <%@ Register Src="~/Controls/FieldContainer/FieldContainer.ascx" TagPrefix="aq" TagName="FieldContainer" %>
 <%@ Register Src="~/Controls/ImageUpload/ImageUploadModern.ascx" TagPrefix="aq" TagName="ImageUploadModern" %>
 <%@ Register Src="~/Controls/ImageUpload/FileUploadModern.ascx" TagPrefix="aq" TagName="FileUploadModern" %>
+--%>
 
 
 <script type="text/javascript">
@@ -54,7 +57,6 @@
 	    }
 	}
 
-
 	function onSuccess(result) { }
 	function onFailure(result) { }
 
@@ -74,6 +76,19 @@
     function EndRequestHandler(sender, args) {
         if (args.get_error() != undefined) {
             args.set_errorHandled(true);
+        }
+    }
+
+    //TOCHECK
+    function aq_composer_save() {
+        try {
+            if (typeof window.AQuest.PageComposer !== "undefined") {
+                window.AQuest.PageComposer.save();
+            }
+            return true;
+        }
+        catch (exc) {
+            return true;
         }
     }
 
@@ -595,7 +610,7 @@
                             <div class="btn-group clearfix">
                                 <div class="btn-group-follow clearfix">
                                     <asp:Button ID="BtnCancel" runat="server" Text="<%$ Resources:PublicLabels, CmdCancel %>" CssClass="btnCancel btn btn-default btn-xs btn-modern btn-modern--cancel" CausesValidation="false" />
-                                    <asp:Button ID="BtnSave" runat="server" Text="<%$ Resources:PublicLabels, CmdSave %>" CssClass="btnSave btn btn-primary btn-xs btn-modern" />
+                                    <asp:Button ID="BtnSave" runat="server" Text="<%$ Resources:PublicLabels, CmdSave %>" CssClass="btnSave btn btn-primary btn-xs btn-modern" OnClientClick="return aq_composer_save();" />
                                     <div class="btn-group-alert">
                                         <asp:Label ID="LblErrInsert" runat="server" Text=""></asp:Label>
                                         <asp:Label ID="LblOkInsert" runat="server" Text=""></asp:Label>
@@ -618,7 +633,7 @@
 
                             <div class="tab-content">
 
-                                <!--tab-MAIN-->
+                                <%--tab-MAIN--%>
                                 <div class="tab-pane fade in active" id="tab-main">
 
                                     <div class="form-group col-md-6 col-lg-3">
@@ -690,17 +705,24 @@
 
                                 </div>
 
-                                <!--tabs-AUTOLAYOUT-->
+                                <%--tabs-AUTOLAYOUT--%>
                                 <asp:PlaceHolder ID="PlhItemFieldsContainer" runat="server"></asp:PlaceHolder>                                
 
-                                <!--tab-SEO-->
+                                <%--tab-COMPOSER--%>
+<%--                                <div class="tab-pane fade " id="tab-composer">
+
+                                    <uc1:PageComposer runat="server" ID="PageComposer" />
+
+                                </div>--%>
+
+                                <%--tab-SEO--%>
                                 <div class="tab-pane fade " id="tab-seo">
 
                                     <uc1:SeoControl ID="SeoControl1" runat="server" />
 
                                 </div>
 
-                                <!--tab-SECURITY-->
+                                <%--tab-SECURITY--%>
                                 <div class="tab-pane fade tab-detail-item" id="tab-security">
 
                                     <div class="form-group col-sm-12 no-padding">
