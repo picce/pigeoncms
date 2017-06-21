@@ -4,7 +4,7 @@ using System.Data.Common;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using StackExchange.Dapper;
+using Dapper;
 
 namespace PigeonCms
 {

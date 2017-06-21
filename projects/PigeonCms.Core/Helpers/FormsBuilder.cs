@@ -56,9 +56,6 @@ namespace PigeonCms
                 case FormFieldTypeEnum.Combo:
                     result = (Control)getComboControl(field, currentValue, defaultCssClass);
                     break;
-                case FormFieldTypeEnum.Radio:
-                    result = (Control)getHiddenControl(field, currentValue);    //TODO
-                    break;
                 case FormFieldTypeEnum.Check:
                     result = (Control)getHiddenControl(field, currentValue);    //TODO
                     break;
@@ -92,7 +89,7 @@ namespace PigeonCms
         /// </summary>
         /// <param name="panel">the container for generated controls</param>
         /// <param name="currentItem">current Item</param>
-        public static void RenderParamsOnPanel(Panel panel, Item currentItem, List<ResLabel> labelsList)
+        public static void RenderParamsOnPanel(Panel panel, IItem currentItem, List<ResLabel> labelsList)
         {
             PigeonCms.ItemType itemType = null;
             Dictionary<string, string> fieldsValues = new Dictionary<string,string>();
@@ -348,6 +345,42 @@ namespace PigeonCms
             if (nodeParams.Attributes["group"] != null)
             {
                 item.Group = nodeParams.Attributes["group"].Value;
+            }
+            if (nodeParam.Attributes["localized"] != null)
+            {
+                bool value = false;
+                bool.TryParse(nodeParam.Attributes["localized"].Value, out value);
+                item.Localized = value;
+            }
+            if (nodeParam.Attributes["minValue"] != null)
+            {
+                int value = 0;
+                int.TryParse(nodeParam.Attributes["minValue"].Value, out value);
+                item.MinValue = value;
+            }
+            if (nodeParam.Attributes["maxValue"] != null)
+            {
+                int value = 0;
+                int.TryParse(nodeParam.Attributes["maxValue"].Value, out value);
+                item.MaxValue = value;
+            }
+
+            //for Image and File types only
+            if (nodeParam.Attributes["allowedFileTypes"] != null)
+            {
+                item.AllowedFileTypes = nodeParam.Attributes["allowedFileTypes"].Value;
+            }
+            //for Image and File types only
+            if (nodeParam.Attributes["folder"] != null)
+            {
+                item.Folder = nodeParam.Attributes["folder"].Value;
+            }
+            //for Image and File types only
+            if (nodeParam.Attributes["maxFileSize"] != null)
+            {
+                int value = 0;
+                int.TryParse(nodeParam.Attributes["maxFileSize"].Value, out value);
+                item.MaxFileSize = value;
             }
 
             //options list

@@ -109,7 +109,8 @@ namespace PigeonCms
             //}
         }
 
-        public static void InitEditor(PigeonCms.BaseModuleControl control, UpdatePanel upd1, Configuration config)
+        public static void InitEditor(PigeonCms.BaseModuleControl control, 
+            UpdatePanel upd1, Configuration config, string selector = "textarea")
         {
             //string extra = "";
             //string editorTheme = "";
@@ -195,9 +196,9 @@ namespace PigeonCms
                     stylesheets += $(this).attr('href') + ',';
                 });
                 function initEditor() {
-                    tinymce.remove('textarea');
+                    tinymce.remove('"+ selector + @"');
                     tinymce.init({
-                        selector: 'textarea',
+                        selector: '" + selector + @"',
                         " + toolBar + @"
                         " + menuBar + @"
                         " + options + @"

@@ -202,7 +202,7 @@ namespace PigeonCms
                     myTrans = myConn.BeginTransaction();
                     myCmd.Transaction = myTrans;
 
-                    sSql = Database.ParseSql(sSql);
+                    sSql = Database.ParseSql(sSql, this.TabPrefix);
                     qryResult = Database.ExecuteQuery(myRd, myCmd, sSql);
 
                     myTrans.Commit();

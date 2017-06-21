@@ -30,6 +30,21 @@ namespace PigeonCms.Core.Helpers
                 return res;
             }
         }
+
+        public static int ClearByNamespace(string ns = "PigeonCms")
+        {
+            int res = 0;
+            foreach (DictionaryEntry d in HttpContext.Current.Cache)
+            {
+                if (d.Key.ToString().StartsWith(ns, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    HttpContext.Current.Cache.Remove(d.Key.ToString());
+                }
+            }
+            Tracer.Log("CacheManager.ClearByNamespace(): ns=" + ns + "; Time=" + DateTime.Now, TracerItemType.Info);
+
+            return res;
+        }
     }
 
     public class CacheManager<T>

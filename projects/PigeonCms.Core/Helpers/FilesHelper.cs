@@ -11,7 +11,8 @@ using System.Web.UI.WebControls;
 using System.Web.UI.WebControls.WebParts;
 using System.IO;
 using System.Data.OleDb;
-
+using System.Linq;
+using System.Web.Hosting;
 
 namespace PigeonCms
 {
@@ -84,6 +85,118 @@ namespace PigeonCms
                 res = res.Replace("/", "\\");
             }
             return res;
+        }
+
+        public static Dictionary<string, string> Read301CSV(string path)
+        {
+            if (File.Exists(path))
+            {
+                using (TextReader sr = new StreamReader(path))
+                {
+                    Dictionary<string, string> redirect_dict = new Dictionary<string, string>();
+                    string line = "";
+                    while ((line = sr.ReadLine()) != null)
+                    {
+                        string[] columns = line.Split(',');
+                        redirect_dict.Add(columns[0], columns[1]);
+                    }
+                    return redirect_dict;
+                }
+            }
+            else
+                return new Dictionary<string, string>();
+        }
+
+        public static string AddFilenameSuffix(string fileName, string suffix)
+        {
+            if (string.IsNullOrWhiteSpace(suffix))
+                return fileName;
+
+            List<string> fileNameTokens = new List<string>(fileName.Split('.'));
+            string extension = fileNameTokens.Last();
+            fileNameTokens.RemoveAt(fileNameTokens.Count - 1);
+            return string.Join(".", fileNameTokens) + "_" + suffix + "." + extension;
+        }
+
+        public static string GetUniqueFilename(string path, string fileName, out string newFileName)
+        {
+            int suffix = 0;
+            string basePath = path.StartsWith("~") ? HostingEnvironment.MapPath(path) : path;
+            newFileName = fileName;
+
+            while (true)
+            {
+                newFileName = AddFilenameSuffix(fileName, (suffix > 0 ? suffix.ToString() : ""));
+                string fullPath = Path.Combine(basePath, newFileName);
+                if (!File.Exists(fullPath))
+                    return fullPath;
+
+                suffix++;
+                if (suffix > 100)
+                    throw new Exception("Cannot calculate unique filename");
+            }
+        }
+
+        public static string GetDirectory(string path)
+        {
+            List<string> pathTokens = new List<string>(path.Split(@"\".ToCharArray()));
+            pathTokens.RemoveAt(pathTokens.Count - 1);
+            return string.Join(@"\", pathTokens.ToArray());
+        }
+
+        public static string GetExtensionFromMime(string mime)
+        {
+            if (string.IsNullOrWhiteSpace(mime))
+                return "";
+
+            switch (mime.ToLower())
+            {
+                case "image/jpeg":
+                case "image/jpg":
+                case "image/pjpeg":
+                    return "jpg";
+                case "image/png":
+                    return "png";
+                case "image/gif":
+                    return "gif";
+                case "image/svg+xml":
+                    return "svg";
+                case "application/pdf":
+                    return "pdf";
+                    // TODO: add other types
+            }
+
+            return "";
+        }
+
+        public static string GetMimeFromExtension(string extension)
+        {
+            if (string.IsNullOrWhiteSpace(extension))
+                return "";
+
+            switch (extension.ToLower())
+            {
+                case "jpeg":
+                case "jpg":
+                    return "image/jpeg";
+                case "png":
+                    return "image/png";
+                case "gif":
+                    return "image/gif";
+                case "svg":
+                    return "image/svg+xml";
+                case "pdf":
+                    return "application/pdf";
+                    // TODO: add other types
+            }
+
+            return "";
+        }
+
+        public static string GetUrlFileName(string url)
+        {
+            string[] pathToken = url.Split('/');
+            return pathToken[pathToken.Length - 1];
         }
     }
 

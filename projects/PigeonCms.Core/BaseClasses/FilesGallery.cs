@@ -588,6 +588,20 @@ namespace PigeonCms
             return res;
         }
 
+        public bool DeleteFolder()
+        {
+            bool res = false;
+            try
+            {
+                Utility.DeleteFolder(this.PhisicalPath);
+                res = true;
+            }
+            finally
+            {
+            }
+            return res;
+        }
+
         [DataObjectMethod(DataObjectMethodType.Delete, true)]
         public bool RemoveSessionTempFolder()
         {

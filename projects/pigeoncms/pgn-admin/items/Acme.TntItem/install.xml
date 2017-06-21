@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<install 
+    installerVersion="1.0.0"
+    type="item" 
+    assemblyString="Acme.MyPrj"
+    version="1.0.0"
+    core="false"
+    namespace="Acme"
+    name="TntItem"
+    author="picce"
+    creationDate="2017-02-14"
+    copyright=""
+    license=""
+    authorEmail="picce@yahoo.it"
+    authorUrl="https://github.com/picce/pigeoncms"
+    description="Sample item in external assembly">
+
+    <fields>
+    </fields>
+
+    <params>
+    </params>
+
+</install>

@@ -11,6 +11,8 @@ using System.Web.UI.WebControls.WebParts;
 using System.Xml.Linq;
 using System.Web.Compilation;
 using System.Reflection;
+using System.Text;
+using System.Collections.Generic;
 
 namespace PigeonCms
 {
@@ -100,5 +102,159 @@ namespace PigeonCms
 
         }
 
+
+		public static int GetNonNullStringPropertiesCount(object obj)
+		{
+			int count = 0;
+
+			if (obj != null)
+			{
+				foreach (PropertyInfo pi in obj.GetType().GetProperties())
+				{
+					if (pi.PropertyType == typeof(string))
+					{
+						string value = (string)pi.GetValue(obj);
+						if (!string.IsNullOrEmpty(value))
+						{
+							count++;
+						}
+					}
+				}
+			}
+
+			return count;
+		}
+
+		public static string BuildQueryStringByObject(object obj)
+		{
+			string queryString = "", key = "", value = "";
+
+			if (obj != null)
+			{
+				foreach (PropertyInfo pi in obj.GetType().GetProperties())
+				{
+					key = pi.Name;
+					value = (string)pi.GetValue(obj);
+
+					if (value != "")
+					{
+						queryString += key + "=" + value + "&";
+					}
+				}
+			}
+
+			return queryString == "" ? "" : queryString.Substring(0, queryString.Length - 1);
+		}
+
+		public static List<string> GetListOfPropertiesByObject(object obj)
+		{
+			List<string> retValue = new List<string>();
+			string key = "", value = "";
+
+			if (obj != null)
+			{
+				foreach (PropertyInfo pi in obj.GetType().GetProperties())
+				{
+					key = pi.Name;
+					value = (string)pi.GetValue(obj);
+
+					if (!String.IsNullOrEmpty(value))
+					{
+						retValue.Add(key + "|" + value);
+					}
+				}
+			}
+
+			return retValue;
+		}
+
+        public static List<T> CreateInstancesOfNestedType<T>(object obj)
+        {
+            List<T> res = new List<T>();
+
+            if (obj == null)
+                return res;
+
+            return CreateInstancesOfNestedType<T>(obj.GetType());
+        }
+
+        public static List<T> CreateInstancesOfNestedType<T>(Type objType)
+        {
+            List<T> res = new List<T>();
+
+            if (objType == null)
+                return res;
+
+            foreach (Type nestedType in objType.GetNestedTypes())
+            {
+                if (typeof(T).IsAssignableFrom(nestedType))
+                {
+                    res.Add((T)Activator.CreateInstance(nestedType));
+                }
+            }
+            return res;
+        }
+
+        //public static T CreateInstanceOfNestedType<T>(object obj)
+		//{
+		//	if (obj == null)
+		//		return default(T);
+
+		//	return CreateInstanceOfNestedType<T>(obj.GetType());
+		//}
+
+		//public static T CreateInstanceOfNestedType<T>(Type objType)
+		//{
+		//	if (objType == null)
+		//		return default(T);
+
+		//	foreach (Type nestedType in objType.GetNestedTypes())
+		//	{
+		//		if (typeof(T).IsAssignableFrom(nestedType))
+		//			return (T)Activator.CreateInstance(nestedType);
+		//	}
+
+		//	return default(T);
+		//}
+
+		public static Type GetNestedType<T>(Type objType)
+		{
+			if (objType == null)
+				return null;
+
+			foreach (Type nestedType in objType.GetNestedTypes())
+			{
+				if (typeof(T).IsAssignableFrom(nestedType))
+					return nestedType;
+			}
+
+			return null;
+		}
+
+		public static string PropertiesToString(object obj)
+		{
+			if (obj == null)
+				return "";
+
+			StringBuilder result = new StringBuilder();
+			PropertyInfo[] properties = obj.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
+
+			foreach (PropertyInfo property in properties)
+			{
+				object propValue = property.GetValue(obj);
+				if (propValue == null)
+					continue;
+
+				result.Append(string.Format("{0}={1};", property.Name, propValue.ToString()));
+			}
+
+			return result.ToString();
+		}
+
+        public static System.Attribute GetPigeonCustomAttribute(MemberInfo element, Type type) 
+        {
+            // Send inherit as false if you want the attribute to be searched only on the type. If you want to search the complete inheritance hierarchy, set the parameter to true.
+            return element.GetCustomAttribute(type);
+        }
     }
 }

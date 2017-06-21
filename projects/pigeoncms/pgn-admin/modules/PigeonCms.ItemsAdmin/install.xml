@@ -1,0 +1,130 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<install
+    installerVersion="1.0.0"
+    type="module"
+    version="2.0.0"
+    core="true"
+    namespace="PigeonCms"
+    name="ItemsAdmin"
+    author="picce"
+    creationDate="2009-11-12"
+    copyright="Copyright(C) 2016 Nicola Ridolfi. All rights reserved."
+    license=""
+    authorEmail="picce@yahoo.it"
+    authorUrl="https://github.com/picce/"
+    description="Items admin area"
+		allowDirectEditMode="true">
+	<files>
+	</files>
+
+	<params group="targets">
+		<param name="TargetImagesUpload" type="combo" default="0" label="Images upload target" description="">
+			<option value="0" label="Not set"></option>
+			<datasource SelectMethod="GetList" SelectParams="PigeonCms.FilesManager" TypeName="PigeonCms.MenuManager" />
+			<datasource SelectMethod="GetList" SelectParams="PigeonCms.FilesManagerModern" TypeName="PigeonCms.MenuManager" />
+		</param>
+		<param name="TargetFilesUpload" type="combo" default="0" label="Files upload target" description="">
+			<option value="0" label="Not set"></option>
+			<datasource SelectMethod="GetList" SelectParams="PigeonCms.FilesManager" TypeName="PigeonCms.MenuManager" />
+			<datasource SelectMethod="GetList" SelectParams="PigeonCms.FilesManagerModern" TypeName="PigeonCms.MenuManager" />
+		</param>
+		<param name="TargetDocsUpload" type="combo" default="0" label="Documents upload target" description="">
+			<option value="0" label="Not set"></option>
+			<datasource SelectMethod="GetList" SelectParams="PigeonCms.FilesManager" TypeName="PigeonCms.MenuManager" />
+			<datasource SelectMethod="GetList" SelectParams="PigeonCms.FilesManagerModern" TypeName="PigeonCms.MenuManager" />
+		</param>
+	</params>
+
+	<params group="filters">
+		<param name="SectionId" type="combo" default="0" label="Section" description="">
+			<option value="0" label="No section"></option>
+			<datasource SelectMethod="GetList" TypeName="PigeonCms.SectionsManager" />
+		</param>
+		<param name="CategoryId" type="combo" default="0" label="Category" description="">
+			<option value="0" label="No category"></option>
+			<datasource SelectMethod="GetList" TypeName="PigeonCms.CategoriesManager" />
+		</param>
+    
+    <!--[Obsolete("Use ItemTypes insted")]-->
+    <param name="ItemType" type="combo" default="0" label="Item type" description="Item type filter">
+			<option value="" label="All"></option>
+			<datasource SelectMethod="GetList" TypeName="PigeonCms.ItemTypeManager" />
+		</param>
+    
+		<param name="ItemTypes" type="text" default="" label="Item types" description="Comma separated list of item type names|template. (example: PigeonCms.Item, PigeonCms.HelloWorldItem|hello1.xml)" />
+    <param name="ListPageSize" type="text" default="20" label="List page size" description="Set 0 to avoid pagination" />
+	</params>
+
+	<params group="restrictions">
+		<param name="ShowSecurity" type="combo" default="1" label="Show security panel">
+			<option value="1" label="Yes"></option>
+			<option value="0" label="No"></option>
+		</param>
+		<param name="ShowSeo" type="combo" default="1" label="Show Seo panel">
+			<option value="1" label="Yes"></option>
+			<option value="0" label="No"></option>
+		</param>
+		<param name="ShowFieldsPanel" type="combo" default="1" label="Show fields panel">
+			<option value="1" label="Yes"></option>
+			<option value="0" label="No"></option>
+		</param>
+		<param name="ShowParamsPanel" type="combo" default="1" label="Show params panel">
+			<option value="1" label="Yes"></option>
+			<option value="0" label="No"></option>
+		</param>
+		<param name="ShowAlias" type="combo" default="1" label="Show alias">
+			<option value="1" label="Yes"></option>
+			<option value="0" label="No"></option>
+		</param>
+		<param name="ShowType" type="combo" default="1" label="Show type">
+			<option value="1" label="Yes"></option>
+			<option value="0" label="No"></option>
+		</param>
+		<param name="ShowSectionColumn" type="combo" default="1" label="Show section column">
+			<option value="1" label="Yes"></option>
+			<option value="0" label="No"></option>
+		</param>
+		<param name="ShowEnabledFilter" type="combo" default="1" label="Show enabled filter">
+			<option value="1" label="Yes"></option>
+			<option value="0" label="No"></option>
+		</param>
+		<param name="ShowDates" type="combo" default="1" label="Show dates fields">
+			<option value="1" label="Yes"></option>
+			<option value="0" label="No"></option>
+		</param>
+    <param name="ShowItemsCount" type="combo" default="1" label="Show items count">
+      <option value="1" label="Yes"></option>
+      <option value="0" label="No"></option>
+    </param>    
+		<param name="AllowOrdering" type="combo" default="1" label="Allow ordering">
+			<option value="1" label="Yes"></option>
+			<option value="0" label="No"></option>
+		</param>
+    <param name="AllowDelete" type="combo" default="1" label="Allow delete">
+      <option value="1" label="Yes"></option>
+      <option value="0" label="No"></option>
+    </param>
+	</params>
+
+	<params group="editor">
+		<param name="HtmlEditorType" type="combo" default="0" label="Html editor type">
+			<enum TypeName="PigeonCms.ContentEditorProvider+Configuration+EditorTypeEnum" />
+		</param>
+		<param name="ShowEditorFileButton" type="combo" default="1" label="Show editor file button">
+			<option value="1" label="Yes"></option>
+			<option value="0" label="No"></option>
+		</param>
+		<param name="ShowEditorPageBreakButton" type="combo" default="1" label="Show editor page-break button">
+			<option value="1" label="Yes"></option>
+			<option value="0" label="No"></option>
+		</param>
+		<param name="ShowEditorReadMoreButton" type="combo" default="1" label="Show editor read-more button">
+			<option value="1" label="Yes"></option>
+			<option value="0" label="No"></option>
+		</param>
+		<param name="ShowOnlyDefaultCulture" type="combo" default="0" label="Show only default culture">
+			<option value="1" label="Yes"></option>
+			<option value="0" label="No"></option>
+		</param>
+	</params>
+</install>

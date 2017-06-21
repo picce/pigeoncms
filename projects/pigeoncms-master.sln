@@ -1,21 +1,21 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.40629.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.26403.7
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "pigeoncms", "..\pigeoncms\", "{9BBB1122-2347-44A8-A085-7D86DEFB9E7E}"
+Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "pigeoncms", "pigeoncms\", "{9BBB1122-2347-44A8-A085-7D86DEFB9E7E}"
 	ProjectSection(WebsiteProperties) = preProject
-		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.0"
-		ProjectReferences = "{B5680C69-ADE4-4233-AF97-ED41E7C10E13}|PigeonCms.Core.dll;{6CE8F051-18B4-44E0-ADE8-D39EBADB9D71}|PigeonCms.Core.Offline.dll;{9b7c9bbb-9618-4e2a-b6eb-e267cdd82f4f}|PigeonCms.Shop.dll;"
+		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.5.1"
+		ProjectReferences = "{B5680C69-ADE4-4233-AF97-ED41E7C10E13}|PigeonCms.Core.dll;{6CE8F051-18B4-44E0-ADE8-D39EBADB9D71}|PigeonCms.Core.Offline.dll;{9b7c9bbb-9618-4e2a-b6eb-e267cdd82f4f}|PigeonCms.Shop.dll;{4a2c46b0-7a0c-4c32-b276-dfe055ba8891}|Acme.MyPrj.dll;"
 		Debug.AspNetCompiler.VirtualPath = "/pigeoncms"
-		Debug.AspNetCompiler.PhysicalPath = "..\pigeoncms\"
+		Debug.AspNetCompiler.PhysicalPath = "pigeoncms\"
 		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\pigeoncms\"
 		Debug.AspNetCompiler.Updateable = "true"
 		Debug.AspNetCompiler.ForceOverwrite = "true"
 		Debug.AspNetCompiler.FixedNames = "false"
 		Debug.AspNetCompiler.Debug = "True"
 		Release.AspNetCompiler.VirtualPath = "/pigeoncms"
-		Release.AspNetCompiler.PhysicalPath = "..\pigeoncms\"
+		Release.AspNetCompiler.PhysicalPath = "pigeoncms\"
 		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\pigeoncms\"
 		Release.AspNetCompiler.Updateable = "true"
 		Release.AspNetCompiler.ForceOverwrite = "true"
@@ -23,20 +23,20 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "pigeoncms", "..\pigeoncms\"
 		Release.AspNetCompiler.Debug = "False"
 		VWDPort = "56718"
 		VWDVirtualPath = "/"
-		SlnRelativePath = "..\pigeoncms\"
+		SlnRelativePath = "pigeoncms\"
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PigeonCms.Core", "PigeonCms.Core\PigeonCms.Core.csproj", "{B5680C69-ADE4-4233-AF97-ED41E7C10E13}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PigeonCms.Core.Offline", "PigeonCms.Core.OfflineProvider\PigeonCms.Core.Offline.csproj", "{6CE8F051-18B4-44E0-ADE8-D39EBADB9D71}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PigeonCms.Test.Core", "PigeonCms.Test\PigeonCms.Test.Core.csproj", "{AC56D118-7456-4629-8B12-4441D4639EF9}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Others", "Others", "{8FB0BC1A-751C-467F-A1A6-DFEE7D5C410A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PigeonCms.Shop", "PigeonCms.Shop\PigeonCms.Shop.csproj", "{9B7C9BBB-9618-4E2A-B6EB-E267CDD82F4F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D8A66CCF-5E1D-4B0B-9CC8-E72776B68FB2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Acme.MyPrj", "Acme.MyPrj\Acme.MyPrj.csproj", "{4A2C46B0-7A0C-4C32-B276-DFE055BA8891}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -78,16 +78,6 @@ Global
 		{6CE8F051-18B4-44E0-ADE8-D39EBADB9D71}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{6CE8F051-18B4-44E0-ADE8-D39EBADB9D71}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{6CE8F051-18B4-44E0-ADE8-D39EBADB9D71}.Release|x86.ActiveCfg = Release|Any CPU
-		{AC56D118-7456-4629-8B12-4441D4639EF9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AC56D118-7456-4629-8B12-4441D4639EF9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AC56D118-7456-4629-8B12-4441D4639EF9}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{AC56D118-7456-4629-8B12-4441D4639EF9}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{AC56D118-7456-4629-8B12-4441D4639EF9}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{AC56D118-7456-4629-8B12-4441D4639EF9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AC56D118-7456-4629-8B12-4441D4639EF9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AC56D118-7456-4629-8B12-4441D4639EF9}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{AC56D118-7456-4629-8B12-4441D4639EF9}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{AC56D118-7456-4629-8B12-4441D4639EF9}.Release|x86.ActiveCfg = Release|Any CPU
 		{9B7C9BBB-9618-4E2A-B6EB-E267CDD82F4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9B7C9BBB-9618-4E2A-B6EB-E267CDD82F4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9B7C9BBB-9618-4E2A-B6EB-E267CDD82F4F}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
@@ -98,6 +88,18 @@ Global
 		{9B7C9BBB-9618-4E2A-B6EB-E267CDD82F4F}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{9B7C9BBB-9618-4E2A-B6EB-E267CDD82F4F}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{9B7C9BBB-9618-4E2A-B6EB-E267CDD82F4F}.Release|x86.ActiveCfg = Release|Any CPU
+		{4A2C46B0-7A0C-4C32-B276-DFE055BA8891}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A2C46B0-7A0C-4C32-B276-DFE055BA8891}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A2C46B0-7A0C-4C32-B276-DFE055BA8891}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{4A2C46B0-7A0C-4C32-B276-DFE055BA8891}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{4A2C46B0-7A0C-4C32-B276-DFE055BA8891}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{4A2C46B0-7A0C-4C32-B276-DFE055BA8891}.Debug|x86.Build.0 = Debug|Any CPU
+		{4A2C46B0-7A0C-4C32-B276-DFE055BA8891}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A2C46B0-7A0C-4C32-B276-DFE055BA8891}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4A2C46B0-7A0C-4C32-B276-DFE055BA8891}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{4A2C46B0-7A0C-4C32-B276-DFE055BA8891}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{4A2C46B0-7A0C-4C32-B276-DFE055BA8891}.Release|x86.ActiveCfg = Release|Any CPU
+		{4A2C46B0-7A0C-4C32-B276-DFE055BA8891}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

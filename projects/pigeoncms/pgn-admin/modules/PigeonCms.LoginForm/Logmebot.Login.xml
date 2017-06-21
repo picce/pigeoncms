@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<install 
+    installerVersion="1.0.0"
+    type="module" 
+    version="1.0.0" 
+    namespace="Logmebot"
+    name="Login"
+    author="picce"
+    creationDate="2017-05-15"
+    copyright="Copyright(C) 2017 Nicola Ridolfi. All rights reserved."
+    license=""
+    authorEmail="picce@yahoo.it"
+    authorUrl="https://github.com/picce/"
+    description="Ouath login with LogMeBot provider">
+
+    <params>
+      <param name="AppClientId" type="text" default="" label="Logmebot app client Id" description="" />
+      <param name="AppClientSecret" type="text" default="" label="Logmebot app client Secret" description="" />
+      <param name="AppCallbackUri" type="text" default="" label="Logmebot app callback uri" description="" />
+
+      <param name="EnableUserRegistration" type="combo" default="0" label="Enable new user login and registration">
+          <option value="1" label="Enabled"></option>
+          <option value="0" label="Disabled"></option>
+      </param>
+      <param name="DefaultRoles" type="text" default="" label="New user default roles" description="Example: logmebot,guest" />
+
+    </params>
+
+</install>

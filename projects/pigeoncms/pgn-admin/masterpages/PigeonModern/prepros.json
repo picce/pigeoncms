@@ -1,0 +1,941 @@
+{
+  "id": "77ccb8be",
+  "cfgVersion": 1,
+  "name": "PigeonModern theme",
+  "files": {
+    "23094471": {
+      "id": "23094471",
+      "pid": "77ccb8be",
+      "name": "jquery.mousewheel.pack.js",
+      "input": "js\\plugins\\fancybox\\jquery.mousewheel.pack.js",
+      "customOutput": false,
+      "type": "Js",
+      "config": {
+        "autoCompile": true,
+        "uglify": true,
+        "mangle": true,
+        "sourcemaps": false
+      }
+    },
+    "fe2cfe0b": {
+      "id": "fe2cfe0b",
+      "pid": "77ccb8be",
+      "name": "bootstrap.js",
+      "input": "js\\bootstrap.js",
+      "customOutput": false,
+      "type": "Js",
+      "config": {
+        "autoCompile": true,
+        "uglify": true,
+        "mangle": true,
+        "sourcemaps": false
+      }
+    },
+    "de5ffe1d": {
+      "id": "de5ffe1d",
+      "pid": "77ccb8be",
+      "name": "jquery.js",
+      "input": "js\\jquery.js",
+      "customOutput": false,
+      "type": "Js",
+      "config": {
+        "autoCompile": true,
+        "uglify": true,
+        "mangle": true,
+        "sourcemaps": false
+      }
+    },
+    "ee4e7b64": {
+      "id": "ee4e7b64",
+      "pid": "77ccb8be",
+      "name": "font-awesome.scss",
+      "input": "font-awesome-4.1.0\\scss\\font-awesome.scss",
+      "customOutput": false,
+      "type": "Scss",
+      "config": {
+        "autoCompile": true,
+        "lineNumbers": false,
+        "unixNewlines": false,
+        "sourcemaps": true,
+        "debug": false,
+        "compass": false,
+        "fullCompass": false,
+        "outputStyle": "compressed",
+        "autoprefixer": false
+      }
+    },
+    "cf67d3c4": {
+      "id": "cf67d3c4",
+      "pid": "77ccb8be",
+      "name": "pigeon-modern.js",
+      "input": "js\\pigeon-modern.js",
+      "customOutput": false,
+      "type": "Js",
+      "config": {
+        "autoCompile": true,
+        "uglify": true,
+        "mangle": true,
+        "sourcemaps": false
+      }
+    },
+    "cf143820": {
+      "id": "cf143820",
+      "pid": "77ccb8be",
+      "name": "dataTables.bootstrap.js",
+      "input": "js\\plugins\\dataTables\\dataTables.bootstrap.js",
+      "customOutput": false,
+      "type": "Js",
+      "config": {
+        "autoCompile": true,
+        "uglify": true,
+        "mangle": true,
+        "sourcemaps": false
+      }
+    },
+    "e95b7270": {
+      "id": "e95b7270",
+      "pid": "77ccb8be",
+      "name": "jquery.fancybox.js",
+      "input": "js\\plugins\\fancybox\\jquery.fancybox.js",
+      "customOutput": false,
+      "type": "Js",
+      "config": {
+        "autoCompile": true,
+        "uglify": true,
+        "mangle": true,
+        "sourcemaps": false
+      }
+    },
+    "7e925c94": {
+      "id": "7e925c94",
+      "pid": "77ccb8be",
+      "name": "jquery.fancybox.pack.js",
+      "input": "js\\plugins\\fancybox\\jquery.fancybox.pack.js",
+      "customOutput": false,
+      "type": "Js",
+      "config": {
+        "autoCompile": true,
+        "uglify": true,
+        "mangle": true,
+        "sourcemaps": false
+      }
+    },
+    "33a4b4e0": {
+      "id": "33a4b4e0",
+      "pid": "77ccb8be",
+      "name": "jquery.dataTables.js",
+      "input": "js\\plugins\\dataTables\\jquery.dataTables.js",
+      "customOutput": false,
+      "type": "Js",
+      "config": {
+        "autoCompile": true,
+        "uglify": true,
+        "mangle": true,
+        "sourcemaps": false
+      }
+    },
+    "788ff050": {
+      "id": "788ff050",
+      "pid": "77ccb8be",
+      "name": "jquery.easing.pack.js",
+      "input": "js\\plugins\\fancybox\\jquery.easing.pack.js",
+      "customOutput": false,
+      "type": "Js",
+      "config": {
+        "autoCompile": true,
+        "uglify": true,
+        "mangle": true,
+        "sourcemaps": false
+      }
+    },
+    "8da580d7": {
+      "id": "8da580d7",
+      "pid": "77ccb8be",
+      "name": "main.less",
+      "input": "less\\main.less",
+      "customOutput": false,
+      "type": "Less",
+      "config": {
+        "autoCompile": true,
+        "compress": true,
+        "sourcemaps": false,
+        "cleancss": false,
+        "strictMath": false,
+        "strictUnits": false,
+        "autoprefixer": false
+      }
+    },
+    "4a4336fd": {
+      "id": "4a4336fd",
+      "pid": "77ccb8be",
+      "name": "jquery-ui.js",
+      "input": "js\\plugins\\jquery-ui\\jquery-ui.js",
+      "customOutput": false,
+      "type": "Js",
+      "config": {
+        "autoCompile": true,
+        "uglify": true,
+        "mangle": true,
+        "sourcemaps": false
+      }
+    },
+    "86726adf": {
+      "id": "86726adf",
+      "pid": "77ccb8be",
+      "name": "morris.js",
+      "input": "js\\plugins\\morris\\morris.js",
+      "customOutput": false,
+      "type": "Js",
+      "config": {
+        "autoCompile": true,
+        "uglify": true,
+        "mangle": true,
+        "sourcemaps": false
+      }
+    },
+    "6e290d8f": {
+      "id": "6e290d8f",
+      "pid": "77ccb8be",
+      "name": "morris-data.js",
+      "input": "js\\plugins\\morris\\morris-data.js",
+      "customOutput": false,
+      "type": "Js",
+      "config": {
+        "autoCompile": true,
+        "uglify": true,
+        "mangle": true,
+        "sourcemaps": false
+      }
+    },
+    "9ceae84f": {
+      "id": "9ceae84f",
+      "pid": "77ccb8be",
+      "name": "metisMenu.js",
+      "input": "js\\plugins\\metisMenu\\metisMenu.js",
+      "customOutput": false,
+      "type": "Js",
+      "config": {
+        "autoCompile": true,
+        "uglify": true,
+        "mangle": true,
+        "sourcemaps": false
+      }
+    },
+    "f6f66956": {
+      "id": "f6f66956",
+      "pid": "77ccb8be",
+      "name": "jquery.flot.js",
+      "input": "js\\plugins\\flot\\jquery.flot.js",
+      "customOutput": false,
+      "type": "Js",
+      "config": {
+        "autoCompile": true,
+        "uglify": true,
+        "mangle": true,
+        "sourcemaps": false
+      }
+    },
+    "15e00b55": {
+      "id": "15e00b55",
+      "pid": "77ccb8be",
+      "name": "jquery.flot.resize.js",
+      "input": "js\\plugins\\flot\\jquery.flot.resize.js",
+      "customOutput": false,
+      "type": "Js",
+      "config": {
+        "autoCompile": true,
+        "uglify": true,
+        "mangle": true,
+        "sourcemaps": false
+      }
+    },
+    "c8792ab8": {
+      "id": "c8792ab8",
+      "pid": "77ccb8be",
+      "name": "flot-data.js",
+      "input": "js\\plugins\\flot\\flot-data.js",
+      "customOutput": false,
+      "type": "Js",
+      "config": {
+        "autoCompile": true,
+        "uglify": true,
+        "mangle": true,
+        "sourcemaps": false
+      }
+    },
+    "7029b938": {
+      "id": "7029b938",
+      "pid": "77ccb8be",
+      "name": "jquery.flot.pie.js",
+      "input": "js\\plugins\\flot\\jquery.flot.pie.js",
+      "customOutput": false,
+      "type": "Js",
+      "config": {
+        "autoCompile": true,
+        "uglify": true,
+        "mangle": true,
+        "sourcemaps": false
+      }
+    },
+    "2eb3d405": {
+      "id": "2eb3d405",
+      "pid": "77ccb8be",
+      "name": "font-awesome.less",
+      "input": "font-awesome-4.7.0\\less\\font-awesome.less",
+      "customOutput": false,
+      "type": "Less",
+      "config": {
+        "autoCompile": true,
+        "compress": false,
+        "sourcemaps": false,
+        "cleancss": false,
+        "strictMath": false,
+        "strictUnits": false,
+        "autoprefixer": false
+      }
+    },
+    "078f28c6": {
+      "id": "078f28c6",
+      "pid": "77ccb8be",
+      "name": "font-awesome.scss",
+      "input": "font-awesome-4.7.0\\scss\\font-awesome.scss",
+      "customOutput": false,
+      "type": "Scss",
+      "config": {
+        "autoCompile": true,
+        "lineNumbers": false,
+        "unixNewlines": false,
+        "sourcemaps": false,
+        "debug": false,
+        "compass": false,
+        "fullCompass": false,
+        "outputStyle": "compressed",
+        "autoprefixer": false
+      }
+    }
+  },
+  "imports": {
+    "30452521": {
+      "id": "30452521",
+      "pid": "77ccb8be",
+      "path": "font-awesome-4.1.0\\scss\\_spinning.scss",
+      "parents": [
+        "ee4e7b64"
+      ]
+    },
+    "66349ef3": {
+      "id": "66349ef3",
+      "pid": "77ccb8be",
+      "path": "font-awesome-4.1.0\\scss\\_variables.scss",
+      "parents": [
+        "ee4e7b64"
+      ]
+    },
+    "3df74bf5": {
+      "id": "3df74bf5",
+      "pid": "77ccb8be",
+      "path": "font-awesome-4.1.0\\scss\\_mixins.scss",
+      "parents": [
+        "ee4e7b64"
+      ]
+    },
+    "75a1b447": {
+      "id": "75a1b447",
+      "pid": "77ccb8be",
+      "path": "font-awesome-4.1.0\\scss\\_path.scss",
+      "parents": [
+        "ee4e7b64"
+      ]
+    },
+    "7503db61": {
+      "id": "7503db61",
+      "pid": "77ccb8be",
+      "path": "font-awesome-4.1.0\\scss\\_core.scss",
+      "parents": [
+        "ee4e7b64"
+      ]
+    },
+    "22c25558": {
+      "id": "22c25558",
+      "pid": "77ccb8be",
+      "path": "font-awesome-4.1.0\\scss\\_larger.scss",
+      "parents": [
+        "ee4e7b64"
+      ]
+    },
+    "6c6f31f8": {
+      "id": "6c6f31f8",
+      "pid": "77ccb8be",
+      "path": "font-awesome-4.1.0\\scss\\_fixed-width.scss",
+      "parents": [
+        "ee4e7b64"
+      ]
+    },
+    "d7d6e001": {
+      "id": "d7d6e001",
+      "pid": "77ccb8be",
+      "path": "font-awesome-4.1.0\\scss\\_list.scss",
+      "parents": [
+        "ee4e7b64"
+      ]
+    },
+    "cbd94740": {
+      "id": "cbd94740",
+      "pid": "77ccb8be",
+      "path": "font-awesome-4.1.0\\scss\\_bordered-pulled.scss",
+      "parents": [
+        "ee4e7b64"
+      ]
+    },
+    "280d1700": {
+      "id": "280d1700",
+      "pid": "77ccb8be",
+      "path": "font-awesome-4.1.0\\scss\\_rotated-flipped.scss",
+      "parents": [
+        "ee4e7b64"
+      ]
+    },
+    "4245ad54": {
+      "id": "4245ad54",
+      "pid": "77ccb8be",
+      "path": "font-awesome-4.1.0\\scss\\_stacked.scss",
+      "parents": [
+        "ee4e7b64"
+      ]
+    },
+    "9028fddc": {
+      "id": "9028fddc",
+      "pid": "77ccb8be",
+      "path": "font-awesome-4.1.0\\scss\\_icons.scss",
+      "parents": [
+        "ee4e7b64"
+      ]
+    },
+    "18bf2c4b": {
+      "id": "18bf2c4b",
+      "pid": "77ccb8be",
+      "path": "less\\fonts.less",
+      "parents": [
+        "8da580d7"
+      ]
+    },
+    "5c26368f": {
+      "id": "5c26368f",
+      "pid": "77ccb8be",
+      "path": "less\\mixins.less",
+      "parents": [
+        "8da580d7"
+      ]
+    },
+    "7cd07d7a": {
+      "id": "7cd07d7a",
+      "pid": "77ccb8be",
+      "path": "less\\variables.less",
+      "parents": [
+        "8da580d7"
+      ]
+    },
+    "3720a5ad": {
+      "id": "3720a5ad",
+      "pid": "77ccb8be",
+      "path": "less\\fileupload.less",
+      "parents": [
+        "8da580d7"
+      ]
+    },
+    "4040eab0": {
+      "id": "4040eab0",
+      "pid": "77ccb8be",
+      "path": "font-awesome-4.7.0\\less\\variables.less",
+      "parents": [
+        "2eb3d405"
+      ]
+    },
+    "0ad8db84": {
+      "id": "0ad8db84",
+      "pid": "77ccb8be",
+      "path": "font-awesome-4.7.0\\less\\mixins.less",
+      "parents": [
+        "2eb3d405"
+      ]
+    },
+    "e5792952": {
+      "id": "e5792952",
+      "pid": "77ccb8be",
+      "path": "font-awesome-4.7.0\\less\\path.less",
+      "parents": [
+        "2eb3d405"
+      ]
+    },
+    "857b2bf6": {
+      "id": "857b2bf6",
+      "pid": "77ccb8be",
+      "path": "font-awesome-4.7.0\\less\\core.less",
+      "parents": [
+        "2eb3d405"
+      ]
+    },
+    "e6aeeb15": {
+      "id": "e6aeeb15",
+      "pid": "77ccb8be",
+      "path": "font-awesome-4.7.0\\less\\larger.less",
+      "parents": [
+        "2eb3d405"
+      ]
+    },
+    "389c8ca3": {
+      "id": "389c8ca3",
+      "pid": "77ccb8be",
+      "path": "font-awesome-4.7.0\\less\\fixed-width.less",
+      "parents": [
+        "2eb3d405"
+      ]
+    },
+    "f224cc18": {
+      "id": "f224cc18",
+      "pid": "77ccb8be",
+      "path": "font-awesome-4.7.0\\less\\list.less",
+      "parents": [
+        "2eb3d405"
+      ]
+    },
+    "b8a25299": {
+      "id": "b8a25299",
+      "pid": "77ccb8be",
+      "path": "font-awesome-4.7.0\\less\\bordered-pulled.less",
+      "parents": [
+        "2eb3d405"
+      ]
+    },
+    "84b2bbaf": {
+      "id": "84b2bbaf",
+      "pid": "77ccb8be",
+      "path": "font-awesome-4.7.0\\less\\animated.less",
+      "parents": [
+        "2eb3d405"
+      ]
+    },
+    "3df33ef0": {
+      "id": "3df33ef0",
+      "pid": "77ccb8be",
+      "path": "font-awesome-4.7.0\\less\\rotated-flipped.less",
+      "parents": [
+        "2eb3d405"
+      ]
+    },
+    "767bb43f": {
+      "id": "767bb43f",
+      "pid": "77ccb8be",
+      "path": "font-awesome-4.7.0\\less\\stacked.less",
+      "parents": [
+        "2eb3d405"
+      ]
+    },
+    "b8d83a0d": {
+      "id": "b8d83a0d",
+      "pid": "77ccb8be",
+      "path": "font-awesome-4.7.0\\less\\icons.less",
+      "parents": [
+        "2eb3d405"
+      ]
+    },
+    "447ae1e0": {
+      "id": "447ae1e0",
+      "pid": "77ccb8be",
+      "path": "font-awesome-4.7.0\\less\\screen-reader.less",
+      "parents": [
+        "2eb3d405"
+      ]
+    },
+    "203fa13a": {
+      "id": "203fa13a",
+      "pid": "77ccb8be",
+      "path": "font-awesome-4.7.0\\scss\\_variables.scss",
+      "parents": [
+        "078f28c6"
+      ]
+    },
+    "9051e2e6": {
+      "id": "9051e2e6",
+      "pid": "77ccb8be",
+      "path": "font-awesome-4.7.0\\scss\\_mixins.scss",
+      "parents": [
+        "078f28c6"
+      ]
+    },
+    "b9c8323a": {
+      "id": "b9c8323a",
+      "pid": "77ccb8be",
+      "path": "font-awesome-4.7.0\\scss\\_path.scss",
+      "parents": [
+        "078f28c6"
+      ]
+    },
+    "cbcc3878": {
+      "id": "cbcc3878",
+      "pid": "77ccb8be",
+      "path": "font-awesome-4.7.0\\scss\\_core.scss",
+      "parents": [
+        "078f28c6"
+      ]
+    },
+    "4ded9e02": {
+      "id": "4ded9e02",
+      "pid": "77ccb8be",
+      "path": "font-awesome-4.7.0\\scss\\_larger.scss",
+      "parents": [
+        "078f28c6"
+      ]
+    },
+    "3b51851a": {
+      "id": "3b51851a",
+      "pid": "77ccb8be",
+      "path": "font-awesome-4.7.0\\scss\\_fixed-width.scss",
+      "parents": [
+        "078f28c6"
+      ]
+    },
+    "23fc10c1": {
+      "id": "23fc10c1",
+      "pid": "77ccb8be",
+      "path": "font-awesome-4.7.0\\scss\\_list.scss",
+      "parents": [
+        "078f28c6"
+      ]
+    },
+    "ee100890": {
+      "id": "ee100890",
+      "pid": "77ccb8be",
+      "path": "font-awesome-4.7.0\\scss\\_bordered-pulled.scss",
+      "parents": [
+        "078f28c6"
+      ]
+    },
+    "9d14647a": {
+      "id": "9d14647a",
+      "pid": "77ccb8be",
+      "path": "font-awesome-4.7.0\\scss\\_animated.scss",
+      "parents": [
+        "078f28c6"
+      ]
+    },
+    "aa352daf": {
+      "id": "aa352daf",
+      "pid": "77ccb8be",
+      "path": "font-awesome-4.7.0\\scss\\_rotated-flipped.scss",
+      "parents": [
+        "078f28c6"
+      ]
+    },
+    "6d0aa15a": {
+      "id": "6d0aa15a",
+      "pid": "77ccb8be",
+      "path": "font-awesome-4.7.0\\scss\\_stacked.scss",
+      "parents": [
+        "078f28c6"
+      ]
+    },
+    "1c792690": {
+      "id": "1c792690",
+      "pid": "77ccb8be",
+      "path": "font-awesome-4.7.0\\scss\\_icons.scss",
+      "parents": [
+        "078f28c6"
+      ]
+    },
+    "2a786504": {
+      "id": "2a786504",
+      "pid": "77ccb8be",
+      "path": "font-awesome-4.7.0\\scss\\_screen-reader.scss",
+      "parents": [
+        "078f28c6"
+      ]
+    }
+  },
+  "images": {
+    "59551100": {
+      "id": "59551100",
+      "pid": "77ccb8be",
+      "path": "js\\plugins\\fancybox\\fancy_title_over.png",
+      "size": 70,
+      "name": "fancy_title_over.png",
+      "type": "Png",
+      "initialSize": 70,
+      "status": "NOT_OPTIMIZED"
+    },
+    "c26d6a55": {
+      "id": "c26d6a55",
+      "pid": "77ccb8be",
+      "path": "img\\logo-pigeon-small.png",
+      "size": 1471,
+      "name": "logo-pigeon-small.png",
+      "type": "Png",
+      "initialSize": 1471,
+      "status": "NOT_OPTIMIZED"
+    },
+    "006452d3": {
+      "id": "006452d3",
+      "pid": "77ccb8be",
+      "path": "img\\background_home.jpg",
+      "size": 105126,
+      "name": "background_home.jpg",
+      "type": "Jpg",
+      "initialSize": 105126,
+      "status": "NOT_OPTIMIZED"
+    },
+    "cbc388c4": {
+      "id": "cbc388c4",
+      "pid": "77ccb8be",
+      "path": "img\\user_default.jpg",
+      "size": 17396,
+      "name": "user_default.jpg",
+      "type": "Jpg",
+      "initialSize": 17396,
+      "status": "NOT_OPTIMIZED"
+    },
+    "31eb7b36": {
+      "id": "31eb7b36",
+      "pid": "77ccb8be",
+      "path": "js\\plugins\\fancybox\\fancy_close.png",
+      "size": 1517,
+      "name": "fancy_close.png",
+      "type": "Png",
+      "initialSize": 1517,
+      "status": "NOT_OPTIMIZED"
+    },
+    "e3b5fc3b": {
+      "id": "e3b5fc3b",
+      "pid": "77ccb8be",
+      "path": "js\\plugins\\fancybox\\fancy_loading.png",
+      "size": 10195,
+      "name": "fancy_loading.png",
+      "type": "Png",
+      "initialSize": 10195,
+      "status": "NOT_OPTIMIZED"
+    },
+    "53e988dd": {
+      "id": "53e988dd",
+      "pid": "77ccb8be",
+      "path": "js\\plugins\\fancybox\\fancy_nav_left.png",
+      "size": 1446,
+      "name": "fancy_nav_left.png",
+      "type": "Png",
+      "initialSize": 1446,
+      "status": "NOT_OPTIMIZED"
+    },
+    "3e651ed5": {
+      "id": "3e651ed5",
+      "pid": "77ccb8be",
+      "path": "js\\plugins\\fancybox\\fancy_nav_right.png",
+      "size": 1454,
+      "name": "fancy_nav_right.png",
+      "type": "Png",
+      "initialSize": 1454,
+      "status": "NOT_OPTIMIZED"
+    },
+    "6eaad86d": {
+      "id": "6eaad86d",
+      "pid": "77ccb8be",
+      "path": "js\\plugins\\fancybox\\fancy_shadow_e.png",
+      "size": 107,
+      "name": "fancy_shadow_e.png",
+      "type": "Png",
+      "initialSize": 107,
+      "status": "NOT_OPTIMIZED"
+    },
+    "04c370f0": {
+      "id": "04c370f0",
+      "pid": "77ccb8be",
+      "path": "js\\plugins\\fancybox\\fancy_shadow_n.png",
+      "size": 106,
+      "name": "fancy_shadow_n.png",
+      "type": "Png",
+      "initialSize": 106,
+      "status": "NOT_OPTIMIZED"
+    },
+    "c933ab65": {
+      "id": "c933ab65",
+      "pid": "77ccb8be",
+      "path": "js\\plugins\\fancybox\\fancy_shadow_ne.png",
+      "size": 347,
+      "name": "fancy_shadow_ne.png",
+      "type": "Png",
+      "initialSize": 347,
+      "status": "NOT_OPTIMIZED"
+    },
+    "540453e7": {
+      "id": "540453e7",
+      "pid": "77ccb8be",
+      "path": "js\\plugins\\fancybox\\fancy_shadow_nw.png",
+      "size": 324,
+      "name": "fancy_shadow_nw.png",
+      "type": "Png",
+      "initialSize": 324,
+      "status": "NOT_OPTIMIZED"
+    },
+    "a20788f0": {
+      "id": "a20788f0",
+      "pid": "77ccb8be",
+      "path": "js\\plugins\\fancybox\\fancy_shadow_s.png",
+      "size": 111,
+      "name": "fancy_shadow_s.png",
+      "type": "Png",
+      "initialSize": 111,
+      "status": "NOT_OPTIMIZED"
+    },
+    "7456a9d0": {
+      "id": "7456a9d0",
+      "pid": "77ccb8be",
+      "path": "js\\plugins\\fancybox\\fancy_shadow_se.png",
+      "size": 352,
+      "name": "fancy_shadow_se.png",
+      "type": "Png",
+      "initialSize": 352,
+      "status": "NOT_OPTIMIZED"
+    },
+    "6742b484": {
+      "id": "6742b484",
+      "pid": "77ccb8be",
+      "path": "js\\plugins\\fancybox\\fancy_shadow_sw.png",
+      "size": 340,
+      "name": "fancy_shadow_sw.png",
+      "type": "Png",
+      "initialSize": 340,
+      "status": "NOT_OPTIMIZED"
+    },
+    "485aeed8": {
+      "id": "485aeed8",
+      "pid": "77ccb8be",
+      "path": "js\\plugins\\fancybox\\fancy_shadow_w.png",
+      "size": 103,
+      "name": "fancy_shadow_w.png",
+      "type": "Png",
+      "initialSize": 103,
+      "status": "NOT_OPTIMIZED"
+    },
+    "ffe80f8b": {
+      "id": "ffe80f8b",
+      "pid": "77ccb8be",
+      "path": "js\\plugins\\fancybox\\fancy_title_left.png",
+      "size": 503,
+      "name": "fancy_title_left.png",
+      "type": "Png",
+      "initialSize": 503,
+      "status": "NOT_OPTIMIZED"
+    },
+    "e49ceae7": {
+      "id": "e49ceae7",
+      "pid": "77ccb8be",
+      "path": "js\\plugins\\fancybox\\fancy_title_main.png",
+      "size": 96,
+      "name": "fancy_title_main.png",
+      "type": "Png",
+      "initialSize": 96,
+      "status": "NOT_OPTIMIZED"
+    },
+    "6fcb06cc": {
+      "id": "6fcb06cc",
+      "pid": "77ccb8be",
+      "path": "js\\plugins\\fancybox\\fancy_title_right.png",
+      "size": 506,
+      "name": "fancy_title_right.png",
+      "type": "Png",
+      "initialSize": 506,
+      "status": "NOT_OPTIMIZED"
+    },
+    "69e7ff45": {
+      "id": "69e7ff45",
+      "pid": "77ccb8be",
+      "path": "js\\plugins\\jquery-ui\\images\\ui-icons_444444_256x240.png",
+      "size": 6992,
+      "name": "ui-icons_444444_256x240.png",
+      "type": "Png",
+      "initialSize": 6992,
+      "status": "NOT_OPTIMIZED"
+    },
+    "870af7c2": {
+      "id": "870af7c2",
+      "pid": "77ccb8be",
+      "path": "js\\plugins\\jquery-ui\\images\\ui-icons_555555_256x240.png",
+      "size": 6988,
+      "name": "ui-icons_555555_256x240.png",
+      "type": "Png",
+      "initialSize": 6988,
+      "status": "NOT_OPTIMIZED"
+    },
+    "02aa2039": {
+      "id": "02aa2039",
+      "pid": "77ccb8be",
+      "path": "js\\plugins\\jquery-ui\\images\\ui-icons_777620_256x240.png",
+      "size": 4549,
+      "name": "ui-icons_777620_256x240.png",
+      "type": "Png",
+      "initialSize": 4549,
+      "status": "NOT_OPTIMIZED"
+    },
+    "c864acd9": {
+      "id": "c864acd9",
+      "pid": "77ccb8be",
+      "path": "js\\plugins\\jquery-ui\\images\\ui-icons_777777_256x240.png",
+      "size": 6999,
+      "name": "ui-icons_777777_256x240.png",
+      "type": "Png",
+      "initialSize": 6999,
+      "status": "NOT_OPTIMIZED"
+    },
+    "837199c1": {
+      "id": "837199c1",
+      "pid": "77ccb8be",
+      "path": "js\\plugins\\jquery-ui\\images\\ui-icons_cc0000_256x240.png",
+      "size": 4549,
+      "name": "ui-icons_cc0000_256x240.png",
+      "type": "Png",
+      "initialSize": 4549,
+      "status": "NOT_OPTIMIZED"
+    },
+    "63fbce38": {
+      "id": "63fbce38",
+      "pid": "77ccb8be",
+      "path": "js\\plugins\\jquery-ui\\images\\ui-icons_ffffff_256x240.png",
+      "size": 6299,
+      "name": "ui-icons_ffffff_256x240.png",
+      "type": "Png",
+      "initialSize": 6299,
+      "status": "NOT_OPTIMIZED"
+    }
+  },
+  "config": {
+    "watch": true,
+    "liveRefresh": true,
+    "liveRefreshDelay": 0,
+    "filterPatterns": "",
+    "useCustomServer": false,
+    "customServerUrl": "",
+    "cssPath": "css/",
+    "jsPath": "js/",
+    "htmlPath": "html/",
+    "minJsPath": "min/",
+    "htmlExtension": ".html",
+    "cssPathType": "REPLACE_TYPE",
+    "htmlPathType": "REPLACE_TYPE",
+    "jsPathType": "REPLACE_TYPE",
+    "minJsPathType": "RELATIVE_FILEDIR",
+    "htmlTypes": "jade, haml, slim, markdown, md",
+    "cssTypes": "less, sass, stylus, scss, styl",
+    "jsTypes": "coffee, coffeescript, coffeescripts, ls, livescript, livescripts",
+    "cssPreprocessorPath": "",
+    "htmlPreprocessorPath": "",
+    "jsPreprocessorPath": "",
+    "minJsPreprocessorPath": "",
+    "autoprefixerBrowsers": "",
+    "ftpHost": "",
+    "ftpPort": "21",
+    "ftpRemotePath": "",
+    "ftpIgnorePreprocessorFiles": true,
+    "ftpType": "FTP",
+    "ftpExcludePatterns": "",
+    "ftpSecure": false,
+    "ftpPassword": "",
+    "ftpUsername": ""
+  }
+}
