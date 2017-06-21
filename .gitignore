@@ -13,7 +13,7 @@
 [Rr]elease/
 x64/
 build/
-[Bb]in/
+#[Bb]in/
 [Oo]bj/
 
 
@@ -33,7 +33,8 @@ $RECYCLE.BIN/
 #############
 ## PigeonCms
 #############
-!projects/pigeoncms/bin/WebControlCaptcha.dll
+projects/pigeoncms/Bin/*
+!projects/pigeoncms/Bin/WebControlCaptcha.dll
 
 projects/pigeoncms/web.config
 projects/pigeoncms/pgn-admin/installation/Install_completed.txt
