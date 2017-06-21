@@ -24,7 +24,7 @@
 
         <fieldset class="adminForm" style="display: none;">
             <asp:Panel runat="server" ID="UploadContainer">
-                <asp:FileUpload runat="server" ID="fileUpload" CssClass="pgn-fileupload-input" AllowMultiple="false" />
+                <asp:FileUpload runat="server" ID="fileUpload" CssClass="pgn-fileupload-input" />
             </asp:Panel>
         </fieldset>
     </div>

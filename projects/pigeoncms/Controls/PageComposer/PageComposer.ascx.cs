@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-using PigeonCms;
+﻿using PigeonCms;
 using PigeonCms.Controls.ItemFields;
 using PigeonCms.Controls.ItemsAdmin;
 using PigeonCms.Core.Controls.ItemBlocks;
@@ -11,8 +10,8 @@ using System.Text.RegularExpressions;
 using System.Web.UI;
 
 
-public partial class Controls_PageComposer_PageComposer : 
-    UserControl, PigeonCms.Controls.IPageComposer
+
+public partial class Controls_PageComposer_PageComposer : UserControl, PigeonCms.Controls.IPageComposer
 {
     protected override void OnInit(EventArgs e)
     {
@@ -62,6 +61,7 @@ public partial class Controls_PageComposer_PageComposer :
 
     }
 
+
     public void TranslateFileToEditor(IItem block)
     {
         try
@@ -78,13 +78,14 @@ public partial class Controls_PageComposer_PageComposer :
 
                 foreach (PropertyInfo property in properties)
                 {
-                    FileFormField attribute = (FileFormField)property.GetCustomAttribute(typeof(FileFormField));
+                    //FileFormField attribute = (FileFormField)(property.GetCustomAttribute(typeof(FileFormField), false));
+                    FileFormField attribute = (FileFormField)Reflection.GetPigeonCustomAttribute(property,typeof(FileFormField));
                     if (attribute == null)
                         continue;
 
                     if (attribute.Localized)
                     {
-                        Translation translation = (Translation)property.GetValue(props);
+                        Translation translation = (Translation)property.GetValue(props, null);
                         if (translation != null)
                         {
                             foreach (KeyValuePair<string, string> pair in translation)
@@ -93,14 +94,14 @@ public partial class Controls_PageComposer_PageComposer :
                                 AbstractUploadHandler.SetFile(Context, "PageComposer", uid, pair.Value);
                                 translation[pair.Key] = uid;
                             }
-                            property.SetValue(props, translation);
+                            property.SetValue(props, translation, null);
                         }
                     }
                     else
                     {
                         uid = ItemsAdminHelper.CreateUid("no-lang");
-                        AbstractUploadHandler.SetFile(Context, "PageComposer", uid, (string)property.GetValue(props));
-                        property.SetValue(props, uid);
+                        AbstractUploadHandler.SetFile(Context, "PageComposer", uid, (string)property.GetValue(props, null));
+                        property.SetValue(props, uid, null);
                     }
                 }
             }

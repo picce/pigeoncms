@@ -33,6 +33,7 @@ $RECYCLE.BIN/
 #############
 ## PigeonCms
 #############
+!projects/pigeoncms/bin/WebControlCaptcha.dll
 
 projects/pigeoncms/web.config
 projects/pigeoncms/pgn-admin/installation/Install_completed.txt

@@ -30,7 +30,7 @@
 
         <fieldset class="adminForm" style="display: none;">
             <asp:Panel runat="server" ID="UploadContainer">
-                <asp:FileUpload runat="server" ID="fileUpload" CssClass="pgn-imageupload-input" AllowMultiple="false" />
+                <asp:FileUpload runat="server" ID="fileUpload" CssClass="pgn-imageupload-input" />
             </asp:Panel>
         </fieldset>
     </div>
