@@ -131,6 +131,7 @@ namespace PigeonCms
                     + " sect.WriteAccessCode sectWriteAccessCode, sect.WriteAccessLevel sectWriteAccessLevel "
                     + " FROM [" + this.TableName + "] t "
                     + " LEFT JOIN [" + this.TableName + "_Culture] c ON t.Id = c.ItemId "
+                    + " LEFT JOIN #__seo_Culture seoC ON t.SeoId = seoC.SeoId "
                     + " LEFT JOIN #__itemFieldValues attr ON t.Id = attr.ItemId "
                     + " LEFT JOIN #__categories categ ON t.CategoryId = categ.Id "
                     + " LEFT JOIN #__sections sect ON categ.SectionId = sect.Id "
@@ -216,6 +217,13 @@ namespace PigeonCms
                 {
                     sSql += " AND t.ThreadId = @ThreadId ";
                     myCmd.Parameters.Add(Database.Parameter(myProv, "ThreadId", filter.ThreadId));                   
+                }
+
+                //20170622 - seo slug
+                if (!string.IsNullOrEmpty(filter.SeoSlug))
+                {
+                    sSql += " AND (seoC.Slug = @SeoSlug) ";
+                    myCmd.Parameters.Add(Database.Parameter(myProv, "SeoSlug", filter.SeoSlug));
                 }
 
                 //datesrange filter

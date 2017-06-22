@@ -28,6 +28,7 @@ namespace PigeonCms
 		private bool noFollow = false;
         private Dictionary<string, string> titleTranslations = new Dictionary<string, string>();
         private Dictionary<string, string> descriptionTranslations = new Dictionary<string, string>();
+        private Dictionary<string, string> slugTranslations = new Dictionary<string, string>();
 
 
 
@@ -143,11 +144,34 @@ namespace PigeonCms
         }
 
 
+        /// <summary>
+        /// Slug in current culture
+        /// </summary>
+        [DataObjectField(false)]
+        public string Slug
+        {
+            get
+            {
+                string res = LabelsProvider.GetLocalizedTextFromDictionary(slugTranslations);
+                return res;
+            }
+        }
 
+        /// <summary>
+        /// Title in different culture
+        /// </summary>
+        [DataObjectField(false)]
+        public Dictionary<string, string> SlugTranslations
+        {
+            [DebuggerStepThrough()]
+            get { return slugTranslations; }
+            [DebuggerStepThrough()]
+            set { slugTranslations = value; }
+        }
 
         #endregion
 
-	}
+    }
 
 
     [Serializable]

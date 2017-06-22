@@ -396,10 +396,12 @@ namespace PigeonCms.Modules
 			var LitItemInfo = (Literal)e.Item.FindControl("LitItemInfo");
 			if (!string.IsNullOrEmpty(item.ExtId))
 				LitItemInfo.Text += "extId: <strong>" + item.ExtId + "</strong><br>";
-			if (this.ShowType)
+            if (item.SeoId > 0 && !string.IsNullOrEmpty(item.Seo.Slug))
+                LitItemInfo.Text += "slug: <strong>" + item.Seo.Slug + "</strong><br>";
+            if (this.ShowType)
 				LitItemInfo.Text += item.ItemTypeName + "<br>";
 			if (!string.IsNullOrEmpty(item.CssClass))
-				LitItemInfo.Text += "class: " + item.CssClass;
+				LitItemInfo.Text += "class: <strong>" + item.CssClass + "</strong>";
 
 
 			if (item.CategoryId > 0)

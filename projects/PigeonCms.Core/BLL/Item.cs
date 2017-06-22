@@ -1606,6 +1606,11 @@ namespace PigeonCms
             set { this.tagsTitle = value; }
         }
 
+        /// <summary>
+        /// seo slug strict
+        /// </summary>
+        public string SeoSlug { get; set; } = "";
+
 
         //custom fields
         public Utility.TristateBool CustomBool1

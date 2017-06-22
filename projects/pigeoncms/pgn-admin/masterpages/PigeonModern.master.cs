@@ -183,6 +183,12 @@ public partial class Masterpages_PigeonModern : BaseMasterPage
         Page.Header.Controls.Add(css1);
     }
 
+    protected void TxtContentFilter_Changed(object sender, EventArgs e)
+    {
+        //loadList();
+    }
+
+
     public override string RenderSuccess(string content)
     {
         const string HTML = @"<div class='alert alert-success alert-dismissable'>

@@ -21,7 +21,11 @@
     			$("body").addClass('blocked');
     		else
     			$("body").removeClass('blocked');
-    	}
+		}
+
+		function applyModuleFilter() {
+            //TODO
+		}
 	</script>
 
     <form id="form1" runat="server">
@@ -52,7 +56,8 @@
 
             </ul>
             <!-- search bar-->
-            <input type="text" placeholder="..." id="textboxSearch" class="textbox--search" />
+            <asp:TextBox runat="server" ID="TxtContentFilter" AutoPostBack="true" placeholder="..." CssClass="textbox--search" MaxLength="50" OnTextChanged="TxtContentFilter_Changed"></asp:TextBox>
+            <%--<input type="text" placeholder="..." id="textboxSearch" class="textbox--search" />--%>
 
             <!-- /.navbar-top-links -->
 

@@ -49,7 +49,8 @@ namespace PigeonCms
 				myCmd.Connection = myConn;
 
 				sSql = "SELECT t.Id, t.ResourceSet, t.DateUpdated, t.UserUpdated, "
-					+ " t.NoIndex, t.NoFollow, c.CultureName, c.Title, c.Description "
+					+ " t.NoIndex, t.NoFollow, c.CultureName, "
+                    + " c.Title, c.Description, c.Slug "
 					+ " FROM [" + this.TableName + "] t "
 					+ " LEFT JOIN [" + this.TableName + "_Culture] c ON t.Id = c.SeoId "
 					+ " WHERE t.Id = @Id ";
@@ -72,8 +73,10 @@ namespace PigeonCms
 						result.TitleTranslations.Add((string)myRd["cultureName"], (string)myRd["Title"]);
 					if (!Convert.IsDBNull(myRd["Description"]))
 						result.DescriptionTranslations.Add((string)myRd["cultureName"], (string)myRd["Description"]);
-					
-				}
+                    if (!Convert.IsDBNull(myRd["Slug"]))
+                        result.SlugTranslations.Add((string)myRd["cultureName"], (string)myRd["Slug"]);
+
+                }
 				myRd.Close();
 
 			}
@@ -230,14 +233,19 @@ namespace PigeonCms
             {
                 string sSql = "";
                 string descriptionValue = "";
+                string slugValue = "";
 
 
                 theObj.DescriptionTranslations.TryGetValue(item.Key, out descriptionValue);
                 if (string.IsNullOrEmpty(descriptionValue))
                     descriptionValue = "";
 
+                theObj.SlugTranslations.TryGetValue(item.Key, out slugValue);
+                if (string.IsNullOrEmpty(slugValue))
+                    slugValue = "";
+
                 //delete previous entry (if exists)
-				sSql = "DELETE FROM [" + this.TableName + "_culture] WHERE CultureName=@CultureName AND SeoId=@SeoId ";
+                sSql = "DELETE FROM [" + this.TableName + "_culture] WHERE CultureName=@CultureName AND SeoId=@SeoId ";
                 myCmd.CommandText = Database.ParseSql(sSql);
                 myCmd.Parameters.Clear();
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CultureName", item.Key));
@@ -245,14 +253,15 @@ namespace PigeonCms
                 myCmd.ExecuteNonQuery();
 
                 //insert current culture entry
-				sSql = "INSERT INTO [" + this.TableName + "_culture](CultureName, SeoId, Title, Description) "
-				+ " VALUES(@CultureName, @SeoId, @Title, @Description) ";
+				sSql = "INSERT INTO [" + this.TableName + "_culture](CultureName, SeoId, Title, Description, Slug) "
+				+ " VALUES(@CultureName, @SeoId, @Title, @Description, @Slug) ";
                 myCmd.CommandText = Database.ParseSql(sSql);
                 myCmd.Parameters.Clear();
                 myCmd.Parameters.Add(Database.Parameter(myProv, "CultureName", item.Key));
 				myCmd.Parameters.Add(Database.Parameter(myProv, "SeoId", theObj.Id));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "Title", item.Value));
                 myCmd.Parameters.Add(Database.Parameter(myProv, "Description", descriptionValue));
+                myCmd.Parameters.Add(Database.Parameter(myProv, "Slug", slugValue));
 
                 myCmd.ExecuteNonQuery();
             }

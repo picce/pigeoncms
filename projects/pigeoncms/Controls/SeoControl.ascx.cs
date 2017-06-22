@@ -31,40 +31,63 @@ public partial class Controls_SeoControl : PigeonCms.Controls.SeoControl
 
 		foreach (KeyValuePair<string, string> item in Config.CultureList)
 		{
-			//title
-			var txt1 = new TextBox();
-			txt1.ID = "TxtSeoTitle" + item.Value;
-			txt1.MaxLength = 200;
-			txt1.CssClass = "form-control";
-			txt1.ToolTip = item.Key;
-			LabelsProvider.SetLocalizedControlVisibility(this.ShowOnlyDefaultCulture, item.Key, txt1);
-			var group = new Panel();
-			group.CssClass = "form-group input-group";
-			group.Controls.Add(txt1);
+            //title
+            {
+                var txt1 = new TextBox();
+                txt1.ID = "TxtSeoTitle" + item.Value;
+                txt1.MaxLength = 200;
+                txt1.CssClass = "form-control";
+                txt1.ToolTip = item.Key;
+                LabelsProvider.SetLocalizedControlVisibility(this.ShowOnlyDefaultCulture, item.Key, txt1);
+                var group = new Panel();
+                group.CssClass = "form-group input-group";
+                group.Controls.Add(txt1);
 
-			Literal lit = new Literal();
-			if (!this.ShowOnlyDefaultCulture)
-				lit.Text = "<div class=\"input-group-addon\"><span>" + item.Value.Substring(0, 3) + "</span></div>";
-			group.Controls.Add(lit);
-			PanelTitle.Controls.Add(group);
+                Literal lit = new Literal();
+                if (!this.ShowOnlyDefaultCulture)
+                    lit.Text = "<div class=\"input-group-addon\"><span>" + item.Value.Substring(0, 3) + "</span></div>";
+                group.Controls.Add(lit);
+                PanelTitle.Controls.Add(group);
+            }
 
+            //slug
+            {
+                var txt1 = new TextBox();
+                txt1.ID = "TxtSeoSlug" + item.Value;
+                txt1.MaxLength = 255;
+                txt1.CssClass = "form-control";
+                txt1.ToolTip = item.Key;
+                LabelsProvider.SetLocalizedControlVisibility(this.ShowOnlyDefaultCulture, item.Key, txt1);
+                var group = new Panel();
+                group.CssClass = "form-group input-group";
+                group.Controls.Add(txt1);
 
-			var txt2 = new TextBox();
-			txt2.ID = "TxtSeoDescription" + item.Value;
-			//txt2.TextMode = TextBoxMode.MultiLine;
-			txt2.Rows = 2;
-			txt2.CssClass = "form-control";
-			txt2.ToolTip = item.Key;
-			LabelsProvider.SetLocalizedControlVisibility(this.ShowOnlyDefaultCulture, item.Key, txt2);
-			var group2 = new Panel();
-			group2.CssClass = "form-group input-group";
-			group2.Controls.Add(txt2);
+                Literal lit = new Literal();
+                if (!this.ShowOnlyDefaultCulture)
+                    lit.Text = "<div class=\"input-group-addon\"><span>" + item.Value.Substring(0, 3) + "</span></div>";
+                group.Controls.Add(lit);
+                PanelSlug.Controls.Add(group);
+            }
 
-			Literal lit2 = new Literal();
-			if (!this.ShowOnlyDefaultCulture)
-				lit2.Text = "<div class=\"input-group-addon\"><span>" + item.Value.Substring(0, 3) + "</span></div>";
-			group2.Controls.Add(lit2);
-			PanelDescription.Controls.Add(group2);
+            //description
+            {
+                var txt1 = new TextBox();
+                txt1.ID = "TxtSeoDescription" + item.Value;
+                //txt2.TextMode = TextBoxMode.MultiLine;
+                txt1.Rows = 2;
+                txt1.CssClass = "form-control";
+                txt1.ToolTip = item.Key;
+                LabelsProvider.SetLocalizedControlVisibility(this.ShowOnlyDefaultCulture, item.Key, txt1);
+                var group = new Panel();
+                group.CssClass = "form-group input-group";
+                group.Controls.Add(txt1);
+
+                Literal lit = new Literal();
+                if (!this.ShowOnlyDefaultCulture)
+                    lit.Text = "<div class=\"input-group-addon\"><span>" + item.Value.Substring(0, 3) + "</span></div>";
+                group.Controls.Add(lit);
+                PanelDescription.Controls.Add(group);
+            }
 
 		}
     }
@@ -81,13 +104,23 @@ public partial class Controls_SeoControl : PigeonCms.Controls.SeoControl
 
 		foreach (KeyValuePair<string, string> item in Config.CultureList)
 		{
-			TextBox t1 = new TextBox();
-			t1 = (TextBox)PanelTitle.FindControl("TxtSeoTitle" + item.Value);
-			t1.Text = "";
+            {
+                var t1 = new TextBox();
+                t1 = (TextBox)PanelTitle.FindControl("TxtSeoTitle" + item.Value);
+                t1.Text = "";
+            }
 
-			TextBox t2 = new TextBox();
-			t2 = (TextBox)PanelTitle.FindControl("TxtSeoDescription" + item.Value);
-			t2.Text = "";
+            {
+                var t1 = new TextBox();
+                t1 = (TextBox)PanelTitle.FindControl("TxtSeoSlug" + item.Value);
+                t1.Text = "";
+            }
+
+            {
+                var t1 = new TextBox();
+                t1 = (TextBox)PanelTitle.FindControl("TxtSeoDescription" + item.Value);
+                t1.Text = "";
+            }
 		}
     }
 
@@ -97,16 +130,28 @@ public partial class Controls_SeoControl : PigeonCms.Controls.SeoControl
 		obj.Seo.NoIndex = ChkNoIndex.Checked;
 
 		obj.Seo.TitleTranslations.Clear();
+        obj.Seo.SlugTranslations.Clear();
 		obj.Seo.DescriptionTranslations.Clear();
 		foreach (KeyValuePair<string, string> item in Config.CultureList)
 		{
-			TextBox t1 = new TextBox();
-			t1 = (TextBox)PanelTitle.FindControl("TxtSeoTitle" + item.Value);
-			obj.Seo.TitleTranslations.Add(item.Key, t1.Text);
-
-			var txt2 = new TextBox();
-			txt2 = (TextBox)PanelTitle.FindControl("TxtSeoDescription" + item.Value);
-			obj.Seo.DescriptionTranslations.Add(item.Key, txt2.Text);
+            //title
+            {
+                var t1 = new TextBox();
+                t1 = (TextBox)PanelTitle.FindControl("TxtSeoTitle" + item.Value);
+                obj.Seo.TitleTranslations.Add(item.Key, t1.Text);
+            }
+            //slug
+            {
+                var t1 = new TextBox();
+                t1 = (TextBox)PanelTitle.FindControl("TxtSeoSlug" + item.Value);
+                obj.Seo.SlugTranslations.Add(item.Key, t1.Text);
+            }
+            //description
+            {
+                var t1 = new TextBox();
+                t1 = (TextBox)PanelTitle.FindControl("TxtSeoDescription" + item.Value);
+                obj.Seo.DescriptionTranslations.Add(item.Key, t1.Text);
+            }
 		}
     }
 
@@ -117,19 +162,31 @@ public partial class Controls_SeoControl : PigeonCms.Controls.SeoControl
 
 		foreach (KeyValuePair<string, string> item in Config.CultureList)
 		{
-			string sTitleTranslation = "";
-			TextBox t1 = new TextBox();
-			t1 = (TextBox)PanelTitle.FindControl("TxtSeoTitle" + item.Value);
-			obj.Seo.TitleTranslations.TryGetValue(item.Key, out sTitleTranslation);
-			t1.Text = sTitleTranslation;
-
-			string sDescriptionTraslation = "";
-			var txt2 = new TextBox();
-			txt2 = (TextBox)PanelTitle.FindControl("TxtSeoDescription" + item.Value);
-			obj.Seo.DescriptionTranslations.TryGetValue(item.Key, out sDescriptionTraslation);
-			txt2.Text = sDescriptionTraslation;
+            //title
+            {
+                string sTranslation = "";
+                var t1 = new TextBox();
+                t1 = (TextBox)PanelTitle.FindControl("TxtSeoTitle" + item.Value);
+                obj.Seo.TitleTranslations.TryGetValue(item.Key, out sTranslation);
+                t1.Text = sTranslation;
+            }
+            //slug
+            {
+                string sTranslation = "";
+                var t1 = new TextBox();
+                t1 = (TextBox)PanelTitle.FindControl("TxtSeoSlug" + item.Value);
+                obj.Seo.SlugTranslations.TryGetValue(item.Key, out sTranslation);
+                t1.Text = sTranslation;
+            }
+            //description
+            {
+                string sTranslation = "";
+                var t1 = new TextBox();
+                t1 = (TextBox)PanelTitle.FindControl("TxtSeoDescription" + item.Value);
+                obj.Seo.DescriptionTranslations.TryGetValue(item.Key, out sTranslation);
+                t1.Text = sTranslation;
+            }
 		}
     }
-
 
 }

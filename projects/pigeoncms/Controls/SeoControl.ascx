@@ -13,9 +13,14 @@
 	<%=base.GetLabel("LblNoFollow", "NoFollow", ChkNoFollow, true)%>
 </div>
 
-<div class="form-group col-md-12 col-lg-12 spacing-detail">
+<div class="form-group col-md-6 spacing-detail">
 	<%=base.GetLabel("LblTitle", "Title", null, true)%>
 	<asp:Panel runat="server" ID="PanelTitle"></asp:Panel>
+</div>
+
+<div class="form-group col-md-6 spacing-detail">
+	<%=base.GetLabel("LblSlug", "Slug", null, true)%>
+	<asp:Panel runat="server" ID="PanelSlug"></asp:Panel>
 </div>
 
 <div class="form-group col-sm-12 spacing-detail">

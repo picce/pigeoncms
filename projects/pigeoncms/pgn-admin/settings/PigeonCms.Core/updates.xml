@@ -396,6 +396,25 @@ GO
 ]]>
 
   </item>
+
+  <item id="10" date="2017-06-22" dev="https://github.com/picce/" notes="added slug on seo table and provider">
+    <![CDATA[
+    
+    ALTER TABLE #__seo_Culture ADD
+	    slug nvarchar(255) NULL
+    GO    
+    
+    update #__seo_Culture set slug='' where slug is null
+    GO
+		
+    --version fallback for manual db upgrade
+    INSERT INTO #__dbVersion(componentFullName, versionId, versionDate, versionDev, versionNotes, dateUpdated, userUpdated)
+    VALUES('PigeonCms.Core', 10/*version*/, GETDATE(), '', '', GETDATE(), 'MANUAL')
+    GO
+
+]]>
+
+  </item>
   
 </updates>
 

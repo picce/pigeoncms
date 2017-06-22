@@ -8,12 +8,6 @@
 <%@ Register Src="~/Controls/ContentEditorControl.ascx" TagName="ContentEditorControl" TagPrefix="uc1" %>
 <%@ Register Src="~/Controls/PageComposer/PageComposer.ascx" TagName="PageComposer" TagPrefix="uc1" %>
 
-<%--
-<%@ Register Src="~/Controls/FieldContainer/FieldContainer.ascx" TagPrefix="aq" TagName="FieldContainer" %>
-<%@ Register Src="~/Controls/ImageUpload/ImageUploadModern.ascx" TagPrefix="aq" TagName="ImageUploadModern" %>
-<%@ Register Src="~/Controls/ImageUpload/FileUploadModern.ascx" TagPrefix="aq" TagName="FileUploadModern" %>
---%>
-
 
 <script type="text/javascript">
     // <!CDATA[
@@ -119,7 +113,7 @@
                                         </asp:DropDownList>
                                     </div>
                                     <asp:Button ID="BtnNew" runat="server" Text="<%$ Resources:PublicLabels, CmdNew %>"
-                                        Visible="false" CssClass="btn btn-primary" />
+                                        Visible="false" CssClass="btn btn-primary control-BtnNew" />
                                 </div>
                             </div>
                         </div>
@@ -145,19 +139,19 @@
                         <div id="collapseOne" class="panel-collapse collapse in">
                             <div class="panel-body">
                                 <div class="form-group col-lg-3 col-md-6 form-select-wrapper">
-                                    <asp:DropDownList ID="DropEnabledFilter" runat="server" AutoPostBack="true" CssClass="form-control">
+                                    <asp:DropDownList ID="DropEnabledFilter" runat="server" AutoPostBack="true" CssClass="form-control control-DropEnabledFilter">
                                     </asp:DropDownList>
                                 </div>
                                 <div class="form-group col-lg-3 col-md-6 form-select-wrapper">
-                                    <asp:DropDownList ID="DropSectionsFilter" runat="server" AutoPostBack="true" CssClass="form-control">
+                                    <asp:DropDownList ID="DropSectionsFilter" runat="server" AutoPostBack="true" CssClass="form-control control-DropSectionsFilter">
                                     </asp:DropDownList>
                                 </div>
                                 <div class="form-group col-lg-3 col-md-6 form-select-wrapper">
-                                    <asp:DropDownList ID="DropCategoriesFilter" runat="server" AutoPostBack="true" CssClass="form-control">
+                                    <asp:DropDownList ID="DropCategoriesFilter" runat="server" AutoPostBack="true" CssClass="form-control control-DropCategoriesFilter">
                                     </asp:DropDownList>
                                 </div>
                                 <div class="form-group col-lg-3 col-md-6 form-select-wrapper">
-                                    <asp:DropDownList ID="DropItemTypesFilter" runat="server" AutoPostBack="true" CssClass="form-control">
+                                    <asp:DropDownList ID="DropItemTypesFilter" runat="server" AutoPostBack="true" CssClass="form-control control-DropItemTypesFilter">
                                     </asp:DropDownList>
                                 </div>
 
