@@ -95,6 +95,22 @@ namespace PigeonCms.Modules
 		protected abstract HiddenField _HidCurrentItemType { get; }
         //protected abstract IPageComposer _PageComposer { get; }
 
+        //filter from masterpage search input
+        protected string MasterFilter
+        {
+            get
+            {
+                string res = "";
+                if (ViewState["MasterFilter"] != null)
+                    res = (string)ViewState["MasterFilter"];
+                return res;
+            }
+            set
+            {
+                ViewState["MasterFilter"] = value;
+            }
+        }
+
         #endregion
 
         #region init
@@ -177,13 +193,16 @@ namespace PigeonCms.Modules
             // Recreate form to handle control events and viewstate
             // TODO: avoid on "list mode" postbacks
             ItemsProxy itemsProxy;
-            if (!string.IsNullOrWhiteSpace(Request.Params["__EVENTARGUMENT"]))
+            string eventArg = Request.Params["__EVENTARGUMENT"];
+            if (!string.IsNullOrWhiteSpace(eventArg))
             {
-                if (Regex.IsMatch(Request.Params["__EVENTARGUMENT"], @"^[0-9]+\|.*"))
+                //only edit argument
+                //sample
+                if (Regex.IsMatch(Request.Params["__EVENTARGUMENT"], @"^edit\|[0-9]+\|.*"))
                 {
                     string[] arguments = Request.Params["__EVENTARGUMENT"].Split('|');
-                    int argItemId = Convert.ToInt32(arguments[0]);
-                    string argItemType = arguments[1];
+                    int argItemId = Convert.ToInt32(arguments[1]);
+                    string argItemType = arguments[2];
 
                     itemsProxy = new ItemsProxy(argItemType, true, true);
                     itemsProxy.LogExceptions = false;
@@ -256,6 +275,12 @@ namespace PigeonCms.Modules
 					updateSortedTable();
 					loadList();
 				}
+                else if (eventArg.StartsWith("search.pigeon|"))
+                {
+                    string data = eventArg.Split('|').ToList()[1];
+                    this.MasterFilter = data;
+                    loadList();
+                }
                 else if (doEdit)
                 {
                     editRow(editingItem, null);
@@ -371,7 +396,7 @@ namespace PigeonCms.Modules
             var LnkEdit = (LinkButton)e.Item.FindControl("LnkEdit");
             if (LnkEdit != null)
             {
-                LnkEdit.OnClientClick = "__doPostBack('" + LnkEdit.ClientID + "', '" + item.Id + "|" + item.ItemTypeName + "'); return false;";
+                LnkEdit.OnClientClick = "__doPostBack('" + LnkEdit.ClientID + "', 'edit|" + item.Id + "|" + item.ItemTypeName + "'); return false;";
             }
 
 

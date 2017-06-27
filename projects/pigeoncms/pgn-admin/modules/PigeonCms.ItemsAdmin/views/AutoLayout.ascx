@@ -26,6 +26,14 @@
 
             mst_initSort();
 
+            //subscribe global search
+            $(document).on('search.pigeon', function (e, data) {
+                var upd1 = '<%=Upd1.ClientID%>';
+                if (upd1 != null) {
+                    __doPostBack(upd1, 'search.pigeon|' + data.value);
+                }
+            })
+
         });
     }
 
@@ -605,6 +613,7 @@
                                 <div class="btn-group-follow clearfix">
                                     <asp:Button ID="BtnCancel" runat="server" Text="<%$ Resources:PublicLabels, CmdCancel %>" CssClass="btnCancel btn btn-default btn-xs btn-modern btn-modern--cancel" CausesValidation="false" />
                                     <asp:Button ID="BtnSave" runat="server" Text="<%$ Resources:PublicLabels, CmdSave %>" CssClass="btnSave btn btn-primary btn-xs btn-modern" OnClientClick="return aq_composer_save();" />
+                                    <asp:Button ID="BtnApply" runat="server" Text="<%$ Resources:PublicLabels, CmdApply %>" CssClass="btnApply btn btn-primary btn-xs btn-modern" OnClientClick="return aq_composer_save();" />
                                     <div class="btn-group-alert">
                                         <asp:Label ID="LblErrInsert" runat="server" Text=""></asp:Label>
                                         <asp:Label ID="LblOkInsert" runat="server" Text=""></asp:Label>
