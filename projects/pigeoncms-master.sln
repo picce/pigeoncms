@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26403.7
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "pigeoncms", "pigeoncms\", "{9BBB1122-2347-44A8-A085-7D86DEFB9E7E}"
 	ProjectSection(WebsiteProperties) = preProject
@@ -37,6 +37,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D8A66CCF-5E1D-4B0B-9CC8-E72776B68FB2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Acme.MyPrj", "Acme.MyPrj\Acme.MyPrj.csproj", "{4A2C46B0-7A0C-4C32-B276-DFE055BA8891}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PigeonCms.Test.Core", "PigeonCms.Test\PigeonCms.Test.Core.csproj", "{AC56D118-7456-4629-8B12-4441D4639EF9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -100,6 +102,18 @@ Global
 		{4A2C46B0-7A0C-4C32-B276-DFE055BA8891}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{4A2C46B0-7A0C-4C32-B276-DFE055BA8891}.Release|x86.ActiveCfg = Release|Any CPU
 		{4A2C46B0-7A0C-4C32-B276-DFE055BA8891}.Release|x86.Build.0 = Release|Any CPU
+		{AC56D118-7456-4629-8B12-4441D4639EF9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AC56D118-7456-4629-8B12-4441D4639EF9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AC56D118-7456-4629-8B12-4441D4639EF9}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{AC56D118-7456-4629-8B12-4441D4639EF9}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{AC56D118-7456-4629-8B12-4441D4639EF9}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{AC56D118-7456-4629-8B12-4441D4639EF9}.Debug|x86.Build.0 = Debug|Any CPU
+		{AC56D118-7456-4629-8B12-4441D4639EF9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AC56D118-7456-4629-8B12-4441D4639EF9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AC56D118-7456-4629-8B12-4441D4639EF9}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{AC56D118-7456-4629-8B12-4441D4639EF9}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{AC56D118-7456-4629-8B12-4441D4639EF9}.Release|x86.ActiveCfg = Release|Any CPU
+		{AC56D118-7456-4629-8B12-4441D4639EF9}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
