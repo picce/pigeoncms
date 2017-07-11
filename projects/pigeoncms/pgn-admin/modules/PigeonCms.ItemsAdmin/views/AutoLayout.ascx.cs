@@ -60,8 +60,9 @@ public partial class Controls_AutoLayout : PigeonCms.Modules.AutoLayoutItemsAdmi
 	protected override ITextControl _TxtCssClass { get { return TxtCssClass; } }
 	protected override ITextControl _TxtExtId { get { return TxtExtId; } }
 	protected override Panel _PanelTitle { get { return PanelTitle; } }
+    protected override HiddenField _MasterFilter { get { return MasterFilter; } }
 
-	protected override TextBox _TxtItemDate { get { return TxtItemDate; } }
+    protected override TextBox _TxtItemDate { get { return TxtItemDate; } }
 	protected override TextBox _TxtValidFrom { get { return TxtValidFrom; } }
 	protected override TextBox _TxtValidTo { get { return TxtValidTo; } }
 

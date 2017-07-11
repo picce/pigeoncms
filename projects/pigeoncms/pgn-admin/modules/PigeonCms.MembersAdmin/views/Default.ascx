@@ -3,6 +3,28 @@
 <%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="cc1" %>
 
 
+<script type="text/javascript">
+    // <!CDATA[
+
+    function pageLoad(sender, args) {
+        $(document).ready(function () {
+
+            mst_initSort();
+
+            //subscribe global search
+            $(document).on('search.pigeon', function (e, data) {
+                var upd1 = '<%=Upd1.ClientID%>';
+                if (upd1 != null) {
+                    __doPostBack(upd1, 'search.pigeon|' + data.value);
+                }
+            })
+
+        });
+    }
+
+	// ]]>
+</script>
+
 <asp:ScriptManager runat="server" EnablePageMethods="true"></asp:ScriptManager>
 <asp:UpdateProgress ID="UpdateProgress1" runat="server" DisplayAfter="1" AssociatedUpdatePanelID="Upd1">
     <ProgressTemplate>
@@ -19,6 +41,9 @@
 	<div class="row">
 
 		<asp:Panel runat="server" ID="PanelSee">
+
+                <asp:HiddenField runat="server" ID="MasterFilter" />
+
 
 				<%--#toolbar--%>
 				<div class="col-lg-12">
