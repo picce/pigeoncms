@@ -106,6 +106,8 @@
 
             <asp:Panel runat="server" ID="PanelSee">
 
+                <asp:HiddenField runat="server" ID="MasterFilter" />
+
                 <%--#toolbar--%>
                 <div class="col-lg-12">
                     <div class="panel panel-default panel-filter panel-filer--new clearfix">
@@ -611,9 +613,9 @@
                             <span class="title-modern-insert"><%=TitleItem %></span>
                             <div class="btn-group clearfix">
                                 <div class="btn-group-follow clearfix">
-                                    <asp:Button ID="BtnCancel" runat="server" Text="<%$ Resources:PublicLabels, CmdCancel %>" CssClass="btnCancel btn btn-default btn-xs btn-modern btn-modern--cancel" CausesValidation="false" />
-                                    <asp:Button ID="BtnSave" runat="server" Text="<%$ Resources:PublicLabels, CmdSave %>" CssClass="btnSave btn btn-primary btn-xs btn-modern" OnClientClick="return aq_composer_save();" />
-                                    <asp:Button ID="BtnApply" runat="server" Text="<%$ Resources:PublicLabels, CmdApply %>" CssClass="btnApply btn btn-primary btn-xs btn-modern" OnClientClick="return aq_composer_save();" />
+                                    <asp:Button ID="BtnCancel" style="width:calc(32%);" runat="server" Text="<%$ Resources:PublicLabels, CmdCancel %>" CssClass="btnCancel btn btn-default btn-xs btn-modern btn-modern--cancel" CausesValidation="false" />
+                                    <asp:Button ID="BtnSave" style="width:calc(32%);" runat="server" Text="<%$ Resources:PublicLabels, CmdSave %>" CssClass="btnSave btn btn-primary btn-xs btn-modern" OnClientClick="return aq_composer_save();" />
+                                    <asp:Button ID="BtnApply" style="width:calc(32%);" runat="server" Text="<%$ Resources:PublicLabels, CmdApply %>" CssClass="btnApply btn btn-primary btn-xs btn-modern" OnClientClick="return aq_composer_save();" />
                                     <div class="btn-group-alert">
                                         <asp:Label ID="LblErrInsert" runat="server" Text=""></asp:Label>
                                         <asp:Label ID="LblOkInsert" runat="server" Text=""></asp:Label>

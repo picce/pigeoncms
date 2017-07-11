@@ -31,7 +31,7 @@
     <form id="form1" runat="server">
     <div id="wrapper">
 
-        <!-- Navigation -->
+        <%--Navigation--%>
         <nav class="navbar navbar-default navbar-static-top navbar-modern" role="navigation" style="margin-bottom: 0">
             <div class="navbar-header clearfix">
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -56,7 +56,7 @@
 
             </ul>
             <!-- search bar-->
-            <asp:TextBox runat="server" ID="TxtContentFilter" AutoPostBack="true" placeholder="..." CssClass="js-txtSearch textbox--search" MaxLength="50" OnTextChanged="TxtContentFilter_Changed"></asp:TextBox>
+            <asp:TextBox runat="server" ID="TxtContentFilter" AutoPostBack="false" placeholder="..." CssClass="js-txtSearch textbox--search" MaxLength="50" OnTextChanged="TxtContentFilter_Changed"></asp:TextBox>
             <%--<input type="text" placeholder="..." id="textboxSearch" class="textbox--search" />--%>
 
             <!-- /.navbar-top-links -->

@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Data;
 using System.Configuration;
 using System.Collections;
@@ -26,6 +28,18 @@ public partial class Controls_Default : PigeonCms.MemberEditorControl
         if (!Page.IsPostBack)
         {
             loadList();
+        }
+        else
+        {
+            string eventArg = HttpContext.Current.Request["__EVENTARGUMENT"];
+            if (eventArg.StartsWith("search.pigeon|"))
+            {
+                //event triggered by PigeonModern.master js
+                //event listener needed in module
+                string data = eventArg.Split('|').ToList()[1];
+                this.MasterFilter.Value = data;
+                loadList();
+            }
         }
     }
 
@@ -314,8 +328,21 @@ public partial class Controls_Default : PigeonCms.MemberEditorControl
         else
             list = Membership.GetAllUsers();
 
-		var ds = new PagedDataSource();
-		ds.DataSource = list;
+
+        //MasterFilter generic filter
+        var listOf = list.Cast<MembershipUser>().Select(m => m).ToList();
+        if (!string.IsNullOrEmpty(this.MasterFilter.Value))
+        {
+            listOf = (listOf.Where(i =>
+            {
+                return (
+                    i.Email.Contains(this.MasterFilter.Value) ||
+                    Roles.GetRolesForUser(i.UserName).Contains(this.MasterFilter.Value) );
+            })).ToList();
+        }
+
+        var ds = new PagedDataSource();
+		ds.DataSource = listOf;
 		ds.AllowPaging = true;
 		ds.PageSize = base.ListPageSize;
 		ds.CurrentPageIndex = base.ListCurrentPage;
