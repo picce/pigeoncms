@@ -178,6 +178,7 @@
     <Compile Include="DAL\MessagesManager.cs" />
     <Compile Include="DAL\LogItemsManager.cs" />
     <Compile Include="DAL\LabelsManager.cs" />
+    <Compile Include="Helpers\RedisStore.cs" />
     <Compile Include="Helpers\CacheManager.cs" />
     <Compile Include="Helpers\Config.cs" />
     <Compile Include="BLL\Culture.cs" />
