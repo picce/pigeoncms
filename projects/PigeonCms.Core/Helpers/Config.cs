@@ -201,6 +201,18 @@ namespace PigeonCms
             get { return getConfigValue("RedisAppName", "Acme.PgnCore"); }
         }
 
+        public static int RedisDefaultExpireSeconds
+        {
+            get
+            {
+                int res = 0;
+                string val = GetConfigValue("RedisDefaultExpireSeconds", "600");
+                int.TryParse(val, out res);
+
+                return res;
+            }
+        }
+
         /// <summary>
         /// used by fckeditr js plugin
         /// </summary>

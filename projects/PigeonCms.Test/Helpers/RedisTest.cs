@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using StackExchange.Redis;
 using System.Threading.Tasks;
 using PigeonCms.Core.Helpers;
+using Newtonsoft.Json;
 
 namespace PigeonCms.UT.Core
 {
@@ -22,7 +23,8 @@ namespace PigeonCms.UT.Core
 
         private TestContext testContextInstance;
         private IDatabase redis;
-
+        private ConnectionMultiplexer redisConn;
+        private RedisProvider rp = new RedisProvider("RedisTest");
         /// <summary>
         ///Gets or sets the test context which provides
         ///information about and functionality for the current test run.
@@ -62,6 +64,7 @@ namespace PigeonCms.UT.Core
         public void MyTestInitialize()
         {
             redis = RedisStore.RedisCache;
+            redisConn = RedisStore.Connection;
         }
 
         //Use TestCleanup to run code after each test has run
@@ -72,7 +75,7 @@ namespace PigeonCms.UT.Core
         //
         #endregion
 
-        const string TEST_KEY = "pigeoncms.test.key1";
+        const string TEST_KEY = "key1";
         const string TEST_VALUE = "hello this is a test value";
 
 
@@ -82,11 +85,53 @@ namespace PigeonCms.UT.Core
         [TestMethod()]
         public void WriteRead()
         {
-            redis.StringSet(TEST_KEY, TEST_VALUE);
-            string actual = redis.StringGet(TEST_KEY);
+            redis.StringSet(rp.K(TEST_KEY), TEST_VALUE, rp.Exp(new TimeSpan(0,0,20)));
+            string actual = redis.StringGet(rp.K(TEST_KEY));
 
             Assert.AreEqual(TEST_VALUE, actual);
         }
+
+        /// <summary>
+        ///test for StringSet and StringGet methods
+        ///</summary>
+        [TestMethod()]
+        public void WriteReadObjSerialized()
+        {
+            // Store to cache
+            redis.StringSet(rp.K("employee", "id", "25"), 
+                JsonConvert.SerializeObject(new EmployeeTest(25, "Robb Stark")),
+                rp.Exp(new TimeSpan(0,1,0)));
+
+            // Retrieve from cache
+            EmployeeTest e25 = JsonConvert.DeserializeObject<EmployeeTest>(
+                redis.StringGet(rp.K("employee", "id", "25")));
+
+            Assert.AreEqual(e25.Id, 25);
+            Assert.AreEqual(e25.Name, "Robb Stark");
+        }
+
+        [TestMethod()]
+        public void SubscribeTest()
+        {
+            ISubscriber sub = redisConn.GetSubscriber();
+            sub.Subscribe("messages", (channel, message) => {
+                System.Diagnostics.Debug.WriteLine((string)message);
+            });
+
+            Assert.IsTrue(true);
+        }
+
+        [TestMethod()]
+        public void PublishTest()
+        {
+            ISubscriber sub = redisConn.GetSubscriber();
+
+            sub.Publish("messages", "hello");
+
+            Assert.IsTrue(true);
+        }
+
+
 
         [TestMethod()]
         public void CheckDelete()
@@ -155,11 +200,23 @@ namespace PigeonCms.UT.Core
             {
                 var year = redis.HashIncrement(hashKey, "year", 1);
                 var year2 = redis.HashDecrement(hashKey, "year", 1);
-
+                
                 Assert.IsTrue(year == 1981);
                 Assert.IsTrue(year2 == 1980);
             }
 
+        }
+
+        class EmployeeTest
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+
+            public EmployeeTest(int EmployeeId, string Name)
+            {
+                this.Id = EmployeeId;
+                this.Name = Name;
+            }
         }
     }
 
