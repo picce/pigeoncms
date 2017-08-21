@@ -19,7 +19,7 @@ namespace PigeonCms
             get
             {
                 string res = "";
-                if (HttpContext.Current.User.Identity.IsAuthenticated)
+                if (HttpContext.Current != null && HttpContext.Current.User.Identity.IsAuthenticated)
                 {
                     res = HttpContext.Current.User.Identity.Name;
                 }
@@ -32,7 +32,7 @@ namespace PigeonCms
             get
             {
                 bool res = false;
-                if (HttpContext.Current.User != null)
+                if (HttpContext.Current != null && HttpContext.Current.User != null)
                     res = HttpContext.Current.User.Identity.IsAuthenticated;
                 return res;
             }
