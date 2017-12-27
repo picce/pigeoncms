@@ -186,6 +186,34 @@ namespace PigeonCms
         }
 
         /// <summary>
+        /// redis server connection string
+        /// </summary>
+        public static string RedisConnection
+        {
+            get { return getConfigValue("RedisConnection"); }
+        }
+
+        /// <summary>
+        /// redis app name, used to avoid same keys on redis server for different website instances
+        /// </summary>
+        public static string RedisAppName
+        {
+            get { return getConfigValue("RedisAppName", "Acme.PgnCore"); }
+        }
+
+        public static int RedisDefaultExpireSeconds
+        {
+            get
+            {
+                int res = 0;
+                string val = GetConfigValue("RedisDefaultExpireSeconds", "600");
+                int.TryParse(val, out res);
+
+                return res;
+            }
+        }
+
+        /// <summary>
         /// used by fckeditr js plugin
         /// </summary>
         [Obsolete("", true)]

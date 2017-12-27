@@ -459,6 +459,9 @@ namespace PigeonCms
                 int counter = 0;
                 foreach (FileMetaInfo img in this.Images)
                 {
+                    if (img.IsFolder)
+                        continue;
+
                     if (counter == 0)
                         firstImg = img;
                     if (string.IsNullOrEmpty(defaultImageName))
