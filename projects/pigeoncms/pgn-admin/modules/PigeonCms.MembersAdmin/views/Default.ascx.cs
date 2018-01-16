@@ -337,6 +337,7 @@ public partial class Controls_Default : PigeonCms.MemberEditorControl
             {
                 return (
                     i.Email.Contains(this.MasterFilter.Value) ||
+                    i.UserName.Contains(this.MasterFilter.Value) ||
                     Roles.GetRolesForUser(i.UserName).Contains(this.MasterFilter.Value) );
             })).ToList();
         }
