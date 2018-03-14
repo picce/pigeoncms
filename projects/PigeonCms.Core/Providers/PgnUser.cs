@@ -19,7 +19,9 @@ namespace PigeonCms
             get
             {
                 string res = "";
-                if (HttpContext.Current != null && HttpContext.Current.User.Identity.IsAuthenticated)
+                if (HttpContext.Current != null 
+                    && HttpContext.Current.User.Identity.IsAuthenticated
+                    && HttpContext.Current.User.Identity.Name != null)
                 {
                     res = HttpContext.Current.User.Identity.Name;
                 }

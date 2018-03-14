@@ -5,6 +5,7 @@ using System.Collections.Generic;
 
 namespace PigeonCms
 {
+    [Serializable]
     public class ModuleType: XmlType
     {
         public class EditContent

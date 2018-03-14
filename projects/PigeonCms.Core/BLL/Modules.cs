@@ -31,6 +31,7 @@ namespace PigeonCms
         MenuContent = 3
     }
 
+    [Serializable]
     [DebuggerDisplay("Id={id}, Name={moduleNamespace}{moduleName}")]
     public class Module: ITableWithPermissions, ITableWithOrdering
     {

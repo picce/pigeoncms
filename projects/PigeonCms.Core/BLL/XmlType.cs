@@ -16,6 +16,7 @@ using PigeonCms;
 
 namespace PigeonCms
 {
+    [Serializable]
     public class XmlType
     {
         public class IncludeFile
